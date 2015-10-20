@@ -1,3 +1,5 @@
+MSG=
+
 docs:
 	grunt
 	jsdoc build/admin3.js
