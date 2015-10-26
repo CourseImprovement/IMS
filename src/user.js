@@ -54,6 +54,10 @@ User.prototype.getAnswer = function(sid, qid){
 	return $(this._xml).find('semester[code=' + sem + '] survey[id=' + sid + '] answer[qid=' + qid + ']').text();
 }
 
+User.prototype.getFullName = function(){
+
+}
+
 User.prototype.getSurvey = function(sid){
 
 }
@@ -62,6 +66,7 @@ User.prototype.addSurvey = function(sid){
 
 }
 
+// GROUP: Roles
 User.prototype.getRole = function(){
 
 }
@@ -81,6 +86,7 @@ User.prototype.isInstructor = function(){
 User.prototype.setRole = function(){
 
 }
+// END GROUP: Roles
 
 User.prototype.getLeaderTgl = function(){
 
@@ -136,6 +142,22 @@ User.prototype.getHoursAsTgl = function(){
 }
 
 User.prototype.getHoursAsAim = function(){
+
+}
+
+User.prototype.getTargetHours = function(){
+
+}
+
+User.prototype.getWeeklyReflections = function(){
+
+}
+
+User.prototype.getUrl = function(){
+
+}
+
+User.prototype.getUrlAs = function(email){
 
 }
 
