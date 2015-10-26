@@ -169,9 +169,9 @@ User.prototype.graph = {
 	},
 	instructorStandardAsTgl: function(){
 
-	}
+	},
 	instructorHoursAsAim: function(){
-		
+
 	}
 }
 
