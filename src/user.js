@@ -153,12 +153,26 @@ User.prototype.getWeeklyReflections = function(){
 
 }
 
-User.prototype.getUrl = function(){
+User.prototype.redirectTo = function(){
 
 }
 
-User.prototype.getUrlAs = function(email){
+User.prototype.graph = {
+	instructorStandard: function(name){
 
+	},
+	instructorHours: function(){
+
+	},
+	instructorHoursAsTgl: function(){
+
+	},
+	instructorStandardAsTgl: function(){
+
+	}
+	instructorHoursAsAim: function(){
+		
+	}
 }
 
 User.prototype.getCourses = function(){
