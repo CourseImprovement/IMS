@@ -26,8 +26,9 @@ function User(obj){
  * @return {[type]} [description]
  */
 User.getCurrent = function(){
-	if (!window._currentUser)
-		window._currentUser = new User({email: ims.aes.value.ce, current = true});
+	if (!window._currentUser){
+		window._currentUser = new User({email: ims.aes.value.ce, current: true});
+	}
 	return window._currentUser;
 }
 

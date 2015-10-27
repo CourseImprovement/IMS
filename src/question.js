@@ -1,5 +1,10 @@
-function Question(xml){
-
+function Question(xml, survey){
+	this._answer = $(xml).text();
+	this._survey = survey;
+	this._xml = xml;
+	this._id = $(xml).attr('qid');
+	this._surveyId = survey.id;
+	this._text = $(Survey.getConfig()).find('survey[id=' + this._surveyId + '] question[id=' + this._id + '] text').text();
 }
 
 /**
@@ -7,7 +12,7 @@ function Question(xml){
  * @return {[type]} [description]
  */
 Question.prototype.getText = function(){
-
+	return this._text;
 }
 
 /**
@@ -15,7 +20,7 @@ Question.prototype.getText = function(){
  * @return {[type]} [description]
  */
 Question.prototype.getAnswer = function(){
-	
+	return this._answer;
 }
 
 /**
@@ -23,14 +28,14 @@ Question.prototype.getAnswer = function(){
  * @return {Boolean} [description]
  */
 Question.prototype.hasAnswer = function(){
-
+	return this.getText() && this.getText().length > 0;
 }
 
 /**
  * Internal function to clean the answer based on the configurations
  * @return {[type]} [description]
  */
-Question.prototype.cleanAnswer = function(){
+Question.prototype._cleanAnswer = function(){
 
 }
 

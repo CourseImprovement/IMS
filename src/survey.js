@@ -1,5 +1,31 @@
 function Survey(xml){
 	this._course = $(xml).attr('course');
+	this._xml = xml;
+	this.id = $(xml).attr('id');
+	this._config = $(Survey.getConfig()).find('survey[id=' + this.id + ']');
+	this._name = $(this._config).attr('name');
+	this._placement = $(this._config).attr('placement');
+	this._week = this.getName().split(': ')[1];
+	this._answers = [];
+	this._setAnswers();
+}
+
+/**
+ * Get the basic survey config file
+ * @return {[type]} [description]
+ */
+Survey.getConfig = function(){
+	if (!ims._config){
+		ims._config = ims.sharepoint.getSurveyConfig();
+	}
+	return ims._config;
+}
+
+Survey.prototype._setAnswers = function(){
+	var _this = this;
+	$(this._xml).find('answer').each(function(){
+		_this._answers.push(new Question(this, _this));
+	});
 }
 
 /**
@@ -7,7 +33,7 @@ function Survey(xml){
  * @return {[type]} [description]
  */
 Survey.prototype.getName = function(){
-
+	return this._name;
 }
 
 /**
@@ -15,7 +41,7 @@ Survey.prototype.getName = function(){
  * @return {[type]} [description]
  */
 Survey.prototype.getWeek = function(){
-	
+	return this._week;
 }
 
 /**
@@ -23,7 +49,7 @@ Survey.prototype.getWeek = function(){
  * @return {[type]} [description]
  */
 Survey.prototype.getAnswers = function(){
-
+	return this._answers;
 }
 
 /**
@@ -31,7 +57,7 @@ Survey.prototype.getAnswers = function(){
  * @return {Boolean} [description]
  */
 Survey.prototype.isComplete = function(){
-
+	return this._answers.length > 0;
 }
 
 /**
@@ -39,7 +65,7 @@ Survey.prototype.isComplete = function(){
  * @return {[type]} [description]
  */
 Survey.prototype.getPlacement = function(){
-
+	return this._placement;
 }
 
 /**
@@ -55,9 +81,9 @@ Survey.prototype.getCourse = function(){
 }
 
 /**
- * Get the questions from the survey
+ * Get the questions from the survey, alias for getAnswers()
  * @return {[type]} [description]
  */
 Survey.prototype.getQuestions = function(){
-
+	return this.getAnswers();
 }
