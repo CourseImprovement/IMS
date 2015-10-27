@@ -808,28 +808,44 @@ function Tile(config){
 	this.hidden = config.hidden;
 }
 window._currentUser = null;
+window._userXml = {};
 
 function User(obj){
 	if (!obj) throw "Invalid User Object";
 
 	if (obj['email']){
 		this._email = obj['email'];
-		this._xml = ims.sharepoint.getXmlByEmail(this._email);
+		if (_userXml[this._email]){
+			this._xml = _userXml[this._email]
+		}
+		else{
+			this._xml = ims.sharepoint.getXmlByEmail(this._email);
+			_userXml[this._email] = this._xml;
+		}
+
+		this._first = null;
+		this._last = null;
+		this._setPersonalInfo();
+		this._courses = [];
+		this._setCourses();
+		this._surveys = [];
+		this._setSurveys();
+		this._semesters = [];
+		this._isCurrent = obj.current == true;
+		this._new = false;
+
 	}
 	if (obj['xml']){
 		this._xml = obj['xml'];
+		this._first = null;
+		this._last = null;
+		this._setPersonalInfo(true);
+		this._courses = [];
+		this._surveys = [];
+		this._semesters = [];
+		this._isCurrent = obj.current == true;;
+		this._new = false;
 	}
-
-	this._first = null;
-	this._last = null;
-	this._setPersonalInfo();
-	this._courses = [];
-	this._setCourses();
-	this._surveys = [];
-	this._setSurveys();
-	this._semesters = [];
-	this._isCurrent = obj.current;
-	this._new = false;
 	// if (this._isCurrent){
 	// 	this._role = new Role(ims.aes.value.cr, this);
 	// }
@@ -925,9 +941,15 @@ User.prototype._setSurveys = function(){
 /**
  * Set the basic personal information
  */
-User.prototype._setPersonalInfo = function(){
+User.prototype._setPersonalInfo = function(noSpot){
 	var sem = ims.semesters.getCurrentCode();
-	var spot = $(this._xml).find('semester[code=' + sem + ']').children().first();
+	var spot;
+	if (noSpot){
+		spot = this._xml;
+	}
+	else{
+		spot = $(this._xml).find('semester[code=' + sem + ']').children().first();
+	}
 	this._first = $(spot).attr('first');
 	this._last = $(spot).attr('last');
 	this._email = $(spot).attr('email');
@@ -946,7 +968,7 @@ User.prototype._setCourses = function(){
 }
 
 User.prototype.getTasksToReview = function(){
-	
+
 }
 
 /**
