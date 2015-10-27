@@ -8,7 +8,15 @@
  * @param {[type]} obj [description]
  */
 function Menu(ary){
+	if (!ary || ary.length == 0) return;
+	this._items = [];
+	this._setItems(ary);
+}
 
+Menu.prototype._setItems = function(ary){
+	for (var i = 0; i < ary.length; i++){
+		this._items.push(new MenuItem(ary[i]));
+	}
 }
 
 /**
@@ -34,7 +42,8 @@ Menu.prototype.getItem = function(idx){
  * @param {[type]} obj [description]
  */
 function MenuItem(obj){
-
+	this.href = obj.href;
+	this.name = obj.value;
 }
 
 /**

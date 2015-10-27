@@ -28,3 +28,17 @@ Course.prototype.getCredits = function(){return this._credits;}
  * @return {Boolean} [description]
  */
 Course.prototype.isPilot = function(){return this._pilot;}
+
+/**
+ * Get the href for the course
+ * @return {[type]} [description]
+ */
+Course.prototype.getHref = function(){
+	var loc = window.location.href;
+	if (loc.indexOf('&c=') > -1){
+		window.location.href = loc.split('&c=')[0] + '&c=' + this.getName();
+	}
+	else{
+		window.location.href = loc + '&c=' + this.getName();
+	} 
+}

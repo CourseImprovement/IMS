@@ -15,6 +15,7 @@ function User(obj){
 	this._courses = this.getCourses();
 	this._surveys = [];
 	this._setSurveys();
+	this._semesters = [];
 }
 
 /**
@@ -358,7 +359,7 @@ User.prototype.getCourses = function(){
 	if (this._courses.length == 0){
 		var _this = this;
 		var sem = ims.current.getCurrentSemester();
-		$('semester [code=' + sem + '] course').each(function(){
+		$(this._xml).find('semester [code=' + sem + '] course').each(function(){
 			_this._courses.push(new Course(this));
 		})
 	}
@@ -377,3 +378,59 @@ User.prototype.getTotalCredits = function(){
 	}
 	return total;
 }
+
+/**
+ * Get a list of available semesters for this user
+ * @return {[type]} [description]
+ */
+User.prototype.getSemesters = function(){
+	if (this._semesters.length == 0){
+		var _this = this;
+		$(this._xml).find('semester').each(function(){
+			_this._semesters.push(new Semester($(this).attr('code')));
+		});	
+	}
+	return this._semesters;		
+}
+
+//GROUP: Menu
+/**
+ * Gets the semester Menu
+ * @return {[type]} [description]
+ */
+User.prototype.getSemesterMenu = function(){
+	var semesters = this.getSemesters();
+	var prepare = [];
+	for (var i = 0; i < semesters.length; i++){
+		prepare.push({
+			value: semesters[i].getCode(),
+			href: semesters[i].getHref()
+		})
+	}
+	return new Menu(prepare);
+}
+
+/**
+ * Gets the role menu
+ * @return {[type]} [description]
+ */
+User.prototype.getRoleMenu = function(){
+
+}
+
+/**
+ * Gets the courses menu, if no courses needed, return null
+ * @return {[type]} [description]
+ */
+User.prototype.getCoursesMenu = function(){
+	var courses = this.getCourses();
+	var prepare = [];
+	for (var i = 0; i < courses.length; i++){
+		prepare.push({
+			value: course[i].getName(),
+			href: course[i].getHref()
+		});
+	}
+	return new Menu(prepare);
+}
+// END GROUP: Menu
