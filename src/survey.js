@@ -68,6 +68,16 @@ Survey.prototype.getPlacement = function(){
 	return this._placement;
 }
 
+Survey.prototype.getQuestionsContainingText = function(txt){
+	var answers = this.getAnswers();
+	var result = [];
+	for (var i = 0; i < answers.length; i++){
+		var answer = answers[i];
+		if (answer.getText().toLowerCase().indexOf(txt) > -1) result.push(answer);
+	}
+	return result;
+}
+
 /**
  * Gets the course the survey was taken. If the course
  * is not validated, it will return null (good for debugging)

@@ -355,83 +355,6 @@ ims.sharepoint = {
 	    'async': false
 	  });
 	  return doc;
-	},
-	/**
-	 * Send an Email from Sharepoint
-	 * @param  {String} from    The from email address
-	 * @param  {String} to      The to email address
-	 * @param  {String} body    The body of the email
-	 * @param  {String} subject The subject of the email
-	 */
-	sendEmail: function(from, to, body, subject, callback) {
-		body = ims.data.cleanEmail(body);
-		$['ajax']({
-		    'url': ims.sharepoint.base + "_api/contextinfo",
-		    'header': {
-		        "accept": "application/json; odata=verbose",
-		        "content-type": "application/json;odata=verbose"
-		    },
-		    'type': "POST",
-		    'contentType': "application/json;charset=utf-8"
-		}).done(function(d) {
-			//Get the relative url of the site
-			//http://sharepoint.stackexchange.com/questions/150833/sp-utilities-utility-sendemail-with-additional-headers-javascript
-			//https://codeplayandlearn.wordpress.com/2015/07/11/send-email-through-rest-api-in-sharepoint/
-	    var urlTemplate = ims.sharepoint.base + "_api/SP.Utilities.Utility.SendEmail";
-	    $.ajax({
-	        contentType: 'application/json',
-	        url: urlTemplate,
-	        type: "POST",
-	        data: JSON.stringify({
-	            'properties': {
-	                '__metadata': {
-	                    'type': 'SP.Utilities.EmailProperties'
-	                },
-	                'From': from,
-	                'To': {
-	                    'results': [to]
-	                },
-	                'Body': body,
-	                'Subject': subject,
-	                "AdditionalHeaders":
-	                {
-	                	"__metadata":
-	                    {"type":"Collection(SP.KeyValue)"},
-	                    "results":
-	                    [ 
-	                        {               
-	                            "__metadata": {
-	                            "type": 'SP.KeyValue'
-	                        },
-	                            "Key": "Test-Field",
-	                            "Value": 'willdenc@byui.edu',
-	                            "ValueType": "Edm.String"
-	                       },
-	                       {               
-	                            "__metadata": {
-	                            "type": 'SP.KeyValue'
-	                        },
-	                            "Key": "Reply-To",
-	                            "Value": 'willdenc@byui.edu',
-	                            "ValueType": "Edm.String"
-	                       }
-	                    ]
-	                }
-	            }
-	        }),
-	        headers: {
-	            "Accept": "application/json;odata=verbose",
-	            "content-type": "application/json;odata=verbose",
-	            "X-RequestDigest": $(d).find('d\\:FormDigestValue, FormDigestValue').text()
-	        },
-	        success: function(data) {
-	            callback(data);
-	        },
-	        error: function(err) {
-	            callback('Error in sending Email: ' + JSON.stringify(err));
-	        }
-	      });	
-		});
 	}
 };
 
@@ -701,6 +624,16 @@ Survey.prototype.getPlacement = function(){
 	return this._placement;
 }
 
+Survey.prototype.getQuestionsContainingText = function(txt){
+	var answers = this.getAnswers();
+	var result = [];
+	for (var i = 0; i < answers.length; i++){
+		var answer = answers[i];
+		if (answer.getText().toLowerCase().indexOf(txt) > -1) result.push(answer);
+	}
+	return result;
+}
+
 /**
  * Gets the course the survey was taken. If the course
  * is not validated, it will return null (good for debugging)
@@ -884,14 +817,6 @@ User.prototype.getSurveys = function(){
 	return this._surveys;
 }
 
-/**
- * Add a survey to the user
- * @param {[type]} sid [description]
- */
-User.prototype.addSurvey = function(sid){
-
-}
-
 // GROUP: Roles
 /**
  * Get the users role relative to the current user and their role
@@ -899,15 +824,6 @@ User.prototype.addSurvey = function(sid){
  */
 User.prototype.getRole = function(){
 	return this._role;
-}
-
-/**
- * Get a lower user by their email address
- * @param  {[type]} email [description]
- * @return {[type]}       [description]
- */
-User.prototype.getUserByEmail = function(email){
-	
 }
 
 /**
@@ -925,17 +841,13 @@ User.prototype.isNew = function(){
  */
 User.prototype.getSmartGoals = function(){
 	var weeklyReflections = this.getWeeklyReflections();
+	var goals = [];
 	for (var i = 0; i < weeklyReflections.length; i++){
-
+		if (weeklyReflections[i].getName().toLowerCase().indexOf('week 2') > -1){
+			goals = weeklyReflections[i].getQuestionsContainingText('smart');
+		}
 	}
-}
-/**
- * Get a list of all those below the user
- * @return {[type]} [description]
- */
-User.prototype.getRoster = function(){
-	if (this.isInstructor()) return null;
-
+	return goals;
 }
 
 /**
@@ -966,8 +878,8 @@ User.prototype.getWeeklyReflections = function(){
 	var surveys = this.getSurveys();
 	var weeklyReflections = [];
 	for (var i = 0; i < surveys.length; i++){
-		if (survey[i].getName().toLowerCase().indexOf('weekly reflection') > -1){
-			weeklyReflections.push(survey[i]);
+		if (surveys[i].getName().toLowerCase().indexOf('weekly reflection') > -1){
+			weeklyReflections.push(surveys[i]);
 		}
 	}
 	return weeklyReflections;
@@ -978,7 +890,15 @@ User.prototype.getWeeklyReflections = function(){
  * @return {[type]} [description]
  */
 User.prototype.redirectTo = function(){
-
+  var email = this._email;
+  var val = JSON.parse(JSON.stringify(ims.aes.value));
+  val.ce = email;
+  val.cr = this._role.getName().toUpperCase();
+  val.pe = val.e;
+  val.pr = val.i;
+  var str = JSON.stringify(val);
+  var en = ims.aes.encrypt(str, ims.aes.key.hexDecode());
+  window.location.href = window.location.href.split('?v=')[0] + '?v=' + en;
 }
 
 /**

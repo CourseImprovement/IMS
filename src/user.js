@@ -162,14 +162,6 @@ User.prototype.getSurveys = function(){
 	return this._surveys;
 }
 
-/**
- * Add a survey to the user
- * @param {[type]} sid [description]
- */
-User.prototype.addSurvey = function(sid){
-
-}
-
 // GROUP: Roles
 /**
  * Get the users role relative to the current user and their role
@@ -177,15 +169,6 @@ User.prototype.addSurvey = function(sid){
  */
 User.prototype.getRole = function(){
 	return this._role;
-}
-
-/**
- * Get a lower user by their email address
- * @param  {[type]} email [description]
- * @return {[type]}       [description]
- */
-User.prototype.getUserByEmail = function(email){
-	
 }
 
 /**
@@ -203,17 +186,13 @@ User.prototype.isNew = function(){
  */
 User.prototype.getSmartGoals = function(){
 	var weeklyReflections = this.getWeeklyReflections();
+	var goals = [];
 	for (var i = 0; i < weeklyReflections.length; i++){
-
+		if (weeklyReflections[i].getName().toLowerCase().indexOf('week 2') > -1){
+			goals = weeklyReflections[i].getQuestionsContainingText('smart');
+		}
 	}
-}
-/**
- * Get a list of all those below the user
- * @return {[type]} [description]
- */
-User.prototype.getRoster = function(){
-	if (this.isInstructor()) return null;
-
+	return goals;
 }
 
 /**
@@ -244,8 +223,8 @@ User.prototype.getWeeklyReflections = function(){
 	var surveys = this.getSurveys();
 	var weeklyReflections = [];
 	for (var i = 0; i < surveys.length; i++){
-		if (survey[i].getName().toLowerCase().indexOf('weekly reflection') > -1){
-			weeklyReflections.push(survey[i]);
+		if (surveys[i].getName().toLowerCase().indexOf('weekly reflection') > -1){
+			weeklyReflections.push(surveys[i]);
 		}
 	}
 	return weeklyReflections;
@@ -256,7 +235,15 @@ User.prototype.getWeeklyReflections = function(){
  * @return {[type]} [description]
  */
 User.prototype.redirectTo = function(){
-
+  var email = this._email;
+  var val = JSON.parse(JSON.stringify(ims.aes.value));
+  val.ce = email;
+  val.cr = this._role.getName().toUpperCase();
+  val.pe = val.e;
+  val.pr = val.i;
+  var str = JSON.stringify(val);
+  var en = ims.aes.encrypt(str, ims.aes.key.hexDecode());
+  window.location.href = window.location.href.split('?v=')[0] + '?v=' + en;
 }
 
 /**
