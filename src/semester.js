@@ -40,6 +40,14 @@ Semesters.prototype.getCurrent = function(){
 }
 
 Semesters.prototype.getCurrentCode = function(){
+	var loc = window.location.href;
+	if (loc.indexOf('&sem=') > -1){
+		var sem = loc.split('&sem=')[1];
+		if (sem.indexOf('&') > -1){
+			sem = sem.split('&')[0];
+		}
+		return sem; 
+	}
 	return this.getCurrent().getCode();
 }
 

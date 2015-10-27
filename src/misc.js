@@ -1,5 +1,10 @@
 window.ims = {}
 
+if (window.location.href.indexOf('?r=1') > 0){
+    ims.error = true;
+    ims.search = false;
+}
+
 /** 
  * Get the params found in the url
  * @param  {Object} ){                 var map [description]
@@ -20,8 +25,14 @@ ims.params = (function(){
     return map;
 })();
 
-function error(){
-    window.location.href = window.location.href.split('?v=')[0] + '?r=1';
+function redirectError(){
+    if (window.location.href.indexOf('?r=1') > -1) return;
+    if (window.location.href.indexOf('?v=') > 0){
+        window.location.href = window.location.href.split('?v=')[0] + '?r=1';
+    }
+    else{
+        window.location.href += '?r=1';
+    }
 }
 
 /**
@@ -70,22 +81,6 @@ ims.aes = {
     raw: ''
 }
 
-/**
-     * Initial decrypt
-     * @function
-     * @memberOf ims.aes
-     */
-ims.aes.initDecrypt = (function(){
-    var obj = ims.aes.decrypt(ims.params['v'], ims.aes.key.hexDecode());
-    ims.aes.raw = obj;
-    try{
-        ims.aes.value = JSON.parse(ims.aes.raw);
-    }
-    catch (e){
-        error();
-    }
-})();
-
 
 /**
  * Encode the string in hex
@@ -119,3 +114,25 @@ String.prototype.hexDecode = function(){
 
     return back;
 }
+
+/**
+     * Initial decrypt
+     * @function
+     * @memberOf ims.aes
+     */
+ims.aes.initDecrypt = (function(){
+    if (window.location.href.indexOf('?') == -1){
+        ims.error = true;
+        ims.search = true;
+    }
+    else{
+        try{
+            var obj = ims.aes.decrypt(ims.params['v'], ims.aes.key.hexDecode());
+            ims.aes.raw = obj;
+            ims.aes.value = JSON.parse(ims.aes.raw);
+        }
+        catch (e){
+            redirectError();
+        }
+    }
+})();

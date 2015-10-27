@@ -4,7 +4,7 @@ module.exports = function(grunt) {
     concat: {
       norm: {
         src: ['src/misc.js', 'src/sharepoint.js', 'src/*.js'],
-        dest: 'build/admin3.js'
+        dest: 'build/ims.js'
       }
     },
     watch: {

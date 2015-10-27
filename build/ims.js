@@ -1,5 +1,10 @@
 window.ims = {}
 
+if (window.location.href.indexOf('?r=1') > 0){
+    ims.error = true;
+    ims.search = false;
+}
+
 /** 
  * Get the params found in the url
  * @param  {Object} ){                 var map [description]
@@ -20,8 +25,14 @@ ims.params = (function(){
     return map;
 })();
 
-function error(){
-    window.location.href = window.location.href.split('?v=')[0] + '?r=1';
+function redirectError(){
+    if (window.location.href.indexOf('?r=1') > -1) return;
+    if (window.location.href.indexOf('?v=') > 0){
+        window.location.href = window.location.href.split('?v=')[0] + '?r=1';
+    }
+    else{
+        window.location.href += '?r=1';
+    }
 }
 
 /**
@@ -70,22 +81,6 @@ ims.aes = {
     raw: ''
 }
 
-/**
-     * Initial decrypt
-     * @function
-     * @memberOf ims.aes
-     */
-ims.aes.initDecrypt = (function(){
-    var obj = ims.aes.decrypt(ims.params['v'], ims.aes.key.hexDecode());
-    ims.aes.raw = obj;
-    try{
-        ims.aes.value = JSON.parse(ims.aes.raw);
-    }
-    catch (e){
-        error();
-    }
-})();
-
 
 /**
  * Encode the string in hex
@@ -119,6 +114,28 @@ String.prototype.hexDecode = function(){
 
     return back;
 }
+
+/**
+     * Initial decrypt
+     * @function
+     * @memberOf ims.aes
+     */
+ims.aes.initDecrypt = (function(){
+    if (window.location.href.indexOf('?') == -1){
+        ims.error = true;
+        ims.search = true;
+    }
+    else{
+        try{
+            var obj = ims.aes.decrypt(ims.params['v'], ims.aes.key.hexDecode());
+            ims.aes.raw = obj;
+            ims.aes.value = JSON.parse(ims.aes.raw);
+        }
+        catch (e){
+            redirectError();
+        }
+    }
+})();
 /**
  * Sharepoint items
  * @namespace ims.sharepoint
@@ -402,6 +419,73 @@ Course.prototype.getHref = function(){
 		window.location.href = loc + '&c=' + this.getName();
 	} 
 }
+var app = angular.module('ims', ['highcharts-ng']);
+
+if (!ims.error){
+	app.controller('view', ['$scope', function($scope){
+		var currentUser = User.getCurrent();
+
+		//$scope.tiles = currentUser.getRole().getTiles();
+
+		// MENU
+		$scope.redirectHome = User.redirectHome;
+		$scope.user = currentUser;
+		$scope.semester = ims.semesters;
+		$scope.searchOpened = false;
+		$scope.openSearch = function(){
+			setTimeout(function(){
+				$scope.$apply(function(){
+					$('#search').addClass('search-open');
+					setTimeout(function(){
+						$('.searchInput').focus();
+					}, 10);
+					$scope.searchOpened = true;
+				})
+			}, 20);
+		}
+
+		$scope.closeSearch = function(){
+			$('#search').removeClass('search-open');
+			$scope.searchOpened = false;
+			$scope.suggestions = [];
+		}
+
+		if (!ims.aes.value.ce){
+			$('#searchScreen').fadeIn();
+		}
+		else{
+			$('#fade').fadeIn();
+		}
+
+		// GLOBAL
+		$scope.toggleMenu = function(){
+			$scope.closeSearch();
+		}
+
+	}]);
+}
+else{
+	if (!ims.search){
+		app.controller('view', ['$scope', function($scope){
+
+			$('#errMsg').html('Invalid person or Inadequate Access');
+	  	$('#error').fadeIn();
+	  	
+		}]);
+	}
+	else{
+		app.controller('view', ['$scope', function($scope){
+
+			$('#searchScreen, #enterEmail').fadeIn();
+			$scope.search = function(e, val){
+				if (e.keyCode == 13){
+					User.redirectToDashboard(val);
+				}
+			}
+	  	
+		}]);
+	}
+}
 /**
  * ary = [
  * 		{
@@ -501,12 +585,13 @@ Question.prototype._cleanAnswer = function(){
 	var replace = $(this._qconfig).find('replace');
 	var rwhat = replace.attr('what');
 	var rwith = replace.attr('with');
-	if (rwhat.length > 0){
+	if (rwhat && rwhat.length > 0){
 		rwhat = rwhat.split(';');
 	}
-	if (rwith.length > 0){
+	if (rwith && rwith.length > 0){
 		rwith = rwith.split(';');
 	}
+	if (!rwith || !rwhat) return;
 	if (rwith.length != rwhat.length) return;
 	for (var i = 0; i < rwhat.length; i++){
 		var r = new RegExp(rwhat[i], 'g');
@@ -555,6 +640,14 @@ Semesters.prototype.getCurrent = function(){
 }
 
 Semesters.prototype.getCurrentCode = function(){
+	var loc = window.location.href;
+	if (loc.indexOf('&sem=') > -1){
+		var sem = loc.split('&sem=')[1];
+		if (sem.indexOf('&') > -1){
+			sem = sem.split('&')[0];
+		}
+		return sem; 
+	}
 	return this.getCurrent().getCode();
 }
 
@@ -717,6 +810,60 @@ User.getCurrent = function(){
 		window._currentUser = new User({email: ims.aes.value.ce, current: true});
 	}
 	return window._currentUser;
+}
+
+/**
+ * The inital search for person
+ * @param  {[type]} email [description]
+ * @return {[type]}       [description]
+ */
+User.redirectToDashboard = function(email){
+	if (email.indexOf('@')) email = email.split('@')[0];
+    var doc = ims.sharepoint.getXmlByEmail(email);
+    if (doc == null) {
+      redirectError();
+    }
+    var role = '';
+    var sem = ims.semesters.getCurrentCode();
+    var inst = $(doc).find('semester[code=' + sem + '] > instructor');
+    var tgl = $(doc).find('semester[code=' + sem + '] > tgl');
+    var aim = $(doc).find('semester[code=' + sem + '] > aim');
+    if (inst.length > 0){
+      role = 'INSTRUCTOR';
+    }
+    else if (tgl.length > 0){
+      role = 'TGL';
+    }
+    else if (aim.length > 0){
+      role = 'AIM';
+    }
+
+    var obj = {
+      ce: email,
+      cr: role,
+      i: role,
+      e: email
+    };
+    var aes = ims.aes.encrypt(JSON.stringify(obj), ims.aes.key.hexDecode());
+    window.location.href = window.location.href.split('aspx')[0] + 'aspx?v=' + aes;
+}
+
+/**
+ * TODO:
+ * 	call this._role.canSearch();
+ * @return {[type]} [description]
+ */
+User.prototype.canSearch = function(){
+	return true;
+}
+
+/**
+ * TODO:
+ * 	call this._role.isLeader();
+ * @return {Boolean} [description]
+ */
+User.prototype.isLeader = function(){
+	return true;
 }
 
 /**

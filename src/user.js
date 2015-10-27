@@ -48,6 +48,60 @@ User.getCurrent = function(){
 }
 
 /**
+ * The inital search for person
+ * @param  {[type]} email [description]
+ * @return {[type]}       [description]
+ */
+User.redirectToDashboard = function(email){
+	if (email.indexOf('@')) email = email.split('@')[0];
+    var doc = ims.sharepoint.getXmlByEmail(email);
+    if (doc == null) {
+      redirectError();
+    }
+    var role = '';
+    var sem = ims.semesters.getCurrentCode();
+    var inst = $(doc).find('semester[code=' + sem + '] > instructor');
+    var tgl = $(doc).find('semester[code=' + sem + '] > tgl');
+    var aim = $(doc).find('semester[code=' + sem + '] > aim');
+    if (inst.length > 0){
+      role = 'INSTRUCTOR';
+    }
+    else if (tgl.length > 0){
+      role = 'TGL';
+    }
+    else if (aim.length > 0){
+      role = 'AIM';
+    }
+
+    var obj = {
+      ce: email,
+      cr: role,
+      i: role,
+      e: email
+    };
+    var aes = ims.aes.encrypt(JSON.stringify(obj), ims.aes.key.hexDecode());
+    window.location.href = window.location.href.split('aspx')[0] + 'aspx?v=' + aes;
+}
+
+/**
+ * TODO:
+ * 	call this._role.canSearch();
+ * @return {[type]} [description]
+ */
+User.prototype.canSearch = function(){
+	return true;
+}
+
+/**
+ * TODO:
+ * 	call this._role.isLeader();
+ * @return {Boolean} [description]
+ */
+User.prototype.isLeader = function(){
+	return true;
+}
+
+/**
  * Internal function to populate the users surveys into the _surveys
  * array
  */

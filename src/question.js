@@ -41,12 +41,13 @@ Question.prototype._cleanAnswer = function(){
 	var replace = $(this._qconfig).find('replace');
 	var rwhat = replace.attr('what');
 	var rwith = replace.attr('with');
-	if (rwhat.length > 0){
+	if (rwhat && rwhat.length > 0){
 		rwhat = rwhat.split(';');
 	}
-	if (rwith.length > 0){
+	if (rwith && rwith.length > 0){
 		rwith = rwith.split(';');
 	}
+	if (!rwith || !rwhat) return;
 	if (rwith.length != rwhat.length) return;
 	for (var i = 0; i < rwhat.length; i++){
 		var r = new RegExp(rwhat[i], 'g');
