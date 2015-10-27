@@ -8,18 +8,33 @@ function User(obj){
 		this._xml = ims.sharepoint.getXmlByEmail(this._email);
 	}
 	if (obj['xml']){
-		this._setXmlData(xml);
+		this._xml = obj['xml'];
 	}
 
 	this._first = null;
 	this._last = null;
+	this._setPersonalInfo();
 	this._courses = [];
-	this._courses = this.getCourses();
+	this._setCourses();
 	this._surveys = [];
 	this._setSurveys();
 	this._semesters = [];
 	this._isCurrent = obj.current;
+	this._new = false;
+	// if (this._isCurrent){
+	// 	this._role = new Role(ims.aes.value.cr, this);
+	// }
+	// else{
+	// 	var u = User.getCurrent();
+	// 	this._role = new Role(ims.aes.value.cr);
+	// }
 }
+
+/**
+ * The standard for instructor hours per credit
+ * @type {Number}
+ */
+User.HoursStandard = 3.5;
 
 /**
  * Get the current user (the current dashboard user)
@@ -41,6 +56,29 @@ User.prototype._setSurveys = function(){
 	var _this = this;
 	$(this._xml).find('semester[code=' + sem + '] survey').each(function(){
 		_this._surveys.push(new Survey(this));
+	})
+}
+
+/**
+ * Set the basic personal information
+ */
+User.prototype._setPersonalInfo = function(){
+	var sem = ims.semesters.getCurrentCode();
+	var spot = $(this._xml).find('semester[code=' + sem + ']').children().first();
+	this._first = $(spot).attr('first');
+	this._last = $(spot).attr('last');
+	this._email = $(spot).attr('email');
+	this._new = $(spot).attr('new') != 'False';
+}
+
+/**
+ * Set the courses
+ */
+User.prototype._setCourses = function(){
+	var _this = this;
+	var sem = ims.semesters.getCurrentCode();
+	$(this._xml).find('semester[code=' + sem + '] course').each(function(){
+		_this._courses.push(new Course(this));
 	})
 }
 
@@ -110,7 +148,18 @@ User.prototype.getFullName = function(){
  * @return {[type]}     [description]
  */
 User.prototype.getSurvey = function(sid){
+	var surveys = this.getSurveys();
+	for (var i = 0; i < surveys.length; i++){
+		if (surveys[i].id.toLowerCase() == sid.toLowerCase()) return surveys[i];
+	}
+}
 
+/**
+ * Get an Array of the surveys
+ * @return {[type]} [description]
+ */
+User.prototype.getSurveys = function(){
+	return this._surveys;
 }
 
 /**
@@ -127,72 +176,7 @@ User.prototype.addSurvey = function(sid){
  * @return {[type]} [description]
  */
 User.prototype.getRole = function(){
-
-}
-
-/**
- * validates that the getRole == AIM
- * @return {Boolean} [description]
- */
-User.prototype.isAim = function(){
-
-}
-
-/**
- * validates that the getRole == TGL
- * @return {Boolean} [description]
- */
-User.prototype.isTgl = function(){
-
-}
-
-/**
- * validates that the getRole == INSTRUCTOR
- * @return {Boolean} [description]
- */
-User.prototype.isInstructor = function(){
-
-}
-
-/**
- * Set the role of the user
- */
-User.prototype.setRole = function(){
-
-}
-// END GROUP: Roles
-
-/**
- * Get the leader TGL
- * @return {[type]} [description]
- */
-User.prototype.getLeaderTgl = function(){
-
-}
-
-/**
- * Get the leader AIM
- * @return {[type]} [description]
- */
-User.prototype.getLeaderAim = function(){
-
-}
-
-/**
- * Get the Instructors under this user
- * @return {[type]} [description]
- */
-User.prototype.getInstructors = function(){
-
-}
-
-/**
- * Validate a survey has been taken by id
- * @param  {[type]}  sid [description]
- * @return {Boolean}     [description]
- */
-User.prototype.hasTakenSurvey = function(sid){
-
+	return this._role;
 }
 
 /**
@@ -205,21 +189,12 @@ User.prototype.getUserByEmail = function(email){
 }
 
 /**
- * Get the TGLs below this person. Note this has
- * to be either an AIM or an IM
- * @return {[type]} [description]
- */
-User.prototype.getTgls = function(){
-
-}
-
-/**
  * Validates if the instructor is a new instructor
  * or not.
  * @return {Boolean} [description]
  */
 User.prototype.isNew = function(){
-
+	return this._new;
 }
 
 /**
@@ -227,44 +202,11 @@ User.prototype.isNew = function(){
  * @return {[type]} [description]
  */
 User.prototype.getSmartGoals = function(){
+	var weeklyReflections = this.getWeeklyReflections();
+	for (var i = 0; i < weeklyReflections.length; i++){
 
+	}
 }
-
-/**
- * Gets a standard by name if taken any
- * @param  {[type]} name [description]
- * @return {[type]}      [description]
- */
-User.prototype.getStandard = function(name){
-
-}
-
-/**
- * Gets the rollup for a standard by name for the group.
- * @param  {[type]} name [description]
- * @return {[type]}      [description]
- */
-User.prototype.getStandardForGroup = function(name){
-	
-}
-
-/**
- * Gets a rollup for a standard for all instructors
- * @param  {[type]} name [description]
- * @return {[type]}      [description]
- */
-User.prototype.getStandardForAll = function(name){
-	
-}
-
-/**
- * Get the completed instructor tasks
- * @return {[type]} [description]
- */
-User.prototype.getCompletedTasks = function(){
-
-}
-
 /**
  * Get a list of all those below the user
  * @return {[type]} [description]
@@ -275,27 +217,23 @@ User.prototype.getRoster = function(){
 }
 
 /**
- * Get the hours as a TGL
- * @return {[type]} [description]
- */
-User.prototype.getHoursAsTgl = function(){
-
-}
-
-/**
- * Get the hours as an AIM
- * @return {[type]} [description]
- */
-User.prototype.getHoursAsAim = function(){
-
-}
-
-/**
  * Get the target hours for this user.
  * @return {[type]} [description]
  */
 User.prototype.getTargetHours = function(){
-
+	var credits = this.getTotalCredits();
+	if (credits == 1){
+		return 1.5 * User.HoursStandard;
+	}
+	else if (credits == 2){
+		return 2.25 * User.HoursStandard;
+	}
+	else if (credits >= 3){
+		return credits * User.HoursStandard;
+	}
+	else{
+		return 0;
+	}
 }
 
 /**
@@ -303,7 +241,14 @@ User.prototype.getTargetHours = function(){
  * @return {[type]} [description]
  */
 User.prototype.getWeeklyReflections = function(){
-
+	var surveys = this.getSurveys();
+	var weeklyReflections = [];
+	for (var i = 0; i < surveys.length; i++){
+		if (survey[i].getName().toLowerCase().indexOf('weekly reflection') > -1){
+			weeklyReflections.push(survey[i]);
+		}
+	}
+	return weeklyReflections;
 }
 
 /**
@@ -312,6 +257,37 @@ User.prototype.getWeeklyReflections = function(){
  */
 User.prototype.redirectTo = function(){
 
+}
+
+/**
+ * Redirect to the base dashboard
+ * @return {[type]} [description]
+ */
+User.redirectHome = function(){
+	var val = JSON.parse(JSON.stringify(ims.aes.value));
+  val.ce = val.e;
+  val.cr = val.i;
+  val.pe = val.e;
+  val.pr = val.i;
+  var str = JSON.stringify(val);
+  var en = ims.aes.encrypt(str, ims.aes.key.hexDecode());
+  window.location.href = window.location.href.split('?v=')[0] + '?v=' + en;
+}
+
+/**
+ * Redirects back to the previous page
+ * @return {[type]} [description]
+ */
+User.redirectBack = function(){
+	var val = JSON.parse(JSON.stringify(ims.aes.value));
+  if (val.pe){
+    val.ce = val.pe;
+    val.cr = val.pr;
+    val.pe = val.e;
+    val.pr = val.i;
+  }
+  var str = JSON.stringify(val);
+  return ims.aes.encrypt(str, ims.aes.key.hexDecode());
 }
 
 /**
@@ -378,8 +354,9 @@ User.prototype.getCourses = function(){
  */
 User.prototype.getTotalCredits = function(){
 	var total = 0;
-	for (var i = 0; i < this._courses.length; i++){
-		var course = this._courses[i];
+	var courses = this.getCourses();
+	for (var i = 0; i < courses.length; i++){
+		var course = courses[i]; 
 		total += course.getCredits();
 	}
 	return total;
@@ -414,14 +391,6 @@ User.prototype.getSemesterMenu = function(){
 		})
 	}
 	return new Menu(prepare);
-}
-
-/**
- * Gets the role menu
- * @return {[type]} [description]
- */
-User.prototype.getRoleMenu = function(){
-
 }
 
 /**
