@@ -4,7 +4,17 @@ if (!ims.error){
 	app.controller('view', ['$scope', function($scope){
 		var currentUser = User.getCurrent();
 
-		//$scope.tiles = currentUser.getRole().getTiles();
+		$scope.cols = [
+			[
+				new Tile({
+					title: 'Tasks To Review',
+					helpText: 'This tile displays tasks that your TGLs have completed and that as an AIM you need to review.',
+					type: 'task-list',
+					data: [],
+					hidden: ''
+				})
+			]
+		];
 
 		// MENU
 		$scope.redirectHome = User.redirectHome;
@@ -39,6 +49,20 @@ if (!ims.error){
 		// GLOBAL
 		$scope.toggleMenu = function(){
 			$scope.closeSearch();
+		}
+
+		$scope.questionClick = function(e){
+			//$(e.target).parent().find('.hidden').slideToggle();
+			var div = $(e.target.nodeName == 'I' ? e.target.parentNode : e.target);
+			var pos = div.attr('data-position');
+			msg = div.attr('data-title');
+			if (msg && msg.length > 0){
+				ims.tooltip(e, msg, pos);
+			}
+		}
+
+		$scope.questionClickOut = function(e){
+			$('#tooltip, #tooltip-left').remove();
 		}
 
 	}]);

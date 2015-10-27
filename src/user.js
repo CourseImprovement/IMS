@@ -136,6 +136,10 @@ User.prototype._setCourses = function(){
 	})
 }
 
+User.prototype.getTasksToReview = function(){
+	
+}
+
 /**
  * Get the first name of the user
  * @return {[type]} [description]

@@ -53,6 +53,32 @@
 		</div>
 		<!-- END MENU -->
 
+		<!-- TILES -->
+		<div class="row top"></div>
+		<div class="col-4" ng-repeat='col in cols'>
+			<div class="row"></div>
+			<div class="row" ng-repeat='tile in col'>
+				<div class="tile" ng-click='expandTile($event)'>
+					<div class="right questionmark" ng-mouseover='questionClick($event)' ng-mouseout='questionClickOut($event)' data-title='tile.helpText'><i class='fa fa-question'></i></div>
+					<h2 class="title">{{tile.title}}</h2>
+
+
+					<!-- LIST -->
+					<ul class="list selection tasks" ng-if='tile.type == "task-list"'>
+						<li ng-repeat='survey in surveysToReview | reverse | limitTo:TGLLimit'>
+							<i class='fa fa-square-o checkbox' ng-click='toggleReviewed(survey)' ng-if='!survey.reviewed'></i>
+							<i class='fa fa-check-square-o checkbox' ng-click='toggleReviewed(survey)' ng-if='survey.reviewed'></i> 
+							<span ng-if='!survey.reviewed'>{{survey.name}} - <span class='link' ng-click='openSurveyData2(survey)'>{{survey.survey}}</span></span>
+							<strike ng-if='survey.reviewed'>{{survey.name}} - <span class='link' ng-click='openSurveyData2(survey)'>{{survey.survey}}</span></strike>
+						</li>
+						<li ng-if='surveysToReview.length > 2' class='link' ng-click='changelimitTgl()'>{{showAllTextTGL}}</li>
+					</ul>
+					<!-- END LIST -->
+
+				</div>
+			</div>
+		</div>
+		<!-- END TILES -->
 	</div>
 	<!-- END HIDE THE MAIN SCREEN -->
 

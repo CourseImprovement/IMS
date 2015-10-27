@@ -136,3 +136,25 @@ ims.aes.initDecrypt = (function(){
         }
     }
 })();
+
+/**
+ * Show a tooltip
+ * @param  {MouseEvent} e The mouse event
+ * @param  {string} msg A String to display the message
+ * @param  {string} pos left or right
+ * @memberOf ims
+ */
+ims.tooltip = function(e, msg, pos){
+    if (pos && pos == 'left'){
+        $('body').append('<div id="tooltip-left"></div>');
+        var tooltip = $('#tooltip-left');
+        tooltip.html(msg);
+        tooltip.css({left: ((e.clientX - tooltip.width()) - 65) + 'px', top: (e.clientY - tooltip.height() - 15) + 'px'});
+    }
+    else{
+        $('body').append('<div id="tooltip"></div>');
+        var tooltip = $('#tooltip');
+        tooltip.html(msg);
+        tooltip.css({left: (e.clientX + 35) + 'px', top: (e.clientY - tooltip.height() - 15) + 'px'});
+    }
+}

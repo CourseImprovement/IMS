@@ -136,6 +136,28 @@ ims.aes.initDecrypt = (function(){
         }
     }
 })();
+
+/**
+ * Show a tooltip
+ * @param  {MouseEvent} e The mouse event
+ * @param  {string} msg A String to display the message
+ * @param  {string} pos left or right
+ * @memberOf ims
+ */
+ims.tooltip = function(e, msg, pos){
+    if (pos && pos == 'left'){
+        $('body').append('<div id="tooltip-left"></div>');
+        var tooltip = $('#tooltip-left');
+        tooltip.html(msg);
+        tooltip.css({left: ((e.clientX - tooltip.width()) - 65) + 'px', top: (e.clientY - tooltip.height() - 15) + 'px'});
+    }
+    else{
+        $('body').append('<div id="tooltip"></div>');
+        var tooltip = $('#tooltip');
+        tooltip.html(msg);
+        tooltip.css({left: (e.clientX + 35) + 'px', top: (e.clientY - tooltip.height() - 15) + 'px'});
+    }
+}
 /**
  * Sharepoint items
  * @namespace ims.sharepoint
@@ -425,7 +447,17 @@ if (!ims.error){
 	app.controller('view', ['$scope', function($scope){
 		var currentUser = User.getCurrent();
 
-		//$scope.tiles = currentUser.getRole().getTiles();
+		$scope.cols = [
+			[
+				new Tile({
+					title: 'Tasks To Review',
+					helpText: 'This tile displays tasks that your TGLs have completed and that as an AIM you need to review.',
+					type: 'task-list',
+					data: [],
+					hidden: ''
+				})
+			]
+		];
 
 		// MENU
 		$scope.redirectHome = User.redirectHome;
@@ -460,6 +492,20 @@ if (!ims.error){
 		// GLOBAL
 		$scope.toggleMenu = function(){
 			$scope.closeSearch();
+		}
+
+		$scope.questionClick = function(e){
+			//$(e.target).parent().find('.hidden').slideToggle();
+			var div = $(e.target.nodeName == 'I' ? e.target.parentNode : e.target);
+			var pos = div.attr('data-position');
+			msg = div.attr('data-title');
+			if (msg && msg.length > 0){
+				ims.tooltip(e, msg, pos);
+			}
+		}
+
+		$scope.questionClickOut = function(e){
+			$('#tooltip, #tooltip-left').remove();
 		}
 
 	}]);
@@ -756,8 +802,6 @@ Survey.prototype.getQuestions = function(){
 function Tile(config){
 	if (!config) throw "Invalid config of tile";
 	this.title = config.title;
-	this.row = config.row;
-	this.col = config.col;
 	this.helpText = config.helpText;
 	this.type = config.type;
 	this.data = config.data;
@@ -899,6 +943,10 @@ User.prototype._setCourses = function(){
 	$(this._xml).find('semester[code=' + sem + '] course').each(function(){
 		_this._courses.push(new Course(this));
 	})
+}
+
+User.prototype.getTasksToReview = function(){
+	
 }
 
 /**
