@@ -1,9 +1,11 @@
+window._currentUser = null;
+
 function User(obj){
 	if (!obj) throw "Invalid User Object";
 
 	if (obj['email']){
-		this._email = email;
-		this._xml = ims.sharepoint.getXmlByEmail(email);
+		this._email = obj['email'];
+		this._xml = ims.sharepoint.getXmlByEmail(this._email);
 	}
 	if (obj['xml']){
 		this._setXmlData(xml);
@@ -16,6 +18,7 @@ function User(obj){
 	this._surveys = [];
 	this._setSurveys();
 	this._semesters = [];
+	this._isCurrent = obj.current;
 }
 
 /**
@@ -23,15 +26,17 @@ function User(obj){
  * @return {[type]} [description]
  */
 User.getCurrent = function(){
-
+	if (!window._currentUser)
+		window._currentUser = new User({email: ims.aes.value.ce, current = true});
+	return window._currentUser;
 }
 
 /**
  * Internal function to populate the users surveys into the _surveys
  * array
  */
-User.prototype._setSurveys(){
-	var sem = ims.current.getCurrentSemester(); 
+User.prototype._setSurveys = function(){
+	var sem = ims.semesters.getCurrentCode(); 
 	var _this = this;
 	$(this._xml).find('semester[code=' + sem + '] survey').each(function(){
 		_this._surveys.push(new Survey(this));
@@ -44,7 +49,7 @@ User.prototype._setSurveys(){
  */
 User.prototype.getFirst = function(){
 	if (this._first == null){
-		var sem = ims.current.getCurrentSemester(); 
+		var sem = ims.semesters.getCurrentCode(); 
 		this._first = $(this._xml).find('semester[code=' + sem + ']').children().first().attr('first');
 	}
 	return this._first;
@@ -56,7 +61,7 @@ User.prototype.getFirst = function(){
  */
 User.prototype.getLast = function(){
 	if (this._last == null){
-		var sem = ims.current.getCurrentSemester(); 
+		var sem = ims.semesters.getCurrentCode(); 
 		this._last = $(this._xml).find('semester[code=' + sem + ']').children().first().attr('last');
 	}
 	return this._last;
@@ -85,7 +90,7 @@ User.prototype.getEmailFull = function(){
  * @return {[type]}     [description]
  */
 User.prototype.getAnswer = function(sid, qid){
-	var sem = ims.current.getCurrentSemester(); 
+	var sem = ims.semesters.getCurrentCode(); 
 	return $(this._xml).find('semester[code=' + sem + '] survey[id=' + sid + '] answer[qid=' + qid + ']').text();
 }
 
@@ -95,7 +100,7 @@ User.prototype.getAnswer = function(sid, qid){
  * @return {[type]} [description]
  */
 User.prototype.getFullName = function(){
-
+	return this._first + ' ' + this._last;
 }
 
 /**
@@ -358,7 +363,7 @@ User.prototype.graph = {
 User.prototype.getCourses = function(){
 	if (this._courses.length == 0){
 		var _this = this;
-		var sem = ims.current.getCurrentSemester();
+		var sem = ims.semesters.getCurrentCode();
 		$(this._xml).find('semester [code=' + sem + '] course').each(function(){
 			_this._courses.push(new Course(this));
 		})
