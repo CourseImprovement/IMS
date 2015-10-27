@@ -463,8 +463,10 @@ function Question(xml, survey){
 	this._survey = survey;
 	this._xml = xml;
 	this._id = $(xml).attr('qid');
+	this._qconfig = $(Survey.getConfig()).find('survey[id=' + this._surveyId + '] question[id=' + this._id + ']')[0];
 	this._surveyId = survey.id;
-	this._text = $(Survey.getConfig()).find('survey[id=' + this._surveyId + '] question[id=' + this._id + '] text').text();
+	this._text = $(this._qconfig).find('text').text();
+	this._cleanAnswer();
 }
 
 /**
@@ -496,15 +498,20 @@ Question.prototype.hasAnswer = function(){
  * @return {[type]} [description]
  */
 Question.prototype._cleanAnswer = function(){
-
-}
-
-/**
- * Get the column the question appears from the CSV
- * @return {[type]} [description]
- */
-Question.prototype.getCol = function(){
-
+	var replace = $(this._qconfig).find('replace');
+	var rwhat = replace.attr('what');
+	var rwith = replace.attr('with');
+	if (rwhat.length > 0){
+		rwhat = rwhat.split(';');
+	}
+	if (rwith.length > 0){
+		rwith = rwith.split(';');
+	}
+	if (rwith.length != rwhat.length) return;
+	for (var i = 0; i < rwhat.length; i++){
+		var r = new RegExp(rwhat[i], 'g');
+		this._answer = this._answer.replace(r, rwith[i]);
+	}
 }
 function Semester(obj){
 	if (typeof obj == 'string'){
@@ -652,6 +659,16 @@ Survey.prototype.getCourse = function(){
  */
 Survey.prototype.getQuestions = function(){
 	return this.getAnswers();
+}
+function Tile(config){
+	if (!config) throw "Invalid config of tile";
+	this.title = config.title;
+	this.row = config.row;
+	this.col = config.col;
+	this.helpText = config.helpText;
+	this.type = config.type;
+	this.data = config.data;
+	this.hidden = config.hidden;
 }
 window._currentUser = null;
 
