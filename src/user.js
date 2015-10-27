@@ -34,16 +34,16 @@ function User(obj){
 		this._courses = [];
 		this._surveys = [];
 		this._semesters = [];
-		this._isCurrent = obj.current == true;;
+		this._isCurrent = obj.current == true;
 		this._new = false;
 	}
-	// if (this._isCurrent){
-	// 	this._role = new Role(ims.aes.value.cr, this);
-	// }
-	// else{
-	// 	var u = User.getCurrent();
-	// 	this._role = new Role(ims.aes.value.cr);
-	// }
+	if (this._isCurrent){
+		this._role = new Role(ims.aes.value.cr, this);
+	}
+	else if (!obj.dontCreateRoles){
+		var u = User.getCurrent();
+		this._role = new Role(obj.role, this);
+	}
 }
 
 /**
@@ -258,6 +258,14 @@ User.prototype.getRole = function(){
  */
 User.prototype.isNew = function(){
 	return this._new;
+}
+
+/**
+ * Get the href for the user
+ * @return {[type]} [description]
+ */
+User.prototype.getHref = function(){
+
 }
 
 /**
