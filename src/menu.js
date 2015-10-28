@@ -8,11 +8,16 @@
  * @param {[type]} obj [description]
  */
 function Menu(ary){
-	if (!ary || ary.length == 0) return;
 	this._items = [];
-	this._setItems(ary);
+	if (ary && ary.length > 0){
+		this._setItems(ary);
+	}
 }
 
+/**
+ * Set the items
+ * @param {[type]} ary [description]
+ */
 Menu.prototype._setItems = function(ary){
 	for (var i = 0; i < ary.length; i++){
 		this._items.push(new MenuItem(ary[i]));
@@ -20,21 +25,11 @@ Menu.prototype._setItems = function(ary){
 }
 
 /**
- * Event for the menu being clicked
- * @param  {Function} callback [description]
- * @return {[type]}            [description]
+ * Get all items
+ * @return {[type]} [description]
  */
-Menu.prototype.click = function(callback){
-
-}
-
-/**
- * Gets a specific item at an index
- * @param  {[type]} idx [description]
- * @return {[type]}     [description]
- */
-Menu.prototype.getItem = function(idx){
-	
+Menu.prototype.getItems = function(){
+	return this._items;
 }
 
 /**
@@ -44,13 +39,6 @@ Menu.prototype.getItem = function(idx){
 function MenuItem(obj){
 	this.href = obj.href;
 	this.name = obj.value;
-}
-
-/**
- * Event for the clicking of a specific menu item
- * @param  {Function} callback [description]
- * @return {[type]}            [description]
- */
-MenuItem.prototype.click = function(callback){
-
+	this.type = obj.type;
+	this.selected = obj.selected;
 }

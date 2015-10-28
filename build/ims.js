@@ -444,26 +444,40 @@ Course.prototype.getHref = function(){
 var app = angular.module('ims', ['highcharts-ng']);
 
 if (!ims.error){
-	app.controller('view', ['$scope', function($scope){
+	app.controller('view', ['$scope', 'highchartsNG', function($scope, highchartsNG){
 		var currentUser = User.getCurrent();
-
-		$scope.cols = [
-			[
-				new Tile({
-					title: 'Tasks To Review',
-					helpText: 'This tile displays tasks that your TGLs have completed and that as an AIM you need to review.',
-					type: 'task-list',
-					data: [],
-					hidden: ''
-				})
-			]
-		];
 
 		// MENU
 		$scope.redirectHome = User.redirectHome;
 		$scope.user = currentUser;
 		$scope.semester = ims.semesters;
 		$scope.searchOpened = false;
+		$scope.roleMenu = currentUser.getRole().getRolesMenu().getItems();
+		$scope.showRoleMenu = false;
+		$scope.cols = currentUser.getRole().getTiles();
+		$scope.selectedRole = window._selectedRole;
+		$scope.backButton = currentUser.backButton();
+
+		$scope.back = function(){
+			User.redirectBack();
+		}
+
+		$scope.openRoleMenu = function(){
+			var right = '71px';
+			if ($('.back-btn').length > 0){
+				right = '71px';
+			}
+			else{
+				right = '39px';
+			}
+			$('.semester-popup-dropdown').css({right: right, top: '39px'});
+			setTimeout(function(){
+				$scope.$apply(function(){
+					$scope.showRoleMenu = true;
+				})
+			}, 2);
+		}
+
 		$scope.openSearch = function(){
 			setTimeout(function(){
 				$scope.$apply(function(){
@@ -474,6 +488,27 @@ if (!ims.error){
 					$scope.searchOpened = true;
 				})
 			}, 20);
+		}
+
+		$scope.appendChart = function(tile){
+			setTimeout(function(){
+				$('#' + tile.config).highcharts(tile.data);
+			}, 10);
+		}
+
+		$scope.redirect = function(href){
+			window.location.href = href;
+		}
+
+		$scope.changelimit = function(person){
+			if (person.oldLimit > -1){
+				person.limit = person.oldLimit;
+				person.oldLimit = -1;
+			}	
+			else{
+				person.oldLimit = person.limit;
+				person.limit = 90;
+			}
 		}
 
 		$scope.closeSearch = function(){
@@ -492,6 +527,7 @@ if (!ims.error){
 		// GLOBAL
 		$scope.toggleMenu = function(){
 			$scope.closeSearch();
+			$scope.showRoleMenu = false;
 		}
 
 		$scope.questionClick = function(e){
@@ -508,7 +544,29 @@ if (!ims.error){
 			$('#tooltip, #tooltip-left').remove();
 		}
 
+		$scope.closeOverlay = function(e){
+			$(e.target).parent().fadeOut('fast');
+			$('.background-cover').fadeOut('fast');
+			$(document.body).css({overflow: 'auto'});
+		}
+
+		$scope.openSurveyData = function(survey){
+			$scope.selectedSurvey = survey;
+			if ($(window).width() <= 1100){
+				$('.rawDataOverlay').css({left: '10px', top: '10px', right: '10px', bottom: '10px'});
+			}
+			$('.rawDataOverlay').fadeIn();
+			$('.background-cover').fadeIn();
+			$(document.body).css({overflow: 'hidden'});
+		}
+
 	}]);
+
+	app.filter('reverse', function() {
+	  return function(items) {
+	    if (items) return items.slice().reverse();
+	  };
+	});
 }
 else{
 	if (!ims.search){
@@ -542,11 +600,16 @@ else{
  * @param {[type]} obj [description]
  */
 function Menu(ary){
-	if (!ary || ary.length == 0) return;
 	this._items = [];
-	this._setItems(ary);
+	if (ary && ary.length > 0){
+		this._setItems(ary);
+	}
 }
 
+/**
+ * Set the items
+ * @param {[type]} ary [description]
+ */
 Menu.prototype._setItems = function(ary){
 	for (var i = 0; i < ary.length; i++){
 		this._items.push(new MenuItem(ary[i]));
@@ -554,21 +617,11 @@ Menu.prototype._setItems = function(ary){
 }
 
 /**
- * Event for the menu being clicked
- * @param  {Function} callback [description]
- * @return {[type]}            [description]
+ * Get all items
+ * @return {[type]} [description]
  */
-Menu.prototype.click = function(callback){
-
-}
-
-/**
- * Gets a specific item at an index
- * @param  {[type]} idx [description]
- * @return {[type]}     [description]
- */
-Menu.prototype.getItem = function(idx){
-	
+Menu.prototype.getItems = function(){
+	return this._items;
 }
 
 /**
@@ -578,23 +631,16 @@ Menu.prototype.getItem = function(idx){
 function MenuItem(obj){
 	this.href = obj.href;
 	this.name = obj.value;
-}
-
-/**
- * Event for the clicking of a specific menu item
- * @param  {Function} callback [description]
- * @return {[type]}            [description]
- */
-MenuItem.prototype.click = function(callback){
-
+	this.type = obj.type;
+	this.selected = obj.selected;
 }
 function Question(xml, survey){
 	this._answer = $(xml).text();
 	this._survey = survey;
 	this._xml = xml;
 	this._id = $(xml).attr('qid');
-	this._qconfig = $(Survey.getConfig()).find('survey[id=' + this._surveyId + '] question[id=' + this._id + ']')[0];
 	this._surveyId = survey.id;
+	this._qconfig = $(Survey.getConfig()).find('survey[id=' + this._surveyId + '] question[id=' + this._id + ']')[0];
 	this._text = $(this._qconfig).find('text').text();
 	this._cleanAnswer();
 }
@@ -628,6 +674,7 @@ Question.prototype.hasAnswer = function(){
  * @return {[type]} [description]
  */
 Question.prototype._cleanAnswer = function(){
+	this._answer = this._answer.replace(/\\/g, '\n');
 	var replace = $(this._qconfig).find('replace');
 	var rwhat = replace.attr('what');
 	var rwith = replace.attr('with');
@@ -648,16 +695,447 @@ function Role(role, user){
 	this._role = role;
 	this._user = user;
 
-	if (role.toLowerCase() == 'instructor'){
+	if (role == null || role.toLowerCase() == 'instructor'){
 		this._org = null;
 	}
 	else{
 		this._org = this._setOrg();
 	}
+	this.aim = false;
 }
 
+/**
+ * Get the tiles based on role
+ * @return {[type]} [description]
+ */
 Role.prototype.getTiles = function(){
+	var role = this.getRoleName().toLowerCase();
+	if (role == 'aim'){
+		return [
+			[
+				new Tile({
+					title: 'Tasks To Review',
+					helpText: 'This tile displays tasks that your TGLs have completed and that as an AIM you need to review.',
+					type: 'task-list',
+					data: this.getTasksToReview(false),
+					hidden: ''
+				}),
+				new Tile({
+					title: 'Completed AIM Tasks',
+					helpText: 'This tile displays AIM tasks that you have completed.',
+					type: 'survey-list',
+					data: this.getCompletedTasks(),
+					hidden: ''
+				})
+			],
+			[
+				new Tile({
+					title: 'Incomplete TGL Tasks',
+					helpText: 'This tile displays overdue tasks for TGLs in your area.',
+					type: 'review-list',
+					data: this.getIncompleteTasks(),
+					hidden: ''
+				}),
+				new Tile({
+					title: 'Roster',
+					helpText: 'This tile displays your instructors.',
+					type: 'roster',
+					data: this.getRoster(),
+					hidden: ''
+				})
+			],
+			[
+				new Tile({
+					title: 'Average Instructor Hours by Group',
+					helpText: 'This tile displays the average instructor weekly hours/credit for each teaching group.',
+					type: 'graph',
+					data: this.getAvgInstructorHoursByGroup(),
+					hidden: '',
+					config: 'AIMInstructorHours'
+				})
+			]
+		]
+	}
+	else if (role == 'tgl'){
+		return [
+			[
+				new Tile({
+					title: 'Completed TGL Tasks',
+					helpText: 'This tile displays TGL tasks that you have completed.',
+					type: 'survey-list',
+					data: this.getCompletedTasks(),
+					hidden: ''
+				}),
+				new Tile({
+					title: 'Incomplete Instructor Tasks',
+					helpText: 'This tile displays overdue tasks for TGLs in your area.',
+					type: 'review-list',
+					data: this.getIncompleteTasks(),
+					hidden: ''
+				}),
+				new Tile({
+					title: 'Roster',
+					helpText: 'This tile displays your instructors.',
+					type: 'roster',
+					data: this.getRoster(),
+					hidden: ''
+				})
+			],
+			[				
+				new Tile({
+					title: 'Tasks To Review',
+					helpText: 'This tile displays tasks that your TGLs have completed and that as an AIM you need to review.',
+					type: 'task-list',
+					data: this.getTasksToReview(true),
+					hidden: ''
+				})
+			],
+			[
+				new Tile({
+					title: 'Instructor Standards',
+					helpText: 'This tile displays the average score for each instructor standard. Click on a standard\'s line in the graph to view individual instructor scores for that standard',
+					type: 'graph',
+					data: this.getInstructorStandards(),
+					hidden: '',
+					config: 'TGLInstructorStandards'
+				}),
+				new Tile({
+					title: 'Instructor Hours',
+					helpText: 'This tile displays the average instructor hours/credit for each instructor.',
+					type: 'graph',
+					data: this.getInstructorHours(),
+					hidden: '',
+					config: 'TGLInstructorHours'
+				})
+			]
+		]
+	}
+}
 
+Role.prototype.getInstructorHours = function(){
+	var hours = [];
+	for (var i = 0; i < this._org.length; i++){
+		var u = this._org[i].user;
+		var data = u.getHours();
+		hours.push({
+      'type': 'line',
+      'name': u.getFullName(),
+      'data': data,
+      'marker': {
+          'radus': 4,
+          'symbol': 'circle'
+      }
+  	});
+	}
+	return {
+            title: {
+                text: '',
+                x: -20 //center
+            },
+            subtitle: {
+                text: '',
+                x: -20
+            },
+            xAxis: {
+                categories: ['Intro', '1', '2'],
+                title: {
+                    text: 'Week'
+                }
+            },
+            yAxis: {
+                title: {
+                    text: 'Average Hours/Credit'
+                },
+                plotLines: [{
+                    width: 2,
+                    dashStyle: 'shortdash',
+                    value: 3,
+                    color: '#000000',
+                    label: {
+                        text: 'Target'
+                    }
+                }]
+            },
+            options: {
+                tooltip: {
+                    shared: true,
+                    useHTML: true,
+                    headerFormat: '<small> Week {point.key}</small><table>',
+                    pointFormat: '<tr><td style="color: {series.color}">{series.name}: </td>' +
+                        '<td><b>{point.y:.1f}</b></td></tr>',
+                    footerFormat: '</table>',
+                    valueDecimals: 0
+                }
+            },
+            series: hours
+        }
+}
+
+Role.prototype.getInstructorStandards = function(){
+	var standards = [];
+	var standardsAry = ['Building Faith', 'Develop Relationships', 'Inspire a Love', 'Embrace University', 'Seek Development Opportunities'];
+	for (var i = 0; i < standardsAry.length; i++){
+		var stn = standardsAry[i];
+		var seriesData = [];
+		var data = this.getQuestionForGroup(this._user.getEmail(), stn).getData();
+		var seriesData = [];
+		for (var j = 0; j < data.length; j++){
+			var val = parseFloat(data[j]);
+			val = Math.floor(val * 10) / 10;
+			seriesData.push(val);
+		}
+		standards.push(seriesData);
+	}
+	return {
+            title: {
+                text: '',
+                x: -20 //center
+            },
+            subtitle: {
+                text: '',
+                x: -20
+            },
+            xAxis: {
+                categories: ['Intro', '1', '2']
+            },
+            yAxis: {
+                title: {
+                    text: ' '
+                },
+                min: 1,
+                max: 7,
+                tickInterval: 1,
+                plotLines: [{
+                    width: 2,
+                    dashStyle: 'shortdash',
+                    value: 4,
+                    color: '#000000',
+                    label: {
+                        text: 'Meets Standard'
+                    }
+                }]
+            },
+            options: {
+                tooltip: {
+                    shared: true,
+                    useHTML: true,
+                    headerFormat: '<small> Week {point.key}</small><table>',
+                    pointFormat: '<tr><td style="color: {series.color}">{series.name}: </td>' +
+                        '<td><b>{point.y:.1f}</b></td></tr>',
+                    footerFormat: '</table>',
+                    valueDecimals: 0,
+                    positioner: function(boxWidth, boxHeight, point) {
+                        return {
+                            x: 80,
+                            y: 165
+                        };
+                    }
+                }
+            },
+            series: [{
+                type: 'line',
+                name: 'Building Faith in Jesus Christ',
+                selected: false,
+                data: standards[0],
+                marker: {
+                    radus: 4,
+                    symbol: 'circle',
+                    fillColor: '#434348'
+                },
+                color: '#434348',
+                events: {
+                    click: function(e){
+                        ims.graph.TGLInstructorStandardsDrillDown(e);
+                    }
+                }
+            },
+            {
+                type: 'line',
+                name: 'Develop Relationships with and among students',
+                data: standards[1],
+                marker: {
+                    radus: 4,
+                    symbol: 'circle',
+                    fillColor: '#F7A35C'
+                },
+                color: '#F7A35C',
+                events: {
+                    click: function(e){
+                        ims.graph.TGLInstructorStandardsDrillDown(e);
+                    }
+                }
+            },
+            {
+                type: 'line',
+                name: 'Inspire a Love for Learning',
+                data: standards[2],
+                marker: {
+                    radus: 4,
+                    symbol: 'circle',
+                    fillColor: '#7CB5EC'
+                },
+                color: '#7CB5EC',
+                events: {
+                    click: function(e){
+                        ims.graph.TGLInstructorStandardsDrillDown(e);
+                    }
+                }
+            },
+            {
+                type: 'line',
+                name: 'Embrace University Citizenship',
+                data: standards[3],
+                marker: {
+                    radus: 4,
+                    symbol: 'circle',
+                    fillColor: '#8085E9'
+                },
+                color: '#8085E9',
+                events: {
+                    click: function(e){
+                        ims.graph.TGLInstructorStandardsDrillDown(e);
+                    }
+                }
+            },
+            {
+                type: 'line',
+                name: 'Seek Development Opportunities',
+                data: standards[4],
+                marker: {
+                    radus: 4,
+                    symbol: 'circle',
+                    fillColor: '#90ED7D'
+                },
+                color: '#90ED7D',
+                events: {
+                    click: function(e){
+                        ims.graph.TGLInstructorStandardsDrillDown(e);
+                    }
+                }
+            }]
+        }
+}
+
+Role.prototype.getAvgInstructorHoursByGroup = function(){
+	var hours = [];
+	for (var i = 0; i < this._org.length; i++){
+		var u = this._org[i].user;
+		var r = u.getRole();
+		var data = r.getQuestionForGroup(u.getEmail(), "Hours").getData();
+		var seriesData = [];
+		for (var j = 0; j < data.length; j++){
+			var val = parseFloat(data[j]);
+			val = Math.floor(val * 10) / 10;
+			seriesData.push(val);
+		}
+		hours.push({
+      'type': 'line',
+      'name': u.getFullName(),
+      'data': seriesData,
+      'marker': {
+          'radus': 4,
+          'symbol': 'circle'
+      }
+  	});
+	}
+	return {
+            title: {
+                text: '',
+                x: -20 //center
+            },
+            subtitle: {
+                text: '',
+                x: -20
+            },
+            xAxis: {
+                categories: ['Intro', '1', '2'],
+                title: {
+                    text: 'Week'
+                }
+            },
+            yAxis: {
+                title: {
+                    text: 'Average Hours/Credit'
+                }
+            },
+            options: {
+                tooltip: {
+                    shared: true,
+                    useHTML: true,
+                    headerFormat: '<small> Week {point.key}</small><table>',
+                    pointFormat: '<tr><td style="color: {series.color}">{series.name}: </td>' +
+                        '<td><b>{point.y:.1f}</b></td></tr>',
+                    footerFormat: '</table>',
+                    valueDecimals: 0
+                }
+            },
+            series: hours
+        };
+}
+
+/**
+ * Get the tasks to review
+ * @return {[type]} [description]
+ */
+Role.prototype.getTasksToReview = function(withCourse){
+	var tasks = [];
+	var lowerRole = this.getLowerRole();
+	for (var i = 0; i < this._org.length; i++){
+		var u = this._org[i].user;
+		var o = {
+			user: u,
+			surveys: [],
+			limit: 3,
+			showAllText: 'Show All'
+		}
+		for (var j = 0; j < u._surveys.length; j++){
+			var s = u._surveys[j];
+			if (s.getPlacement().toLowerCase() == lowerRole){
+				s.withCourse = withCourse;
+				o.surveys.push(s);
+			}
+		}
+		tasks.push(o);
+	}
+	return tasks;
+}
+
+/**
+ * Get the incomplete tasks of the lower
+ * @return {[type]} [description]
+ */
+Role.prototype.getIncompleteTasks = function(){
+	var surveyList = [];
+	for (var i = 0; i < this._org.length; i++){
+		var user = this._org[i].user;
+		var surveys = user.getSurveysByPlacement(this.getLowerRole());
+		surveyList.push(surveys);
+	}
+	var ids = {};
+	for (var i = 0; i < surveyList.length; i++){
+		for (var j = 0; j < surveyList[i].length; j++){
+			if (!ids[surveyList[i][j].id]) ids[surveyList[i][j].id] = true;
+		}
+	}
+	var keys = Object.keys(ids);
+	var result = [];
+	for (var i = 0; i < surveyList.length; i++){
+		var existing = [];
+		for (var j = 0; j < surveyList[i].length; j++){
+			existing.push(surveyList[i][j].id);
+		}
+		var differences = [];
+		$.grep(keys, function(el){
+			if ($.inArray(el, existing) == -1) differences.push(el);
+		});
+		if (differences.length > 0){
+			result.push({
+				user: surveyList[i][0]._user,
+				differences: differences
+			});
+		}
+	}
+	return result;
 }
 
 /**
@@ -676,6 +1154,11 @@ Role.prototype.getOrg = function(){
 	return this._org;
 }
 
+Role.prototype.isRoleDownFromCurrentUser = function(user){
+	var lower = this._nextLower(ims.aes.value.cr.toLowerCase());
+	return lower == user.getRole().getRoleName().toLowerCase();
+}
+
 /**
  * creates the users organization
  * @return {Object} Current users organization
@@ -683,9 +1166,21 @@ Role.prototype.getOrg = function(){
 Role.prototype._setOrg = function(){
 	var org = [];
 	var sem = ims.semesters.getCurrentCode();
-	var topRole = $(this._user._xml).find('semester[code=' + sem + ']').children().first()[0].nodeName.toLowerCase();
+	var topRole = '';
+	if ($(this._user._xml).find('semester[code=' + sem + ']').length == 0){
+		topRole = $(this._user._xml).children().first()[0].nodeName.toLowerCase();
+	}
+	else{
+		topRole = $(this._user._xml).find('semester[code=' + sem + ']').children().first()[0].nodeName.toLowerCase();
+	}
 	var lowerRole = this._nextLower(topRole);
-	return this._recursiveChildren(topRole, lowerRole);
+	var org = this._recursiveChildren(topRole, lowerRole);
+	for (var i = 0; i < org.length; i++){
+		if (this.isRoleDownFromCurrentUser(org[i].user))
+			org[i].user = new User({email: org[i].user.getEmail(), role: lowerRole});
+	}
+
+	return org;
 }
 
 Role.prototype._nextLower = function(role){
@@ -696,8 +1191,22 @@ Role.prototype._nextLower = function(role){
 
 		case 'atgl': return 'tgl';
 
-		case 'iaim': return 'aim';
-		case 'itgl': return 'tgl';
+		case 'ocr': return 'instructor';
+		case 'ocrm': return 'ocr';
+		default: {
+			return null;
+		}
+	}
+	return null;
+}
+
+Role.prototype._nextLowerForMenu = function(role){
+	switch (role){
+		case 'im': return 'aim';
+		case 'aim': return 'tgl';
+		case 'tgl': return 'instructor';
+
+		case 'atgl': return 'instructor';
 
 		case 'ocr': return 'instructor';
 		case 'ocrm': return 'ocr';
@@ -705,18 +1214,31 @@ Role.prototype._nextLower = function(role){
 			return null;
 		}
 	}
+	return null;
+}
+
+Role.prototype.getLowerRole = function(){
+	return this._nextLower(this.getRoleName().toLowerCase());
+}
+
+Role.prototype.getLowerRoleInit = function(){
+	if (this._user.isCurrent())
+		return this._nextLower(this.getRoleName().toLowerCase());
+	return false;
 }
 
 Role.prototype._recursiveChildren = function(topRole, lower){
 	var org = [];
 	var lowerRole = this._nextLower(lower);
-	if (lowerRole == null) return org;
+	if (lower == null) return org;
 	var sem = ims.semesters.getCurrentCode();
 	var loopies = $(this._user._xml).find('semester[code=' + sem + '] ' + topRole + ' ' + lower);
 	for (var i = 0; i < loopies.length; i++){
 		var underlings = this._recursiveChildren(lower, lowerRole);
+		var user = new User({xml: loopies[i], role: lower});
+		if (!user._first) continue;
 		var o = {
-			user: new User({xml: loopies[i], role: lower, dontCreateRoles: true}),
+			user: user,
 			lower: underlings
 		};
 		org.push(o);
@@ -729,8 +1251,8 @@ Role.prototype._recursiveChildren = function(topRole, lower){
  * @param  {String} name name of a standard
  * @return {Array}      average value for standard in group by week
  */
-Role.prototype.getQuestionForGroup = function(name){
-
+Role.prototype.getQuestionForGroup = function(email, name){
+	return new Rollup({level: 'tgl', email: email, question: name});
 }
 
 /**
@@ -748,8 +1270,11 @@ Role.prototype.getQuestionForAll = function(name){
  */
 Role.prototype.getRoster = function(){
 	if (this._role == 'instructor') return null;
-
-	return this._org;
+	var roster = [];
+	for (var i = 0; i < this._org.length; i++){
+		roster.push(this._org[i].user);
+	}
+	return roster;
 }
 
 /**
@@ -790,7 +1315,111 @@ Role.prototype.getLowerTasks = function(){
  * @return {[type]} [description]
  */
 Role.prototype.getCompletedTasks = function(){
+	var result = [];
+	var surveys = this._user.getSurveys();
+	for (var i = 0; i < surveys.length; i++){
+		if (surveys[i].getPlacement().toLowerCase() == this.getRoleName().toLowerCase()){
+			result.push(surveys[i]);
+		}
+	}
+	return result;
+}
 
+/**
+ * Get the href for that given role
+ * @return {[type]} [description]
+ */
+Role.prototype.getHref = function(){
+	var val = JSON.parse(JSON.stringify(ims.aes.value));
+  val.ce = this._user.getEmail();
+  val.cr = this.getRoleName();
+  if (this.getRoleName().toLowerCase() == 'tgl' && this.aim){
+  	val.cr = 'a' + this.getRoleName();
+  }
+  val.pe = val.e;
+  val.pr = val.i;
+  var str = JSON.stringify(val);
+  var en = ims.aes.encrypt(str, ims.aes.key.hexDecode());
+  var href = window.location.href;
+  if (href.indexOf('v=') > -1){
+  	return href.split('v=')[0] + 'v=' + en;
+  }
+  return;
+}
+
+/**
+ * Get the different hats for the role menu
+ * @return {[type]} [description]
+ */
+Role.prototype._getHats = function(){
+	var role = this.getRoleName().toLowerCase();
+	var hats = [];
+	if (role == 'instructor') return hats;
+	if (this._user.isCurrent()){
+		hats.push({
+			value: 'My Views',
+			href: '#',
+			type: 'title',
+			selected: false
+		});
+	}
+	else{
+		hats.push({
+			value: this._user._first + ' Views',
+			href: '#',
+			type: 'title',
+			selected: false
+		});
+	}
+	if (role == 'tgl'){
+		var instructor = this._user.getRoleAs('instructor');
+		hats.push({
+			value: 'Instructor',
+			href: instructor.getHref(),
+			selected: false
+		});
+
+		var tgl = this._user.getRoleAs('instructor');
+		window._selectedRole = "TGL";
+		hats.push({
+			value: 'TGL',
+			href: tgl.getHref(),
+			selected: true
+		})
+	}
+ 	if (role == 'aim'){
+ 		var tgl = this._user.getRoleAs('tgl');
+ 		tgl.aim = true;
+ 		hats.push({
+			value: 'TGL',
+			href: tgl.getHref(),
+			selected: false
+		});
+		var aim = this._user.getRoleAs('aim');
+		window._selectedRole = "AIM";
+		hats.push({
+			value: 'AIM',
+			href: aim.getHref(),
+			selected: true
+		});
+ 	}
+ 	if (role == 'atgl'){
+ 		var tgl = this._user.getRoleAs('tgl');
+ 		tgl.aim = true;
+ 		hats.push({
+			value: 'TGL',
+			href: tgl.getHref(),
+			selected: true
+		});
+		var aim = this._user.getRoleAs('aim');
+		window._selectedRole = "TGL";
+		hats.push({
+			value: 'AIM',
+			href: aim.getHref(),
+			selected: false
+		});
+ 	}
+ 	return hats;
 }
 
 /**
@@ -798,15 +1427,41 @@ Role.prototype.getCompletedTasks = function(){
  * @return {[type]} [description]
  */
 Role.prototype.getRolesMenu = function(){
-	if (this._role == 'instructor') return null;
+	if (this._role == 'instructor') return new Menu();
 	var org = this._org;
 	var people = [];
-	for (var i = 0; i < org.length; i++){
+	var lowerRole = this._nextLowerForMenu(this.getRoleName().toLowerCase());
+	if (this._user.isCurrent()){
 		people.push({
-			value: org[i].user.getFullName(),
-			href: org[i].user.getHref()
+			value: 'My ' + lowerRole.toUpperCase() + "'s",
+			href: '#',
+			type: 'title',
+			selected: false
 		});
 	}
+	else{
+		people.push({
+			value: this._user._first + ' ' + lowerRole.toUpperCase() + "'s",
+			href: '#',
+			type: 'title',
+			selected: false
+		});
+	}
+
+	for (var i = 0; i < org.length; i++){
+		if (this._user.getFullName() == org[i].user.getFullName()) continue;
+		people.push({
+			value: org[i].user.getFullName(),
+			href: org[i].user.getHref(),
+			selected: false
+		});
+	}
+
+	var hats = this._getHats();
+	for (var i = 0; i < hats.length; i++){
+		people.push(hats[i]);
+	}
+
 	return new Menu(people);
 }
 // END GROUP: Menu
@@ -830,7 +1485,7 @@ Rollup.prototype._initalXmlLoad = function(){
 		this._xml = window._rollupXml;
 	}
 	else{
-		this._xml = this.getXml();
+		this._xml = ims.sharepoint.getXmlByEmail('rollup');
 		window._rollupXml = this._xml;
 	}
 }
@@ -921,16 +1576,18 @@ Semesters.prototype.getCurrentCode = function(){
 ims.semesters = (function(){
 	return new Semesters();
 })()
-function Survey(xml){
+function Survey(xml, user){
 	this._course = $(xml).attr('course');
 	this._xml = xml;
+	this._user = user;
 	this.id = $(xml).attr('id');
 	this._config = $(Survey.getConfig()).find('survey[id=' + this.id + ']');
 	this._name = $(this._config).attr('name');
 	this._placement = $(this._config).attr('placement');
-	this._week = this.getName().split(': ')[1];
+	this._week = this.getName().indexOf(': ') > -1 ? this.getName().split(': ')[1] : '';
 	this._answers = [];
 	this._setAnswers();
+	this._reviewed = $(this._xml).attr('reviewed') == 'true';
 }
 
 /**
@@ -956,7 +1613,14 @@ Survey.prototype._setAnswers = function(){
  * @return {[type]} [description]
  */
 Survey.prototype.getName = function(){
+	if (this.withCourse && this._user.getCourses().length > 1){
+		return this._name + ' ' + this.getCourse();
+	}
 	return this._name;
+}
+
+Survey.prototype.isReviewed = function(){
+	return this._reviewed;
 }
 
 /**
@@ -1027,6 +1691,7 @@ function Tile(config){
 	this.type = config.type;
 	this.data = config.data;
 	this.hidden = config.hidden;
+	this.config = config.config;
 }
 window._currentUser = null;
 window._userXml = {};
@@ -1070,8 +1735,7 @@ function User(obj){
 	if (this._isCurrent){
 		this._role = new Role(ims.aes.value.cr, this);
 	}
-	else if (!obj.dontCreateRoles){
-		var u = User.getCurrent();
+	else if (obj.role){
 		this._role = new Role(obj.role, this);
 	}
 }
@@ -1091,6 +1755,10 @@ User.getCurrent = function(){
 		window._currentUser = new User({email: ims.aes.value.ce, current: true});
 	}
 	return window._currentUser;
+}
+
+User.getUser = function(email){
+
 }
 
 /**
@@ -1135,7 +1803,8 @@ User.redirectToDashboard = function(email){
  * @return {[type]} [description]
  */
 User.prototype.canSearch = function(){
-	return true;
+	var roleName = this.getRole().getRoleName().toLowerCase();
+	return roleName == 'aim' || roleName == 'im';
 }
 
 /**
@@ -1144,7 +1813,13 @@ User.prototype.canSearch = function(){
  * @return {Boolean} [description]
  */
 User.prototype.isLeader = function(){
-	return true;
+	var r = this.getRole().getRoleName().toLowerCase();
+	return r == 'aim' || r == 'tgl' || r == 'atgl' || r == 'im';
+}
+
+User.prototype.isCurrent = function(){
+	if (ims.aes.value.e != ims.aes.value.ce) return false;
+	return this._isCurrent;
 }
 
 /**
@@ -1155,7 +1830,7 @@ User.prototype._setSurveys = function(){
 	var sem = ims.semesters.getCurrentCode(); 
 	var _this = this;
 	$(this._xml).find('semester[code=' + sem + '] survey').each(function(){
-		_this._surveys.push(new Survey(this));
+		_this._surveys.push(new Survey(this, _this));
 	})
 }
 
@@ -1186,10 +1861,6 @@ User.prototype._setCourses = function(){
 	$(this._xml).find('semester[code=' + sem + '] course').each(function(){
 		_this._courses.push(new Course(this));
 	})
-}
-
-User.prototype.getTasksToReview = function(){
-
 }
 
 /**
@@ -1228,7 +1899,7 @@ User.prototype.getEmail = function(){
  * Get the email of the user including the @byui.edu
  * @return {[type]} [description]
  */
-User.prototype.getEmailFull = function(){
+User.prototype.getFullEmail = function(){
 	return this._email + '@byui.edu';
 }
 
@@ -1272,6 +1943,21 @@ User.prototype.getSurveys = function(){
 	return this._surveys;
 }
 
+/**
+ * Get the survey by placement
+ * @param  {[type]} placement [description]
+ * @return {[type]}           [description]
+ */
+User.prototype.getSurveysByPlacement = function(placement){
+	var surveys = [];
+	for (var i = 0; i < this._surveys.lenth; i++){
+		if (this._surveys[i].getPlacement().toLowerCase() == placement.toLowerCase()){
+			surveys.push(this._surveys[i]);
+		}
+	}
+	return surveys;
+}
+
 // GROUP: Roles
 /**
  * Get the users role relative to the current user and their role
@@ -1279,6 +1965,15 @@ User.prototype.getSurveys = function(){
  */
 User.prototype.getRole = function(){
 	return this._role;
+}
+
+/**
+ * Get the role as with a hat
+ * @param  {[type]} type [description]
+ * @return {[type]}      [description]
+ */
+User.prototype.getRoleAs = function(type){
+	return new Role(type, this);
 }
 
 /**
@@ -1295,7 +1990,21 @@ User.prototype.isNew = function(){
  * @return {[type]} [description]
  */
 User.prototype.getHref = function(){
-
+	if (this._email == 'davismel'){
+		var a = 10;
+	}
+	var val = JSON.parse(JSON.stringify(ims.aes.value));
+  val.ce = this.getEmail();
+  val.cr = this.getRole().getRoleName();
+  val.pe = val.e;
+  val.pr = val.i;
+  var str = JSON.stringify(val);
+  var en = ims.aes.encrypt(str, ims.aes.key.hexDecode());
+  var href = window.location.href;
+  if (href.indexOf('v=') > -1){
+  	return href.split('v=')[0] + 'v=' + en;
+  }
+  return;
 }
 
 /**
@@ -1331,6 +2040,61 @@ User.prototype.getTargetHours = function(){
 	else{
 		return 0;
 	}
+}
+
+User.prototype.backButton = function(){
+	return ims.aes.value.ce != ims.aes.value.e;
+}
+
+/**
+ * Get the weekly hours averaged out by course
+ * @return {[type]} [description]
+ */
+User.prototype.getHours = function(){
+	var wr = this.getWeeklyReflections();
+	var hours = [];
+	var courses = this.getCourses();
+	var hrsByCourse = {};
+	var stub = courses[0].getName();
+	for (var i = 0; i < courses.length; i++){
+		hrsByCourse[courses[i].getName()] = [];
+	}
+	if (courses.length > 1){
+		for (var i = 0; i < wr.length; i++){
+			var hr = wr[i].getQuestionsContainingText("weekly hours");
+			if (hr[0].hasAnswer()){
+				var h = hr[0].getAnswer();
+				var val = parseFloat(h);
+				val = Math.floor(val * 10) / 10;
+				hrsByCourse[wr[i].getCourse()].push(val);
+			}
+			else{
+				hrsByCourse[wr[i].getCourse()].push(0);
+			}
+		}
+		for (var i = 0; i < hrsByCourse[stub].length; i++){
+			var total = 0;
+			for (var j = 0; j < courses.length; j++){
+				total += hrsByCourse[courses[j].getName()][i];
+			}
+			hours.push(total / courses.length);
+		}
+	}
+	else{
+		for (var i = 0; i < wr.length; i++){
+			var hr = wr[i].getQuestionsContainingText("weekly hours");
+			if (hr[0].hasAnswer()){
+				var h = hr[0].getAnswer();
+				var val = parseFloat(h);
+				val = Math.floor(val * 10) / 10;
+				hours.push(val);
+			}
+			else{
+				hours.push(0);
+			}
+		}
+	}
+	return hours;
 }
 
 /**
@@ -1392,7 +2156,8 @@ User.redirectBack = function(){
     val.pr = val.i;
   }
   var str = JSON.stringify(val);
-  return ims.aes.encrypt(str, ims.aes.key.hexDecode());
+  var en = ims.aes.encrypt(str, ims.aes.key.hexDecode());
+  window.location.href = window.location.href.split('?v=')[0] + '?v=' + en;
 }
 
 /**

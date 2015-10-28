@@ -39,12 +39,13 @@
 			<ul>
 				<li class="logo left" ng-click='redirectHome()'><img src="css/BYUI_logo_white.png" class="byui-logo"></li>
 				<li class="page-title left" data-id='name'>{{user.getFullName()}}</li>
+				<li class="right back-btn" ng-if='backButton' ng-click='back()'>Back</li>
 				<li class="right search" ng-click='openSearch(q)' ng-if='user.canSearch()' id="search">
 					<i class='fa fa-search' ng-if='!searchOpened'></i>
 					<input type='text' class="searchInput" placeholder='Search...' ng-model='q' ng-if='searchOpened'>
 				</li>
-				<li class="right person-drop-down" ng-if='user.isLeader()'> 
-					AIM 
+				<li class="right person-drop-down" ng-if='user.isLeader()' ng-click='openRoleMenu($event)'> 
+					{{selectedRole}} 
 					<div class='arrow-down2'><i class="fa fa-arrow-down"></i></div>
 				</li>
 				<li class="right" ng-if='user.isLeader()'>View as: </li>
@@ -53,32 +54,104 @@
 		</div>
 		<!-- END MENU -->
 
+		<div>
+			<ul class="semester-popup-dropdown" ng-show='showRoleMenu'>
+				<li ng-repeat="role in roleMenu" ng-class="role.type ? 'menuTitle' : role.selected ? 'selected' : ''" ng-click='redirect(role.href)'>{{role.name}}</li>
+			</ul>
+			<!-- <ul class="semester-popup-dropdown2" ng-show='showSemesterMenu'>
+				<li ng-repeat="item in semesters" ng-class="item.selected ? 'selected' : ''" ng-click='selectedSemesterMenuItem(item)'>{{item}}</li>
+			</ul>
+			<ul class="semester-popup-dropdown3" ng-show='showCourseMenu'>
+				<li ng-repeat='item in courses' ng-class='item.selected ? "selected" : ""' ng-click='selectCourse(item)'>{{item.name}}</li>
+			</ul> -->
+		</div>
+
 		<!-- TILES -->
 		<div class="row top"></div>
 		<div class="col-4" ng-repeat='col in cols'>
 			<div class="row"></div>
 			<div class="row" ng-repeat='tile in col'>
 				<div class="tile" ng-click='expandTile($event)'>
-					<div class="right questionmark" ng-mouseover='questionClick($event)' ng-mouseout='questionClickOut($event)' data-title='tile.helpText'><i class='fa fa-question'></i></div>
+					<div class="right questionmark" ng-mouseover='questionClick($event)' ng-mouseout='questionClickOut($event)' data-position='{{$parent.$index == 2 ? "left" : "right"}}' data-title='{{tile.helpText}}'><i class='fa fa-question'></i></div>
 					<h2 class="title">{{tile.title}}</h2>
 
 
-					<!-- LIST -->
+					<!-- TASK LIST -->
 					<ul class="list selection tasks" ng-if='tile.type == "task-list"'>
-						<li ng-repeat='survey in surveysToReview | reverse | limitTo:TGLLimit'>
-							<i class='fa fa-square-o checkbox' ng-click='toggleReviewed(survey)' ng-if='!survey.reviewed'></i>
-							<i class='fa fa-check-square-o checkbox' ng-click='toggleReviewed(survey)' ng-if='survey.reviewed'></i> 
-							<span ng-if='!survey.reviewed'>{{survey.name}} - <span class='link' ng-click='openSurveyData2(survey)'>{{survey.survey}}</span></span>
-							<strike ng-if='survey.reviewed'>{{survey.name}} - <span class='link' ng-click='openSurveyData2(survey)'>{{survey.survey}}</span></strike>
+						<li ng-repeat='person in tile.data | orderBy:"_first"'>
+							{{person.user.getFullName()}}
+							<ul class="list tasks">
+								<li ng-repeat='survey in person.surveys | reverse | limitTo:person.limit'>
+									<i class='fa fa-square-o checkbox' ng-click='toggleReviewed(survey)' ng-if='!survey.isReviewed()'></i>
+									<i class='fa fa-check-square-o checkbox' ng-click='toggleReviewed(survey)' ng-if='survey.isReviewed()'></i> 
+									<span ng-if='!survey.isReviewed()' class='link' ng-click='openSurveyData(survey)'>{{survey.getName()}}</span>
+									<strike ng-if='survey.isReviewed()' class='link' ng-click='openSurveyData(survey)'>{{survey.getName()}}</strike>
+								</li>
+								<li ng-if='person.surveys.length > 2' class='link' ng-click='changelimit(person)'>{{person.showAllText}}</li>
+							</ul>
 						</li>
-						<li ng-if='surveysToReview.length > 2' class='link' ng-click='changelimitTgl()'>{{showAllTextTGL}}</li>
 					</ul>
-					<!-- END LIST -->
+					<!-- END TASK LIST -->
 
+
+					 <!-- SURVEY LIST -->
+					 <ul class="list selection" ng-if='tile.type == "survey-list" && tile.data.length > 0'>
+							<li ng-repeat='survey in tile.data'>
+								<div class='link' ng-click='openSurveyData(survey)'>{{survey.getName()}}</div>
+							</li>
+						</ul>
+						<div ng-if='tile.type == "survey-list" && tile.data.length == 0' class="default-msg">No Completed Tasks</div>
+					 <!-- END SURVEY LIST -->
+
+					 <!-- REVIEW LIST -->
+					 <ul class="list selection tasks" ng-if='tile.type == "review-list" && tile.data.length > 0'>
+							<li ng-repeat='survey in tile.data'>
+								<ul>
+									<li ng-repeat='difference in survey.differences'><div class='link' ng-click='openSurveyData(survey)'>{{survey.user.getFullName()}} - {{difference}}</div></li>
+								</ul>
+							</li>
+						</ul>
+						<div ng-if='tile.type == "review-list" && tile.data.length == 0' class="default-msg">No Completed Tasks</div>
+					 <!-- END REVIEW LIST -->
+
+					 <!-- GRAPH -->
+					 <div ng-if='tile.type == "graph"'>
+					 	<div id="{{tile.config}}" class="fit" ng-init='appendChart(tile)'></div>
+					 </div>
+					 <!-- END GRAPH -->
+
+					 <!-- TABLE -->
+					 <table class="table selection" ng-if='tile.type == "roster"'>
+						<tr ng-repeat='user in tile.data | orderBy:"name"'>
+							<td><div class='newInst' ng-if='user.isNew()'>New</div></td>
+							<td><div ng-click='redirect(user.getHref())' class='link'>{{user.getFullName()}}</div></td>
+							<td><a href='mailto:{{user.getFullEmail()}}'>{{user.getFullEmail()}}</a></td>
+						</tr>
+					</table>
+					 <!-- END TABLE -->
 				</div>
 			</div>
 		</div>
 		<!-- END TILES -->
+
+		<!-- OVERLAY -->
+		<div class="background-cover"></div>
+		<div class="rawDataOverlay">
+			<div class="closeOverlay" ng-click='closeOverlay($event)'>X</div>
+			<h1 class="title">{{selectedSurvey._user.getFullName() + selectedSurvey.getName()}}</h1>
+			<table class="table no-hover selection">
+				<tr>
+					<th>Question</th>
+					<th>Answer</th>
+				</tr>
+				<tr ng-repeat='s in selectedSurvey.getAnswers()'>
+					<td>{{s.getText()}}</td>
+					<td>{{s.getAnswer()}}</td>
+				</tr>
+			</table>
+		</div>
+		<!-- END OVERLAY -->
+
 	</div>
 	<!-- END HIDE THE MAIN SCREEN -->
 

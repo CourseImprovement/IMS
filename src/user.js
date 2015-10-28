@@ -40,8 +40,7 @@ function User(obj){
 	if (this._isCurrent){
 		this._role = new Role(ims.aes.value.cr, this);
 	}
-	else if (!obj.dontCreateRoles){
-		var u = User.getCurrent();
+	else if (obj.role){
 		this._role = new Role(obj.role, this);
 	}
 }
@@ -61,6 +60,10 @@ User.getCurrent = function(){
 		window._currentUser = new User({email: ims.aes.value.ce, current: true});
 	}
 	return window._currentUser;
+}
+
+User.getUser = function(email){
+
 }
 
 /**
@@ -105,7 +108,8 @@ User.redirectToDashboard = function(email){
  * @return {[type]} [description]
  */
 User.prototype.canSearch = function(){
-	return true;
+	var roleName = this.getRole().getRoleName().toLowerCase();
+	return roleName == 'aim' || roleName == 'im';
 }
 
 /**
@@ -114,7 +118,13 @@ User.prototype.canSearch = function(){
  * @return {Boolean} [description]
  */
 User.prototype.isLeader = function(){
-	return true;
+	var r = this.getRole().getRoleName().toLowerCase();
+	return r == 'aim' || r == 'tgl' || r == 'atgl' || r == 'im';
+}
+
+User.prototype.isCurrent = function(){
+	if (ims.aes.value.e != ims.aes.value.ce) return false;
+	return this._isCurrent;
 }
 
 /**
@@ -125,7 +135,7 @@ User.prototype._setSurveys = function(){
 	var sem = ims.semesters.getCurrentCode(); 
 	var _this = this;
 	$(this._xml).find('semester[code=' + sem + '] survey').each(function(){
-		_this._surveys.push(new Survey(this));
+		_this._surveys.push(new Survey(this, _this));
 	})
 }
 
@@ -156,10 +166,6 @@ User.prototype._setCourses = function(){
 	$(this._xml).find('semester[code=' + sem + '] course').each(function(){
 		_this._courses.push(new Course(this));
 	})
-}
-
-User.prototype.getTasksToReview = function(){
-
 }
 
 /**
@@ -198,7 +204,7 @@ User.prototype.getEmail = function(){
  * Get the email of the user including the @byui.edu
  * @return {[type]} [description]
  */
-User.prototype.getEmailFull = function(){
+User.prototype.getFullEmail = function(){
 	return this._email + '@byui.edu';
 }
 
@@ -242,6 +248,21 @@ User.prototype.getSurveys = function(){
 	return this._surveys;
 }
 
+/**
+ * Get the survey by placement
+ * @param  {[type]} placement [description]
+ * @return {[type]}           [description]
+ */
+User.prototype.getSurveysByPlacement = function(placement){
+	var surveys = [];
+	for (var i = 0; i < this._surveys.lenth; i++){
+		if (this._surveys[i].getPlacement().toLowerCase() == placement.toLowerCase()){
+			surveys.push(this._surveys[i]);
+		}
+	}
+	return surveys;
+}
+
 // GROUP: Roles
 /**
  * Get the users role relative to the current user and their role
@@ -249,6 +270,15 @@ User.prototype.getSurveys = function(){
  */
 User.prototype.getRole = function(){
 	return this._role;
+}
+
+/**
+ * Get the role as with a hat
+ * @param  {[type]} type [description]
+ * @return {[type]}      [description]
+ */
+User.prototype.getRoleAs = function(type){
+	return new Role(type, this);
 }
 
 /**
@@ -265,7 +295,21 @@ User.prototype.isNew = function(){
  * @return {[type]} [description]
  */
 User.prototype.getHref = function(){
-
+	if (this._email == 'davismel'){
+		var a = 10;
+	}
+	var val = JSON.parse(JSON.stringify(ims.aes.value));
+  val.ce = this.getEmail();
+  val.cr = this.getRole().getRoleName();
+  val.pe = val.e;
+  val.pr = val.i;
+  var str = JSON.stringify(val);
+  var en = ims.aes.encrypt(str, ims.aes.key.hexDecode());
+  var href = window.location.href;
+  if (href.indexOf('v=') > -1){
+  	return href.split('v=')[0] + 'v=' + en;
+  }
+  return;
 }
 
 /**
@@ -301,6 +345,61 @@ User.prototype.getTargetHours = function(){
 	else{
 		return 0;
 	}
+}
+
+User.prototype.backButton = function(){
+	return ims.aes.value.ce != ims.aes.value.e;
+}
+
+/**
+ * Get the weekly hours averaged out by course
+ * @return {[type]} [description]
+ */
+User.prototype.getHours = function(){
+	var wr = this.getWeeklyReflections();
+	var hours = [];
+	var courses = this.getCourses();
+	var hrsByCourse = {};
+	var stub = courses[0].getName();
+	for (var i = 0; i < courses.length; i++){
+		hrsByCourse[courses[i].getName()] = [];
+	}
+	if (courses.length > 1){
+		for (var i = 0; i < wr.length; i++){
+			var hr = wr[i].getQuestionsContainingText("weekly hours");
+			if (hr[0].hasAnswer()){
+				var h = hr[0].getAnswer();
+				var val = parseFloat(h);
+				val = Math.floor(val * 10) / 10;
+				hrsByCourse[wr[i].getCourse()].push(val);
+			}
+			else{
+				hrsByCourse[wr[i].getCourse()].push(0);
+			}
+		}
+		for (var i = 0; i < hrsByCourse[stub].length; i++){
+			var total = 0;
+			for (var j = 0; j < courses.length; j++){
+				total += hrsByCourse[courses[j].getName()][i];
+			}
+			hours.push(total / courses.length);
+		}
+	}
+	else{
+		for (var i = 0; i < wr.length; i++){
+			var hr = wr[i].getQuestionsContainingText("weekly hours");
+			if (hr[0].hasAnswer()){
+				var h = hr[0].getAnswer();
+				var val = parseFloat(h);
+				val = Math.floor(val * 10) / 10;
+				hours.push(val);
+			}
+			else{
+				hours.push(0);
+			}
+		}
+	}
+	return hours;
 }
 
 /**
@@ -362,7 +461,8 @@ User.redirectBack = function(){
     val.pr = val.i;
   }
   var str = JSON.stringify(val);
-  return ims.aes.encrypt(str, ims.aes.key.hexDecode());
+  var en = ims.aes.encrypt(str, ims.aes.key.hexDecode());
+  window.location.href = window.location.href.split('?v=')[0] + '?v=' + en;
 }
 
 /**

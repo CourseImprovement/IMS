@@ -1,13 +1,15 @@
-function Survey(xml){
+function Survey(xml, user){
 	this._course = $(xml).attr('course');
 	this._xml = xml;
+	this._user = user;
 	this.id = $(xml).attr('id');
 	this._config = $(Survey.getConfig()).find('survey[id=' + this.id + ']');
 	this._name = $(this._config).attr('name');
 	this._placement = $(this._config).attr('placement');
-	this._week = this.getName().split(': ')[1];
+	this._week = this.getName().indexOf(': ') > -1 ? this.getName().split(': ')[1] : '';
 	this._answers = [];
 	this._setAnswers();
+	this._reviewed = $(this._xml).attr('reviewed') == 'true';
 }
 
 /**
@@ -33,7 +35,14 @@ Survey.prototype._setAnswers = function(){
  * @return {[type]} [description]
  */
 Survey.prototype.getName = function(){
+	if (this.withCourse && this._user.getCourses().length > 1){
+		return this._name + ' ' + this.getCourse();
+	}
 	return this._name;
+}
+
+Survey.prototype.isReviewed = function(){
+	return this._reviewed;
 }
 
 /**

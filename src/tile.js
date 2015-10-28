@@ -5,4 +5,5 @@ function Tile(config){
 	this.type = config.type;
 	this.data = config.data;
 	this.hidden = config.hidden;
+	this.config = config.config;
 }

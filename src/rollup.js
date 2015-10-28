@@ -18,7 +18,7 @@ Rollup.prototype._initalXmlLoad = function(){
 		this._xml = window._rollupXml;
 	}
 	else{
-		this._xml = this.getXml();
+		this._xml = ims.sharepoint.getXmlByEmail('rollup');
 		window._rollupXml = this._xml;
 	}
 }

@@ -3,8 +3,8 @@ function Question(xml, survey){
 	this._survey = survey;
 	this._xml = xml;
 	this._id = $(xml).attr('qid');
-	this._qconfig = $(Survey.getConfig()).find('survey[id=' + this._surveyId + '] question[id=' + this._id + ']')[0];
 	this._surveyId = survey.id;
+	this._qconfig = $(Survey.getConfig()).find('survey[id=' + this._surveyId + '] question[id=' + this._id + ']')[0];
 	this._text = $(this._qconfig).find('text').text();
 	this._cleanAnswer();
 }
@@ -38,6 +38,7 @@ Question.prototype.hasAnswer = function(){
  * @return {[type]} [description]
  */
 Question.prototype._cleanAnswer = function(){
+	this._answer = this._answer.replace(/\\/g, '\n');
 	var replace = $(this._qconfig).find('replace');
 	var rwhat = replace.attr('what');
 	var rwith = replace.attr('with');
