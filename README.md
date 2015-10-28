@@ -9,3 +9,4 @@ TODOs
  - AIM search ability needs to work
  - Fix the check boxes so that it actually saves
  - Course separation for those who teach more than 1 course.
+ - Auto redirect to the dashboard from the plain index.aspx
