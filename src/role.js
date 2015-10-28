@@ -289,7 +289,7 @@ Role.prototype.getSingleInstructorStandard = function(name){
 }
 
 Role.prototype.getSingleInstructorHours = function(){
-	var data = this._user.getHours();
+	var data = this._user.getHoursRaw();
 	return {
             title: {
                 text: '',

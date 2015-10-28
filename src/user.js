@@ -428,6 +428,58 @@ User.prototype.getHours = function(){
 	return hours;
 }
 
+/**
+ * Get the weekly hours averaged out by course
+ * @return {[type]} [description]
+ */
+User.prototype.getHoursRaw = function(){
+	var wr = this.getWeeklyReflections();
+	var hours = [];
+	var courses = this.getCourses();
+	var hrsByCourse = {};
+	var stub = courses[0].getName();
+	var credits = this.getTotalCredits();
+	for (var i = 0; i < courses.length; i++){
+		hrsByCourse[courses[i].getName()] = [];
+	}
+	if (courses.length > 1){
+		for (var i = 0; i < wr.length; i++){
+			var hr = wr[i].getQuestionsContainingText("weekly hours");
+			if (hr[0].hasAnswer()){
+				var h = hr[0].getAnswer();
+				var val = parseFloat(h);
+				val = Math.floor(val * 10) / 10;
+				hrsByCourse[wr[i].getCourse()].push(val);
+			}
+			else{
+				hrsByCourse[wr[i].getCourse()].push(0);
+			}
+		}
+		for (var i = 0; i < hrsByCourse[stub].length; i++){
+			var total = 0;
+			for (var j = 0; j < courses.length; j++){
+				total += hrsByCourse[courses[j].getName()][i];
+			}
+			hours.push(total);
+		}
+	}
+	else{
+		for (var i = 0; i < wr.length; i++){
+			var hr = wr[i].getQuestionsContainingText("weekly hours");
+			if (hr[0].hasAnswer()){
+				var h = hr[0].getAnswer();
+				var val = parseFloat(h);
+				val = Math.floor(val * 10) / 10;
+				hours.push(val);
+			}
+			else{
+				hours.push(0);
+			}
+		}
+	}
+	return hours;
+}
+
 User.prototype.getStandard = function(name){
 	var wr = this.getWeeklyReflections();
 	var hours = [];
