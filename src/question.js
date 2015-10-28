@@ -26,6 +26,14 @@ Question.prototype.getAnswer = function(){
 }
 
 /**
+ * Get the smart goal title
+ * @return {[type]} [description]
+ */
+Question.prototype.getSmartName = function(){
+	return this._text.split('SMART Goal')[1];
+}
+
+/**
  * Checks for an answer
  * @return {Boolean} [description]
  */

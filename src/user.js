@@ -193,6 +193,15 @@ User.prototype.getLast = function(){
 }
 
 /**
+ * Only used for instructors
+ * @type {[type]}
+ */
+User.prototype.getLeader = function(){
+	var sem = ims.semesters.getCurrentCode(); 
+	return $(this._xml).find('semester[code=' + sem + ']').children().first().attr('tgl_email');
+}
+
+/**
  * Get the email of the user
  * @return {[type]} [description]
  */
@@ -361,6 +370,7 @@ User.prototype.getHours = function(){
 	var courses = this.getCourses();
 	var hrsByCourse = {};
 	var stub = courses[0].getName();
+	var credits = this.getTotalCredits();
 	for (var i = 0; i < courses.length; i++){
 		hrsByCourse[courses[i].getName()] = [];
 	}
@@ -382,12 +392,75 @@ User.prototype.getHours = function(){
 			for (var j = 0; j < courses.length; j++){
 				total += hrsByCourse[courses[j].getName()][i];
 			}
-			hours.push(total / courses.length);
+			if (credits == 1){
+				hours.push(total / 1.5);
+			}
+			else if (credits == 2){
+				hours.push(total / 2.25);
+			}
+			else if (credits >= 3){
+				hours.push(total / credits);
+			}
 		}
 	}
 	else{
 		for (var i = 0; i < wr.length; i++){
 			var hr = wr[i].getQuestionsContainingText("weekly hours");
+			if (hr[0].hasAnswer()){
+				var h = hr[0].getAnswer();
+				var val = parseFloat(h);
+				val = Math.floor(val * 10) / 10;
+				if (credits == 1){
+					hours.push(val / 1.5);
+				}
+				else if (credits == 2){
+					hours.push(val / 2.25);
+				}
+				else if (credits >= 3){
+					hours.push(val / credits);
+				}
+			}
+			else{
+				hours.push(0);
+			}
+		}
+	}
+	return hours;
+}
+
+User.prototype.getStandard = function(name){
+	var wr = this.getWeeklyReflections();
+	var hours = [];
+	var courses = this.getCourses();
+	var hrsByCourse = {};
+	var stub = courses[0].getName();
+	for (var i = 0; i < courses.length; i++){
+		hrsByCourse[courses[i].getName()] = [];
+	}
+	if (courses.length > 1){
+		for (var i = 0; i < wr.length; i++){
+			var hr = wr[i].getQuestionsContainingText(name.toLowerCase());
+			if (hr[0].hasAnswer()){
+				var h = hr[0].getAnswer();
+				var val = parseFloat(h);
+				val = Math.floor(val * 10) / 10;
+				hrsByCourse[wr[i].getCourse()].push(val);
+			}
+			else{
+				hrsByCourse[wr[i].getCourse()].push(0);
+			}
+		}
+		for (var i = 0; i < hrsByCourse[stub].length; i++){
+			var total = 0;
+			for (var j = 0; j < courses.length; j++){
+				total += hrsByCourse[courses[j].getName()][i];
+			}
+			hours.push(total / courses.length);
+		}
+	}
+	else{
+		for (var i = 0; i < wr.length; i++){
+			var hr = wr[i].getQuestionsContainingText(name.toLowerCase());
 			if (hr[0].hasAnswer()){
 				var h = hr[0].getAnswer();
 				var val = parseFloat(h);
@@ -463,49 +536,6 @@ User.redirectBack = function(){
   var str = JSON.stringify(val);
   var en = ims.aes.encrypt(str, ims.aes.key.hexDecode());
   window.location.href = window.location.href.split('?v=')[0] + '?v=' + en;
-}
-
-/**
- * All graph related functions are grouped for convinence
- * @type {Object}
- */
-User.prototype.graph = {
-	/**
-	 * Instructor standards graph as an Instructor
-	 * @param  {[type]} name [description]
-	 * @return {[type]}      [description]
-	 */
-	instructorStandard: function(name){
-
-	},
-	/**
-	 * Instructor hours graph as an Instructor
-	 * @return {[type]} [description]
-	 */
-	instructorHours: function(){
-
-	},
-	/**
-	 * Instructor hours as TGL
-	 * @return {[type]} [description]
-	 */
-	instructorHoursAsTgl: function(){
-
-	},
-	/**
-	 * Instructor standards as TGL
-	 * @return {[type]} [description]
-	 */
-	instructorStandardAsTgl: function(){
-
-	},
-	/**
-	 * Instructor hours as AIM
-	 * @return {[type]} [description]
-	 */
-	instructorHoursAsAim: function(){
-
-	}
 }
 
 /**

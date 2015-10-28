@@ -96,7 +96,7 @@
 
 					 <!-- SURVEY LIST -->
 					 <ul class="list selection" ng-if='tile.type == "survey-list" && tile.data.length > 0'>
-							<li ng-repeat='survey in tile.data'>
+							<li ng-repeat='survey in tile.data | reverse'>
 								<div class='link' ng-click='openSurveyData(survey)'>{{survey.getName()}}</div>
 							</li>
 						</ul>
@@ -129,6 +129,14 @@
 						</tr>
 					</table>
 					 <!-- END TABLE -->
+
+					 <!-- SMART GOALS -->
+					 <div ng-if='tile.type == "smart"'>
+					 	<ul class="list selection">
+							<li ng-repeat='goal in tile.data'><strong>{{goal.getSmartName()}}</strong> - {{goal.getAnswer()}}</li>
+						</ul>
+					 </div>
+					 <!-- END SMART GOALS -->
 				</div>
 			</div>
 		</div>
@@ -138,7 +146,7 @@
 		<div class="background-cover"></div>
 		<div class="rawDataOverlay">
 			<div class="closeOverlay" ng-click='closeOverlay($event)'>X</div>
-			<h1 class="title">{{selectedSurvey._user.getFullName() + selectedSurvey.getName()}}</h1>
+			<h1 class="title">{{selectedSurvey._user.getFullName() + ' - ' + selectedSurvey.getName()}}</h1>
 			<table class="table no-hover selection">
 				<tr>
 					<th>Question</th>

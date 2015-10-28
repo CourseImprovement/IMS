@@ -63,7 +63,7 @@ Role.prototype.getTiles = function(){
 			]
 		]
 	}
-	else if (role == 'tgl'){
+	else if (role == 'tgl' || role == 'atgl'){
 		return [
 			[
 				new Tile({
@@ -117,6 +117,224 @@ Role.prototype.getTiles = function(){
 			]
 		]
 	}
+	else if (role == 'instructor'){
+		return [
+			[
+				new Tile({
+					title: 'Completed Instructor Tasks',
+					helpText: 'These are the tasks that you completed. The link opens the results.',
+					type: 'survey-list',
+					data: this.getCompletedTasks(),
+					hidden: ''
+				}),
+				new Tile({
+					title: 'Hours Spent',
+					helpText: 'The total number of hours recorded over the weeks',
+					type: 'graph',
+					data: this.getSingleInstructorHours(),
+					hidden: '',
+					config: 'InstructorInstructorHours'
+				}),
+				new Tile({
+					title: 'Inspire a Love for Learning',
+					helpText: 'The self reported performance for one of the five instructor standards.',
+					type: 'graph',
+					data: this.getSingleInstructorStandard('Inspire a Love'),
+					hidden: '',
+					config: 'InstructorInstructorStandard1'
+				})
+			],
+			[
+				new Tile({
+					title: 'SMART Goals',
+					helpText: 'The SMART goals set by the instructor during the Week 2 Weekly Reflection.',
+					type: 'smart',
+					data: this._user.getSmartGoals(),
+					hidden: ''
+				}),
+				new Tile({
+					title: 'Building Faith in Jesus Christ',
+					helpText: 'The self reported performance for one of the five instructor standards.',
+					type: 'graph',
+					data: this.getSingleInstructorStandard('Building Faith'),
+					hidden: '',
+					config: 'InstructorInstructorStandard2'
+				}),
+				new Tile({
+					title: 'Seek Development Opportunities',
+					helpText: 'The self reported performance for one of the five instructor standards.',
+					type: 'graph',
+					data: this.getSingleInstructorStandard('Seek Development'),
+					hidden: '',
+					config: 'InstructorInstructorStandard3'
+				})
+			],
+			[
+				new Tile({
+					title: 'Develop Relationships with and Among Students',
+					helpText: 'The self reported performance for one of the five instructor standards.',
+					type: 'graph',
+					data: this.getSingleInstructorStandard('Develop Relationships'),
+					hidden: '',
+					config: 'InstructorInstructorStandard4'
+				}),
+				new Tile({
+					title: 'Embrace University Citizenship',
+					helpText: 'The self reported performance for one of the five instructor standards.',
+					type: 'graph',
+					data: this.getSingleInstructorStandard('Embrace University'),
+					hidden: '',
+					config: 'InstructorInstructorStandard5'
+				})
+			]
+		];
+	}
+}
+
+Role.prototype.getSingleInstructorStandard = function(name){
+	var standards = [];
+	var data = this.getQuestionForGroup(this._user.getLeader(), name).getData();
+	var all = this.getQuestionForAll(name).getData();
+	var group = [];
+	var allAry = [];
+	for (var j = 0; j < data.length; j++){
+
+		var val = parseFloat(data[j]);
+		val = Math.floor(val * 10) / 10;
+		group.push(val);
+
+		var val = parseFloat(all[j]);
+		val = Math.floor(val * 10) / 10;
+		allAry.push(val);
+	}
+	var single = this._user.getStandard(name);
+	return {
+            title: {
+                text: '',
+                x: -20 //center
+            },
+            subtitle: {
+                text: '',
+                x: -20
+            },
+            xAxis: {
+                categories: ['Intro', '1', '2'],
+                title: {
+                    text: 'Week'
+                }
+            },
+            yAxis: {
+                title: {
+                    text: ' '
+                },
+                plotLines: [{
+                    value: 0,
+                    width: 2,
+                    color: '#808080'
+                }, {
+                    width: 2,
+                    dashStyle: 'shortdash',
+                    value: 4,
+                    color: '#000000',
+                    label: {
+                        text: 'Meets Standard'
+                    }
+                }],
+                min: 1,
+                max: 7
+            },
+            options: {
+                tooltip: {
+                    shared: true,
+                    useHTML: true,
+                    headerFormat: '<small> Week {point.key}</small><table>',
+                    pointFormat: '<tr><td style="color: {series.color}">{series.name}: </td>' +
+                        '<td><b>{point.y:.1f}</b></td></tr>',
+                    footerFormat: '</table>',
+                    valueDecimals: 0
+                }
+            },
+            series: [{
+                type: 'line',
+                name: this._user._first,
+                selected: false,
+                data: single,
+                color: '#1561AB',
+                marker: {
+                    radus: 4,
+                    symbol: 'circle'
+                }
+            },
+            {
+                type: 'line',
+                name: 'Teaching Group Average',
+                data: group,
+                color: 'rgba(67, 67, 72, 0.35)',
+                marker: {
+                    radus: 4,
+                    symbol: 'circle'
+                }
+            },
+            {
+                type: 'line',
+                name: 'All Online Instructors Average',
+                color: 'rgba(97,186,94,0.35)',
+                data: allAry,
+                marker: {
+                    radus: 4,
+                    symbol: 'circle'
+                }
+            }]
+        }
+}
+
+Role.prototype.getSingleInstructorHours = function(){
+	var data = this._user.getHours();
+	return {
+            title: {
+                text: '',
+                x: -20 //center
+            },
+            subtitle: {
+                text: '',
+                x: -20
+            },
+            xAxis: {
+                categories: ['Intro', '1', '2'],
+                title: {
+                    text: 'Week'
+                }
+            },
+            yAxis: {
+                title: {
+                    text: 'Total Hours'
+                },
+                plotLines: 0,
+                min: 0
+            },
+            options: {
+                tooltip: {
+                    shared: true,
+                    useHTML: true,
+                    headerFormat: '<small> Week {point.key}</small><table>',
+                    pointFormat: '<tr><td style="color: {series.color}">{series.name}: </td>' +
+                        '<td><b>{point.y:.1f}</b> hours</td></tr>',
+                    footerFormat: '</table>',
+                    valueDecimals: 0
+                }
+            },
+            series: [{
+                type: 'line',
+                name: this._user._first,
+                selected: false,
+                data: data,
+                color: '#008E5C',
+                marker: {
+                    radus: 4,
+                    symbol: 'circle'
+                }
+            }]
+        }
 }
 
 Role.prototype.getInstructorHours = function(){
@@ -387,6 +605,9 @@ Role.prototype.getAvgInstructorHoursByGroup = function(){
 Role.prototype.getTasksToReview = function(withCourse){
 	var tasks = [];
 	var lowerRole = this.getLowerRole();
+	if (this.getRoleName().toLowerCase() == 'atgl'){
+		lowerRole = 'instructor';
+	}
 	for (var i = 0; i < this._org.length; i++){
 		var u = this._org[i].user;
 		var o = {
@@ -559,7 +780,7 @@ Role.prototype._recursiveChildren = function(topRole, lower){
  * @return {Array}      average value for standard in group by week
  */
 Role.prototype.getQuestionForGroup = function(email, name){
-	return new Rollup({level: 'tgl', email: email, question: name});
+	return new Rollup({level: this.getRoleName().toLowerCase() == 'atgl' ? 'aim' : 'tgl', email: email, question: name});
 }
 
 /**
@@ -625,7 +846,7 @@ Role.prototype.getCompletedTasks = function(){
 	var result = [];
 	var surveys = this._user.getSurveys();
 	for (var i = 0; i < surveys.length; i++){
-		if (surveys[i].getPlacement().toLowerCase() == this.getRoleName().toLowerCase()){
+		if (surveys[i].getPlacement().toLowerCase() == this.getRoleName().toLowerCase() || this.getRoleName().toLowerCase() == 'atgl' && surveys[i].getPlacement().toLowerCase() == 'tgl'){
 			result.push(surveys[i]);
 		}
 	}
@@ -757,9 +978,11 @@ Role.prototype.getRolesMenu = function(){
 
 	for (var i = 0; i < org.length; i++){
 		if (this._user.getFullName() == org[i].user.getFullName()) continue;
+		var r = org[i].user.getRole();
+		if (ims.aes.value.cr.toLowerCase() == 'atgl') r = org[i].user.getRoleAs('instructor');
 		people.push({
 			value: org[i].user.getFullName(),
-			href: org[i].user.getHref(),
+			href: r.getHref(),
 			selected: false
 		});
 	}

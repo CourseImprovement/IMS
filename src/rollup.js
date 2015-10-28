@@ -49,7 +49,7 @@ Rollup.prototype._getData = function(){
 			if ($(a).attr('week') == 'Intro') return false;
 			return parseInt($(a).attr('week')) > parseInt($(b).attr('week'));
 		}).each(function(){
-			_this._dataTopics.push($(this).text());
+			_this._data.push($(this).text());
 		});
 	}	
 }
