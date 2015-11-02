@@ -38,6 +38,22 @@ ims.sharepoint = {
     };  
     executor.executeAsync(info);
 	},	
+	redirectToLoggedInUser: function(err, success){
+		$.ajax({
+	    url: ims.sharepoint.base + '_api/Web/CurrentUser/Email',
+	    success: function(userXml) {
+	      var email = $(userXml).text();
+	      email = email.indexOf('@') > -1 ? email.split('@')[0] : email;
+	      var file = ims.sharepoint.getXmlByEmail(email);
+	      if (!file){
+	      	err();
+	      }
+	      else{
+	      	success(email);
+	      }
+	    }
+	  });
+	},
 	/**
 	 * Get the survey configuration file. This file houses all the configurations for the surveys.
 	 * @return {XMLDocument} Usually we use JQuery to filter down through the document
@@ -66,12 +82,44 @@ ims.sharepoint = {
 		  return new TextEncoder('utf8').encode(str);
 		}
 
-		var role = ims.current.getRole();
-		var sem = ims.current.getCurrentSemester();
+		var u = User.getCurrent();
+		var buffer = str2ab(u._xml.firstChild.outerHTML);
 
-		var buffer = str2ab(ims.globals.person.doc.firstChild.outerHTML);
+		var fileName = u.getEmail() + '.xml';
+		var url = ims.sharepoint.base + "_api/Web/GetFolderByServerRelativeUrl('" + ims.sharepoint.relativeBase + "Instructor%20Reporting/Master')/Files/add(overwrite=true, url='" + fileName + "')";
+    $['ajax']({
+		    'url': ims.sharepoint.base + "_api/contextinfo",
+		    'header': {
+		        "accept": "application/json; odata=verbose",
+		        "content-type": "application/json;odata=verbose"
+		    },
+		    'type': "POST",
+		    'contentType': "application/json;charset=utf-8"
+		}).done(function(d) {
+			jQuery['ajax']({
+	        'url': url,
+	        'type': "POST",
+	        'data': buffer,
+	        'processData': false,
+	        'headers': {
+	            "accept": "application/json;odata=verbose",
+	            "X-RequestDigest": $(d).find('d\\:FormDigestValue, FormDigestValue').text()
+	        },
+	        'success': function(){
+	        	
+	        }
+	    });
+		});
+	},
+	postFile: function(u){
+		function str2ab(str) {
+			// new TextDecoder(encoding).decode(uint8array);
+		  return new TextEncoder('utf8').encode(str);
+		}
+		
+		var buffer = str2ab(u._xml.firstChild.outerHTML);
 
-		var fileName = ims.current.getEmail() + '.xml';
+		var fileName = u.getEmail() + '.xml';
 		var url = ims.sharepoint.base + "_api/Web/GetFolderByServerRelativeUrl('" + ims.sharepoint.relativeBase + "Instructor%20Reporting/Master')/Files/add(overwrite=true, url='" + fileName + "')";
     $['ajax']({
 		    'url': ims.sharepoint.base + "_api/contextinfo",

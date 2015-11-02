@@ -42,14 +42,18 @@
 				<li class="right back-btn" ng-if='backButton' ng-click='back()'>Back</li>
 				<li class="right search" ng-click='openSearch(q)' ng-if='user.canSearch()' id="search">
 					<i class='fa fa-search' ng-if='!searchOpened'></i>
-					<input type='text' class="searchInput" placeholder='Search...' ng-model='q' ng-if='searchOpened'>
+					<input type='text' class="searchInput" placeholder='Search...' ng-model='q' ng-if='searchOpened' ng-keydown='searching(q, $event)'>
 				</li>
 				<li class="right person-drop-down" ng-if='user.isLeader()' ng-click='openRoleMenu($event)'> 
 					{{selectedRole}} 
 					<div class='arrow-down2'><i class="fa fa-arrow-down"></i></div>
 				</li>
 				<li class="right" ng-if='user.isLeader()'>View as: </li>
+				<li class="course-drop-down right person-drop-down" ng-if='user.showCourseMenu()' ng-click='openCourseMenu($event)'>{{user.selectedCourse() ? user.selectedCourse().getName() : 'All'}}<div class='arrow-down2'><i class="fa fa-arrow-down"></i></div></li>
 			</ul>
+			<ol class="suggestion" ng-if='suggestions.length > 0'>
+				<li ng-repeat='s in suggestions' ng-click='redirect(s.user.getHref())' ng-class='s.selected ? "selected" : ""'><div>{{s.user.getRole().getRoleName().toUpperCase()}}</div>{{s.user.getFullName()}}</li>
+			</ol>
 			<div class="dashboard-title">Instructor Management System</div>
 		</div>
 		<!-- END MENU -->
@@ -60,10 +64,11 @@
 			</ul>
 			<!-- <ul class="semester-popup-dropdown2" ng-show='showSemesterMenu'>
 				<li ng-repeat="item in semesters" ng-class="item.selected ? 'selected' : ''" ng-click='selectedSemesterMenuItem(item)'>{{item}}</li>
-			</ul>
-			<ul class="semester-popup-dropdown3" ng-show='showCourseMenu'>
-				<li ng-repeat='item in courses' ng-class='item.selected ? "selected" : ""' ng-click='selectCourse(item)'>{{item.name}}</li>
 			</ul> -->
+			<ul class="semester-popup-dropdown3" ng-show='showCourseMenu'>
+				<li ng-repeat='course in user.getCourses()' ng-click='redirect(course.getHref())'>{{course.getName()}}</li>
+				<li ng-click='redirect(user.getHref())'>All</li>
+			</ul>
 		</div>
 
 		<!-- TILES -->
@@ -102,6 +107,17 @@
 						</ul>
 						<div ng-if='tile.type == "survey-list" && tile.data.length == 0' class="default-msg">No Completed Tasks</div>
 					 <!-- END SURVEY LIST -->
+
+					 <!-- COURSE SURVEY LIST -->
+					 <div ng-repeat='course in tile.data' ng-if='tile.type == "course-survey-list"'>
+							<h3>{{course.course.getName()}}</h3>
+							<ul class="list selection" ng-if='course.surveys.length > 0'>
+								<li ng-repeat='survey in course.surveys | reverse'>
+									<div class='link' ng-click='openSurveyData(survey)'>{{survey.getName()}}</div>
+								</li>
+							</ul>
+						</div>
+						<!-- END COURSE SURVEY LIST -->
 
 					 <!-- REVIEW LIST -->
 					 <ul class="list selection tasks" ng-if='tile.type == "review-list" && tile.data.length > 0'>

@@ -62,8 +62,10 @@ User.getCurrent = function(){
 	return window._currentUser;
 }
 
-User.getUser = function(email){
-
+User.redirectToLoggedInUser = function(err){
+	ims.sharepoint.redirectToLoggedInUser(err, function(email){
+		User.redirectToDashboard(email);
+	});
 }
 
 /**
@@ -73,33 +75,42 @@ User.getUser = function(email){
  */
 User.redirectToDashboard = function(email){
 	if (email.indexOf('@')) email = email.split('@')[0];
-    var doc = ims.sharepoint.getXmlByEmail(email);
-    if (doc == null) {
-      redirectError();
-    }
-    var role = '';
-    var sem = ims.semesters.getCurrentCode();
-    var inst = $(doc).find('semester[code=' + sem + '] > instructor');
-    var tgl = $(doc).find('semester[code=' + sem + '] > tgl');
-    var aim = $(doc).find('semester[code=' + sem + '] > aim');
-    if (inst.length > 0){
-      role = 'INSTRUCTOR';
-    }
-    else if (tgl.length > 0){
-      role = 'TGL';
-    }
-    else if (aim.length > 0){
-      role = 'AIM';
-    }
+  var doc = ims.sharepoint.getXmlByEmail(email);
+  if (doc == null) {
+    redirectError();
+  }
+  var role = '';
+  var sem = ims.semesters.getCurrentCode();
+  var inst = $(doc).find('semester[code=' + sem + '] > instructor');
+  var tgl = $(doc).find('semester[code=' + sem + '] > tgl');
+  var aim = $(doc).find('semester[code=' + sem + '] > aim');
+  if (inst.length > 0){
+    role = 'INSTRUCTOR';
+  }
+  else if (tgl.length > 0){
+    role = 'TGL';
+  }
+  else if (aim.length > 0){
+    role = 'AIM';
+  }
 
-    var obj = {
-      ce: email,
-      cr: role,
-      i: role,
-      e: email
-    };
-    var aes = ims.aes.encrypt(JSON.stringify(obj), ims.aes.key.hexDecode());
-    window.location.href = window.location.href.split('aspx')[0] + 'aspx?v=' + aes;
+  var obj = {
+    ce: email,
+    cr: role,
+    i: role,
+    e: email
+  };
+  var aes = ims.aes.encrypt(JSON.stringify(obj), ims.aes.key.hexDecode());
+  window.location.href = window.location.href.split('aspx')[0] + 'aspx?v=' + aes;
+}
+
+/**
+ * Get the suggested list
+ * @param  {[type]} q [description]
+ * @return {[type]}   [description]
+ */
+User.prototype.getSuggested = function(q){
+	return this._role.getSuggested(q);
 }
 
 /**
@@ -155,6 +166,29 @@ User.prototype._setPersonalInfo = function(noSpot){
 	this._last = $(spot).attr('last');
 	this._email = $(spot).attr('email');
 	this._new = $(spot).attr('new') != 'False';
+}
+
+/**
+ * Show the course menu for an instructor
+ * @return {[type]} [description]
+ */
+User.prototype.showCourseMenu = function(){
+	var role = this.getRole().getRoleName().toUpperCase();
+	return role == 'INSTRUCTOR' && this.getCourses().length > 1;
+}
+
+/**
+ * Returns the selected course if the user is an instructor
+ * @return {[type]} [description]
+ */
+User.prototype.selectedCourse = function(){
+	if (ims.params.c && !this._selectedCourse){
+		var course = decodeURI(ims.params.c);
+		this._selectedCourse = this.getCourse(course);
+	}
+	else{
+		return ims.params.c ? this._selectedCourse : null;
+	}
 }
 
 /**
@@ -247,6 +281,14 @@ User.prototype.getSurvey = function(sid){
 	for (var i = 0; i < surveys.length; i++){
 		if (surveys[i].id.toLowerCase() == sid.toLowerCase()) return surveys[i];
 	}
+}
+
+/**
+ * Save the xml to the server
+ * @return {[type]} [description]
+ */
+User.prototype.save = function(){
+	ims.sharepoint.postFile(this);
 }
 
 /**
@@ -437,13 +479,15 @@ User.prototype.getHoursRaw = function(){
 	var hours = [];
 	var courses = this.getCourses();
 	var hrsByCourse = {};
-	var stub = courses[0].getName();
+	var stub = Course.getCurrent() ? Course.getCurrent().getName() : courses[0].getName();
 	var credits = this.getTotalCredits();
 	for (var i = 0; i < courses.length; i++){
+		if (Course.getCurrent() && Course.getCurrent().getName() != courses[i].getName()) continue;
 		hrsByCourse[courses[i].getName()] = [];
 	}
 	if (courses.length > 1){
 		for (var i = 0; i < wr.length; i++){
+			if (Course.getCurrent() && Course.getCurrent().getName() != wr[i].getCourse()) continue;
 			var hr = wr[i].getQuestionsContainingText("weekly hours");
 			if (hr[0].hasAnswer()){
 				var h = hr[0].getAnswer();
@@ -458,6 +502,7 @@ User.prototype.getHoursRaw = function(){
 		for (var i = 0; i < hrsByCourse[stub].length; i++){
 			var total = 0;
 			for (var j = 0; j < courses.length; j++){
+				if (Course.getCurrent() && Course.getCurrent().getName() != courses[j].getName()) continue;
 				total += hrsByCourse[courses[j].getName()][i];
 			}
 			hours.push(total);
@@ -485,12 +530,14 @@ User.prototype.getStandard = function(name){
 	var hours = [];
 	var courses = this.getCourses();
 	var hrsByCourse = {};
-	var stub = courses[0].getName();
+	var stub = Course.getCurrent() ? Course.getCurrent().getName() : courses[0].getName();
 	for (var i = 0; i < courses.length; i++){
+		if (Course.getCurrent() && Course.getCurrent().getName() != courses[i].getName()) continue;
 		hrsByCourse[courses[i].getName()] = [];
 	}
 	if (courses.length > 1){
 		for (var i = 0; i < wr.length; i++){
+			if (Course.getCurrent() && Course.getCurrent().getName() != wr[i].getCourse()) continue;
 			var hr = wr[i].getQuestionsContainingText(name.toLowerCase());
 			if (hr[0].hasAnswer()){
 				var h = hr[0].getAnswer();
@@ -504,10 +551,13 @@ User.prototype.getStandard = function(name){
 		}
 		for (var i = 0; i < hrsByCourse[stub].length; i++){
 			var total = 0;
+			var totalCourses = 0;
 			for (var j = 0; j < courses.length; j++){
+				if (Course.getCurrent() && Course.getCurrent().getName() != courses[j].getName()) continue;
+				totalCourses++;
 				total += hrsByCourse[courses[j].getName()][i];
 			}
-			hours.push(total / courses.length);
+			hours.push(total / totalCourses);
 		}
 	}
 	else{
@@ -603,6 +653,22 @@ User.prototype.getCourses = function(){
 		})
 	}
 	return this._courses;
+}
+
+/**
+ * Get a course by name
+ * @param  {[type]} name [description]
+ * @return {[type]}      [description]
+ */
+User.prototype.getCourse = function(name){
+	var result = null;
+	var courses = this.getCourses();
+	if (courses.length > 0){
+		for (var i = 0; i < courses.length; i++){
+			if (courses[i].getName().toUpperCase() == name.toUpperCase()) return courses[i];
+		}
+	}
+	return result;
 }
 
 /**

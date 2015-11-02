@@ -35,6 +35,22 @@ if (!ims.error){
 			}, 2);
 		}
 
+		$scope.openCourseMenu = function(e){
+			var right = '71px';
+			if ($('.back-btn').length > 0){
+				right = '71px';
+			}	
+			else{
+				right = '10px';
+			}		
+			$('.semester-popup-dropdown3').css({right: right, top: '39px'});
+			setTimeout(function(){
+				$scope.$apply(function(){
+					$scope.showCourseMenu = true;
+				})
+			}, 2);
+		}
+
 		$scope.openSearch = function(){
 			setTimeout(function(){
 				$scope.$apply(function(){
@@ -85,6 +101,7 @@ if (!ims.error){
 		$scope.toggleMenu = function(){
 			$scope.closeSearch();
 			$scope.showRoleMenu = false;
+			$scope.showCourseMenu = false;
 		}
 
 		$scope.questionClick = function(e){
@@ -117,6 +134,28 @@ if (!ims.error){
 			$(document.body).css({overflow: 'hidden'});
 		}
 
+		$scope.searching = function(q, e){
+			if (e.keyCode == 27){
+				$scope.closeSearch();
+			}
+			else{
+				setTimeout(function(){
+					var q = $(e.target).val();
+					$scope.$apply(function(){
+						$scope.suggestions = currentUser.getSuggested(q);
+					})
+				}, 10);
+			}
+		}
+
+		$scope.toggleReviewed = function(survey){
+			// little hack
+			setTimeout(function(){
+				survey.toggleReviewed();
+				$scope.$apply();
+			}, 10);
+		}
+
 	}]);
 
 	app.filter('reverse', function() {
@@ -137,7 +176,11 @@ else{
 	else{
 		app.controller('view', ['$scope', function($scope){
 
-			$('#searchScreen, #enterEmail').fadeIn();
+			setTimeout(function(){
+				User.redirectToLoggedInUser(function(){
+						$('#searchScreen, #enterEmail').fadeIn();
+				});
+			}, 10);
 			$scope.search = function(e, val){
 				if (e.keyCode == 13){
 					User.redirectToDashboard(val);

@@ -36,9 +36,17 @@ Course.prototype.isPilot = function(){return this._pilot;}
 Course.prototype.getHref = function(){
 	var loc = window.location.href;
 	if (loc.indexOf('&c=') > -1){
-		window.location.href = loc.split('&c=')[0] + '&c=' + this.getName();
+		return loc.split('&c=')[0] + '&c=' + this.getName();
 	}
 	else{
-		window.location.href = loc + '&c=' + this.getName();
+		return loc + '&c=' + this.getName();
 	} 
+}
+
+Course.getCurrent = function(){
+	if (ims.params.c){
+		var course = decodeURI(ims.params.c);
+		return User.getCurrent().getCourse(course);
+	}
+	return null;
 }

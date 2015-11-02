@@ -120,13 +120,23 @@ Role.prototype.getTiles = function(){
 	else if (role == 'instructor'){
 		return [
 			[
-				new Tile({
-					title: 'Completed Instructor Tasks',
-					helpText: 'These are the tasks that you completed. The link opens the results.',
-					type: 'survey-list',
-					data: this.getCompletedTasks(),
-					hidden: ''
-				}),
+				this._user.showCourseMenu() ? 
+                    new Tile({
+                        title: 'Completed Instructor Tasks',
+                        helpText: 'These are the tasks that you completed. The link opens the results.',
+                        type: 'course-survey-list',
+                        data: this.getCompletedTasksByCourse(),
+                        hidden: ''
+                    })
+                 : 
+
+                    new Tile({
+    					title: 'Completed Instructor Tasks',
+    					helpText: 'These are the tasks that you completed. The link opens the results.',
+    					type: 'survey-list',
+    					data: this.getCompletedTasks(),
+    					hidden: ''
+    				}),
 				new Tile({
 					title: 'Hours Spent',
 					helpText: 'The total number of hours recorded over the weeks',
@@ -396,6 +406,91 @@ Role.prototype.getInstructorHours = function(){
         }
 }
 
+Role.prototype.getInstructorStandardsDrillDown = function(e){
+    var name = e.currentTarget.name;
+    var chart = e.currentTarget.chart;
+    chart.destroy();
+    $('#TGLInstructorStandards').highcharts(this.getInstructorStandardsByName(name));
+    $('#TGLInstructorStandards').before('<div class="backBtnStandards link" id="drillup" onclick="backStandard()">Back</div>');
+}
+
+function backStandard(){
+    var u = User.getCurrent();
+    u._role.setInstructorStandardsDrillUp();
+    $('#drillup').remove();
+}
+
+Role.prototype.setInstructorStandardsDrillUp = function(){
+    $('#TGLInstructorStandards').highcharts().destroy();
+    $('#TGLInstructorStandards').highcharts(this.getInstructorStandards());
+}
+
+Role.prototype.getInstructorStandardsByName = function(name){
+    var series = [];
+    var lower = this.getLower();
+    for (var i = 0; i < lower.length; i++){
+        var data = lower[i].getStandard(name);
+        series.push({
+            type: 'line',
+            name: lower[i].getFullName(),
+            selected: false,
+            data: data,
+            marker: {
+                radus: 4,
+                symbol: 'circle'
+            }
+        })
+    }
+    return {
+            title: {
+                text: name,
+                x: -20 //center
+            },
+            subtitle: {
+                text: '',
+                x: -20
+            },
+            xAxis: {
+                categories: ['Intro', '1', '2']
+            },
+            yAxis: {
+                title: {
+                    text: ' '
+                },
+                min: 1,
+                max: 8,
+                tickInterval: 1,
+                plotLines: [{
+                    width: 2,
+                    dashStyle: 'shortdash',
+                    value: 4,
+                    color: '#000000',
+                    label: {
+                        text: 'Meets Standard'
+                    }
+                }]
+            },
+            options: {
+                tooltip: {
+                    shared: true,
+                    useHTML: true,
+                    headerFormat: '<small> Week {point.key}</small><table>',
+                    pointFormat: '<tr><td style="color: {series.color}">{series.name}: </td>' +
+                        '<td><b>{point.y:.1f}</b></td></tr>',
+                    footerFormat: '</table>',
+                    valueDecimals: 0,
+                    positioner: function(boxWidth, boxHeight, point) {
+                        return {
+                            x: 80,
+                            y: 165
+                        };
+                    }
+                }
+            },
+            series: series
+        }
+}
+
 Role.prototype.getInstructorStandards = function(){
 	var standards = [];
 	var standardsAry = ['Building Faith', 'Develop Relationships', 'Inspire a Love', 'Embrace University', 'Seek Development Opportunities'];
@@ -411,6 +506,7 @@ Role.prototype.getInstructorStandards = function(){
 		}
 		standards.push(seriesData);
 	}
+    var _this = this;
 	return {
             title: {
                 text: '',
@@ -470,7 +566,7 @@ Role.prototype.getInstructorStandards = function(){
                 color: '#434348',
                 events: {
                     click: function(e){
-                        ims.graph.TGLInstructorStandardsDrillDown(e);
+                        _this.getInstructorStandardsDrillDown(e);
                     }
                 }
             },
@@ -486,7 +582,7 @@ Role.prototype.getInstructorStandards = function(){
                 color: '#F7A35C',
                 events: {
                     click: function(e){
-                        ims.graph.TGLInstructorStandardsDrillDown(e);
+                        _this.getInstructorStandardsDrillDown(e);
                     }
                 }
             },
@@ -502,7 +598,7 @@ Role.prototype.getInstructorStandards = function(){
                 color: '#7CB5EC',
                 events: {
                     click: function(e){
-                        ims.graph.TGLInstructorStandardsDrillDown(e);
+                        _this.getInstructorStandardsDrillDown(e);
                     }
                 }
             },
@@ -518,7 +614,7 @@ Role.prototype.getInstructorStandards = function(){
                 color: '#8085E9',
                 events: {
                     click: function(e){
-                        ims.graph.TGLInstructorStandardsDrillDown(e);
+                        _this.getInstructorStandardsDrillDown(e);
                     }
                 }
             },
@@ -534,7 +630,7 @@ Role.prototype.getInstructorStandards = function(){
                 color: '#90ED7D',
                 events: {
                     click: function(e){
-                        ims.graph.TGLInstructorStandardsDrillDown(e);
+                        _this.getInstructorStandardsDrillDown(e);
                     }
                 }
             }]
@@ -854,6 +950,37 @@ Role.prototype.getCompletedTasks = function(){
 }
 
 /**
+ * Get the completed tasks by course
+ * @return {[type]} [description]
+ */
+Role.prototype.getCompletedTasksByCourse = function(){
+    var surveyList = {};
+    var surveys = this._user.getSurveys();
+    for (var i = 0; i < surveys.length; i++){
+        if (surveys[i].getPlacement().toLowerCase() == this.getRoleName().toLowerCase() || this.getRoleName().toLowerCase() == 'atgl' && surveys[i].getPlacement().toLowerCase() == 'tgl'){
+            if (!surveyList[surveys[i].getCourse()]){
+                surveyList[surveys[i].getCourse()] = [];
+            }
+            surveyList[surveys[i].getCourse()].push(surveys[i]);
+        }
+    }
+    var keys = Object.keys(surveyList);
+    var result = [];
+    for (var i = 0; i < keys.length; i++){
+        var course = this._user.getCourse(keys[i]);
+        if (Course.getCurrent()){
+            var c = Course.getCurrent();
+            if (c.getName() != course.getName()) continue;
+        }
+        result.push({
+            course: course,
+            surveys: surveyList[keys[i]]
+        });
+    }
+    return result;
+}
+
+/**
  * Get the href for that given role
  * @return {[type]} [description]
  */
@@ -950,12 +1077,31 @@ Role.prototype._getHats = function(){
  	return hats;
 }
 
+Role.prototype.getSuggested = function(q){
+    var result = [];
+    for (var i = 0; i < this._org.length; i++){
+        var topUser = this._org[i];
+        if (topUser.user.getEmail().indexOf(q) > -1 ||
+            topUser.user.getFullName().indexOf(q) > -1){
+            result.push(this._org[i]);
+        }
+        for (var j = 0; j < topUser.lower.length; j++){
+            var lower = this._org[i].lower[j];
+            if (lower.user.getEmail().indexOf(q) > -1 ||
+                lower.user.getFullName().indexOf(q) > -1){
+                result.push(lower);
+            }
+        }
+    }
+    return result;
+}
+
 /**
  * Gets the roles menu, if instructor return null
  * @return {[type]} [description]
  */
 Role.prototype.getRolesMenu = function(){
-	if (this._role == 'instructor') return new Menu();
+	if (this._role.toLowerCase() == 'instructor') return new Menu();
 	var org = this._org;
 	var people = [];
 	var lowerRole = this._nextLowerForMenu(this.getRoleName().toLowerCase());

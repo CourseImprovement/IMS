@@ -198,6 +198,22 @@ ims.sharepoint = {
     };  
     executor.executeAsync(info);
 	},	
+	redirectToLoggedInUser: function(err, success){
+		$.ajax({
+	    url: ims.sharepoint.base + '_api/Web/CurrentUser/Email',
+	    success: function(userXml) {
+	      var email = $(userXml).text();
+	      email = email.indexOf('@') > -1 ? email.split('@')[0] : email;
+	      var file = ims.sharepoint.getXmlByEmail(email);
+	      if (!file){
+	      	err();
+	      }
+	      else{
+	      	success(email);
+	      }
+	    }
+	  });
+	},
 	/**
 	 * Get the survey configuration file. This file houses all the configurations for the surveys.
 	 * @return {XMLDocument} Usually we use JQuery to filter down through the document
@@ -226,12 +242,44 @@ ims.sharepoint = {
 		  return new TextEncoder('utf8').encode(str);
 		}
 
-		var role = ims.current.getRole();
-		var sem = ims.current.getCurrentSemester();
+		var u = User.getCurrent();
+		var buffer = str2ab(u._xml.firstChild.outerHTML);
 
-		var buffer = str2ab(ims.globals.person.doc.firstChild.outerHTML);
+		var fileName = u.getEmail() + '.xml';
+		var url = ims.sharepoint.base + "_api/Web/GetFolderByServerRelativeUrl('" + ims.sharepoint.relativeBase + "Instructor%20Reporting/Master')/Files/add(overwrite=true, url='" + fileName + "')";
+    $['ajax']({
+		    'url': ims.sharepoint.base + "_api/contextinfo",
+		    'header': {
+		        "accept": "application/json; odata=verbose",
+		        "content-type": "application/json;odata=verbose"
+		    },
+		    'type': "POST",
+		    'contentType': "application/json;charset=utf-8"
+		}).done(function(d) {
+			jQuery['ajax']({
+	        'url': url,
+	        'type': "POST",
+	        'data': buffer,
+	        'processData': false,
+	        'headers': {
+	            "accept": "application/json;odata=verbose",
+	            "X-RequestDigest": $(d).find('d\\:FormDigestValue, FormDigestValue').text()
+	        },
+	        'success': function(){
+	        	
+	        }
+	    });
+		});
+	},
+	postFile: function(u){
+		function str2ab(str) {
+			// new TextDecoder(encoding).decode(uint8array);
+		  return new TextEncoder('utf8').encode(str);
+		}
+		
+		var buffer = str2ab(u._xml.firstChild.outerHTML);
 
-		var fileName = ims.current.getEmail() + '.xml';
+		var fileName = u.getEmail() + '.xml';
 		var url = ims.sharepoint.base + "_api/Web/GetFolderByServerRelativeUrl('" + ims.sharepoint.relativeBase + "Instructor%20Reporting/Master')/Files/add(overwrite=true, url='" + fileName + "')";
     $['ajax']({
 		    'url': ims.sharepoint.base + "_api/contextinfo",
@@ -435,11 +483,19 @@ Course.prototype.isPilot = function(){return this._pilot;}
 Course.prototype.getHref = function(){
 	var loc = window.location.href;
 	if (loc.indexOf('&c=') > -1){
-		window.location.href = loc.split('&c=')[0] + '&c=' + this.getName();
+		return loc.split('&c=')[0] + '&c=' + this.getName();
 	}
 	else{
-		window.location.href = loc + '&c=' + this.getName();
+		return loc + '&c=' + this.getName();
 	} 
+}
+
+Course.getCurrent = function(){
+	if (ims.params.c){
+		var course = decodeURI(ims.params.c);
+		return User.getCurrent().getCourse(course);
+	}
+	return null;
 }
 var app = angular.module('ims', ['highcharts-ng']);
 
@@ -474,6 +530,22 @@ if (!ims.error){
 			setTimeout(function(){
 				$scope.$apply(function(){
 					$scope.showRoleMenu = true;
+				})
+			}, 2);
+		}
+
+		$scope.openCourseMenu = function(e){
+			var right = '71px';
+			if ($('.back-btn').length > 0){
+				right = '71px';
+			}	
+			else{
+				right = '10px';
+			}		
+			$('.semester-popup-dropdown3').css({right: right, top: '39px'});
+			setTimeout(function(){
+				$scope.$apply(function(){
+					$scope.showCourseMenu = true;
 				})
 			}, 2);
 		}
@@ -528,6 +600,7 @@ if (!ims.error){
 		$scope.toggleMenu = function(){
 			$scope.closeSearch();
 			$scope.showRoleMenu = false;
+			$scope.showCourseMenu = false;
 		}
 
 		$scope.questionClick = function(e){
@@ -560,6 +633,28 @@ if (!ims.error){
 			$(document.body).css({overflow: 'hidden'});
 		}
 
+		$scope.searching = function(q, e){
+			if (e.keyCode == 27){
+				$scope.closeSearch();
+			}
+			else{
+				setTimeout(function(){
+					var q = $(e.target).val();
+					$scope.$apply(function(){
+						$scope.suggestions = currentUser.getSuggested(q);
+					})
+				}, 10);
+			}
+		}
+
+		$scope.toggleReviewed = function(survey){
+			// little hack
+			setTimeout(function(){
+				survey.toggleReviewed();
+				$scope.$apply();
+			}, 10);
+		}
+
 	}]);
 
 	app.filter('reverse', function() {
@@ -580,7 +675,11 @@ else{
 	else{
 		app.controller('view', ['$scope', function($scope){
 
-			$('#searchScreen, #enterEmail').fadeIn();
+			setTimeout(function(){
+				User.redirectToLoggedInUser(function(){
+						$('#searchScreen, #enterEmail').fadeIn();
+				});
+			}, 10);
 			$scope.search = function(e, val){
 				if (e.keyCode == 13){
 					User.redirectToDashboard(val);
@@ -821,13 +920,23 @@ Role.prototype.getTiles = function(){
 	else if (role == 'instructor'){
 		return [
 			[
-				new Tile({
-					title: 'Completed Instructor Tasks',
-					helpText: 'These are the tasks that you completed. The link opens the results.',
-					type: 'survey-list',
-					data: this.getCompletedTasks(),
-					hidden: ''
-				}),
+				this._user.showCourseMenu() ? 
+                    new Tile({
+                        title: 'Completed Instructor Tasks',
+                        helpText: 'These are the tasks that you completed. The link opens the results.',
+                        type: 'course-survey-list',
+                        data: this.getCompletedTasksByCourse(),
+                        hidden: ''
+                    })
+                 : 
+
+                    new Tile({
+    					title: 'Completed Instructor Tasks',
+    					helpText: 'These are the tasks that you completed. The link opens the results.',
+    					type: 'survey-list',
+    					data: this.getCompletedTasks(),
+    					hidden: ''
+    				}),
 				new Tile({
 					title: 'Hours Spent',
 					helpText: 'The total number of hours recorded over the weeks',
@@ -1097,6 +1206,91 @@ Role.prototype.getInstructorHours = function(){
         }
 }
 
+Role.prototype.getInstructorStandardsDrillDown = function(e){
+    var name = e.currentTarget.name;
+    var chart = e.currentTarget.chart;
+    chart.destroy();
+    $('#TGLInstructorStandards').highcharts(this.getInstructorStandardsByName(name));
+    $('#TGLInstructorStandards').before('<div class="backBtnStandards link" id="drillup" onclick="backStandard()">Back</div>');
+}
+
+function backStandard(){
+    var u = User.getCurrent();
+    u._role.setInstructorStandardsDrillUp();
+    $('#drillup').remove();
+}
+
+Role.prototype.setInstructorStandardsDrillUp = function(){
+    $('#TGLInstructorStandards').highcharts().destroy();
+    $('#TGLInstructorStandards').highcharts(this.getInstructorStandards());
+}
+
+Role.prototype.getInstructorStandardsByName = function(name){
+    var series = [];
+    var lower = this.getLower();
+    for (var i = 0; i < lower.length; i++){
+        var data = lower[i].getStandard(name);
+        series.push({
+            type: 'line',
+            name: lower[i].getFullName(),
+            selected: false,
+            data: data,
+            marker: {
+                radus: 4,
+                symbol: 'circle'
+            }
+        })
+    }
+    return {
+            title: {
+                text: name,
+                x: -20 //center
+            },
+            subtitle: {
+                text: '',
+                x: -20
+            },
+            xAxis: {
+                categories: ['Intro', '1', '2']
+            },
+            yAxis: {
+                title: {
+                    text: ' '
+                },
+                min: 1,
+                max: 8,
+                tickInterval: 1,
+                plotLines: [{
+                    width: 2,
+                    dashStyle: 'shortdash',
+                    value: 4,
+                    color: '#000000',
+                    label: {
+                        text: 'Meets Standard'
+                    }
+                }]
+            },
+            options: {
+                tooltip: {
+                    shared: true,
+                    useHTML: true,
+                    headerFormat: '<small> Week {point.key}</small><table>',
+                    pointFormat: '<tr><td style="color: {series.color}">{series.name}: </td>' +
+                        '<td><b>{point.y:.1f}</b></td></tr>',
+                    footerFormat: '</table>',
+                    valueDecimals: 0,
+                    positioner: function(boxWidth, boxHeight, point) {
+                        return {
+                            x: 80,
+                            y: 165
+                        };
+                    }
+                }
+            },
+            series: series
+        }
+}
+
 Role.prototype.getInstructorStandards = function(){
 	var standards = [];
 	var standardsAry = ['Building Faith', 'Develop Relationships', 'Inspire a Love', 'Embrace University', 'Seek Development Opportunities'];
@@ -1112,6 +1306,7 @@ Role.prototype.getInstructorStandards = function(){
 		}
 		standards.push(seriesData);
 	}
+    var _this = this;
 	return {
             title: {
                 text: '',
@@ -1171,7 +1366,7 @@ Role.prototype.getInstructorStandards = function(){
                 color: '#434348',
                 events: {
                     click: function(e){
-                        ims.graph.TGLInstructorStandardsDrillDown(e);
+                        _this.getInstructorStandardsDrillDown(e);
                     }
                 }
             },
@@ -1187,7 +1382,7 @@ Role.prototype.getInstructorStandards = function(){
                 color: '#F7A35C',
                 events: {
                     click: function(e){
-                        ims.graph.TGLInstructorStandardsDrillDown(e);
+                        _this.getInstructorStandardsDrillDown(e);
                     }
                 }
             },
@@ -1203,7 +1398,7 @@ Role.prototype.getInstructorStandards = function(){
                 color: '#7CB5EC',
                 events: {
                     click: function(e){
-                        ims.graph.TGLInstructorStandardsDrillDown(e);
+                        _this.getInstructorStandardsDrillDown(e);
                     }
                 }
             },
@@ -1219,7 +1414,7 @@ Role.prototype.getInstructorStandards = function(){
                 color: '#8085E9',
                 events: {
                     click: function(e){
-                        ims.graph.TGLInstructorStandardsDrillDown(e);
+                        _this.getInstructorStandardsDrillDown(e);
                     }
                 }
             },
@@ -1235,7 +1430,7 @@ Role.prototype.getInstructorStandards = function(){
                 color: '#90ED7D',
                 events: {
                     click: function(e){
-                        ims.graph.TGLInstructorStandardsDrillDown(e);
+                        _this.getInstructorStandardsDrillDown(e);
                     }
                 }
             }]
@@ -1555,6 +1750,37 @@ Role.prototype.getCompletedTasks = function(){
 }
 
 /**
+ * Get the completed tasks by course
+ * @return {[type]} [description]
+ */
+Role.prototype.getCompletedTasksByCourse = function(){
+    var surveyList = {};
+    var surveys = this._user.getSurveys();
+    for (var i = 0; i < surveys.length; i++){
+        if (surveys[i].getPlacement().toLowerCase() == this.getRoleName().toLowerCase() || this.getRoleName().toLowerCase() == 'atgl' && surveys[i].getPlacement().toLowerCase() == 'tgl'){
+            if (!surveyList[surveys[i].getCourse()]){
+                surveyList[surveys[i].getCourse()] = [];
+            }
+            surveyList[surveys[i].getCourse()].push(surveys[i]);
+        }
+    }
+    var keys = Object.keys(surveyList);
+    var result = [];
+    for (var i = 0; i < keys.length; i++){
+        var course = this._user.getCourse(keys[i]);
+        if (Course.getCurrent()){
+            var c = Course.getCurrent();
+            if (c.getName() != course.getName()) continue;
+        }
+        result.push({
+            course: course,
+            surveys: surveyList[keys[i]]
+        });
+    }
+    return result;
+}
+
+/**
  * Get the href for that given role
  * @return {[type]} [description]
  */
@@ -1651,12 +1877,31 @@ Role.prototype._getHats = function(){
  	return hats;
 }
 
+Role.prototype.getSuggested = function(q){
+    var result = [];
+    for (var i = 0; i < this._org.length; i++){
+        var topUser = this._org[i];
+        if (topUser.user.getEmail().indexOf(q) > -1 ||
+            topUser.user.getFullName().indexOf(q) > -1){
+            result.push(this._org[i]);
+        }
+        for (var j = 0; j < topUser.lower.length; j++){
+            var lower = this._org[i].lower[j];
+            if (lower.user.getEmail().indexOf(q) > -1 ||
+                lower.user.getFullName().indexOf(q) > -1){
+                result.push(lower);
+            }
+        }
+    }
+    return result;
+}
+
 /**
  * Gets the roles menu, if instructor return null
  * @return {[type]} [description]
  */
 Role.prototype.getRolesMenu = function(){
-	if (this._role == 'instructor') return new Menu();
+	if (this._role.toLowerCase() == 'instructor') return new Menu();
 	var org = this._org;
 	var people = [];
 	var lowerRole = this._nextLowerForMenu(this.getRoleName().toLowerCase());
@@ -1886,6 +2131,25 @@ Survey.prototype.getPlacement = function(){
 	return this._placement;
 }
 
+/**
+ * Toggle if the survey has been reviewed or not
+ * @return {[type]} [description]
+ */
+Survey.prototype.toggleReviewed = function(){
+	var reviewed = this.isReviewed();
+	this._reviewed = !reviewed;
+	reviewed = this._reviewed ? 'true' : 'false';
+	var id = this.id;
+	var sem = ims.semesters.getCurrentCode();
+	$(this._user._xml).find('semester[code=' + sem + '] survey[id=' + id + ']').attr('reviewed', reviewed);
+	this._user.save();
+}
+
+/**
+ * Search for all questions containing text
+ * @param  {[type]} txt [description]
+ * @return {[type]}     [description]
+ */
 Survey.prototype.getQuestionsContainingText = function(txt){
 	var answers = this.getAnswers();
 	var result = [];
@@ -1988,8 +2252,10 @@ User.getCurrent = function(){
 	return window._currentUser;
 }
 
-User.getUser = function(email){
-
+User.redirectToLoggedInUser = function(err){
+	ims.sharepoint.redirectToLoggedInUser(err, function(email){
+		User.redirectToDashboard(email);
+	});
 }
 
 /**
@@ -1999,33 +2265,42 @@ User.getUser = function(email){
  */
 User.redirectToDashboard = function(email){
 	if (email.indexOf('@')) email = email.split('@')[0];
-    var doc = ims.sharepoint.getXmlByEmail(email);
-    if (doc == null) {
-      redirectError();
-    }
-    var role = '';
-    var sem = ims.semesters.getCurrentCode();
-    var inst = $(doc).find('semester[code=' + sem + '] > instructor');
-    var tgl = $(doc).find('semester[code=' + sem + '] > tgl');
-    var aim = $(doc).find('semester[code=' + sem + '] > aim');
-    if (inst.length > 0){
-      role = 'INSTRUCTOR';
-    }
-    else if (tgl.length > 0){
-      role = 'TGL';
-    }
-    else if (aim.length > 0){
-      role = 'AIM';
-    }
+  var doc = ims.sharepoint.getXmlByEmail(email);
+  if (doc == null) {
+    redirectError();
+  }
+  var role = '';
+  var sem = ims.semesters.getCurrentCode();
+  var inst = $(doc).find('semester[code=' + sem + '] > instructor');
+  var tgl = $(doc).find('semester[code=' + sem + '] > tgl');
+  var aim = $(doc).find('semester[code=' + sem + '] > aim');
+  if (inst.length > 0){
+    role = 'INSTRUCTOR';
+  }
+  else if (tgl.length > 0){
+    role = 'TGL';
+  }
+  else if (aim.length > 0){
+    role = 'AIM';
+  }
 
-    var obj = {
-      ce: email,
-      cr: role,
-      i: role,
-      e: email
-    };
-    var aes = ims.aes.encrypt(JSON.stringify(obj), ims.aes.key.hexDecode());
-    window.location.href = window.location.href.split('aspx')[0] + 'aspx?v=' + aes;
+  var obj = {
+    ce: email,
+    cr: role,
+    i: role,
+    e: email
+  };
+  var aes = ims.aes.encrypt(JSON.stringify(obj), ims.aes.key.hexDecode());
+  window.location.href = window.location.href.split('aspx')[0] + 'aspx?v=' + aes;
+}
+
+/**
+ * Get the suggested list
+ * @param  {[type]} q [description]
+ * @return {[type]}   [description]
+ */
+User.prototype.getSuggested = function(q){
+	return this._role.getSuggested(q);
 }
 
 /**
@@ -2081,6 +2356,29 @@ User.prototype._setPersonalInfo = function(noSpot){
 	this._last = $(spot).attr('last');
 	this._email = $(spot).attr('email');
 	this._new = $(spot).attr('new') != 'False';
+}
+
+/**
+ * Show the course menu for an instructor
+ * @return {[type]} [description]
+ */
+User.prototype.showCourseMenu = function(){
+	var role = this.getRole().getRoleName().toUpperCase();
+	return role == 'INSTRUCTOR' && this.getCourses().length > 1;
+}
+
+/**
+ * Returns the selected course if the user is an instructor
+ * @return {[type]} [description]
+ */
+User.prototype.selectedCourse = function(){
+	if (ims.params.c && !this._selectedCourse){
+		var course = decodeURI(ims.params.c);
+		this._selectedCourse = this.getCourse(course);
+	}
+	else{
+		return ims.params.c ? this._selectedCourse : null;
+	}
 }
 
 /**
@@ -2173,6 +2471,14 @@ User.prototype.getSurvey = function(sid){
 	for (var i = 0; i < surveys.length; i++){
 		if (surveys[i].id.toLowerCase() == sid.toLowerCase()) return surveys[i];
 	}
+}
+
+/**
+ * Save the xml to the server
+ * @return {[type]} [description]
+ */
+User.prototype.save = function(){
+	ims.sharepoint.postFile(this);
 }
 
 /**
@@ -2363,13 +2669,15 @@ User.prototype.getHoursRaw = function(){
 	var hours = [];
 	var courses = this.getCourses();
 	var hrsByCourse = {};
-	var stub = courses[0].getName();
+	var stub = Course.getCurrent() ? Course.getCurrent().getName() : courses[0].getName();
 	var credits = this.getTotalCredits();
 	for (var i = 0; i < courses.length; i++){
+		if (Course.getCurrent() && Course.getCurrent().getName() != courses[i].getName()) continue;
 		hrsByCourse[courses[i].getName()] = [];
 	}
 	if (courses.length > 1){
 		for (var i = 0; i < wr.length; i++){
+			if (Course.getCurrent() && Course.getCurrent().getName() != wr[i].getCourse()) continue;
 			var hr = wr[i].getQuestionsContainingText("weekly hours");
 			if (hr[0].hasAnswer()){
 				var h = hr[0].getAnswer();
@@ -2384,6 +2692,7 @@ User.prototype.getHoursRaw = function(){
 		for (var i = 0; i < hrsByCourse[stub].length; i++){
 			var total = 0;
 			for (var j = 0; j < courses.length; j++){
+				if (Course.getCurrent() && Course.getCurrent().getName() != courses[j].getName()) continue;
 				total += hrsByCourse[courses[j].getName()][i];
 			}
 			hours.push(total);
@@ -2411,12 +2720,14 @@ User.prototype.getStandard = function(name){
 	var hours = [];
 	var courses = this.getCourses();
 	var hrsByCourse = {};
-	var stub = courses[0].getName();
+	var stub = Course.getCurrent() ? Course.getCurrent().getName() : courses[0].getName();
 	for (var i = 0; i < courses.length; i++){
+		if (Course.getCurrent() && Course.getCurrent().getName() != courses[i].getName()) continue;
 		hrsByCourse[courses[i].getName()] = [];
 	}
 	if (courses.length > 1){
 		for (var i = 0; i < wr.length; i++){
+			if (Course.getCurrent() && Course.getCurrent().getName() != wr[i].getCourse()) continue;
 			var hr = wr[i].getQuestionsContainingText(name.toLowerCase());
 			if (hr[0].hasAnswer()){
 				var h = hr[0].getAnswer();
@@ -2430,10 +2741,13 @@ User.prototype.getStandard = function(name){
 		}
 		for (var i = 0; i < hrsByCourse[stub].length; i++){
 			var total = 0;
+			var totalCourses = 0;
 			for (var j = 0; j < courses.length; j++){
+				if (Course.getCurrent() && Course.getCurrent().getName() != courses[j].getName()) continue;
+				totalCourses++;
 				total += hrsByCourse[courses[j].getName()][i];
 			}
-			hours.push(total / courses.length);
+			hours.push(total / totalCourses);
 		}
 	}
 	else{
@@ -2529,6 +2843,22 @@ User.prototype.getCourses = function(){
 		})
 	}
 	return this._courses;
+}
+
+/**
+ * Get a course by name
+ * @param  {[type]} name [description]
+ * @return {[type]}      [description]
+ */
+User.prototype.getCourse = function(name){
+	var result = null;
+	var courses = this.getCourses();
+	if (courses.length > 0){
+		for (var i = 0; i < courses.length; i++){
+			if (courses[i].getName().toUpperCase() == name.toUpperCase()) return courses[i];
+		}
+	}
+	return result;
 }
 
 /**

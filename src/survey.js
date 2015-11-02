@@ -77,6 +77,25 @@ Survey.prototype.getPlacement = function(){
 	return this._placement;
 }
 
+/**
+ * Toggle if the survey has been reviewed or not
+ * @return {[type]} [description]
+ */
+Survey.prototype.toggleReviewed = function(){
+	var reviewed = this.isReviewed();
+	this._reviewed = !reviewed;
+	reviewed = this._reviewed ? 'true' : 'false';
+	var id = this.id;
+	var sem = ims.semesters.getCurrentCode();
+	$(this._user._xml).find('semester[code=' + sem + '] survey[id=' + id + ']').attr('reviewed', reviewed);
+	this._user.save();
+}
+
+/**
+ * Search for all questions containing text
+ * @param  {[type]} txt [description]
+ * @return {[type]}     [description]
+ */
 Survey.prototype.getQuestionsContainingText = function(txt){
 	var answers = this.getAnswers();
 	var result = [];
