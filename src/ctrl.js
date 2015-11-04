@@ -97,6 +97,15 @@ if (!ims.error){
 			$('#fade').fadeIn();
 		}
 
+		$(document).keyup(function(e){
+			if (e.keyCode == 27){
+				$scope.$apply(function(){
+					$scope.closeOverlay();
+					$scope.toggleMenu();
+				})
+			}
+		});
+
 		// GLOBAL
 		$scope.toggleMenu = function(){
 			$scope.closeSearch();
@@ -119,10 +128,16 @@ if (!ims.error){
 		}
 
 		$scope.closeOverlay = function(e){
-			$(e.target).parent().fadeOut('fast');
+			$('.rawDataOverlay').fadeOut('fast');
 			$('.background-cover').fadeOut('fast');
 			$(document.body).css({overflow: 'auto'});
 		}
+
+		$('.background-cover').click(function(){
+			$scope.$apply(function(){
+				$scope.closeOverlay();
+			})
+		})
 
 		$scope.openSurveyData = function(survey){
 			$scope.selectedSurvey = survey;
@@ -157,12 +172,34 @@ if (!ims.error){
 		}
 
 	}]);
-
+	
+	/**
+	 * Revers the items in an ng-repeat
+	 */
 	app.filter('reverse', function() {
 	  return function(items) {
 	    if (items) return items.slice().reverse();
 	  };
 	});
+
+	/**
+	 * Remove the duplates from the suggestions ng-repeat
+	 */
+	app.filter('noDuplicates', function(){
+		return function(items){
+			var result = [];
+			var found = {};
+			for (var i = 0; i < items.length; i++){
+				var first = items[i].user.getRole().getRoleName().toUpperCase().slice(0, 4);
+				var last = items[i].user.getFullName();
+				if (!found[first + ' - ' + last]){
+					result.push(items[i]);
+					found[first + ' - ' + last] = true;
+				}
+			}
+			return result;
+		}
+	})
 }
 else{
 	if (!ims.search){

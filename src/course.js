@@ -2,8 +2,11 @@ function Course(xml){
 	this._name = $(xml).text();
 	this._credits = parseInt($(xml).attr('credit'));
 	this._sections = $(xml).attr('section').indexOf(' ') > -1 ? $(xml).attr('section').split(' ') : [$(xml).attr('section')];
-	this._pilot = $(xml).attr('pilot') == 'True';
+	this._pilot = $(xml).attr('pilot') == 'true';
+	this._id = $(xml).attr('id');
 }
+
+Course.prototype.getId = function(){return this._id;}
 
 /**
  * Get the name of the course

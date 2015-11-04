@@ -1,5 +1,5 @@
 function Survey(xml, user){
-	this._course = $(xml).attr('course');
+	this._course = user.getCourseById($(xml).attr('courseid'));
 	this._xml = xml;
 	this._user = user;
 	this.id = $(xml).attr('id');
@@ -36,11 +36,15 @@ Survey.prototype._setAnswers = function(){
  */
 Survey.prototype.getName = function(){
 	if (this.withCourse && this._user.getCourses().length > 1){
-		return this._name + ' ' + this.getCourse();
+		return this._name + ' - ' + this.getCourse().getName();
 	}
 	return this._name;
 }
 
+/**
+ * Verifiy if the survey is reviewed
+ * @return {Boolean} [description]
+ */
 Survey.prototype.isReviewed = function(){
 	return this._reviewed;
 }
@@ -82,12 +86,12 @@ Survey.prototype.getPlacement = function(){
  * @return {[type]} [description]
  */
 Survey.prototype.toggleReviewed = function(){
+	if (this._user.getLeader() != ims.aes.value.e) return;
 	var reviewed = this.isReviewed();
 	this._reviewed = !reviewed;
 	reviewed = this._reviewed ? 'true' : 'false';
 	var id = this.id;
-	var sem = ims.semesters.getCurrentCode();
-	$(this._user._xml).find('semester[code=' + sem + '] survey[id=' + id + ']').attr('reviewed', reviewed);
+	$(this._user._xml).find('> surveys survey[id=' + id + ']').attr('reviewed', reviewed);
 	this._user.save();
 }
 
@@ -112,9 +116,6 @@ Survey.prototype.getQuestionsContainingText = function(txt){
  * @return {[type]} [description]
  */
 Survey.prototype.getCourse = function(){
-	var isValidCourse = this._course.match(/[a-zA-Z]* ([0-9]{3}[a-zA-Z]|[0-9]{3})/g);
-	isValidCourse = isValidCourse && isValidCourse.length > 0;
-	if (!isValidCourse) return null;
 	return this._course;
 }
 

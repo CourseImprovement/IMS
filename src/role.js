@@ -1,4 +1,4 @@
-function Role(role, user){
+function Role(role, user, dontSetOrg){
 	this._role = role;
 	this._user = user;
 
@@ -6,7 +6,7 @@ function Role(role, user){
 		this._org = null;
 	}
 	else{
-		this._org = this._setOrg();
+		if (!dontSetOrg) this._org = this._setOrg();
 	}
 	this.aim = false;
 }
@@ -207,15 +207,14 @@ Role.prototype.getSingleInstructorStandard = function(name){
 	var all = this.getQuestionForAll(name).getData();
 	var group = [];
 	var allAry = [];
-	for (var j = 0; j < data.length; j++){
+	for (var j = 0; j < all.length; j++){
+        var val = parseFloat(all[j]);
+        val = Math.floor(val * 10) / 10;
+        allAry.push(val);
 
 		var val = parseFloat(data[j]);
 		val = Math.floor(val * 10) / 10;
 		group.push(val);
-
-		var val = parseFloat(all[j]);
-		val = Math.floor(val * 10) / 10;
-		allAry.push(val);
 	}
 	var single = this._user.getStandard(name);
 	return {
@@ -677,7 +676,9 @@ Role.prototype.getAvgInstructorHoursByGroup = function(){
             yAxis: {
                 title: {
                     text: 'Average Hours/Credit'
-                }
+                },
+                min: 1,
+                max: 4.5,
             },
             options: {
                 tooltip: {
@@ -788,25 +789,38 @@ Role.prototype.isRoleDownFromCurrentUser = function(user){
  * @return {Object} Current users organization
  */
 Role.prototype._setOrg = function(){
-	var org = [];
-	var sem = ims.semesters.getCurrentCode();
-	var topRole = '';
-	if ($(this._user._xml).find('semester[code=' + sem + ']').length == 0){
-		topRole = $(this._user._xml).children().first()[0].nodeName.toLowerCase();
-	}
-	else{
-		topRole = $(this._user._xml).find('semester[code=' + sem + ']').children().first()[0].nodeName.toLowerCase();
-	}
-	var lowerRole = this._nextLower(topRole);
-	var org = this._recursiveChildren(topRole, lowerRole);
-	for (var i = 0; i < org.length; i++){
-		if (this.isRoleDownFromCurrentUser(org[i].user))
-			org[i].user = new User({email: org[i].user.getEmail(), role: lowerRole});
-	}
-
-	return org;
+	return this._recursiveChildren(this._user._xml);
 }
 
+/**
+ * Recursivly get the org
+ * @param  {[type]} topRole [description]
+ * @param  {[type]} lower   [description]
+ * @return {[type]}         [description]
+ */
+Role.prototype._recursiveChildren = function(xml){
+    var org = [];
+    var _this = this;
+    var people = $(xml).find('> stewardship > people > person');
+    if (people.length == 0) return [];
+    for (var i = 0; i < people.length; i++){
+        var person = people[i];
+        var role = $(person).attr('type');
+        if (!role) role = $(person).attr('highestrole');
+        var user = new User({email: $(person).attr('email'), role: role, isBase: false, xml: person});
+        org.push({
+            user: user,
+            lower: _this._recursiveChildren($(person).find('> roles > role[type=' + $(person).attr('type') + ']'))
+        })
+    }
+    return org;
+}
+
+/**
+ * Get the next lower role
+ * @param  {[type]} role [description]
+ * @return {[type]}      [description]
+ */
 Role.prototype._nextLower = function(role){
 	switch (role){
 		case 'im': return 'aim';
@@ -824,6 +838,28 @@ Role.prototype._nextLower = function(role){
 	return null;
 }
 
+Role.prototype._nextHigher = function(role){
+    switch (role){
+        case 'aim': return 'im';
+        case 'tgl': return 'aim';
+
+        case 'atgl': return 'aim';
+
+        case 'ocr': return 'ocrm';
+        case 'ocrm': return 'aim';
+        case 'instructor': return 'tgl';
+        default: {
+            return null;
+        }
+    }
+    return null;
+}
+
+/**
+ * Get the next lower role for the menu
+ * @param  {[type]} role [description]
+ * @return {[type]}      [description]
+ */
 Role.prototype._nextLowerForMenu = function(role){
 	switch (role){
 		case 'im': return 'aim';
@@ -841,33 +877,30 @@ Role.prototype._nextLowerForMenu = function(role){
 	return null;
 }
 
+/**
+ * API call for _nextLowerRole()
+ * @return {[type]} [description]
+ */
 Role.prototype.getLowerRole = function(){
 	return this._nextLower(this.getRoleName().toLowerCase());
 }
 
+/**
+ * API call for _nextHigherRole()
+ * @return {[type]} [description]
+ */
+Role.prototype.getHigherRole = function(){
+    return this._nextHigher(this.getRoleName().toLowerCase());
+}
+
+/**
+ * Init function for lower role
+ * @return {[type]} [description]
+ */
 Role.prototype.getLowerRoleInit = function(){
 	if (this._user.isCurrent())
 		return this._nextLower(this.getRoleName().toLowerCase());
 	return false;
-}
-
-Role.prototype._recursiveChildren = function(topRole, lower){
-	var org = [];
-	var lowerRole = this._nextLower(lower);
-	if (lower == null) return org;
-	var sem = ims.semesters.getCurrentCode();
-	var loopies = $(this._user._xml).find('semester[code=' + sem + '] ' + topRole + ' ' + lower);
-	for (var i = 0; i < loopies.length; i++){
-		var underlings = this._recursiveChildren(lower, lowerRole);
-		var user = new User({xml: loopies[i], role: lower});
-		if (!user._first) continue;
-		var o = {
-			user: user,
-			lower: underlings
-		};
-		org.push(o);
-	}
-	return org;
 }
 
 /**
@@ -876,7 +909,9 @@ Role.prototype._recursiveChildren = function(topRole, lower){
  * @return {Array}      average value for standard in group by week
  */
 Role.prototype.getQuestionForGroup = function(email, name){
-	return new Rollup({level: this.getRoleName().toLowerCase() == 'atgl' ? 'aim' : 'tgl', email: email, question: name});
+    var role = this.getRoleName().toLowerCase();
+    if (this._user.isCurrent() && role == 'tgl' && this._user.getHighestRole().toLowerCase() == 'aim') role = 'aim';
+	return new Rollup({level: role, email: email, question: name});
 }
 
 /**
@@ -906,7 +941,7 @@ Role.prototype.getRoster = function(){
  * @return {[type]} [description]
  */
 Role.prototype.getLeader = function(){
-
+    return this._user.getLeader();
 }
 
 /**
@@ -926,12 +961,7 @@ Role.prototype.getLower = function(){
  * @return {[type]} [description]
  */
 Role.prototype.getLowerTasks = function(){
-	var underlings = this.getLower();
-	var users = [];
-	for (var i = 0; i < underlings.length; i++){
-		users.push(new User({email: underlings[i].getEmail()}));
-	}
-	return users;
+    return this.getLower();
 }
 
 /**
@@ -987,10 +1017,10 @@ Role.prototype.getCompletedTasksByCourse = function(){
 Role.prototype.getHref = function(){
 	var val = JSON.parse(JSON.stringify(ims.aes.value));
   val.ce = this._user.getEmail();
-  val.cr = this.getRoleName();
-  if (this.getRoleName().toLowerCase() == 'tgl' && this.aim){
-  	val.cr = 'a' + this.getRoleName();
-  }
+  val.cr = this.getRoleName().toUpperCase();
+  // if (this.getRoleName().toLowerCase() == 'tgl' && this.aim){
+  // 	val.cr = 'a' + this.getRoleName();
+  // }
   val.pe = val.e;
   val.pr = val.i;
   var str = JSON.stringify(val);
@@ -1010,6 +1040,7 @@ Role.prototype._getHats = function(){
 	var role = this.getRoleName().toLowerCase();
 	var hats = [];
 	if (role == 'instructor') return hats;
+
 	if (this._user.isCurrent()){
 		hats.push({
 			value: 'My Views',
@@ -1026,54 +1057,21 @@ Role.prototype._getHats = function(){
 			selected: false
 		});
 	}
-	if (role == 'tgl'){
-		var instructor = this._user.getRoleAs('instructor');
-		hats.push({
-			value: 'Instructor',
-			href: instructor.getHref(),
-			selected: false
-		});
 
-		var tgl = this._user.getRoleAs('instructor');
-		window._selectedRole = "TGL";
-		hats.push({
-			value: 'TGL',
-			href: tgl.getHref(),
-			selected: true
-		})
-	}
- 	if (role == 'aim'){
- 		var tgl = this._user.getRoleAs('tgl');
- 		tgl.aim = true;
- 		hats.push({
-			value: 'TGL',
-			href: tgl.getHref(),
-			selected: false
-		});
-		var aim = this._user.getRoleAs('aim');
-		window._selectedRole = "AIM";
-		hats.push({
-			value: 'AIM',
-			href: aim.getHref(),
-			selected: true
-		});
- 	}
- 	if (role == 'atgl'){
- 		var tgl = this._user.getRoleAs('tgl');
- 		tgl.aim = true;
- 		hats.push({
-			value: 'TGL',
-			href: tgl.getHref(),
-			selected: true
-		});
-		var aim = this._user.getRoleAs('aim');
-		window._selectedRole = "TGL";
-		hats.push({
-			value: 'AIM',
-			href: aim.getHref(),
-			selected: false
-		});
- 	}
+    var roles = this._user.getAllRoles();
+    for (var i = 0; i < roles.length; i++){
+        var userRole = this._user.getRoleAs(roles[i]);
+        var name = roles[i];
+        if (name == 'aim' || name == 'tgl') name = name.toUpperCase();
+        else name = name.charAt(0).toUpperCase() + name.slice(1);
+        var isSelected = this.getRoleName().toUpperCase() == name.toUpperCase();
+        if (isSelected) window._selectedRole = name;
+        hats.push({
+            value: name,
+            href: userRole.getHref(),
+            selected: isSelected
+        });
+    }
  	return hats;
 }
 

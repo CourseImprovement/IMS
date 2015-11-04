@@ -2,7 +2,7 @@ function Question(xml, survey){
 	this._answer = $(xml).text();
 	this._survey = survey;
 	this._xml = xml;
-	this._id = $(xml).attr('qid');
+	this._id = $(xml).attr('id');
 	this._surveyId = survey.id;
 	this._qconfig = $(Survey.getConfig()).find('survey[id=' + this._surveyId + '] question[id=' + this._id + ']')[0];
 	this._text = $(this._qconfig).find('text').text();

@@ -52,7 +52,7 @@
 				<li class="course-drop-down right person-drop-down" ng-if='user.showCourseMenu()' ng-click='openCourseMenu($event)'>{{user.selectedCourse() ? user.selectedCourse().getName() : 'All'}}<div class='arrow-down2'><i class="fa fa-arrow-down"></i></div></li>
 			</ul>
 			<ol class="suggestion" ng-if='suggestions.length > 0'>
-				<li ng-repeat='s in suggestions' ng-click='redirect(s.user.getHref())' ng-class='s.selected ? "selected" : ""'><div>{{s.user.getRole().getRoleName().toUpperCase()}}</div>{{s.user.getFullName()}}</li>
+				<li ng-repeat='s in suggestions | noDuplicates' ng-click='redirect(s.user.getHref())' ng-class='s.selected ? "selected" : ""'>{{s.user.getRole().getRoleName().toUpperCase().slice(0, 4)}} - {{s.user.getFullName()}}</li>
 			</ol>
 			<div class="dashboard-title">Instructor Management System</div>
 		</div>

@@ -1,48 +1,23 @@
 window._currentUser = null;
-window._userXml = {};
+window._baseUserXml = ims.sharepoint.getXmlByEmail(ims.aes.value.ce);
 
 function User(obj){
 	if (!obj) throw "Invalid User Object";
+	if (!obj.email) throw 'Invalid email';
 
-	if (obj['email']){
-		this._email = obj['email'];
-		if (_userXml[this._email]){
-			this._xml = _userXml[this._email]
-		}
-		else{
-			this._xml = ims.sharepoint.getXmlByEmail(this._email);
-			_userXml[this._email] = this._xml;
-		}
-
-		this._first = null;
-		this._last = null;
-		this._setPersonalInfo();
-		this._courses = [];
-		this._setCourses();
-		this._surveys = [];
-		this._setSurveys();
-		this._semesters = [];
-		this._isCurrent = obj.current == true;
-		this._new = false;
-
-	}
-	if (obj['xml']){
-		this._xml = obj['xml'];
-		this._first = null;
-		this._last = null;
-		this._setPersonalInfo(true);
-		this._courses = [];
-		this._surveys = [];
-		this._semesters = [];
-		this._isCurrent = obj.current == true;
-		this._new = false;
-	}
-	if (this._isCurrent){
-		this._role = new Role(ims.aes.value.cr, this);
-	}
-	else if (obj.role){
-		this._role = new Role(obj.role, this);
-	}
+	this._email = obj.email;
+	this._first = null;
+	this._last = null;
+	this._baseRole = obj.role.toLowerCase();
+	this._setPersonalInfo(obj.isBase, obj.xml);
+	this._courses = [];
+	this._setCourses();
+	this._surveys = [];
+	this._setSurveys();
+	this._semesters = [];
+	this._isCurrent = obj.isBase == true;
+	this._new = false;
+	this._role = new Role(this._baseRole, this);
 }
 
 /**
@@ -57,7 +32,7 @@ User.HoursStandard = 3.5;
  */
 User.getCurrent = function(){
 	if (!window._currentUser){
-		window._currentUser = new User({email: ims.aes.value.ce, current: true});
+		window._currentUser = new User({email: ims.aes.value.ce, role: ims.aes.value.cr, isBase: true});
 	}
 	return window._currentUser;
 }
@@ -79,20 +54,8 @@ User.redirectToDashboard = function(email){
   if (doc == null) {
     redirectError();
   }
-  var role = '';
   var sem = ims.semesters.getCurrentCode();
-  var inst = $(doc).find('semester[code=' + sem + '] > instructor');
-  var tgl = $(doc).find('semester[code=' + sem + '] > tgl');
-  var aim = $(doc).find('semester[code=' + sem + '] > aim');
-  if (inst.length > 0){
-    role = 'INSTRUCTOR';
-  }
-  else if (tgl.length > 0){
-    role = 'TGL';
-  }
-  else if (aim.length > 0){
-    role = 'AIM';
-  }
+  var role = $(doc).find('semester[code=' + sem + '] > people > person').attr('highestrole').toUpperCase();
 
   var obj = {
     ce: email,
@@ -111,6 +74,19 @@ User.redirectToDashboard = function(email){
  */
 User.prototype.getSuggested = function(q){
 	return this._role.getSuggested(q);
+}
+
+/**
+ * Get all the roles associated with the user
+ * @return {[type]} [description]
+ */
+User.prototype.getAllRoles = function(){	
+	var roles = $(this._xml).parent().find('> role');
+	var result = [];
+	for (var i = 0; i < roles.length; i++){
+		result.push($(roles[i]).attr('type'));
+	}
+	return result;
 }
 
 /**
@@ -142,10 +118,9 @@ User.prototype.isCurrent = function(){
  * Internal function to populate the users surveys into the _surveys
  * array
  */
-User.prototype._setSurveys = function(){
-	var sem = ims.semesters.getCurrentCode(); 
+User.prototype._setSurveys = function(){ 
 	var _this = this;
-	$(this._xml).find('semester[code=' + sem + '] survey').each(function(){
+	$(this._xml).find('> surveys survey').each(function(){
 		_this._surveys.push(new Survey(this, _this));
 	})
 }
@@ -153,19 +128,21 @@ User.prototype._setSurveys = function(){
 /**
  * Set the basic personal information
  */
-User.prototype._setPersonalInfo = function(noSpot){
+User.prototype._setPersonalInfo = function(isBase, userXml){
 	var sem = ims.semesters.getCurrentCode();
-	var spot;
-	if (noSpot){
-		spot = this._xml;
-	}
-	else{
-		spot = $(this._xml).find('semester[code=' + sem + ']').children().first();
-	}
+ 	var spot = null;
+ 	if (isBase){
+ 		spot = $(window._baseUserXml).find('semester[code=' + sem + '] > people > person');
+ 	}
+ 	else{
+ 		spot = $(userXml);
+ 	}
 	this._first = $(spot).attr('first');
 	this._last = $(spot).attr('last');
 	this._email = $(spot).attr('email');
-	this._new = $(spot).attr('new') != 'False';
+	this._new = $(spot).attr('new') != 'false';
+	this._xml = $(spot).find('> roles > role[type=' + this._baseRole + ']');
+	this._personXml = spot;
 }
 
 /**
@@ -196,8 +173,7 @@ User.prototype.selectedCourse = function(){
  */
 User.prototype._setCourses = function(){
 	var _this = this;
-	var sem = ims.semesters.getCurrentCode();
-	$(this._xml).find('semester[code=' + sem + '] course').each(function(){
+	$(this._xml).find('course').each(function(){
 		_this._courses.push(new Course(this));
 	})
 }
@@ -207,10 +183,6 @@ User.prototype._setCourses = function(){
  * @return {[type]} [description]
  */
 User.prototype.getFirst = function(){
-	if (this._first == null){
-		var sem = ims.semesters.getCurrentCode(); 
-		this._first = $(this._xml).find('semester[code=' + sem + ']').children().first().attr('first');
-	}
 	return this._first;
 }
 
@@ -219,11 +191,11 @@ User.prototype.getFirst = function(){
  * @return {[type]} [description]
  */
 User.prototype.getLast = function(){
-	if (this._last == null){
-		var sem = ims.semesters.getCurrentCode(); 
-		this._last = $(this._xml).find('semester[code=' + sem + ']').children().first().attr('last');
-	}
 	return this._last;
+}
+
+User.prototype.getHighestRole = function(){
+	return $(this._xml).parent().parent().attr('highestrole');
 }
 
 /**
@@ -231,8 +203,10 @@ User.prototype.getLast = function(){
  * @type {[type]}
  */
 User.prototype.getLeader = function(){
-	var sem = ims.semesters.getCurrentCode(); 
-	return $(this._xml).find('semester[code=' + sem + ']').children().first().attr('tgl_email');
+	var type = '';
+	if (this._baseRole == 'tgl') type = 'aim';
+	else if (this._baseRole == 'instructor') type = 'tgl';
+	return $(this._xml).find('> leadership person[type=' + type + ']').attr('email');
 }
 
 /**
@@ -249,17 +223,6 @@ User.prototype.getEmail = function(){
  */
 User.prototype.getFullEmail = function(){
 	return this._email + '@byui.edu';
-}
-
-/**
- * Get the user answers by surveyId and questionId
- * @param  {[type]} sid [description]
- * @param  {[type]} qid [description]
- * @return {[type]}     [description]
- */
-User.prototype.getAnswer = function(sid, qid){
-	var sem = ims.semesters.getCurrentCode(); 
-	return $(this._xml).find('semester[code=' + sem + '] survey[id=' + sid + '] answer[qid=' + qid + ']').text();
 }
 
 /**
@@ -329,7 +292,7 @@ User.prototype.getRole = function(){
  * @return {[type]}      [description]
  */
 User.prototype.getRoleAs = function(type){
-	return new Role(type, this);
+	return new Role(type, this, true);
 }
 
 /**
@@ -351,7 +314,7 @@ User.prototype.getHref = function(){
 	}
 	var val = JSON.parse(JSON.stringify(ims.aes.value));
   val.ce = this.getEmail();
-  val.cr = this.getRole().getRoleName();
+  val.cr = this.getRole().getRoleName().toUpperCase();
   val.pe = val.e;
   val.pr = val.i;
   var str = JSON.stringify(val);
@@ -423,10 +386,10 @@ User.prototype.getHours = function(){
 				var h = hr[0].getAnswer();
 				var val = parseFloat(h);
 				val = Math.floor(val * 10) / 10;
-				hrsByCourse[wr[i].getCourse()].push(val);
+				hrsByCourse[wr[i].getCourse().getName()].push(val);
 			}
 			else{
-				hrsByCourse[wr[i].getCourse()].push(0);
+				hrsByCourse[wr[i].getCourse().getName()].push(0);
 			}
 		}
 		for (var i = 0; i < hrsByCourse[stub].length; i++){
@@ -493,10 +456,10 @@ User.prototype.getHoursRaw = function(){
 				var h = hr[0].getAnswer();
 				var val = parseFloat(h);
 				val = Math.floor(val * 10) / 10;
-				hrsByCourse[wr[i].getCourse()].push(val);
+				hrsByCourse[wr[i].getCourse().getName()].push(val);
 			}
 			else{
-				hrsByCourse[wr[i].getCourse()].push(0);
+				hrsByCourse[wr[i].getCourse().getName()].push(0);
 			}
 		}
 		for (var i = 0; i < hrsByCourse[stub].length; i++){
@@ -543,10 +506,10 @@ User.prototype.getStandard = function(name){
 				var h = hr[0].getAnswer();
 				var val = parseFloat(h);
 				val = Math.floor(val * 10) / 10;
-				hrsByCourse[wr[i].getCourse()].push(val);
+				hrsByCourse[wr[i].getCourse().getName()].push(val);
 			}
 			else{
-				hrsByCourse[wr[i].getCourse()].push(0);
+				hrsByCourse[wr[i].getCourse().getName()].push(0);
 			}
 		}
 		for (var i = 0; i < hrsByCourse[stub].length; i++){
@@ -647,8 +610,7 @@ User.redirectBack = function(){
 User.prototype.getCourses = function(){
 	if (this._courses.length == 0){
 		var _this = this;
-		var sem = ims.semesters.getCurrentCode();
-		$(this._xml).find('semester [code=' + sem + '] course').each(function(){
+		$(this._personXml).find('> courses course').each(function(){
 			_this._courses.push(new Course(this));
 		})
 	}
@@ -666,6 +628,22 @@ User.prototype.getCourse = function(name){
 	if (courses.length > 0){
 		for (var i = 0; i < courses.length; i++){
 			if (courses[i].getName().toUpperCase() == name.toUpperCase()) return courses[i];
+		}
+	}
+	return result;
+}
+
+/**
+ * Get a course by id
+ * @param  {[type]} id [description]
+ * @return {[type]}    [description]
+ */
+User.prototype.getCourseById = function(id){
+	var result = null;
+	var courses = this.getCourses();
+	if (courses.length > 0){
+		for (var i = 0; i < courses.length; i++){
+			if (courses[i].getId() == id) return courses[i];
 		}
 	}
 	return result;

@@ -305,6 +305,43 @@ ims.sharepoint = {
 	    });
 		});
 	},
+	postFileTestTest: function(){
+		for (var i = 0; i < 1500; i++){
+			ims.sharepoint.postFileTest(i + '-test.txt');
+		}
+	},
+	postFileTest: function(fileName){
+		function str2ab(str) {
+			// new TextDecoder(encoding).decode(uint8array);
+		  return new TextEncoder('utf8').encode(str);
+		}
+		
+		var buffer = str2ab(User.getCurrent()._xml.firstChild.outerHTML);
+		var url = ims.sharepoint.base + "_api/Web/GetFolderByServerRelativeUrl('" + ims.sharepoint.relativeBase + "Instructor%20Reporting/Test')/Files/add(url='" + fileName + "')";
+    $['ajax']({
+		    'url': ims.sharepoint.base + "_api/contextinfo",
+		    'header': {
+		        "accept": "application/json; odata=verbose",
+		        "content-type": "application/json;odata=verbose"
+		    },
+		    'type': "POST",
+		    'contentType': "application/json;charset=utf-8"
+		}).done(function(d) {
+			jQuery['ajax']({
+	        'url': url,
+	        'type': "POST",
+	        'data': buffer,
+	        'processData': false,
+	        'headers': {
+	            "accept": "application/json;odata=verbose",
+	            "X-RequestDigest": $(d).find('d\\:FormDigestValue, FormDigestValue').text()
+	        },
+	        'success': function(){
+	        	
+	        }
+	    });
+		});
+	},
 	/**
 	 * Marks a certain users survey as reviewed.
 	 * @param  {string} id       The ID of the survey
@@ -449,8 +486,11 @@ function Course(xml){
 	this._name = $(xml).text();
 	this._credits = parseInt($(xml).attr('credit'));
 	this._sections = $(xml).attr('section').indexOf(' ') > -1 ? $(xml).attr('section').split(' ') : [$(xml).attr('section')];
-	this._pilot = $(xml).attr('pilot') == 'True';
+	this._pilot = $(xml).attr('pilot') == 'true';
+	this._id = $(xml).attr('id');
 }
+
+Course.prototype.getId = function(){return this._id;}
 
 /**
  * Get the name of the course
@@ -596,6 +636,15 @@ if (!ims.error){
 			$('#fade').fadeIn();
 		}
 
+		$(document).keyup(function(e){
+			if (e.keyCode == 27){
+				$scope.$apply(function(){
+					$scope.closeOverlay();
+					$scope.toggleMenu();
+				})
+			}
+		});
+
 		// GLOBAL
 		$scope.toggleMenu = function(){
 			$scope.closeSearch();
@@ -618,10 +667,16 @@ if (!ims.error){
 		}
 
 		$scope.closeOverlay = function(e){
-			$(e.target).parent().fadeOut('fast');
+			$('.rawDataOverlay').fadeOut('fast');
 			$('.background-cover').fadeOut('fast');
 			$(document.body).css({overflow: 'auto'});
 		}
+
+		$('.background-cover').click(function(){
+			$scope.$apply(function(){
+				$scope.closeOverlay();
+			})
+		})
 
 		$scope.openSurveyData = function(survey){
 			$scope.selectedSurvey = survey;
@@ -656,12 +711,34 @@ if (!ims.error){
 		}
 
 	}]);
-
+	
+	/**
+	 * Revers the items in an ng-repeat
+	 */
 	app.filter('reverse', function() {
 	  return function(items) {
 	    if (items) return items.slice().reverse();
 	  };
 	});
+
+	/**
+	 * Remove the duplates from the suggestions ng-repeat
+	 */
+	app.filter('noDuplicates', function(){
+		return function(items){
+			var result = [];
+			var found = {};
+			for (var i = 0; i < items.length; i++){
+				var first = items[i].user.getRole().getRoleName().toUpperCase().slice(0, 4);
+				var last = items[i].user.getFullName();
+				if (!found[first + ' - ' + last]){
+					result.push(items[i]);
+					found[first + ' - ' + last] = true;
+				}
+			}
+			return result;
+		}
+	})
 }
 else{
 	if (!ims.search){
@@ -737,7 +814,7 @@ function Question(xml, survey){
 	this._answer = $(xml).text();
 	this._survey = survey;
 	this._xml = xml;
-	this._id = $(xml).attr('qid');
+	this._id = $(xml).attr('id');
 	this._surveyId = survey.id;
 	this._qconfig = $(Survey.getConfig()).find('survey[id=' + this._surveyId + '] question[id=' + this._id + ']')[0];
 	this._text = $(this._qconfig).find('text').text();
@@ -798,7 +875,7 @@ Question.prototype._cleanAnswer = function(){
 		this._answer = this._answer.replace(r, rwith[i]);
 	}
 }
-function Role(role, user){
+function Role(role, user, dontSetOrg){
 	this._role = role;
 	this._user = user;
 
@@ -806,7 +883,7 @@ function Role(role, user){
 		this._org = null;
 	}
 	else{
-		this._org = this._setOrg();
+		if (!dontSetOrg) this._org = this._setOrg();
 	}
 	this.aim = false;
 }
@@ -1007,15 +1084,14 @@ Role.prototype.getSingleInstructorStandard = function(name){
 	var all = this.getQuestionForAll(name).getData();
 	var group = [];
 	var allAry = [];
-	for (var j = 0; j < data.length; j++){
+	for (var j = 0; j < all.length; j++){
+        var val = parseFloat(all[j]);
+        val = Math.floor(val * 10) / 10;
+        allAry.push(val);
 
 		var val = parseFloat(data[j]);
 		val = Math.floor(val * 10) / 10;
 		group.push(val);
-
-		var val = parseFloat(all[j]);
-		val = Math.floor(val * 10) / 10;
-		allAry.push(val);
 	}
 	var single = this._user.getStandard(name);
 	return {
@@ -1477,7 +1553,9 @@ Role.prototype.getAvgInstructorHoursByGroup = function(){
             yAxis: {
                 title: {
                     text: 'Average Hours/Credit'
-                }
+                },
+                min: 1,
+                max: 4.5,
             },
             options: {
                 tooltip: {
@@ -1588,25 +1666,38 @@ Role.prototype.isRoleDownFromCurrentUser = function(user){
  * @return {Object} Current users organization
  */
 Role.prototype._setOrg = function(){
-	var org = [];
-	var sem = ims.semesters.getCurrentCode();
-	var topRole = '';
-	if ($(this._user._xml).find('semester[code=' + sem + ']').length == 0){
-		topRole = $(this._user._xml).children().first()[0].nodeName.toLowerCase();
-	}
-	else{
-		topRole = $(this._user._xml).find('semester[code=' + sem + ']').children().first()[0].nodeName.toLowerCase();
-	}
-	var lowerRole = this._nextLower(topRole);
-	var org = this._recursiveChildren(topRole, lowerRole);
-	for (var i = 0; i < org.length; i++){
-		if (this.isRoleDownFromCurrentUser(org[i].user))
-			org[i].user = new User({email: org[i].user.getEmail(), role: lowerRole});
-	}
-
-	return org;
+	return this._recursiveChildren(this._user._xml);
 }
 
+/**
+ * Recursivly get the org
+ * @param  {[type]} topRole [description]
+ * @param  {[type]} lower   [description]
+ * @return {[type]}         [description]
+ */
+Role.prototype._recursiveChildren = function(xml){
+    var org = [];
+    var _this = this;
+    var people = $(xml).find('> stewardship > people > person');
+    if (people.length == 0) return [];
+    for (var i = 0; i < people.length; i++){
+        var person = people[i];
+        var role = $(person).attr('type');
+        if (!role) role = $(person).attr('highestrole');
+        var user = new User({email: $(person).attr('email'), role: role, isBase: false, xml: person});
+        org.push({
+            user: user,
+            lower: _this._recursiveChildren($(person).find('> roles > role[type=' + $(person).attr('type') + ']'))
+        })
+    }
+    return org;
+}
+
+/**
+ * Get the next lower role
+ * @param  {[type]} role [description]
+ * @return {[type]}      [description]
+ */
 Role.prototype._nextLower = function(role){
 	switch (role){
 		case 'im': return 'aim';
@@ -1624,6 +1715,28 @@ Role.prototype._nextLower = function(role){
 	return null;
 }
 
+Role.prototype._nextHigher = function(role){
+    switch (role){
+        case 'aim': return 'im';
+        case 'tgl': return 'aim';
+
+        case 'atgl': return 'aim';
+
+        case 'ocr': return 'ocrm';
+        case 'ocrm': return 'aim';
+        case 'instructor': return 'tgl';
+        default: {
+            return null;
+        }
+    }
+    return null;
+}
+
+/**
+ * Get the next lower role for the menu
+ * @param  {[type]} role [description]
+ * @return {[type]}      [description]
+ */
 Role.prototype._nextLowerForMenu = function(role){
 	switch (role){
 		case 'im': return 'aim';
@@ -1641,33 +1754,30 @@ Role.prototype._nextLowerForMenu = function(role){
 	return null;
 }
 
+/**
+ * API call for _nextLowerRole()
+ * @return {[type]} [description]
+ */
 Role.prototype.getLowerRole = function(){
 	return this._nextLower(this.getRoleName().toLowerCase());
 }
 
+/**
+ * API call for _nextHigherRole()
+ * @return {[type]} [description]
+ */
+Role.prototype.getHigherRole = function(){
+    return this._nextHigher(this.getRoleName().toLowerCase());
+}
+
+/**
+ * Init function for lower role
+ * @return {[type]} [description]
+ */
 Role.prototype.getLowerRoleInit = function(){
 	if (this._user.isCurrent())
 		return this._nextLower(this.getRoleName().toLowerCase());
 	return false;
-}
-
-Role.prototype._recursiveChildren = function(topRole, lower){
-	var org = [];
-	var lowerRole = this._nextLower(lower);
-	if (lower == null) return org;
-	var sem = ims.semesters.getCurrentCode();
-	var loopies = $(this._user._xml).find('semester[code=' + sem + '] ' + topRole + ' ' + lower);
-	for (var i = 0; i < loopies.length; i++){
-		var underlings = this._recursiveChildren(lower, lowerRole);
-		var user = new User({xml: loopies[i], role: lower});
-		if (!user._first) continue;
-		var o = {
-			user: user,
-			lower: underlings
-		};
-		org.push(o);
-	}
-	return org;
 }
 
 /**
@@ -1676,7 +1786,9 @@ Role.prototype._recursiveChildren = function(topRole, lower){
  * @return {Array}      average value for standard in group by week
  */
 Role.prototype.getQuestionForGroup = function(email, name){
-	return new Rollup({level: this.getRoleName().toLowerCase() == 'atgl' ? 'aim' : 'tgl', email: email, question: name});
+    var role = this.getRoleName().toLowerCase();
+    if (this._user.isCurrent() && role == 'tgl' && this._user.getHighestRole().toLowerCase() == 'aim') role = 'aim';
+	return new Rollup({level: role, email: email, question: name});
 }
 
 /**
@@ -1706,7 +1818,7 @@ Role.prototype.getRoster = function(){
  * @return {[type]} [description]
  */
 Role.prototype.getLeader = function(){
-
+    return this._user.getLeader();
 }
 
 /**
@@ -1726,12 +1838,7 @@ Role.prototype.getLower = function(){
  * @return {[type]} [description]
  */
 Role.prototype.getLowerTasks = function(){
-	var underlings = this.getLower();
-	var users = [];
-	for (var i = 0; i < underlings.length; i++){
-		users.push(new User({email: underlings[i].getEmail()}));
-	}
-	return users;
+    return this.getLower();
 }
 
 /**
@@ -1787,10 +1894,10 @@ Role.prototype.getCompletedTasksByCourse = function(){
 Role.prototype.getHref = function(){
 	var val = JSON.parse(JSON.stringify(ims.aes.value));
   val.ce = this._user.getEmail();
-  val.cr = this.getRoleName();
-  if (this.getRoleName().toLowerCase() == 'tgl' && this.aim){
-  	val.cr = 'a' + this.getRoleName();
-  }
+  val.cr = this.getRoleName().toUpperCase();
+  // if (this.getRoleName().toLowerCase() == 'tgl' && this.aim){
+  // 	val.cr = 'a' + this.getRoleName();
+  // }
   val.pe = val.e;
   val.pr = val.i;
   var str = JSON.stringify(val);
@@ -1810,6 +1917,7 @@ Role.prototype._getHats = function(){
 	var role = this.getRoleName().toLowerCase();
 	var hats = [];
 	if (role == 'instructor') return hats;
+
 	if (this._user.isCurrent()){
 		hats.push({
 			value: 'My Views',
@@ -1826,54 +1934,21 @@ Role.prototype._getHats = function(){
 			selected: false
 		});
 	}
-	if (role == 'tgl'){
-		var instructor = this._user.getRoleAs('instructor');
-		hats.push({
-			value: 'Instructor',
-			href: instructor.getHref(),
-			selected: false
-		});
 
-		var tgl = this._user.getRoleAs('instructor');
-		window._selectedRole = "TGL";
-		hats.push({
-			value: 'TGL',
-			href: tgl.getHref(),
-			selected: true
-		})
-	}
- 	if (role == 'aim'){
- 		var tgl = this._user.getRoleAs('tgl');
- 		tgl.aim = true;
- 		hats.push({
-			value: 'TGL',
-			href: tgl.getHref(),
-			selected: false
-		});
-		var aim = this._user.getRoleAs('aim');
-		window._selectedRole = "AIM";
-		hats.push({
-			value: 'AIM',
-			href: aim.getHref(),
-			selected: true
-		});
- 	}
- 	if (role == 'atgl'){
- 		var tgl = this._user.getRoleAs('tgl');
- 		tgl.aim = true;
- 		hats.push({
-			value: 'TGL',
-			href: tgl.getHref(),
-			selected: true
-		});
-		var aim = this._user.getRoleAs('aim');
-		window._selectedRole = "TGL";
-		hats.push({
-			value: 'AIM',
-			href: aim.getHref(),
-			selected: false
-		});
- 	}
+    var roles = this._user.getAllRoles();
+    for (var i = 0; i < roles.length; i++){
+        var userRole = this._user.getRoleAs(roles[i]);
+        var name = roles[i];
+        if (name == 'aim' || name == 'tgl') name = name.toUpperCase();
+        else name = name.charAt(0).toUpperCase() + name.slice(1);
+        var isSelected = this.getRoleName().toUpperCase() == name.toUpperCase();
+        if (isSelected) window._selectedRole = name;
+        hats.push({
+            value: name,
+            href: userRole.getHref(),
+            selected: isSelected
+        });
+    }
  	return hats;
 }
 
@@ -2053,7 +2128,7 @@ ims.semesters = (function(){
 	return new Semesters();
 })()
 function Survey(xml, user){
-	this._course = $(xml).attr('course');
+	this._course = user.getCourseById($(xml).attr('courseid'));
 	this._xml = xml;
 	this._user = user;
 	this.id = $(xml).attr('id');
@@ -2090,11 +2165,15 @@ Survey.prototype._setAnswers = function(){
  */
 Survey.prototype.getName = function(){
 	if (this.withCourse && this._user.getCourses().length > 1){
-		return this._name + ' ' + this.getCourse();
+		return this._name + ' - ' + this.getCourse().getName();
 	}
 	return this._name;
 }
 
+/**
+ * Verifiy if the survey is reviewed
+ * @return {Boolean} [description]
+ */
 Survey.prototype.isReviewed = function(){
 	return this._reviewed;
 }
@@ -2136,12 +2215,12 @@ Survey.prototype.getPlacement = function(){
  * @return {[type]} [description]
  */
 Survey.prototype.toggleReviewed = function(){
+	if (this._user.getLeader() != ims.aes.value.e) return;
 	var reviewed = this.isReviewed();
 	this._reviewed = !reviewed;
 	reviewed = this._reviewed ? 'true' : 'false';
 	var id = this.id;
-	var sem = ims.semesters.getCurrentCode();
-	$(this._user._xml).find('semester[code=' + sem + '] survey[id=' + id + ']').attr('reviewed', reviewed);
+	$(this._user._xml).find('> surveys survey[id=' + id + ']').attr('reviewed', reviewed);
 	this._user.save();
 }
 
@@ -2166,9 +2245,6 @@ Survey.prototype.getQuestionsContainingText = function(txt){
  * @return {[type]} [description]
  */
 Survey.prototype.getCourse = function(){
-	var isValidCourse = this._course.match(/[a-zA-Z]* ([0-9]{3}[a-zA-Z]|[0-9]{3})/g);
-	isValidCourse = isValidCourse && isValidCourse.length > 0;
-	if (!isValidCourse) return null;
 	return this._course;
 }
 
@@ -2189,50 +2265,25 @@ function Tile(config){
 	this.config = config.config;
 }
 window._currentUser = null;
-window._userXml = {};
+window._baseUserXml = ims.sharepoint.getXmlByEmail(ims.aes.value.ce);
 
 function User(obj){
 	if (!obj) throw "Invalid User Object";
+	if (!obj.email) throw 'Invalid email';
 
-	if (obj['email']){
-		this._email = obj['email'];
-		if (_userXml[this._email]){
-			this._xml = _userXml[this._email]
-		}
-		else{
-			this._xml = ims.sharepoint.getXmlByEmail(this._email);
-			_userXml[this._email] = this._xml;
-		}
-
-		this._first = null;
-		this._last = null;
-		this._setPersonalInfo();
-		this._courses = [];
-		this._setCourses();
-		this._surveys = [];
-		this._setSurveys();
-		this._semesters = [];
-		this._isCurrent = obj.current == true;
-		this._new = false;
-
-	}
-	if (obj['xml']){
-		this._xml = obj['xml'];
-		this._first = null;
-		this._last = null;
-		this._setPersonalInfo(true);
-		this._courses = [];
-		this._surveys = [];
-		this._semesters = [];
-		this._isCurrent = obj.current == true;
-		this._new = false;
-	}
-	if (this._isCurrent){
-		this._role = new Role(ims.aes.value.cr, this);
-	}
-	else if (obj.role){
-		this._role = new Role(obj.role, this);
-	}
+	this._email = obj.email;
+	this._first = null;
+	this._last = null;
+	this._baseRole = obj.role.toLowerCase();
+	this._setPersonalInfo(obj.isBase, obj.xml);
+	this._courses = [];
+	this._setCourses();
+	this._surveys = [];
+	this._setSurveys();
+	this._semesters = [];
+	this._isCurrent = obj.isBase == true;
+	this._new = false;
+	this._role = new Role(this._baseRole, this);
 }
 
 /**
@@ -2247,7 +2298,7 @@ User.HoursStandard = 3.5;
  */
 User.getCurrent = function(){
 	if (!window._currentUser){
-		window._currentUser = new User({email: ims.aes.value.ce, current: true});
+		window._currentUser = new User({email: ims.aes.value.ce, role: ims.aes.value.cr, isBase: true});
 	}
 	return window._currentUser;
 }
@@ -2269,20 +2320,8 @@ User.redirectToDashboard = function(email){
   if (doc == null) {
     redirectError();
   }
-  var role = '';
   var sem = ims.semesters.getCurrentCode();
-  var inst = $(doc).find('semester[code=' + sem + '] > instructor');
-  var tgl = $(doc).find('semester[code=' + sem + '] > tgl');
-  var aim = $(doc).find('semester[code=' + sem + '] > aim');
-  if (inst.length > 0){
-    role = 'INSTRUCTOR';
-  }
-  else if (tgl.length > 0){
-    role = 'TGL';
-  }
-  else if (aim.length > 0){
-    role = 'AIM';
-  }
+  var role = $(doc).find('semester[code=' + sem + '] > people > person').attr('highestrole').toUpperCase();
 
   var obj = {
     ce: email,
@@ -2301,6 +2340,19 @@ User.redirectToDashboard = function(email){
  */
 User.prototype.getSuggested = function(q){
 	return this._role.getSuggested(q);
+}
+
+/**
+ * Get all the roles associated with the user
+ * @return {[type]} [description]
+ */
+User.prototype.getAllRoles = function(){	
+	var roles = $(this._xml).parent().find('> role');
+	var result = [];
+	for (var i = 0; i < roles.length; i++){
+		result.push($(roles[i]).attr('type'));
+	}
+	return result;
 }
 
 /**
@@ -2332,10 +2384,9 @@ User.prototype.isCurrent = function(){
  * Internal function to populate the users surveys into the _surveys
  * array
  */
-User.prototype._setSurveys = function(){
-	var sem = ims.semesters.getCurrentCode(); 
+User.prototype._setSurveys = function(){ 
 	var _this = this;
-	$(this._xml).find('semester[code=' + sem + '] survey').each(function(){
+	$(this._xml).find('> surveys survey').each(function(){
 		_this._surveys.push(new Survey(this, _this));
 	})
 }
@@ -2343,19 +2394,21 @@ User.prototype._setSurveys = function(){
 /**
  * Set the basic personal information
  */
-User.prototype._setPersonalInfo = function(noSpot){
+User.prototype._setPersonalInfo = function(isBase, userXml){
 	var sem = ims.semesters.getCurrentCode();
-	var spot;
-	if (noSpot){
-		spot = this._xml;
-	}
-	else{
-		spot = $(this._xml).find('semester[code=' + sem + ']').children().first();
-	}
+ 	var spot = null;
+ 	if (isBase){
+ 		spot = $(window._baseUserXml).find('semester[code=' + sem + '] > people > person');
+ 	}
+ 	else{
+ 		spot = $(userXml);
+ 	}
 	this._first = $(spot).attr('first');
 	this._last = $(spot).attr('last');
 	this._email = $(spot).attr('email');
-	this._new = $(spot).attr('new') != 'False';
+	this._new = $(spot).attr('new') != 'false';
+	this._xml = $(spot).find('> roles > role[type=' + this._baseRole + ']');
+	this._personXml = spot;
 }
 
 /**
@@ -2386,8 +2439,7 @@ User.prototype.selectedCourse = function(){
  */
 User.prototype._setCourses = function(){
 	var _this = this;
-	var sem = ims.semesters.getCurrentCode();
-	$(this._xml).find('semester[code=' + sem + '] course').each(function(){
+	$(this._xml).find('course').each(function(){
 		_this._courses.push(new Course(this));
 	})
 }
@@ -2397,10 +2449,6 @@ User.prototype._setCourses = function(){
  * @return {[type]} [description]
  */
 User.prototype.getFirst = function(){
-	if (this._first == null){
-		var sem = ims.semesters.getCurrentCode(); 
-		this._first = $(this._xml).find('semester[code=' + sem + ']').children().first().attr('first');
-	}
 	return this._first;
 }
 
@@ -2409,11 +2457,11 @@ User.prototype.getFirst = function(){
  * @return {[type]} [description]
  */
 User.prototype.getLast = function(){
-	if (this._last == null){
-		var sem = ims.semesters.getCurrentCode(); 
-		this._last = $(this._xml).find('semester[code=' + sem + ']').children().first().attr('last');
-	}
 	return this._last;
+}
+
+User.prototype.getHighestRole = function(){
+	return $(this._xml).parent().parent().attr('highestrole');
 }
 
 /**
@@ -2421,8 +2469,10 @@ User.prototype.getLast = function(){
  * @type {[type]}
  */
 User.prototype.getLeader = function(){
-	var sem = ims.semesters.getCurrentCode(); 
-	return $(this._xml).find('semester[code=' + sem + ']').children().first().attr('tgl_email');
+	var type = '';
+	if (this._baseRole == 'tgl') type = 'aim';
+	else if (this._baseRole == 'instructor') type = 'tgl';
+	return $(this._xml).find('> leadership person[type=' + type + ']').attr('email');
 }
 
 /**
@@ -2439,17 +2489,6 @@ User.prototype.getEmail = function(){
  */
 User.prototype.getFullEmail = function(){
 	return this._email + '@byui.edu';
-}
-
-/**
- * Get the user answers by surveyId and questionId
- * @param  {[type]} sid [description]
- * @param  {[type]} qid [description]
- * @return {[type]}     [description]
- */
-User.prototype.getAnswer = function(sid, qid){
-	var sem = ims.semesters.getCurrentCode(); 
-	return $(this._xml).find('semester[code=' + sem + '] survey[id=' + sid + '] answer[qid=' + qid + ']').text();
 }
 
 /**
@@ -2519,7 +2558,7 @@ User.prototype.getRole = function(){
  * @return {[type]}      [description]
  */
 User.prototype.getRoleAs = function(type){
-	return new Role(type, this);
+	return new Role(type, this, true);
 }
 
 /**
@@ -2541,7 +2580,7 @@ User.prototype.getHref = function(){
 	}
 	var val = JSON.parse(JSON.stringify(ims.aes.value));
   val.ce = this.getEmail();
-  val.cr = this.getRole().getRoleName();
+  val.cr = this.getRole().getRoleName().toUpperCase();
   val.pe = val.e;
   val.pr = val.i;
   var str = JSON.stringify(val);
@@ -2613,10 +2652,10 @@ User.prototype.getHours = function(){
 				var h = hr[0].getAnswer();
 				var val = parseFloat(h);
 				val = Math.floor(val * 10) / 10;
-				hrsByCourse[wr[i].getCourse()].push(val);
+				hrsByCourse[wr[i].getCourse().getName()].push(val);
 			}
 			else{
-				hrsByCourse[wr[i].getCourse()].push(0);
+				hrsByCourse[wr[i].getCourse().getName()].push(0);
 			}
 		}
 		for (var i = 0; i < hrsByCourse[stub].length; i++){
@@ -2683,10 +2722,10 @@ User.prototype.getHoursRaw = function(){
 				var h = hr[0].getAnswer();
 				var val = parseFloat(h);
 				val = Math.floor(val * 10) / 10;
-				hrsByCourse[wr[i].getCourse()].push(val);
+				hrsByCourse[wr[i].getCourse().getName()].push(val);
 			}
 			else{
-				hrsByCourse[wr[i].getCourse()].push(0);
+				hrsByCourse[wr[i].getCourse().getName()].push(0);
 			}
 		}
 		for (var i = 0; i < hrsByCourse[stub].length; i++){
@@ -2733,10 +2772,10 @@ User.prototype.getStandard = function(name){
 				var h = hr[0].getAnswer();
 				var val = parseFloat(h);
 				val = Math.floor(val * 10) / 10;
-				hrsByCourse[wr[i].getCourse()].push(val);
+				hrsByCourse[wr[i].getCourse().getName()].push(val);
 			}
 			else{
-				hrsByCourse[wr[i].getCourse()].push(0);
+				hrsByCourse[wr[i].getCourse().getName()].push(0);
 			}
 		}
 		for (var i = 0; i < hrsByCourse[stub].length; i++){
@@ -2837,8 +2876,7 @@ User.redirectBack = function(){
 User.prototype.getCourses = function(){
 	if (this._courses.length == 0){
 		var _this = this;
-		var sem = ims.semesters.getCurrentCode();
-		$(this._xml).find('semester [code=' + sem + '] course').each(function(){
+		$(this._personXml).find('> courses course').each(function(){
 			_this._courses.push(new Course(this));
 		})
 	}
@@ -2856,6 +2894,22 @@ User.prototype.getCourse = function(name){
 	if (courses.length > 0){
 		for (var i = 0; i < courses.length; i++){
 			if (courses[i].getName().toUpperCase() == name.toUpperCase()) return courses[i];
+		}
+	}
+	return result;
+}
+
+/**
+ * Get a course by id
+ * @param  {[type]} id [description]
+ * @return {[type]}    [description]
+ */
+User.prototype.getCourseById = function(id){
+	var result = null;
+	var courses = this.getCourses();
+	if (courses.length > 0){
+		for (var i = 0; i < courses.length; i++){
+			if (courses[i].getId() == id) return courses[i];
 		}
 	}
 	return result;
