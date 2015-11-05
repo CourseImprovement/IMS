@@ -35,6 +35,10 @@ if (!ims.error){
 			}, 2);
 		}
 
+		$scope.toggleSubMenu = function(e){
+			$(e.target).find('ul').slideToggle();
+		}
+
 		$scope.openCourseMenu = function(e){
 			var right = '71px';
 			if ($('.back-btn').length > 0){
@@ -169,6 +173,33 @@ if (!ims.error){
 				survey.toggleReviewed();
 				$scope.$apply();
 			}, 10);
+		}
+
+		$scope.toggleMobileMenu = function(e){
+			$('.mobile-menu-side').toggleClass('show-menu');
+			if ($('.mobile-menu-side').hasClass('show-menu')){
+				$('body').css({overflow: 'hidden'});
+			}
+			else{
+				$('body').css({overflow: 'auto'});
+			}
+		}
+
+		$(window).resize(function(){
+			OneCol();
+		})
+		OneCol();
+
+		function OneCol(){
+			var w = $(window).width();
+			if (w <= 1100){
+				$('.menu').addClass('hidden');
+				$('.menu-mobile').removeClass('hidden');
+			}
+			else{
+				$('.menu').removeClass('hidden');
+				$('.menu-mobile').addClass('hidden');
+			}
 		}
 
 	}]);

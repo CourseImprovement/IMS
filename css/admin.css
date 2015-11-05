@@ -1,0 +1,179 @@
+*, :before, :after{
+	-webkit-box-sizing: border-box;
+	-moz-box-sizing: border-box;
+	box-sizing: border-box;
+}
+
+body{
+	background-color: #E5E5E5;
+	font-family: "Open Sans",sans-serif;
+	padding: 0 15px 15px 15px;
+}
+
+.container{
+	text-align: center;
+}
+
+.big-btn{
+	display: inline-block;
+	padding: 50px 75px;
+	background-color: #737373;
+	color: white;
+	font-size: 28px;
+	cursor: pointer;
+	margin: 1px;
+	outline: none;
+	border: none;
+}
+
+select.big-btn{
+	font-size: 14px;
+}
+
+.big-btn:hover{
+	opacity: .8;
+}
+
+.next-btn{
+	
+}
+
+#process{
+	text-align: center;
+}
+
+table td{
+	border-right: solid 1px black;
+	border-left: solid 1px black;
+}
+
+#surveyData, #surveyExample{
+	display: none;
+}
+
+.row{
+	display: block;
+}
+
+.box{
+	width: 600px;
+  margin: 0 auto;
+  background-color: white;
+  box-shadow: 0 0 10px rgba(0,0,0,.3);
+  padding: 20px;
+  text-align: left;
+  padding-bottom: 40px;
+}
+
+.box .row{
+	margin-bottom: 10px;
+}
+
+.left{
+
+}
+
+.right{
+	float: right;
+}
+
+.link.right{
+	margin-left: 10px;
+}
+
+.loading{
+	position: fixed;
+	top: 0;
+	left: 0;
+	right: 0;
+	height: 4px;
+}
+
+.bar{
+	height: 100%;
+	width: 0%;
+	background-color: #E88C8C;
+	-webkit-border-radius: 20px;
+	-moz-border-radius: 20px;
+	border-radius: 20px;
+	-webkit-box-shadow: 0 0 13px -1px rgba(0,0,0,.8);
+	-moz-box-shadow: 0 0 13px -1px rgba(0,0,0,.8);
+	box-shadow: 0 0 13px -1px rgba(0,0,0,.8);
+}
+
+.link{
+	color: rgb(57, 117, 174);
+	text-decoration: underline;
+	cursor: pointer;
+	display: inline-block;
+}
+
+.add-dialog{
+	width: 400px;
+	min-height: 300px;
+	background-color: white;
+	box-shadow: 0 0 3px rgba(0,0,0,.3);
+	position: fixed;
+	top: 50px;
+	left: 30%;
+	padding: 20px;
+}
+
+.box .add-dialog input, .box .add-dialog select{
+	width: 100%;
+	font-size: 16px;
+	font-weight: 100;
+	padding: 3px 10px;
+	outline: none;
+	margin-top: 10px;
+}
+
+.box .add-dialog button{
+	background-color: #1282C3;
+	color: white;
+	border: none;
+	padding: 9px 26px;
+	font-size: 18px;
+	position: absolute;
+	bottom: 20px;
+	right: 20px;
+	cursor: pointer;
+}
+
+.no-bullet{
+	list-style: none;
+}
+
+.no-bullet li{
+	padding-top: 3px;
+	padding-bottom: 3px;
+	border-bottom: solid 1px #ccc;
+}
+
+.close{
+	position: absolute;
+	top: 0;
+	right: 0;
+	font-family: fantasy;
+	font-size: 13px;
+	background-color: #EC7D7D;
+	color: white;
+	padding: 8px 16px 3px 16px;
+	line-height: 1;
+	cursor: pointer;
+}
+
+.close:hover, .submit:hover{
+	opacity: .8;
+}
+
+.submit{
+	float: right;
+  border: none;
+  background-color: #1282C3;
+  padding: 7px 12px;
+  color: white;
+  cursor: pointer;
+  font-size: 14px;
+  margin-left: 10px;
+}

@@ -574,6 +574,10 @@ if (!ims.error){
 			}, 2);
 		}
 
+		$scope.toggleSubMenu = function(e){
+			$(e.target).find('ul').slideToggle();
+		}
+
 		$scope.openCourseMenu = function(e){
 			var right = '71px';
 			if ($('.back-btn').length > 0){
@@ -708,6 +712,33 @@ if (!ims.error){
 				survey.toggleReviewed();
 				$scope.$apply();
 			}, 10);
+		}
+
+		$scope.toggleMobileMenu = function(e){
+			$('.mobile-menu-side').toggleClass('show-menu');
+			if ($('.mobile-menu-side').hasClass('show-menu')){
+				$('body').css({overflow: 'hidden'});
+			}
+			else{
+				$('body').css({overflow: 'auto'});
+			}
+		}
+
+		$(window).resize(function(){
+			OneCol();
+		})
+		OneCol();
+
+		function OneCol(){
+			var w = $(window).width();
+			if (w <= 1100){
+				$('.menu').addClass('hidden');
+				$('.menu-mobile').removeClass('hidden');
+			}
+			else{
+				$('.menu').removeClass('hidden');
+				$('.menu-mobile').addClass('hidden');
+			}
 		}
 
 	}]);
@@ -1865,10 +1896,10 @@ Role.prototype.getCompletedTasksByCourse = function(){
     var surveys = this._user.getSurveys();
     for (var i = 0; i < surveys.length; i++){
         if (surveys[i].getPlacement().toLowerCase() == this.getRoleName().toLowerCase() || this.getRoleName().toLowerCase() == 'atgl' && surveys[i].getPlacement().toLowerCase() == 'tgl'){
-            if (!surveyList[surveys[i].getCourse()]){
-                surveyList[surveys[i].getCourse()] = [];
+            if (!surveyList[surveys[i].getCourse().getName()]){
+                surveyList[surveys[i].getCourse().getName()] = [];
             }
-            surveyList[surveys[i].getCourse()].push(surveys[i]);
+            surveyList[surveys[i].getCourse().getName()].push(surveys[i]);
         }
     }
     var keys = Object.keys(surveyList);
@@ -2716,7 +2747,7 @@ User.prototype.getHoursRaw = function(){
 	}
 	if (courses.length > 1){
 		for (var i = 0; i < wr.length; i++){
-			if (Course.getCurrent() && Course.getCurrent().getName() != wr[i].getCourse()) continue;
+			if (Course.getCurrent() && Course.getCurrent().getName() != wr[i].getCourse().getName()) continue;
 			var hr = wr[i].getQuestionsContainingText("weekly hours");
 			if (hr[0].hasAnswer()){
 				var h = hr[0].getAnswer();
@@ -2766,7 +2797,7 @@ User.prototype.getStandard = function(name){
 	}
 	if (courses.length > 1){
 		for (var i = 0; i < wr.length; i++){
-			if (Course.getCurrent() && Course.getCurrent().getName() != wr[i].getCourse()) continue;
+			if (Course.getCurrent() && Course.getCurrent().getName() != wr[i].getCourse().getName()) continue;
 			var hr = wr[i].getQuestionsContainingText(name.toLowerCase());
 			if (hr[0].hasAnswer()){
 				var h = hr[0].getAnswer();
@@ -2818,6 +2849,10 @@ User.prototype.getWeeklyReflections = function(){
 			weeklyReflections.push(surveys[i]);
 		}
 	}
+	$(weeklyReflections).sort(function(a, b){
+		if (a.getWeek() == 'Intro') return false;
+		return parseInt(a.getWeek()) > parseInt(b.getWeek());
+	});
 	return weeklyReflections;
 }
 

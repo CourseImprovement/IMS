@@ -450,7 +450,7 @@ User.prototype.getHoursRaw = function(){
 	}
 	if (courses.length > 1){
 		for (var i = 0; i < wr.length; i++){
-			if (Course.getCurrent() && Course.getCurrent().getName() != wr[i].getCourse()) continue;
+			if (Course.getCurrent() && Course.getCurrent().getName() != wr[i].getCourse().getName()) continue;
 			var hr = wr[i].getQuestionsContainingText("weekly hours");
 			if (hr[0].hasAnswer()){
 				var h = hr[0].getAnswer();
@@ -500,7 +500,7 @@ User.prototype.getStandard = function(name){
 	}
 	if (courses.length > 1){
 		for (var i = 0; i < wr.length; i++){
-			if (Course.getCurrent() && Course.getCurrent().getName() != wr[i].getCourse()) continue;
+			if (Course.getCurrent() && Course.getCurrent().getName() != wr[i].getCourse().getName()) continue;
 			var hr = wr[i].getQuestionsContainingText(name.toLowerCase());
 			if (hr[0].hasAnswer()){
 				var h = hr[0].getAnswer();
@@ -552,6 +552,10 @@ User.prototype.getWeeklyReflections = function(){
 			weeklyReflections.push(surveys[i]);
 		}
 	}
+	$(weeklyReflections).sort(function(a, b){
+		if (a.getWeek() == 'Intro') return false;
+		return parseInt(a.getWeek()) > parseInt(b.getWeek());
+	});
 	return weeklyReflections;
 }
 

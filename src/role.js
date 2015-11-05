@@ -988,10 +988,10 @@ Role.prototype.getCompletedTasksByCourse = function(){
     var surveys = this._user.getSurveys();
     for (var i = 0; i < surveys.length; i++){
         if (surveys[i].getPlacement().toLowerCase() == this.getRoleName().toLowerCase() || this.getRoleName().toLowerCase() == 'atgl' && surveys[i].getPlacement().toLowerCase() == 'tgl'){
-            if (!surveyList[surveys[i].getCourse()]){
-                surveyList[surveys[i].getCourse()] = [];
+            if (!surveyList[surveys[i].getCourse().getName()]){
+                surveyList[surveys[i].getCourse().getName()] = [];
             }
-            surveyList[surveys[i].getCourse()].push(surveys[i]);
+            surveyList[surveys[i].getCourse().getName()].push(surveys[i]);
         }
     }
     var keys = Object.keys(surveyList);
