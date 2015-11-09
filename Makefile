@@ -1,5 +1,8 @@
 MSG=
 
+p:
+	git request-pull
+
 docs:
 	grunt
 	jsdoc build/admin3.js
