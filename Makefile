@@ -5,12 +5,14 @@ chase:
 	git merge chase
 	git checkout gh-pages
 	git pull origin master
+	git checkout chase
 
 grant:
 	git checkout master
 	git merge grant
 	git checkout gh-pages
 	git pull origin master
+	git checkout grant
 
 docs:
 	grunt
