@@ -443,6 +443,10 @@ Config.toCol = function(num){
 // 
 // 
 window.config = new Config();
+
+
+
+//test
 // GROUP CSV
 function CSV(){
 	console.log('new CSV object created');
