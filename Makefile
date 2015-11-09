@@ -1,20 +1,26 @@
 MSG=
 
 chase:
+	git add .
+	git commit -m $(MSG)
+	git push
 	git checkout master
 	git merge chase
 	git add .
-	git commit -m 'updating chase'
+	git commit -m $(MSG)
 	git push
 	git checkout gh-pages
 	git pull origin master
 	git checkout chase
 
 grant:
+	git add .
+	git commit -m $(MSG)
+	git push
 	git checkout master
 	git merge grant
 	git add .
-	git commit -m 'updating grant'
+	git commit -m $(MSG)
 	git push
 	git checkout gh-pages
 	git pull origin master
