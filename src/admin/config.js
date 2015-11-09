@@ -352,3 +352,7 @@ Config.toCol = function(num){
 // 
 // 
 window.config = new Config();
+
+
+
+//test
