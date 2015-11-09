@@ -5,7 +5,7 @@
  */
 window.ims = {};
 ims.url = {};
-ims.url._base = 'https://webmailbyui.sharepoint.com/sites/onlineinstructionreporting/';
+ims.url._base = window.location.protocol + '//' + window.location.hostname + '/sites/onlineinstructionreporting/';
 ims.url.relativeBase = '/sites/onlineinstructionreporting/';
 ims.url.base = ims.url._base + 'instructor%20Reporting/';
 ims.url.api = ims.url._base + '_api/';
