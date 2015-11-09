@@ -54,6 +54,20 @@ ims.sharepoint = {
 	    }
 	  });
 	},
+	getLoggedInUserEmail: function(callback){
+		if (!window._loggedUser){
+			$.ajax({
+		    url: ims.sharepoint.base + '_api/Web/CurrentUser/Email',
+		    success: function(userXml) {
+		      var email = $(userXml).text();
+		      email = email.indexOf('@') > -1 ? email.split('@')[0] : email;
+		      window._loggedUser = email;
+		      callback(email);
+		    }
+		  });
+		}
+		callback(window._loggedUser);
+	},
 	/**
 	 * Get the survey configuration file. This file houses all the configurations for the surveys.
 	 * @return {XMLDocument} Usually we use JQuery to filter down through the document
@@ -83,7 +97,7 @@ ims.sharepoint = {
 		}
 
 		var u = User.getCurrent();
-		var buffer = str2ab(u._xml.firstChild.outerHTML);
+		var buffer = str2ab((new XMLSerializer()).serializeToString(_baseUserXml));
 
 		var fileName = u.getEmail() + '.xml';
 		var url = ims.sharepoint.base + "_api/Web/GetFolderByServerRelativeUrl('" + ims.sharepoint.relativeBase + "Instructor%20Reporting/Master')/Files/add(overwrite=true, url='" + fileName + "')";
@@ -117,9 +131,9 @@ ims.sharepoint = {
 		  return new TextEncoder('utf8').encode(str);
 		}
 		
-		var buffer = str2ab(u._xml.firstChild.outerHTML);
+		var buffer = str2ab((new XMLSerializer()).serializeToString(_baseUserXml));
 
-		var fileName = u.getEmail() + '.xml';
+		var fileName = User.getCurrent().getEmail() + '.xml';
 		var url = ims.sharepoint.base + "_api/Web/GetFolderByServerRelativeUrl('" + ims.sharepoint.relativeBase + "Instructor%20Reporting/Master')/Files/add(overwrite=true, url='" + fileName + "')";
     $['ajax']({
 		    'url': ims.sharepoint.base + "_api/contextinfo",

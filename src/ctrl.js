@@ -185,6 +185,8 @@ if (!ims.error){
 			}
 		}
 
+		$scope.computer = new Computer();
+
 		$(window).resize(function(){
 			OneCol();
 		})

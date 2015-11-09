@@ -5,10 +5,14 @@ module.exports = function(grunt) {
       norm: {
         src: ['src/misc.js', 'src/sharepoint.js', 'src/*.js'],
         dest: 'build/ims.js'
+      },
+      admin: {
+        src: ['src/admin/init.js', 'src/admin/*.js'],
+        dest: 'build/admin.js'
       }
     },
     watch: {
-      files: ['src/*.js'],
+      files: ['src/*.js', 'admin/*.js'],
       tasks: ['w'],
       options: {
         reload: true
@@ -20,5 +24,5 @@ module.exports = function(grunt) {
   grunt.loadNpmTasks('grunt-contrib-watch');
 
   grunt.registerTask('default', ['w', 'watch']);
-  grunt.registerTask('w', ['concat']);
+  grunt.registerTask('w', ['concat:norm', 'concat:admin']);
 };

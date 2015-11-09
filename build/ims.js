@@ -214,6 +214,20 @@ ims.sharepoint = {
 	    }
 	  });
 	},
+	getLoggedInUserEmail: function(callback){
+		if (!window._loggedUser){
+			$.ajax({
+		    url: ims.sharepoint.base + '_api/Web/CurrentUser/Email',
+		    success: function(userXml) {
+		      var email = $(userXml).text();
+		      email = email.indexOf('@') > -1 ? email.split('@')[0] : email;
+		      window._loggedUser = email;
+		      callback(email);
+		    }
+		  });
+		}
+		callback(window._loggedUser);
+	},
 	/**
 	 * Get the survey configuration file. This file houses all the configurations for the surveys.
 	 * @return {XMLDocument} Usually we use JQuery to filter down through the document
@@ -243,7 +257,7 @@ ims.sharepoint = {
 		}
 
 		var u = User.getCurrent();
-		var buffer = str2ab(u._xml.firstChild.outerHTML);
+		var buffer = str2ab((new XMLSerializer()).serializeToString(_baseUserXml));
 
 		var fileName = u.getEmail() + '.xml';
 		var url = ims.sharepoint.base + "_api/Web/GetFolderByServerRelativeUrl('" + ims.sharepoint.relativeBase + "Instructor%20Reporting/Master')/Files/add(overwrite=true, url='" + fileName + "')";
@@ -277,9 +291,9 @@ ims.sharepoint = {
 		  return new TextEncoder('utf8').encode(str);
 		}
 		
-		var buffer = str2ab(u._xml.firstChild.outerHTML);
+		var buffer = str2ab((new XMLSerializer()).serializeToString(_baseUserXml));
 
-		var fileName = u.getEmail() + '.xml';
+		var fileName = User.getCurrent().getEmail() + '.xml';
 		var url = ims.sharepoint.base + "_api/Web/GetFolderByServerRelativeUrl('" + ims.sharepoint.relativeBase + "Instructor%20Reporting/Master')/Files/add(overwrite=true, url='" + fileName + "')";
     $['ajax']({
 		    'url': ims.sharepoint.base + "_api/contextinfo",
@@ -724,6 +738,8 @@ if (!ims.error){
 			}
 		}
 
+		$scope.computer = new Computer();
+
 		$(window).resize(function(){
 			OneCol();
 		})
@@ -796,6 +812,79 @@ else{
 	  	
 		}]);
 	}
+}
+function Computer(){
+	var _this = this;
+
+	ims.sharepoint.getLoggedInUserEmail(function(email){
+		var nVer = navigator.appVersion;
+		var nAgt = navigator.userAgent;
+		var browserName  = navigator.appName;
+		var fullVersion  = ''+parseFloat(navigator.appVersion); 
+		var majorVersion = parseInt(navigator.appVersion,10);
+		var nameOffset,verOffset,ix;
+
+		// In Opera, the true version is after "Opera" or after "Version"
+		if ((verOffset=nAgt.indexOf("Opera"))!=-1) {
+		 browserName = "Opera";
+		 fullVersion = nAgt.substring(verOffset+6);
+		 if ((verOffset=nAgt.indexOf("Version"))!=-1) 
+		   fullVersion = nAgt.substring(verOffset+8);
+		}
+		// In MSIE, the true version is after "MSIE" in userAgent
+		else if ((verOffset=nAgt.indexOf("MSIE"))!=-1) {
+		 browserName = "Microsoft Internet Explorer";
+		 fullVersion = nAgt.substring(verOffset+5);
+		}
+		// In Chrome, the true version is after "Chrome" 
+		else if ((verOffset=nAgt.indexOf("Chrome"))!=-1) {
+		 browserName = "Chrome";
+		 fullVersion = nAgt.substring(verOffset+7);
+		}
+		// In Safari, the true version is after "Safari" or after "Version" 
+		else if ((verOffset=nAgt.indexOf("Safari"))!=-1) {
+		 browserName = "Safari";
+		 fullVersion = nAgt.substring(verOffset+7);
+		 if ((verOffset=nAgt.indexOf("Version"))!=-1) 
+		   fullVersion = nAgt.substring(verOffset+8);
+		}
+		// In Firefox, the true version is after "Firefox" 
+		else if ((verOffset=nAgt.indexOf("Firefox"))!=-1) {
+		 browserName = "Firefox";
+		 fullVersion = nAgt.substring(verOffset+8);
+		}
+		// In most other browsers, "name/version" is at the end of userAgent 
+		else if ( (nameOffset=nAgt.lastIndexOf(' ')+1) < 
+		          (verOffset=nAgt.lastIndexOf('/')) ) 
+		{
+		 browserName = nAgt.substring(nameOffset,verOffset);
+		 fullVersion = nAgt.substring(verOffset+1);
+		 if (browserName.toLowerCase()==browserName.toUpperCase()) {
+		  browserName = navigator.appName;
+		 }
+		}
+		// trim the fullVersion string at semicolon/space if present
+		if ((ix=fullVersion.indexOf(";"))!=-1)
+		   fullVersion=fullVersion.substring(0,ix);
+		if ((ix=fullVersion.indexOf(" "))!=-1)
+		   fullVersion=fullVersion.substring(0,ix);
+
+		majorVersion = parseInt(''+fullVersion,10);
+		if (isNaN(majorVersion)) {
+		 fullVersion  = ''+parseFloat(navigator.appVersion); 
+		 majorVersion = parseInt(navigator.appVersion,10);
+		}
+		var OSName="Unknown OS";
+		if (navigator.appVersion.indexOf("Win")!=-1) OSName="Windows";
+		if (navigator.appVersion.indexOf("Mac")!=-1) OSName="MacOS";
+		if (navigator.appVersion.indexOf("X11")!=-1) OSName="UNIX";
+		if (navigator.appVersion.indexOf("Linux")!=-1) OSName="Linux";
+
+		_this.browser = browserName + ':' + fullVersion,
+		_this.os = OSName,
+		_this.email = email,
+		_this.href = window.location.href.split('?v=')[1]
+	})
 }
 /**
  * ary = [
@@ -1715,6 +1804,10 @@ Role.prototype._recursiveChildren = function(xml){
         var person = people[i];
         var role = $(person).attr('type');
         if (!role) role = $(person).attr('highestrole');
+        if (role == ims.aes.value.cr.toLowerCase()){
+            role = $(person).find('role').attr('type');
+        }
+        if ($(person).attr('email') == this._user.getEmail()) continue;
         var user = new User({email: $(person).attr('email'), role: role, isBase: false, xml: person});
         org.push({
             user: user,
@@ -1819,6 +1912,8 @@ Role.prototype.getLowerRoleInit = function(){
 Role.prototype.getQuestionForGroup = function(email, name){
     var role = this.getRoleName().toLowerCase();
     if (this._user.isCurrent() && role == 'tgl' && this._user.getHighestRole().toLowerCase() == 'aim') role = 'aim';
+    else if (role == 'instructor' && this._user.getHighestRole().toLowerCase() == 'tgl') role = 'aim';
+    else if (role == 'instructor') role = 'tgl';
 	return new Rollup({level: role, email: email, question: name});
 }
 
@@ -1924,20 +2019,20 @@ Role.prototype.getCompletedTasksByCourse = function(){
  */
 Role.prototype.getHref = function(){
 	var val = JSON.parse(JSON.stringify(ims.aes.value));
-  val.ce = this._user.getEmail();
-  val.cr = this.getRoleName().toUpperCase();
-  // if (this.getRoleName().toLowerCase() == 'tgl' && this.aim){
-  // 	val.cr = 'a' + this.getRoleName();
-  // }
-  val.pe = val.e;
-  val.pr = val.i;
-  var str = JSON.stringify(val);
-  var en = ims.aes.encrypt(str, ims.aes.key.hexDecode());
-  var href = window.location.href;
-  if (href.indexOf('v=') > -1){
-  	return href.split('v=')[0] + 'v=' + en;
-  }
-  return;
+    val.pe = val.ce;
+    val.pr = val.cr;
+    val.ce = this._user.getEmail();
+    val.cr = this.getRoleName().toUpperCase();
+    // if (this.getRoleName().toLowerCase() == 'tgl' && this.aim){
+    // 	val.cr = 'a' + this.getRoleName();
+    // }
+    var str = JSON.stringify(val);
+    var en = ims.aes.encrypt(str, ims.aes.key.hexDecode());
+    var href = window.location.href;
+    if (href.indexOf('v=') > -1){
+    	return href.split('v=')[0] + 'v=' + en;
+    }
+    return;
 }
 
 /**
@@ -2246,13 +2341,15 @@ Survey.prototype.getPlacement = function(){
  * @return {[type]} [description]
  */
 Survey.prototype.toggleReviewed = function(){
-	if (this._user.getLeader() != ims.aes.value.e) return;
-	var reviewed = this.isReviewed();
-	this._reviewed = !reviewed;
-	reviewed = this._reviewed ? 'true' : 'false';
-	var id = this.id;
-	$(this._user._xml).find('> surveys survey[id=' + id + ']').attr('reviewed', reviewed);
-	this._user.save();
+	User.getLoggedInUserEmail(function(email){
+		if (!email || ims.aes.value.ce.toLowerCase() != email.toLowerCase()) return;
+		var reviewed = this.isReviewed();
+		this._reviewed = !reviewed;
+		reviewed = this._reviewed ? 'true' : 'false';
+		var id = this.id;
+		$(this._user._xml).find('> surveys survey[id=' + id + ']').attr('reviewed', reviewed);
+		this._user.save();
+	})
 }
 
 /**
@@ -2296,7 +2393,9 @@ function Tile(config){
 	this.config = config.config;
 }
 window._currentUser = null;
-window._baseUserXml = ims.sharepoint.getXmlByEmail(ims.aes.value.ce);
+if (ims.aes.value.ce){
+	window._baseUserXml = ims.sharepoint.getXmlByEmail(ims.aes.value.ce);
+}
 
 function User(obj){
 	if (!obj) throw "Invalid User Object";
@@ -2334,10 +2433,19 @@ User.getCurrent = function(){
 	return window._currentUser;
 }
 
+/**
+ * Get the email and redirect to the logged in user
+ * @param  {[type]} err [description]
+ * @return {[type]}     [description]
+ */
 User.redirectToLoggedInUser = function(err){
 	ims.sharepoint.redirectToLoggedInUser(err, function(email){
 		User.redirectToDashboard(email);
 	});
+}
+
+User.getLoggedInUserEmail = function(callback){
+	ims.sharepoint.getLoggedInUserEmail(callback);
 }
 
 /**
@@ -2503,7 +2611,14 @@ User.prototype.getLeader = function(){
 	var type = '';
 	if (this._baseRole == 'tgl') type = 'aim';
 	else if (this._baseRole == 'instructor') type = 'tgl';
-	return $(this._xml).find('> leadership person[type=' + type + ']').attr('email');
+	var result = $(this._xml).find('> leadership person[type=' + type + ']').attr('email');
+	if (!result){
+		result = $(this._xml).closest('semester').find('role:not([type=' + this._baseRole + '])');
+		type = $(result).attr('type');
+		if (type == 'tgl') type = 'aim';
+		result = $(result).find('leadership person[type=' + type + ']').attr('email');
+	}	
+	return result;
 }
 
 /**
@@ -2726,6 +2841,9 @@ User.prototype.getHours = function(){
 				hours.push(0);
 			}
 		}
+	}
+	for (var i = 0; i < hours.length; i++){
+		hours[i] = Math.floor(hours[i] * 10) / 10;
 	}
 	return hours;
 }

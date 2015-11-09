@@ -86,13 +86,15 @@ Survey.prototype.getPlacement = function(){
  * @return {[type]} [description]
  */
 Survey.prototype.toggleReviewed = function(){
-	if (this._user.getLeader() != ims.aes.value.e) return;
-	var reviewed = this.isReviewed();
-	this._reviewed = !reviewed;
-	reviewed = this._reviewed ? 'true' : 'false';
-	var id = this.id;
-	$(this._user._xml).find('> surveys survey[id=' + id + ']').attr('reviewed', reviewed);
-	this._user.save();
+	User.getLoggedInUserEmail(function(email){
+		if (!email || ims.aes.value.ce.toLowerCase() != email.toLowerCase()) return;
+		var reviewed = this.isReviewed();
+		this._reviewed = !reviewed;
+		reviewed = this._reviewed ? 'true' : 'false';
+		var id = this.id;
+		$(this._user._xml).find('> surveys survey[id=' + id + ']').attr('reviewed', reviewed);
+		this._user.save();
+	})
 }
 
 /**

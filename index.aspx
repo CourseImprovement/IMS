@@ -67,6 +67,7 @@
 						<li ng-repeat="item in semesters" ng-class="item.selected ? 'selected' : ''" ng-click='selectedSemesterMenuItem(item)'>- {{item}}</li>
 					</ul>
 				</li> -->
+				<li ng-if='backButton' ng-click='back()'>Back</li>
 				<li ng-click='toggleSubMenu($event)' ng-if='user.isLeader()'>View As: {{selectedRole}}
 					<ul>
 						<li ng-repeat="role in roleMenu" ng-class="role.type ? 'menuTitle' : role.selected ? 'selected' : ''" ng-click='redirect(role.href)'>{{role.name}}</li>
@@ -162,15 +163,16 @@
 					 </div>
 					 <!-- END GRAPH -->
 
-					 <!-- TABLE -->
+					 <!-- ROSTER -->
 					 <table class="table selection" ng-if='tile.type == "roster"'>
 						<tr ng-repeat='user in tile.data | orderBy:"name"'>
 							<td><div class='newInst' ng-if='user.isNew()'>New</div></td>
 							<td><div ng-click='redirect(user.getHref())' class='link'>{{user.getFullName()}}</div></td>
 							<td><a href='mailto:{{user.getFullEmail()}}'>{{user.getFullEmail()}}</a></td>
+							<td><a href="https://outlook.office365.com/owa/#viewmodel=IMailComposeViewModelFactory" target='_blank'><i class='fa fa-envelope'></i></a></td>
 						</tr>
 					</table>
-					 <!-- END TABLE -->
+					 <!-- END ROSTER -->
 
 					 <!-- SMART GOALS -->
 					 <div ng-if='tile.type == "smart"'>
@@ -201,6 +203,8 @@
 			</table>
 		</div>
 		<!-- END OVERLAY -->
+		
+		<a href="https://byui.az1.qualtrics.com/SE/?SID=SV_864ehSKcdNERHEh&browser={{computer.browser}}&os={{computer.os}}&email={{computer.email}}&href={{computer.href}}" class="feedback-btn" target='_blank'><i class='fa fa-comments'></i> Feedback</a>
 
 	</div>
 	<!-- END HIDE THE MAIN SCREEN -->
@@ -220,7 +224,8 @@
 		<h1 id="errMsg"></h1>
 	</div>
 	<!-- END ERROR SCREEN -->
-	
+
+
 	<script>
 	  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
 	  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),

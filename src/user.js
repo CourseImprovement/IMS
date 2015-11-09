@@ -1,5 +1,7 @@
 window._currentUser = null;
-window._baseUserXml = ims.sharepoint.getXmlByEmail(ims.aes.value.ce);
+if (ims.aes.value.ce){
+	window._baseUserXml = ims.sharepoint.getXmlByEmail(ims.aes.value.ce);
+}
 
 function User(obj){
 	if (!obj) throw "Invalid User Object";
@@ -37,10 +39,19 @@ User.getCurrent = function(){
 	return window._currentUser;
 }
 
+/**
+ * Get the email and redirect to the logged in user
+ * @param  {[type]} err [description]
+ * @return {[type]}     [description]
+ */
 User.redirectToLoggedInUser = function(err){
 	ims.sharepoint.redirectToLoggedInUser(err, function(email){
 		User.redirectToDashboard(email);
 	});
+}
+
+User.getLoggedInUserEmail = function(callback){
+	ims.sharepoint.getLoggedInUserEmail(callback);
 }
 
 /**
@@ -206,7 +217,14 @@ User.prototype.getLeader = function(){
 	var type = '';
 	if (this._baseRole == 'tgl') type = 'aim';
 	else if (this._baseRole == 'instructor') type = 'tgl';
-	return $(this._xml).find('> leadership person[type=' + type + ']').attr('email');
+	var result = $(this._xml).find('> leadership person[type=' + type + ']').attr('email');
+	if (!result){
+		result = $(this._xml).closest('semester').find('role:not([type=' + this._baseRole + '])');
+		type = $(result).attr('type');
+		if (type == 'tgl') type = 'aim';
+		result = $(result).find('leadership person[type=' + type + ']').attr('email');
+	}	
+	return result;
 }
 
 /**
@@ -429,6 +447,9 @@ User.prototype.getHours = function(){
 				hours.push(0);
 			}
 		}
+	}
+	for (var i = 0; i < hours.length; i++){
+		hours[i] = Math.floor(hours[i] * 10) / 10;
 	}
 	return hours;
 }

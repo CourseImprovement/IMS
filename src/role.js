@@ -807,6 +807,10 @@ Role.prototype._recursiveChildren = function(xml){
         var person = people[i];
         var role = $(person).attr('type');
         if (!role) role = $(person).attr('highestrole');
+        if (role == ims.aes.value.cr.toLowerCase()){
+            role = $(person).find('role').attr('type');
+        }
+        if ($(person).attr('email') == this._user.getEmail()) continue;
         var user = new User({email: $(person).attr('email'), role: role, isBase: false, xml: person});
         org.push({
             user: user,
@@ -911,6 +915,8 @@ Role.prototype.getLowerRoleInit = function(){
 Role.prototype.getQuestionForGroup = function(email, name){
     var role = this.getRoleName().toLowerCase();
     if (this._user.isCurrent() && role == 'tgl' && this._user.getHighestRole().toLowerCase() == 'aim') role = 'aim';
+    else if (role == 'instructor' && this._user.getHighestRole().toLowerCase() == 'tgl') role = 'aim';
+    else if (role == 'instructor') role = 'tgl';
 	return new Rollup({level: role, email: email, question: name});
 }
 
@@ -1016,20 +1022,20 @@ Role.prototype.getCompletedTasksByCourse = function(){
  */
 Role.prototype.getHref = function(){
 	var val = JSON.parse(JSON.stringify(ims.aes.value));
-  val.ce = this._user.getEmail();
-  val.cr = this.getRoleName().toUpperCase();
-  // if (this.getRoleName().toLowerCase() == 'tgl' && this.aim){
-  // 	val.cr = 'a' + this.getRoleName();
-  // }
-  val.pe = val.e;
-  val.pr = val.i;
-  var str = JSON.stringify(val);
-  var en = ims.aes.encrypt(str, ims.aes.key.hexDecode());
-  var href = window.location.href;
-  if (href.indexOf('v=') > -1){
-  	return href.split('v=')[0] + 'v=' + en;
-  }
-  return;
+    val.pe = val.ce;
+    val.pr = val.cr;
+    val.ce = this._user.getEmail();
+    val.cr = this.getRoleName().toUpperCase();
+    // if (this.getRoleName().toLowerCase() == 'tgl' && this.aim){
+    // 	val.cr = 'a' + this.getRoleName();
+    // }
+    var str = JSON.stringify(val);
+    var en = ims.aes.encrypt(str, ims.aes.key.hexDecode());
+    var href = window.location.href;
+    if (href.indexOf('v=') > -1){
+    	return href.split('v=')[0] + 'v=' + en;
+    }
+    return;
 }
 
 /**
