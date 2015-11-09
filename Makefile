@@ -2,12 +2,12 @@ MSG=
 
 chase:
 	git add .
-	git commit -m $(MSG)
+	git commit -m '$(MSG)'
 	git push
 	git checkout master
 	git merge chase
 	git add .
-	git commit -m $(MSG)
+	git commit -m '$(MSG)'
 	git push
 	git checkout gh-pages
 	git pull origin master
@@ -15,12 +15,12 @@ chase:
 
 grant:
 	git add .
-	git commit -m $(MSG)
+	git commit -m '$(MSG)'
 	git push
 	git checkout master
 	git merge grant
 	git add .
-	git commit -m $(MSG)
+	git commit -m '$(MSG)'
 	git push
 	git checkout gh-pages
 	git pull origin master
