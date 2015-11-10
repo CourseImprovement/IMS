@@ -38,12 +38,18 @@ chase3:
 	git push
 	git checkout gh-pages
 	git pull origin master
+	git add .
+	git commit -m '$(MSG)'
+	git push
 	git checkout chase
 
 grant3: 
 	git push
 	git checkout gh-pages
 	git pull origin master
+	git add .
+	git commit -m '$(MSG)'
+	git push
 	git checkout grant
 
 docs:
