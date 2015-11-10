@@ -89,3 +89,11 @@ var Sharepoint = {
 	current: 0
 }
 // GROUP SHAREPOINT END
+
+
+String.prototype.encodeXML = function(){
+	if (this == undefined) return "";
+	return this.replace(/&/g, '&amp;')
+       		  .replace(/</g, '&lt;')
+              .replace(/>/g, '&gt;');
+}
