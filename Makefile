@@ -1,11 +1,19 @@
 MSG=
 
 chase:
+	make chase1
+	make chase2
+	make chase3
+
+grant:
+	make grant1
+	make grant2
+	make grant3
+
+chase1:
 	git add .
 	git commit -m '$(MSG)'
 	git push
-	make chase2
-	make chase3
 
 chase2:
 	git checkout master
@@ -14,12 +22,10 @@ chase2:
 	git add .
 	git commit -m '$(MSG)'
 
-grant:
+grant1:
 	git add .
 	git commit -m '$(MSG)'
 	git push
-	make grant2
-	make grant3
 
 grant2:
 	git checkout master
