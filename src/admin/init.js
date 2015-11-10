@@ -91,6 +91,10 @@ var Sharepoint = {
 // GROUP SHAREPOINT END
 
 
+/**
+ * Replace xml characters with encoded xml characters
+ * @return {[type]} [description]
+ */
 String.prototype.encodeXML = function(){
 	if (this == undefined) return "";
 	return this.replace(/&/g, '&amp;')

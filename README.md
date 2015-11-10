@@ -3,4 +3,5 @@ Instructor Management System - Dashboard
 
 TODOs
 ======
- - Range for AIM instructor hours
+ - Config.prototype.columnNumberToLetter
+ - Config.prototype.createSurvey

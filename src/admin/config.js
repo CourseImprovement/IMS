@@ -4,6 +4,10 @@ function Config(){
 	this._xml;
 }
 
+/** 
+ * Inital setup. Create the survey objects
+ * @return {[type]} [description]
+ */
 Config.prototype._initSetup = function(){
 	Sharepoint.getFile(ims.url.base + 'config/config.xml', function(data){
 		this._xml = $(data)[0];
@@ -14,6 +18,11 @@ Config.prototype._initSetup = function(){
 	});
 }
 
+/**
+ * Find a survey based on the criteria in an object
+ * @param  {[type]} obj [description]
+ * @return {[type]}     [description]
+ */
 Config.prototype.findSurvey = function(obj){
 	var found = null;
 	$(this.surveys).each(function(){
@@ -22,13 +31,24 @@ Config.prototype.findSurvey = function(obj){
 	return found;
 }
 
+/**
+ * Create a survey based on a passed through object.
+ * TODO:
+ * 	figure out what the object is and add it to the survey object.
+ * @param  {[type]} obj [description]
+ * @return {[type]}     [description]
+ */
 Config.prototype.createSurvey = function(obj){
 	var spot = this.surveys.length;
 	this.surveys.push(new Survey(obj, false));	
 	return this.surveys[spot];
 }
 
-Config.prototype.getHighestId = function(){
+/**
+ * Get the next highest survey id
+ * @return {[type]} [description]
+ */
+Config.prototype.getHighestSurveyId = function(){
 	var id = 0;
 	$(this.surveys).each(function(){
 		if (id < this.id){
@@ -38,6 +58,11 @@ Config.prototype.getHighestId = function(){
 	return id;
 }
 
+/**
+ * Get the next up leader as string
+ * @param  {[type]} p [description]
+ * @return {[type]}   [description]
+ */
 Config.prototype.getLeader = function(p){
 	switch (p){
 		case 'instructor' return 'tgl';
@@ -47,6 +72,12 @@ Config.prototype.getLeader = function(p){
 	}
 }
 
+
+/**
+ * Convert a column letter to number
+ * @param  {[type]} letter [description]
+ * @return {[type]}        [description]
+ */
 Config.prototype.columnLetterToNumber = function(letter){
 	console.log('returning the numeric col from the letter');
 	if(!isNaN(letter)) return letter;
@@ -78,6 +109,8 @@ Config.prototype.columnNumberToLetter = function(number){
 
 
 
-
-
+/**
+ * Only one survey instance can be initalized at one time
+ * @type {Config}
+ */
 window.config = new Config();
