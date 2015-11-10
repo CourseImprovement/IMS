@@ -6,6 +6,7 @@ chase:
 	git push
 	git checkout master
 	git merge chase
+	git pull
 	git add .
 	git commit -m '$(MSG)'
 	git push
@@ -19,6 +20,7 @@ grant:
 	git push
 	git checkout master
 	git merge grant
+	git pull
 	git add .
 	git commit -m '$(MSG)'
 	git push
