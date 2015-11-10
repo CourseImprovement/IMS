@@ -73,21 +73,29 @@ Config.prototype.surveyCopy = function(surveyId){
 }
 
 /**
- * REGISTERS A NEW SURVEY
+ * [surveyRegister description]
+ * @param  {[type]} name      [description]
+ * @param  {[type]} emailCol  [description]
+ * @param  {[type]} weekCol   [description]
+ * @param  {[type]} typeCol   [description]
+ * @param  {[type]} placement [description]
+ * @param  {[type]} courseCol [description]
+ * @param  {[type]} questions [description]
  */
 Config.prototype.surveyRegister = function(name, emailCol, weekCol, typeCol, placement, courseCol, questions){
 	console.log('registering a survey in the config');
 	var surveys = $(this._xml).find('semester[code=FA15] surveys');
 	var id = this._highestId(surveys);
-	surveys.append('<survey email="' + emailCol + 
-							'" id="' + (id + 1) + 
-							'" name="' + name + 
-							'" placement="' + placement + 
-							'" type="' + typeCol + 
-							'" week="' + weekCol + 
-							'" course="' + courseCol + 
-							'"><questions></questions></survey>');
+	surveys.append('<survey email="' + emailCol + '" id="' + (id + 1) + '" name="' + name + '" placement="' + placement + '" type="' + typeCol + '" week="' + weekCol + '" course="' + courseCol + '"><questions></questions></survey>');
 	var survey = $(surveys).find('survey[id=' + (id + 1) + '] questions');
+
+	if (weekCol != undefined){
+		survey.attr('week', weekCol);
+	}
+
+	if (courseCol != undefined){
+		survey.attr('course', courseCol);
+	}
 
 	for (var i = 0; i < questions.length; i++){
 		survey.append('<question col="' + questions[i].row + 
@@ -95,6 +103,10 @@ Config.prototype.surveyRegister = function(name, emailCol, weekCol, typeCol, pla
 							'</text><answer><if value=""></if><then bg="" color=""></then><replace what="' + Config._cleanXml(questions[i].what) + 
 							'" with="' + Config._cleanXml(questions[i].awith) + '"></replace></answer></question>');
 	}
+
+	Sharepoint.postFile(this._xml, 'config/', 'config.xml', function(){
+		alert('survey registered!');
+	});
 }
 
 /**
@@ -126,11 +138,15 @@ Config.prototype.surveyModify = function(name, emailCol, weekCol, typeCol, place
 	console.log('modifying a survey in the config');
 	var survey = $(this._xml).find('semester[code=FA15] surveys survey[id="' + surveyId + '"]');
 	survey.attr('name', name);
-	survey.attr('week', emailCol);
+	if (survey.attr('week') != undefined){
+		survey.attr('week', emailCol);
+	}
 	survey.attr('email', weekCol);
 	survey.attr('type', typeCol);
 	survey.attr('placement', placement);
-	survey.attr('course', courseCol);
+	if (survey.attr('course') != undefined){
+		survey.attr('course', courseCol);
+	}
 
 	$(survey).find('question').remove();
 	for (var i = 0; i < questions.length; i++){
@@ -150,7 +166,7 @@ Config.prototype.surveyModify = function(name, emailCol, weekCol, typeCol, place
 	}
 
 	Sharepoint.postFile(this._xml, 'config/', 'config.xml', function(){
-		alert('survey modified');
+		alert('survey modified!');
 	});
 }
 
@@ -161,22 +177,21 @@ Config.prototype.surveyModify = function(name, emailCol, weekCol, typeCol, place
  */
 Config.prototype.surveyProcessing = function(surveyId, rows){
 	var cols = this._getSurveyColumns(surveyId);
-	var hasCourse = false;
+	var hasCourse = (col.course == undefined ? false : true);
 	var people = {};
 
 	for (var i = 3; i < rows.length; i++){
 		if (rows[i][cols.email] != undefined){
 			var email = rows[i][cols.email].split('@')[0];
-			var course = rows[i][cols.course];
 			if (people[email] == undefined){
 				people[email] = {};
 			}
-			if (course != null){
+			if (hasCourse){
+				var course = rows[i][cols.course];
 				people[email][course] = {};
 				for (var col in cols.questions){
 					people[email][course][cols.questions[col].id] = rows[i][col];
 				}
-				hasCourse = true;
 			}
 			else{
 				for (var col in cols.questions){
@@ -225,6 +240,24 @@ Config.prototype._answerReplace = function(people, cols, hasCourse){
 }
 
 /**
+ * [leaderLevel description]
+ * @param  {[type]} p [description]
+ * @return {[type]}   [description]
+ */
+Config.leaderLevel = function(p){
+	var level = "";
+
+	if (p == 'instructor')
+		level = 'tgl';
+	else if (p == 'tgl')
+		level = 'aim';
+	else if (p == 'aim')
+		level = 'im';
+
+	return level;
+}
+
+/**
  * UPDATE AND UPLOAD XML FILES WITH SPECIFIC DATA
  * @param  {Object} people object containing all the people with their courses and their responses
  * @param  {Object} cols   contains information concerning the survey being processed
@@ -234,7 +267,11 @@ Config.prototype._uploadSurvey = function(people, cols, hasCourse){
 	for (var person in people){
 		Sharepoint.getFile(ims.url.base + 'master/' + person.split('@')[0] + '.xml', function(data){
 			var email = $(data).find('semester[code=FA15] > people > person').attr('email');
-			var surveys = $(data).find('semester[code=FA15] > people > person > roles > role[type="' + cols.placement.toLowerCase() + '"] > surveys');
+			var placement = cols.placement.toLowerCase();
+			var level = Config.leaderLevel(placement);
+			var leader = $(data).find('semester[code=FA15] > people > person > roles > role[type="'  + placement + '"] > leadership > person[type=' + level + '"]').attr('email');
+			var surveys = $(data).find('semester[code=FA15] > people > person > roles > role[type="' + placement + '"] > surveys');
+			var survey = null;
 			if (hasCourse){
 				for (var course in people[email]){
 					var cId = $(data).find('semester[code=FA15] > people > person > courses > course:contains(' + course + ')').attr('id');
@@ -246,19 +283,22 @@ Config.prototype._uploadSurvey = function(people, cols, hasCourse){
 						$(surveys).find('> survey[id="' + cols.id + '"][courseid="' + cId + '"]').append('<answer id="' + id + '">' + Config._cleanXml(people[email][course][id]) + '</answer>');
 					}
 				}
+				survey = $(surveys).find('> survey[id="' + cols.id + '"]').clone();
 			}
 			else{
-				for (var course in people[email]){
-					if ($(surveys).find('> survey[id="' + cols.id + '"]').length != 0){
-						$(surveys).find('> survey[id="' + cols.id + '"]').remove();
-					}
-					$(surveys).append('<survey id="' + cols.id + '" reviewed="false"></survey>');
-					for (var id in people[email]){
-						$(surveys).find('> survey[id="' + cols.id + '"]').append('<answer id="' + id + '">' + Config._cleanXml(people[email][course][id]) + '</answer>');
-					}
+				if ($(surveys).find('> survey[id="' + cols.id + '"]').length != 0){
+					$(surveys).find('> survey[id="' + cols.id + '"]').remove();
 				}
+				$(surveys).append('<survey id="' + cols.id + '" reviewed="false"></survey>');
+				for (var id in people[email]){
+					$(surveys).find('> survey[id="' + cols.id + '"]').append('<answer id="' + id + '">' + Config._cleanXml(people[email][id]) + '</answer>');
+				}
+				survey = $(surveys).find('> survey[id="' + cols.id + '"]').clone();
 			}
-			
+			Sharepoint.getFile(ims.url.base + 'master/' + leader + '.xml', function(data){
+				$(data).find('semester[code=FA15] > people > person > roles > role[type="' + level + '"] > stewardship > people > person[email="' + email + '"] > roles > role[type="' + placement + '"] surveys').append(survey);
+				Sharepoint.postFile(data, 'master/', leader + '.xml', function(){});
+			});
 			Sharepoint.postFile(data, 'master/', email + '.xml', function(){
 				if (Sharepoint.current == Sharepoint.total){
 					setTimeout(function(){
@@ -271,6 +311,7 @@ Config.prototype._uploadSurvey = function(people, cols, hasCourse){
 }
 
 Config._cleanXml = function(str){
+	if (str == undefined) return "";
 	return str.replace(/&/g, '&amp;')
        		  .replace(/</g, '&lt;')
               .replace(/>/g, '&gt;');
@@ -288,12 +329,19 @@ Config.prototype._getSurveyColumns = function(surveyId){
 		email: Config.getCol(survey.attr('email')),
 		placement: survey.attr('placement'),
 		type: Config.getCol(survey.attr('type')),
-		week: Config.getCol(survey.attr('week')),
 		name: survey.attr('name'),
-		course: Config.getCol(survey.attr('course')),
 		questions: {}
 	};
+
+	if ((survey.attr('week') != undefined){
+		columns['week'] = Config.getCol(survey.attr('week'));
+	}
+	if ((survey.attr('course') != undefined){
+		columns['course'] = Config.getCol(survey.attr('course'));
+	}
 	
+	
+
 	$(survey).find('questions question').each(function(){
 		columns.questions[Config.getCol($(this).attr('col'))] = {
 			question: $(this).find('text').text(),
@@ -349,10 +397,7 @@ Config.toCol = function(num){
 	}
 }
 // GROUP CONFIG END
-// 
-// 
+
+
+
 window.config = new Config();
-
-
-
-//test
