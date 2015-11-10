@@ -9,10 +9,6 @@ chase:
 	git pull
 	git add .
 	git commit -m '$(MSG)'
-	git push
-	git checkout gh-pages
-	git pull origin master
-	git checkout chase
 
 grant:
 	git add .
@@ -23,6 +19,8 @@ grant:
 	git pull
 	git add .
 	git commit -m '$(MSG)'
+
+pages: 
 	git push
 	git checkout gh-pages
 	git pull origin master
