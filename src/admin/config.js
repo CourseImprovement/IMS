@@ -23,6 +23,14 @@ Config.prototype.getCurrentSemester = function(){
 }
 
 /**
+ * Get all the serveys
+ * @return {[type]} [description]
+ */
+Config.prototype.getSurveys = function(){
+	return this.surveys;
+}
+
+/**
  * Returns the survey using the id
  * @param  {Integer} id Numerical id for the survey
  * @return {Object}    Xml of the survey with id of 'id'
