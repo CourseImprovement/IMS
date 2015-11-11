@@ -316,7 +316,7 @@ function Config(){
 	this._initSetup();
 	this._xml;
 	this.semesters = ims.sharepoint.getSemesterConfig();
-	 = null;
+	this.selectedSurvey = null;
 	this.otherPeople = {};
 }
 
@@ -420,7 +420,7 @@ Config.prototype.getPerson = function(email){
  * @param {Object} person Contains all information regarding a person
  */
 Config.prototype.addPerson = function(email, person){
-	this.otherPeople[email] = person;
+	this.otherPeople[person.email] = person;
 }
 
 /**
