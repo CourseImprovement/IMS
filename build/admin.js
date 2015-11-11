@@ -375,7 +375,6 @@ Config.prototype.getMaster = function(){
  * @param  {String} p  A role
  * @return {String}    That role's immediate leader
  */
-<<<<<<< HEAD
 Config.prototype._getSurveyColumns = function(surveyId){
 	var survey = $(this._xml).find('semester[code=FA15] > surveys > survey[id="' + surveyId + '"]');
 	var columns = {
@@ -408,7 +407,8 @@ Config.prototype._getSurveyColumns = function(surveyId){
 	});
 
 	return columns;
-=======
+}
+
 Config.getLeader = function(p){
 	switch (p){
 		case 'instructor' return 'tgl';
@@ -416,7 +416,6 @@ Config.getLeader = function(p){
 		case 'aim': return 'im';
 		default: throw 'Invalid';
 	}
->>>>>>> grant
 }
 
 
