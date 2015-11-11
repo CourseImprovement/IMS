@@ -1,3 +1,12 @@
+
+
+
+// GROUP SURVEY
+/**
+ * Survey Object
+ * @param {Object}  survey A surveys information
+ * @param {Boolean} isXml  Is the survey in xml form
+ */
 function Survey(survey, isXml){
 	if (isXml){
 		this.id = parseInt($(survey).attr('id'));
@@ -18,6 +27,11 @@ function Survey(survey, isXml){
 	}
 }
 
+/**
+ * [getPerson description]
+ * @param  {String} email A person's email
+ * @return {Object}       Person with the email of 'email'
+ */
 Survey.prototype.getPerson = function(email){
 	for (var i = 0; i < this.people.length; i++){
 		if (this.people[i].email == email) return this.people[i];
@@ -37,7 +51,7 @@ Survey.prototype._setXmlQuestions = function(){
 
 /**
  * Use the objects member variables to create the survey node
- * @return {[type]} [description]
+ * @return {Object} Survey in xml form
  */
 Survey.prototype.toXml = function(){
 	var survey = $('<survey><questions></questions></survey>');
@@ -59,7 +73,6 @@ Survey.prototype.toXml = function(){
 /**
  * Create the xml from the given objects. Remove the survey from the
  * config file. Add the newly created xml to the config file. 
- * @return {[type]} [description]
  */
 Survey.prototype.save = function(){
 	var survey = this.toXml();
@@ -81,7 +94,6 @@ Survey.prototype.save = function(){
 
 /**
  * Remove the survey from the xml of the config
- * @return {[type]} [description]
  */
 Survey.prototype.remove = function(){
 	$(this._xml).remove();
@@ -89,10 +101,9 @@ Survey.prototype.remove = function(){
 
 /**
  * Modifiy a certain aspect of object, if save is necessary, its there.
- * @param  {[type]} prop  [description]
- * @param  {[type]} value [description]
- * @param  {[type]} save  [description]
- * @return {[type]}       [description]
+ * @param  {String} prop   [description]
+ * @param  {String} value  [description]
+ * @param  {Boolean} save  [description]
  */
 Survey.prototype.modify = function(prop, value, save){
 	this[prop] = value;
@@ -103,7 +114,7 @@ Survey.prototype.modify = function(prop, value, save){
 
 /**
  * Clone and rename survey to append (Copy) and increment the id
- * @return {[type]} [description]
+ * @return {Object} New survey object
  */
 Survey.prototype.copy = function(){
 	var cloned = $(this._xml).clone();
@@ -115,7 +126,6 @@ Survey.prototype.copy = function(){
 /**
  * Collects the questions, people, and the peoples answers
  * @param  {Array]} rows Rows from the csv
- * @return {[type]}      [description]
  */
 Survey.prototype.process = function(rows){
 	// go through each row and add people
@@ -147,7 +157,7 @@ Survey.prototype.process = function(rows){
 		}
 	}
 	
-	for (var i = 0; i < this.people.length; i++){
+	/*for (var i = 0; i < this.people.length; i++){
 		this.people[i].save();
 	}
 
@@ -155,13 +165,17 @@ Survey.prototype.process = function(rows){
 		window.config.otherPeople[email].save();
 	}
 
+<<<<<<< HEAD
 	Sharepoint.postFile(window.config.getMaster(), 'master/', 'master.xml', function(){});
+=======
+	Sharepoint.postFile(window.config.getMaster(), 'master/', 'master.xml', function(){});*/
+>>>>>>> grant
 }
 
 /**
  * Get the question by Id
- * @param  {[type]} id [description]
- * @return {[type]}    [description]
+ * @param  {Integer} id The id of a question within the survey
+ * @return {Object}     A question with id of 'id'
  */
 Survey.prototype.getQuestionById = function(id){
 	for (var i = 0; i < this.questions.length; i++){
@@ -172,8 +186,8 @@ Survey.prototype.getQuestionById = function(id){
 
 /**
  * If the survey has the attributes of the parameter object
- * @param  {[type]}  obj [description]
- * @return {Boolean}     [description]
+ * @param  {Object}  obj Survey information
+ * @return {Boolean}     Has the same attributes
  */
 Survey.prototype.hasAttrs = function(obj){
 	var keys = Object.keys(obj);
@@ -186,3 +200,4 @@ Survey.prototype.hasAttrs = function(obj){
 Survey.prototype.getWeekNumber = function(){
 	
 }
+// GROUP SURVEY END

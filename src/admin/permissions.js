@@ -1,4 +1,10 @@
+
+
+
 // GROUP PERMISSIONS
+/**
+ * Permissions Object
+ */
 function Permissions(){
 	console.log('new Permissions object created');
 	this._map = null;

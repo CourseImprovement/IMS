@@ -1,4 +1,11 @@
+
+
+
 // GROUP SEMESTER SETUP
+/**
+ * Semester Setup Object
+ * @param {Array} csv Contains the rows from the csv file
+ */
 function SemesterSetup(csv){
 	console.log('new SemesterSetup object was created');
 	this._csv = csv;

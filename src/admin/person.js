@@ -1,3 +1,12 @@
+
+
+
+// GROUP PERSON
+/**
+ * Person Object
+ * @param {[type]}  obj   obj containing a persons data
+ * @param {Boolean} isXml Is the obj param actually xml
+ */
 function Person(obj, isXml){
 	if (isXml){
 		this._tmpXml = $(obj).find('semester[code' + window.config.getCurrentSemester() + '] > people > person');
@@ -15,18 +24,31 @@ function Person(obj, isXml){
 	}
 }
 
+/**
+ * Save this person's xml to their sharepoint file
+ */
 Person.prototype.save = function(){
 	Sharepoint.postFile(this._xml, 'master/', this._email + '.xml', function(){});
 }
 
+/**
+ * Checks to see if the person object is valid
+ * @return {Boolean} Is the person's information valid
+ */
 Person.prototype.isValid = function(){
 	return !!(this._email && this._row && this._placement && this._answers.length > 0);
 }
 
+/**
+ * [getXml description]
+ */
 Person.prototype.getXml = function(){
 	this._xml = ims.sharepoint.getXmlByEmail(this._email);
 }
 
+/**
+ * Retrieves a person's leader
+ */
 Person.prototype.getLeader = function(){
 	var email = $(this._xml).find('semester[code' + window.config.getCurrentSemester() + '] > people > person > roles > role[type=' + this._placement + '] > leadership > person[type=' + Config.getLeader(this._placement) + ']').attr('email');
 	var person = window.config.getPerson(email);
@@ -38,6 +60,9 @@ Person.prototype.getLeader = function(){
 	this._leader = person;
 }
 
+/**
+ * Process a person's survey data
+ */
 Person.prototype.process = function(){
 	this.getXml();
 	this.getLeader();
@@ -62,8 +87,8 @@ Person.prototype.process = function(){
 
 /**
  * End of semester fix: remove if statement
- * @param  {[type]} name [description]
- * @return {[type]}      [description]
+ * @param  {String} name Name of the course the survey was taken for
+ * @return {String}      The id of 'name'
  */
 Person.prototype.getCourseIdByName = function(name){
 	if (name.indexOf('PATH') > -1){
@@ -72,6 +97,10 @@ Person.prototype.getCourseIdByName = function(name){
 	return $(this._xml).find('semester[code' + window.config.getCurrentSemester() + '] > people > person > courses course:contains(' + name + ')').attr('id');
 }
 
+/**
+ * Puts all the survey components into xml form 
+ * @return {Object} Survey in xml form
+ */
 Person.prototype.toXml = function(){
 	var xml = $('<survey></survey>');
 	var id = window.config.selectedSurvey.id;
@@ -85,13 +114,24 @@ Person.prototype.toXml = function(){
 	}
 	return xml;
 }
+// GROUP PERSON END
 
+
+
+// GROUP ANSWER
+/**
+ * Answer object
+ * @param {Object} obj Contains a question and answer.
+ */
 function Answer(obj){
 	this._question = obj.question;
 	this._answer = obj.answer;
 	this.clean();
 }
 
+/**
+ * Replaces text in answers and encodes certain characters to xml
+ */
 Answer.prototype.clean = function(){
 	for (var i = 0; i < this._question.replaceWhat.length; i++){
 		var replaceWhat = new RegExp(this._question.replaceWhat[i], 'g');
@@ -101,6 +141,10 @@ Answer.prototype.clean = function(){
 	this._answer.encodeXML();
 }
 
+/**
+ * Converts the components of the answer into xml
+ * @return {Object} Answer in xml form
+ */
 Answer.prototype.toXml = function(){
 	var xml = $('<answer></answer>');
 	xml.attr('id', this._question.id);
@@ -108,6 +152,12 @@ Answer.prototype.toXml = function(){
 	return xml; 
 }
 
+/**
+ * Collects survey data from a csv row
+ * @param  {Object} survey Contains information on the survey
+ * @param  {Array}  row    A person's row from the csv file, which contains their information and answers
+ * @return {Array}         The person's answers with the questions
+ */
 Answer.collect = function(survey, row){
 	var result = [];
 	for (var i = 0; i < survey.questions.length; i++){
@@ -119,3 +169,4 @@ Answer.collect = function(survey, row){
 	}
 	return result;
 }
+// GROUP ANSWER END

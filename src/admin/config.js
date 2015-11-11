@@ -1,3 +1,10 @@
+
+
+
+// GROUP CONFIG
+/**
+ * Config Object
+ */
 function Config(){
 	this.surveys = [];
 	this._initSetup();
@@ -7,13 +14,25 @@ function Config(){
 	this.otherPeople = {};
 }
 
+/**
+ * Gets the current semester from the semester xml file
+ * @return {String} The semester name. e.g. FA15, WI16
+ */
 Config.prototype.getCurrentSemester = function(){
 	return $(this.semesters).find('[current=true]').attr('name');
 }
 
+/**
+ * Returns the survey using the id
+ * @param  {Integer} id Numerical id for the survey
+ * @return {Object}    Xml of the survey with id of 'id'
+ */
+Config.prototype.getSurveyById = function(id){
+	return $(window.config._xml).find('semester[code="' + this.getCurrentSemester() + '"] surveys survey[id=' + id + ']');
+}
+
 /** 
  * Inital setup. Create the survey objects
- * @return {[type]} [description]
  */
 Config.prototype._initSetup = function(){
 	Sharepoint.getFile(ims.url.base + 'config/config.xml', function(data){
@@ -27,8 +46,8 @@ Config.prototype._initSetup = function(){
 
 /**
  * Find a survey based on the criteria in an object
- * @param  {[type]} obj [description]
- * @return {[type]}     [description]
+ * @param  {Object} obj Contains information for a survey
+ * @return {Object}     Survey that contains information of param obj
  */
 Config.prototype.findSurvey = function(obj){
 	var found = null;
@@ -42,8 +61,8 @@ Config.prototype.findSurvey = function(obj){
  * Create a survey based on a passed through object.
  * TODO:
  * 	figure out what the object is and add it to the survey object.
- * @param  {[type]} obj [description]
- * @return {[type]}     [description]
+ * @param  {Object} obj Contains all information for a survey
+ * @return {Object}     The new survey object that was just created
  */
 Config.prototype.createSurvey = function(obj){
 	var spot = this.surveys.length;
@@ -53,7 +72,7 @@ Config.prototype.createSurvey = function(obj){
 
 /**
  * Get the next highest survey id
- * @return {[type]} [description]
+ * @return {Integer} Highest id for a survey
  */
 Config.prototype.getHighestSurveyId = function(){
 	var id = 0;
@@ -67,8 +86,8 @@ Config.prototype.getHighestSurveyId = function(){
 
 /**
  * Get a person from first the survey, then from global
- * @param  {[type]} email [description]
- * @return {[type]}       [description]
+ * @param  {String} email Email of a person to find
+ * @return {Object}       The object of a person with attribute 'email'
  */
 Config.prototype.getPerson = function(email){
 	var person = this.selectedSurvey.getPerson(email);
@@ -80,7 +99,7 @@ Config.prototype.getPerson = function(email){
 
 /**
  * Add person to global list
- * @param {[type]} person [description]
+ * @param {Object} person Contains all information regarding a person
  */
 Config.prototype.addPerson = function(person){
 	this.otherPeople[person.email] = person;
@@ -88,7 +107,7 @@ Config.prototype.addPerson = function(person){
 
 /**
  * Get the master file
- * @return {[type]} [description]
+ * @return {Object} Master xml file from sharepoint
  */
 Config.prototype.getMaster = function(){
 	if (!this._master){
@@ -99,8 +118,8 @@ Config.prototype.getMaster = function(){
 
 /**
  * Get the next up leader as string
- * @param  {[type]} p [description]
- * @return {[type]}   [description]
+ * @param  {String} p  A role
+ * @return {String}    That role's immediate leader
  */
 Config.getLeader = function(p){
 	switch (p){
@@ -114,8 +133,8 @@ Config.getLeader = function(p){
 
 /**
  * Convert a column letter to number
- * @param  {[type]} letter [description]
- * @return {[type]}        [description]
+ * @param  {String} letter  Letter combination referencing an excel column
+ * @return {Integer}        Numerical value of the excel column
  */
 Config.columnLetterToNumber = function(letter){
 	console.log('returning the numeric col from the letter');
@@ -133,8 +152,8 @@ Config.columnLetterToNumber = function(letter){
 /**
  * TODO:
  * 		- Change AZ as the highest to BZ
- * @param  {[type]} number [description]
- * @return {[type]}        [description]
+ * @param  {Integer} number Numerical value that is associated with an excel column
+ * @return {String}         Column as a string
  */
 Config.columnNumberToLetter = function(number){
 	console.log('returning the letter col from the number');
@@ -145,6 +164,7 @@ Config.columnNumberToLetter = function(number){
 		return "A" + String.fromCharCode((num - 26) + 65);
 	}
 }
+// GROUP CONFIG END
 
 
 
