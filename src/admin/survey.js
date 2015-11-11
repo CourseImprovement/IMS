@@ -145,8 +145,7 @@ Survey.prototype.process = function(rows){
 	}
 	for (var i = spot; i < rows[i].length; i++){
 		// clean answers  and then add them to their respective individual
-		if (rows[i].length > 1){
-			console.log(rows[i][eCol]);
+		if (rows[i][eCol] != undefined){
 			var person = this.getPerson(rows[i][eCol]);
 			var again = false;
 			if (!person){
