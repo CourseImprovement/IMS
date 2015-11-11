@@ -21,13 +21,13 @@ function Person(obj, isXml, downloadXml){
 	}
 	else{
 		this._email = obj.email;
-		this.cleanEmail();
 		this._row = obj.row;
 		this._placement = obj.placement.toLowerCase();
 		this._leader = null;
 		this._answers = obj.answers;
 		this.course = obj.course;
 	}
+	this.cleanEmail();
 }
 
 Person.cleanEmail = function(email){
