@@ -1413,7 +1413,7 @@ function Survey(survey, isXml){
  */
 Survey.prototype.getPerson = function(email){
 	for (var i = 0; i < this.people.length; i++){
-		if (this.people[i].email == email) return this.people[i];
+		if (this.people[i]._email == email) return this.people[i];
 	}
 	return false;
 }
