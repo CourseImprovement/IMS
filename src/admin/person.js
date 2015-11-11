@@ -27,10 +27,12 @@ function Person(obj, isXml, downloadXml){
 		this._answers = obj.answers;
 		this.course = obj.course;
 	}
+	this._valid = true;
 	this.cleanEmail();
 }
 
 Person.cleanEmail = function(email){
+	if (!email) this._valid = false;
 	if (email.indexOf('@') > -1){
 		email = email.split('@')[0];
 	}
@@ -53,7 +55,7 @@ Person.prototype.save = function(){
  * @return {Boolean} Is the person's information valid
  */
 Person.prototype.isValid = function(){
-	return !!(this._email && this._row && this._placement && this._answers.length > 0);
+	return !!(this._email && this._row && this._placement && this._answers.length > 0) && this._valid;
 }
 
 /**
