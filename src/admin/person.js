@@ -68,7 +68,9 @@ Person.prototype.isValid = function(){
  * [getXml description]
  */
 Person.prototype.getXml = function(){
-	this._xml = ims.sharepoint.getXmlByEmail(this._email);
+	if (!this._xml){
+		this._xml = ims.sharepoint.getXmlByEmail(this._email);
+	}
 }
 
 /**

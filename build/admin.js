@@ -1123,7 +1123,9 @@ Person.prototype.isValid = function(){
  * [getXml description]
  */
 Person.prototype.getXml = function(){
-	this._xml = ims.sharepoint.getXmlByEmail(this._email);
+	if (!this._xml){
+		this._xml = ims.sharepoint.getXmlByEmail(this._email);
+	}
 }
 
 /**
@@ -1558,10 +1560,8 @@ Survey.prototype.process = function(rows){
 		// clean answers  and then add them to their respective individual
 		if (rows[i][eCol] != undefined){
 			var person = window.config.getPerson(rows[i][eCol]);
-			console.log('Check person: ' + rows[i][eCol]);
 			var again = false;
 			if (!person){
-				console.log('Creating person: ' + rows[i][eCol]);
 				person = new Person({
 					email: rows[i][eCol],
 					row: rows[i],
