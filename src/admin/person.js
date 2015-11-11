@@ -79,8 +79,7 @@ Person.prototype.getLeader = function(){
 	var email = $(this._xml).find('semester[code=' + window.config.getCurrentSemester() + '] > people > person > roles > role[type=' + this._placement + '] > leadership > person[type=' + Config.getLeader(this._placement) + ']').attr('email');
 	var person = window.config.getPerson(email);
 	if (!person){
-		person = ims.sharepoint.getXmlByEmail(email);
-		person = new Person(person, true, false);
+		person = new Person({email: email}, true, true);
 		window.config.addPerson(email, person);
 	}
 	this._leader = person;
