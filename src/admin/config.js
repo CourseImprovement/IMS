@@ -4,6 +4,10 @@ function Config(){
 	this._xml = this._getConfigXml();
 }
 
+/**
+ * Returns the config xml file
+ * @return {Object} Config xml file
+ */
 Config.prototype.getXml = function(){
 	console.log('return the config xml');
 	return this._xml;
