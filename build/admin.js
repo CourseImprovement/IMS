@@ -1079,7 +1079,7 @@ function Person(obj, isXml, downloadXml){
 }
 
 Person.cleanEmail = function(email){
-	if (!email) this._valid = false;
+	if (!email) throw 'Invalid Email';
 	if (email.indexOf('@') > -1){
 		email = email.split('@')[0];
 	}
@@ -1087,7 +1087,12 @@ Person.cleanEmail = function(email){
 }
 
 Person.prototype.cleanEmail = function(){
-	return Person.cleanEmail(this._email);
+	try{
+		return Person.cleanEmail(this._email);
+	}
+	catch(e){
+		this._valid = false;
+	}
 }
 
 /**
