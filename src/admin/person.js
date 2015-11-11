@@ -28,7 +28,7 @@ function Person(obj, isXml, downloadXml){
 		this.course = obj.course;
 	}
 	this._valid = true;
-	this.cleanEmail();
+	this.cleanEmailInternal();
 }
 
 Person.cleanEmail = function(email){
@@ -39,7 +39,7 @@ Person.cleanEmail = function(email){
 	return email;
 }
 
-Person.prototype.cleanEmail = function(){
+Person.prototype.cleanEmailInternal = function(){
 	try{
 		return Person.cleanEmail(this._email);
 	}
