@@ -27,7 +27,7 @@ Rollup.prototype.update = function(){
 		'Building Faith in Jesus Christ',
 		'Weekly Hours'
 	]
-	$(window.config._xml).find('semester[code=' + window.config.getCurrentSemester() + '] survey[id=' + window.config.selectedSurvey.id + '] question').each(function(){
+	$(window.config._xml).find('semester[code=' + window.config.getCurrentSemester() + '] survey[id=' + this._surveyId + '] question').each(function(){
 		for (var i = 0; i < questions.length; i++){
 			if ($(this).find('text:contains("' + questions[i] + '")')){
 				_this._questions.push({
@@ -46,9 +46,9 @@ Rollup.prototype.update = function(){
 	$(master).find('semester[code=' + window.config.getCurrentSemester() + '] > people > person > roles > role[type=instructor]').each(function(){
 		var leader = $(this).find('leadership person[type=tgl]').attr('email');
 		for (var i = 0; i < _this._questions.length; i++){
-			var text = $(this).find('survey[id=' + this._surveyId + '] answer[id=' + _this._questions[i] + ']').text();
-			if (!result[_this._questions[i]][leader]) result[_this._questions[i]][leader] = [];
-			result[_this._questions[i]][leader].push(text);
+			var text = $(this).find('survey[id=' + _this._surveyId + '] answer[id=' + _this._questions[i].id + ']').text();
+			if (!result[_this._questions[i].id][leader]) result[_this._questions[i].id][leader] = [];
+			result[_this._questions[i].id][leader].push(text);
 		}
 	});
 	console.log(result);	
