@@ -151,7 +151,7 @@ Survey.prototype.process = function(rows){
 				row: rows[i],
 				placement: this.placement,
 				answers: Answer.collect(this, rows[i])
-			});
+			}, false, true);
 		}
 		else{
 			person._answers = Answer.collect(this, rows[i]);

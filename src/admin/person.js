@@ -7,12 +7,17 @@
  * @param {[type]}  obj   obj containing a persons data
  * @param {Boolean} isXml Is the obj param actually xml
  */
-function Person(obj, isXml){
+function Person(obj, isXml, getXml){
 	if (isXml){
 		this._tmpXml = $(obj).find('semester[code=' + window.config.getCurrentSemester() + '] > people > person');
 		this._role = $(this._tmpXml);
 		this._email = $(this._tmpXml).attr('email');
-		this._xml = ims.sharepoint.getXmlByEmail(this._email);
+		if (getXml){
+			this._xml = ims.sharepoint.getXmlByEmail(this._email);
+		}
+		else{
+			this._xml = obj;
+		}
 	}
 	else{
 		this._email = obj.email;
@@ -61,7 +66,7 @@ Person.prototype.getLeader = function(){
 	var person = window.config.getPerson(email);
 	if (!person){
 		person = ims.sharepoint.getXmlByEmail(email);
-		person = new Person(person, true);
+		person = new Person(person, true, false);
 		window.config.addPerson(email, person);
 	}
 	this._leader = person;
