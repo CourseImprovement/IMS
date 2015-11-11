@@ -2,6 +2,13 @@ function Config(){
 	this.surveys = [];
 	this._initSetup();
 	this._xml;
+	this.semesters = ims.sharepoint.getSemesterConfig();
+	this.selectedSurvey;
+	this.otherPeople = {};
+}
+
+Config.prototype.getCurrentSemester = function(){
+	return $(this.semesters).find('[current=true]').attr('name');
 }
 
 /** 
@@ -12,7 +19,7 @@ Config.prototype._initSetup = function(){
 	Sharepoint.getFile(ims.url.base + 'config/config.xml', function(data){
 		this._xml = $(data)[0];
 		console.log('getting all the surveys');
-		$(this._xml).find('semester[code=FA15] survey').each(function(){
+		$(this._xml).find('semester[code=' + this.getCurrentSemester() + '] survey').each(function(){
 			this.surveys.push(new Survey($(this), true));
 		});
 	});
@@ -59,11 +66,43 @@ Config.prototype.getHighestSurveyId = function(){
 }
 
 /**
+ * Get a person from first the survey, then from global
+ * @param  {[type]} email [description]
+ * @return {[type]}       [description]
+ */
+Config.prototype.getPerson = function(email){
+	var person = this.selectedSurvey.getPerson(email);
+	if (!person){
+		person = this.otherPeople[email];
+	}
+	return person;
+}
+
+/**
+ * Add person to global list
+ * @param {[type]} person [description]
+ */
+Config.prototype.addPerson = function(person){
+	this.otherPeople[person.email] = person;
+}
+
+/**
+ * Get the master file
+ * @return {[type]} [description]
+ */
+Config.prototype.getMaster = function(){
+	if (!this._master){
+		this._master = ims.sharepoint.getXmlByEmail('master');
+	}
+	return this._master;
+}
+
+/**
  * Get the next up leader as string
  * @param  {[type]} p [description]
  * @return {[type]}   [description]
  */
-Config.prototype.getLeader = function(p){
+Config.getLeader = function(p){
 	switch (p){
 		case 'instructor' return 'tgl';
 		case 'tgl': return 'aim';
@@ -78,7 +117,7 @@ Config.prototype.getLeader = function(p){
  * @param  {[type]} letter [description]
  * @return {[type]}        [description]
  */
-Config.prototype.columnLetterToNumber = function(letter){
+Config.columnLetterToNumber = function(letter){
 	console.log('returning the numeric col from the letter');
 	if(!isNaN(letter)) return letter;
 
@@ -97,7 +136,7 @@ Config.prototype.columnLetterToNumber = function(letter){
  * @param  {[type]} number [description]
  * @return {[type]}        [description]
  */
-Config.prototype.columnNumberToLetter = function(number){
+Config.columnNumberToLetter = function(number){
 	console.log('returning the letter col from the number');
 	if (num < 26){
 		return String.fromCharCode(num + 65);

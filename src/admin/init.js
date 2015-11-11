@@ -88,6 +88,148 @@ var Sharepoint = {
 	total: 0,
 	current: 0
 }
+
+window.ims = {};
+
+/**
+ * Sharepoint items
+ * @namespace ims.sharepoint
+ * @memberOf ims
+ * @type {Object}
+ */
+ims.sharepoint = {
+	/**
+	 * The base url for the api calls
+	 * @type {String}
+	 * @memberOf ims.sharepoint
+	 */
+	base: '../',
+	/**
+	 * The relative base for the api calls
+	 * @type {String}
+	 * @memberOf ims.sharepoint
+	 */
+	relativeBase: window.location.pathname.split('Shared%20Documents/index.aspx')[0],
+	/**
+	 * Make a Sharepoint post request. This is most commly used when a file is being posted 
+	 * to the sharepoint server.
+	 * @param  {string}   hostUrl     base url of post request
+	 * @param  {string}   restCommand rest command
+	 * @param  {Object}   data        JSON object
+	 * @param  {Function} callback    callback function
+	 * @return {string}               In the callback, the first arg is a string
+	 * @memberOf ims.sharepoint
+	 * @function
+	 */
+	makePostRequest: function(hostUrl, restCommand, data, callback) {
+    var executor = new SP.RequestExecutor(hostUrl);
+    var info = {
+      'url': restCommand,
+      'method': "POST",
+      'data': JSON.stringify(data),
+      'success': callback
+    };  
+    executor.executeAsync(info);
+	},	
+	/**
+	 * Posts the current user xml file.
+	 * @return {null} Nothing is returned
+	 * @function
+	 * @memberOf ims.sharepoint
+	 */
+	postFile: function(u){
+		function str2ab(str) {
+			// new TextDecoder(encoding).decode(uint8array);
+		  return new TextEncoder('utf8').encode(str);
+		}
+		
+		var buffer = str2ab((new XMLSerializer()).serializeToString(_baseUserXml));
+
+		var fileName = User.getCurrent().getEmail() + '.xml';
+		var url = ims.sharepoint.base + "_api/Web/GetFolderByServerRelativeUrl('" + ims.sharepoint.relativeBase + "Instructor%20Reporting/Master')/Files/add(overwrite=true, url='" + fileName + "')";
+    $['ajax']({
+		    'url': ims.sharepoint.base + "_api/contextinfo",
+		    'header': {
+		        "accept": "application/json; odata=verbose",
+		        "content-type": "application/json;odata=verbose"
+		    },
+		    'type': "POST",
+		    'contentType': "application/json;charset=utf-8"
+		}).done(function(d) {
+			jQuery['ajax']({
+	        'url': url,
+	        'type': "POST",
+	        'data': buffer,
+	        'processData': false,
+	        'headers': {
+	            "accept": "application/json;odata=verbose",
+	            "X-RequestDigest": $(d).find('d\\:FormDigestValue, FormDigestValue').text()
+	        },
+	        'success': function(){
+	        	
+	        }
+	    });
+		});
+	},
+	/**
+	 * Get the semester configuration file. This file allows for us to see which semester is the current semester.
+	 *
+	 * <pre><code>
+	 *  var currentSemester = $(ims.sharepoint.getSemesterConfiguration()).find('[current=true]').attr('name');
+	 * </code></pre>
+	 *
+	 * 
+	 * @return {XMLDocument} Use JQuery to find the current semester
+	 * @function
+	 * @memberOf ims.sharepoint
+	 */
+	getSemesterConfig: function(){
+		var url = ims.sharepoint.base + 'Instructor%20Reporting/config/semesters.xml';
+		var doc = null;
+		$['ajax']({
+	    'url': url,
+	    'success': function(d) {
+	      doc = d;
+	    },
+	    'async': false
+	  });
+	  return doc;
+	},	
+	/**
+	 * Get a XML file for a given user by email address.
+	 * @param  {string} email The first part of the users given email address
+	 * @return {XMLDocument}       Use JQuery to find the current users document
+	 * @function
+	 * @memberOf ims.sharepoint
+	 */
+	getXmlByEmail: function(email){
+		var url = ims.sharepoint.base + 'Instructor%20Reporting/Master/' + email + '.xml'
+		var doc = null;
+		$['ajax']({
+	    'url': url,
+	    'success': function(d) {
+	      doc = d;
+	    },
+	    'error': function(a, b, c){
+	    	if (a && a.responseText && a.responseText.indexOf('404') > -1){
+	    		doc = null;
+	    	}	
+	    	else if (c && c.message.indexOf('Invalid XML') > -1){
+	    		var out = '';
+					for (var i = 0; i < a.responseText.length; i++){
+						if (i % 2 == 0){
+							out += a.responseText[i];
+						}
+					}
+					doc = $['parseXML'](a.responseText);
+	    	}
+	    },
+	    'async': false
+	  });
+	  return doc;
+	}
+};
+
 // GROUP SHAREPOINT END
 
 

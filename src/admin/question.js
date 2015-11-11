@@ -2,6 +2,7 @@ function Question(question, isXml){
 	if (isXml){
 		this.id = parseInt($(question).attr('id'));
 		this.text = $(question).find('text').text();
+		this.col = Config.columnLetterToNumber($(question).attr('col'));
 		this.replaceWhat = $(question).find('replace').attr('what');
 		this.replaceWith = $(question).find('replace').attr('with');
 		if (this.replaceWith.indexOf(';') > -1){

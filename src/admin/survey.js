@@ -6,6 +6,7 @@ function Survey(survey, isXml){
 		}
 		this.placement = $(survey).attr('placement');
 		this.type = $(survey).attr('type');
+		this.email = $(survey).attr('email');
 		this.name = $(survey).attr('name');
 		if ($(survey).hasAttr('course')){
 			this.course = $(survey).attr('course');
@@ -15,6 +16,13 @@ function Survey(survey, isXml){
 		this._setXmlQuestions();
 		this.people = [];
 	}
+}
+
+Survey.prototype.getPerson = function(email){
+	for (var i = 0; i < this.people.length; i++){
+		if (this.people[i].email == email) return this.people[i];
+	}
+	return false;
 }
 
 /**
@@ -104,12 +112,54 @@ Survey.prototype.copy = function(){
 	return new Survey(cloned, true);
 }
 
-Survey.prototype.process = function(){
+/**
+ * Collects the questions, people, and the peoples answers
+ * @param  {Array]} rows Rows from the csv
+ * @return {[type]}      [description]
+ */
+Survey.prototype.process = function(rows){
+	// go through each row and add people
+	var eCol = Config.columnLetterToNumber(this.email);
+	var cCol = -1;
+	if (this.course){
+		cCol = Config.columnLetterToNumber(this.course);
+	}
+	for (var i = 4; i < rows[i].length){
+		// clean answers and then add them to their respective individual
+		var person = this.getPerson(rows[i][eCol]);
+		if (!person){
+			person = new Person({
+				email: rows[i][eCol],
+				row: rows[i],
+				placement: this.placement,
+				answers: Answers.collect(this, rows[i])
+			});
+		}
+		else{
+			person._answers = Answers.collect(this, rows[i]);
+			person._row = rows[i];
+		}
+		if (eCol == -1) continue;
+		person.course = rows[i][cCol];
+		if (person.isValid()){
+			person.process();
+			this.people.push(person);
+		}
+	}
+	
+	for (var i = 0; i < this.people.length; i++){
+		this.people[i].save();
+	}
 
+	for (var email in window.config.otherPeople){
+		window.config.otherPeople[email].save();
+	}
+
+	Sharepoint.postFile(window.config.getMaster(), 'master/', 'master.xml', function(){});
 }
 
 Survey.prototype.answerReplace = function(){
-
+	
 }
 
 /**
@@ -135,4 +185,8 @@ Survey.prototype.hasAttrs = function(obj){
 		if (this[keys[i]] != obj[keys[i]]) return false;
 	}
 	return true;
+}
+
+Survey.prototype.getWeekNumber = function(){
+	
 }
