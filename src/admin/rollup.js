@@ -45,8 +45,10 @@ Rollup.prototype.update = function(){
 
 	$(master).find('semester[code=' + window.config.getCurrentSemester() + '] > people > person > roles > role[type=instructor]').each(function(){
 		var leader = $(this).find('leadership person[type=tgl]').attr('email');
+		console.log(leader + ' - ' + $(this).closest('person').attr('email'));
 		for (var i = 0; i < _this._questions.length; i++){
 			var text = $(this).find('survey[id=' + _this._surveyId + '] answer[id=' + _this._questions[i].id + ']').text();
+			if (text.length == 0) continue;
 			if (!result[_this._questions[i].id][leader]) result[_this._questions[i].id][leader] = [];
 			result[_this._questions[i].id][leader].push(text);
 		}
