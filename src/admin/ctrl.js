@@ -25,7 +25,7 @@ app.controller('adminCtrl', ["$scope", function($scope){
 	 */
 	$scope.changeMode = function(mode){
 		if (mode == 'Register' || mode == 'Process'){
-			$scope.surveys = window.config.getSurveys();
+			$scope.surveys = window.config.surveys;
 		}
 		
 		$scope.mode = mode;
