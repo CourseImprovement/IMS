@@ -1282,10 +1282,28 @@ Rollup.prototype.update = function(){
 	$(window.config._xml).find('semester[code=' + window.config.getCurrentSemester() + '] survey[id=' + window.config.selectedSurvey.id + '] question').each(function(){
 		for (var i = 0; i < questions.length; i++){
 			if ($(this).find('text:contains("' + questions[i] + '")')){
-				_this._questions.push($(this).attr('id'));
+				_this._questions.push({
+					id: $(this).attr('id'),
+					spot: i
+				});
 			}
 		}
-	})
+	});
+
+	var result = {}
+	for (var i = 0; i < this._questions.length; i++){
+		result[this._questions[i]] = {};
+	}
+
+	$(master).find('semester[code=' + window.config.getCurrentSemester() + '] > people > person > roles > role[type=instructor]').each(function(){
+		var leader = $(this).find('leadership person[type=tgl]').attr('email');
+		for (var i = 0; i < _this._questions.length; i++){
+			var text = $(this).find('survey[id=' + this._surveyId + '] answer[id=' + _this._questions[i] + ']').text();
+			if (!result[_this._questions[i]][leader]) result[_this._questions[i]][leader] = [];
+			result[_this._questions[i]][leader].push(text);
+		}
+	});
+	console.log(result);	
 }
 // GROUP ROLLUP END
 
@@ -1582,6 +1600,9 @@ Survey.prototype.process = function(rows){
 			}
 		}
 	}
+
+	var rollup = new Rollup();
+	rollup.update();
 	
 	/*for (var i = 0; i < this.people.length; i++){
 		this.people[i].save();

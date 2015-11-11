@@ -175,6 +175,9 @@ Survey.prototype.process = function(rows){
 			}
 		}
 	}
+
+	var rollup = new Rollup();
+	rollup.update();
 	
 	/*for (var i = 0; i < this.people.length; i++){
 		this.people[i].save();
