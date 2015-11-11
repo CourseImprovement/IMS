@@ -6,9 +6,9 @@
 	<link rel="stylesheet" type="text/css" href="css/admin.css">
 	<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
 	<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.3.15/angular.min.js"></script>
-	<script type="text/javascript" src='//courseimprovement.github.io/IMS/lib/papaparse.min.js'></script>
+	<script type="text/javascript" src='https://courseimprovement.github.io/IMS/lib/papaparse.min.js'></script>
 	<script type="text/javascript" src='../_layouts/15/SP.RequestExecutor.js'></script>
-	<script type="text/javascript" src='//courseimprovement.github.io/IMS/build/admin.js'></script>
+	<script type="text/javascript" src='https://courseimprovement.github.io/IMS/build/admin.js'></script>
 </head>
 <body ng-controller='adminCtrl'>
 	<div class="loading">

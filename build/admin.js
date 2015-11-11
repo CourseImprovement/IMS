@@ -424,10 +424,10 @@ Config.prototype._getSurveyColumns = function(surveyId){
 		questions: {}
 	};
 
-	if ((survey.attr('week') != undefined){
+	if (survey.attr('week') != undefined){
 		columns['week'] = Config.getCol(survey.attr('week'));
 	}
-	if ((survey.attr('course') != undefined){
+	if (survey.attr('course') != undefined){
 		columns['course'] = Config.getCol(survey.attr('course'));
 	}
 	
