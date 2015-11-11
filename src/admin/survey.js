@@ -10,14 +10,14 @@
 function Survey(survey, isXml){
 	if (isXml){
 		this.id = parseInt($(survey).attr('id'));
-		if ($(survey).hasAttr('week')){
+		if ($(survey).attr('week')){
 			this.week = $(survey).attr('week');
 		}
 		this.placement = $(survey).attr('placement');
 		this.type = $(survey).attr('type');
 		this.email = $(survey).attr('email');
 		this.name = $(survey).attr('name');
-		if ($(survey).hasAttr('course')){
+		if ($(survey).attr('course')){
 			this.course = $(survey).attr('course');
 		}
 		this._xml = survey;
