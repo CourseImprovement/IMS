@@ -177,3 +177,7 @@ table td{
   font-size: 14px;
   margin-left: 10px;
 }
+
+input[type=file]{
+	display: none;
+}
