@@ -1,331 +1,127 @@
+
+
+
 // GROUP CONFIG
+/**
+ * Config Object
+ */
 function Config(){
-	console.log('new Config object was created');
-	this._xml = this._getConfigXml();
+	this.surveys = [];
+	this._initSetup();
+	this._xml;
+	this.semesters = ims.sharepoint.getSemesterConfig();
+	this.selectedSurvey;
+	this.otherPeople = {};
 }
 
 /**
- * Returns the config xml file
- * @return {Object} Config xml file
+ * Gets the current semester from the semester xml file
+ * @return {String} The semester name. e.g. FA15, WI16
  */
-Config.prototype.getXml = function(){
-	console.log('return the config xml');
-	return this._xml;
+Config.prototype.getCurrentSemester = function(){
+	return $(this.semesters).find('[current=true]').attr('name');
 }
 
 /**
- * RETURNS ARRAY OF ALL THE SURVEYS FROM THE CONFIG FILE
+ * Returns the survey using the id
+ * @param  {Integer} id Numerical id for the survey
+ * @return {Object}    Xml of the survey with id of 'id'
  */
-Config.prototype.getSurveys = function(){
-	var surveys = []; 
-	$(this._xml).find('semester[code=FA15] survey').each(function(){
-		surveys.push({
-			name: $(this).attr('name'),
-			id: $(this).attr('id'),
-			xml: $(this)[0]
+Config.prototype.getSurveyById = function(id){
+	return $(this._xml).find('semester[code="' + this.getCurrentSemester() + '"] surveys survey[id=' + id + ']');
+}
+
+/** 
+ * Inital setup. Create the survey objects
+ */
+Config.prototype._initSetup = function(){
+	Sharepoint.getFile(ims.url.base + 'config/config.xml', function(data){
+		this._xml = $(data)[0];
+		console.log('getting all the surveys');
+		$(this._xml).find('semester[code=' + this.getCurrentSemester() + '] survey').each(function(){
+			this.surveys.push(new Survey($(this), true));
 		});
 	});
-	return surveys;
-	console.log('getting all the surveys');
 }
 
 /**
- * GETS THE CONFIG XML FILE FROM SHAREPOINT
+ * Find a survey based on the criteria in an object
+ * @param  {Object} obj Contains information for a survey
+ * @return {Object}     Survey that contains information of param obj
  */
-Config.prototype._getConfigXml = function(){
-	var notEnd = true;
-	Sharepoint.getFile(ims.url.base + 'config/config.xml', function(data){
-		this.config._xml = $(data)[0];
+Config.prototype.findSurvey = function(obj){
+	var found = null;
+	$(this.surveys).each(function(){
+		if (this.hasAttrs(obj)) found = this;
 	});
-	console.log('get the config file xml');
+	return found;
 }
 
 /**
- * REMOVES A SPECIFIED SURVEY FROM THE CONFIG FILE
- * @param  {String} surveyId id of the survey to remove
+ * Create a survey based on a passed through object.
+ * TODO:
+ * 	figure out what the object is and add it to the survey object.
+ * @param  {Object} obj Contains all information for a survey
+ * @return {Object}     The new survey object that was just created
  */
-Config.prototype.surveyRemove = function(surveyId){
-	console.log('removing a survey from the config');
-
-	$(this._xml).find('semester[code=FA15] surveys survey[id="' + surveyId + '"]').remove();
-
-	Sharepoint.postFile(this._xml, 'config/', 'config.xml', function(){
-		alert('Survey removal was successful!')
-	});
+Config.prototype.createSurvey = function(obj){
+	var spot = this.surveys.length;
+	this.surveys.push(new Survey(obj, false));	
+	return this.surveys[spot];
 }
 
 /**
- * COPYS A SURVEY FROM THE CONFIG FILE
- * @param  {String} survey id of the survey to copy
+ * Get the next highest survey id
+ * @return {Integer} Highest id for a survey
  */
-Config.prototype.surveyCopy = function(surveyId){
-	console.log('copying a survey from the config');
-
-	var surveysNode = $(this._xml).find('semester[code=FA15] surveys');
-	var surveys = $(this._xml).find('semester[code=FA15] surveys survey');
-	var id = parseInt($(surveys[surveys.length - 1]).attr('id')) + 1;
-	var survey = $(this._xml).find('semester[code=FA15] surveys survey[id="' + surveyId + '"]').clone();
-	
-	survey.attr('name', survey.attr('name') + ' (Copy)');
-	survey.attr('id', id);
-
-	$(surveysNode).append(survey);
-
-	Sharepoint.postFile(this._xml, 'config/', 'config.xml', function(){
-		alert('Survey copy was successful!');
-	});
-}
-
-/**
- * [surveyRegister description]
- * @param  {[type]} name      [description]
- * @param  {[type]} emailCol  [description]
- * @param  {[type]} weekCol   [description]
- * @param  {[type]} typeCol   [description]
- * @param  {[type]} placement [description]
- * @param  {[type]} courseCol [description]
- * @param  {[type]} questions [description]
- */
-Config.prototype.surveyRegister = function(name, emailCol, weekCol, typeCol, placement, courseCol, questions){
-	console.log('registering a survey in the config');
-	var surveys = $(this._xml).find('semester[code=FA15] surveys');
-	var id = this._highestId(surveys);
-	surveys.append('<survey email="' + emailCol + '" id="' + (id + 1) + '" name="' + name + '" placement="' + placement + '" type="' + typeCol + '" week="' + weekCol + '" course="' + courseCol + '"><questions></questions></survey>');
-	var survey = $(surveys).find('survey[id=' + (id + 1) + '] questions');
-
-	if (weekCol != undefined){
-		survey.attr('week', weekCol);
-	}
-
-	if (courseCol != undefined){
-		survey.attr('course', courseCol);
-	}
-
-	for (var i = 0; i < questions.length; i++){
-		survey.append('<question col="' + questions[i].row + 
-							'" id="' + (i + 1) + '" repeat="false"><text wrap="false">' + Config._cleanXml(questions[i].text) + 
-							'</text><answer><if value=""></if><then bg="" color=""></then><replace what="' + Config._cleanXml(questions[i].what) + 
-							'" with="' + Config._cleanXml(questions[i].awith) + '"></replace></answer></question>');
-	}
-
-	Sharepoint.postFile(this._xml, 'config/', 'config.xml', function(){
-		alert('survey registered!');
-	});
-}
-
-/**
- * returns the highest id of all the surveys
- * @param  {[type]} surveys [description]
- * @return {[type]}         [description]
- */
-Config.prototype._highestId = function(surveys) {
+Config.prototype.getHighestSurveyId = function(){
 	var id = 0;
-	$(surveys).find('survey').each(function(){
-		if (id < parseInt($(this).attr('id'))){
-			id = parseInt($(this).attr('id'));
+	$(this.surveys).each(function(){
+		if (id < this.id){
+			id = this.id;
 		}
 	});
 	return id;
 }
 
 /**
- * MODIFYS AN EXISTING SURVEY
- * @param  {String} name      The name of the survey
- * @param  {String} emailCol  column that contains the email
- * @param  {String} weekCol   column that contains the week
- * @param  {String} typeCol   column that contains the type
- * @param  {String} placement column that contains the placement
- * @param  {[type]} questions 
- * @param  {String} surveyId  id of the survey to be modified
+ * Get a person from first the survey, then from global
+ * @param  {String} email Email of a person to find
+ * @return {Object}       The object of a person with attribute 'email'
  */
-Config.prototype.surveyModify = function(name, emailCol, weekCol, typeCol, placement, courseCol, questions, surveyId){
-	console.log('modifying a survey in the config');
-	var survey = $(this._xml).find('semester[code=FA15] surveys survey[id="' + surveyId + '"]');
-	survey.attr('name', name);
-	if (survey.attr('week') != undefined){
-		survey.attr('week', emailCol);
+Config.prototype.getPerson = function(email){
+	var person = this.selectedSurvey.getPerson(email);
+	if (!person){
+		person = this.otherPeople[email];
 	}
-	survey.attr('email', weekCol);
-	survey.attr('type', typeCol);
-	survey.attr('placement', placement);
-	if (survey.attr('course') != undefined){
-		survey.attr('course', courseCol);
-	}
-
-	$(survey).find('question').remove();
-	for (var i = 0; i < questions.length; i++){
-		var col = null;
-		if (!isNaN(questions[i].row)){
-			col = Config.toCol(questions[i].row);
-		}
-		else{
-			col = questions[i].row;
-		}
-
-		$(survey).find('questions').append('<question id="tmp" repeat="false"><text>' + questions[i].text + '</text><answer><if value=""></if><then bg="" color=""></then><replace with="" what=""></replace></answer></question>');
-		var q = $(survey).find('question[id=tmp]').attr('col', col).attr('id', i + 1);
-		if (questions[i].awith != ""){
-			$(q).find('answer replace').attr('with', Config._cleanXml(questions[i].awith)).attr('what', Config._cleanXml(questions[i].what));
-		}
-	}
-
-	Sharepoint.postFile(this._xml, 'config/', 'config.xml', function(){
-		alert('survey modified!');
-	});
+	return person;
 }
 
 /**
- * PROCESS THE SURVEY DATA TO INDIVIDUAL XML FILES
- * @param  {String} survey id of the survey that will be processed
- * @param  {Array} rows 2D array that contains all the csv data
+ * Add person to global list
+ * @param {Object} person Contains all information regarding a person
  */
-Config.prototype.surveyProcessing = function(surveyId, rows){
-	var cols = this._getSurveyColumns(surveyId);
-	var hasCourse = (col.course == undefined ? false : true);
-	var people = {};
+Config.prototype.addPerson = function(person){
+	this.otherPeople[person.email] = person;
+}
 
-	for (var i = 3; i < rows.length; i++){
-		if (rows[i][cols.email] != undefined){
-			var email = rows[i][cols.email].split('@')[0];
-			if (people[email] == undefined){
-				people[email] = {};
-			}
-			if (hasCourse){
-				var course = rows[i][cols.course];
-				people[email][course] = {};
-				for (var col in cols.questions){
-					people[email][course][cols.questions[col].id] = rows[i][col];
-				}
-			}
-			else{
-				for (var col in cols.questions){
-					people[email][cols.questions[col].id] = rows[i][col];
-				}
-			}
-			
-		}
+/**
+ * Get the master file
+ * @return {Object} Master xml file from sharepoint
+ */
+Config.prototype.getMaster = function(){
+	if (!this._master){
+		this._master = ims.sharepoint.getXmlByEmail('master');
 	}
-
-	people = this._answerReplace(people, cols, hasCourse);
-	this._uploadSurvey(people, cols, hasCourse);
+	return this._master;
 }
 
 /**
- * Replaces all the answers for the people to the proper answers
- * @param  {Object}  people    object of all the people with their answers
- * @param  {Object}  cols      object of the survey data
- * @param  {Boolean} hasCourse does the survey use a course column
- * @return {Object}            people object with the answers replaced as needed
+ * Get the next up leader as string
+ * @param  {String} p  A role
+ * @return {String}    That role's immediate leader
  */
-Config.prototype._answerReplace = function(people, cols, hasCourse){
-	for (var col in cols.questions){
-		if (cols.questions[col].replace.what != ""){
-			var these = cols.questions[col].replace.what.split(';');
-			var those = cols.questions[col].replace.with.split(';');
-			for (var person in people){
-				var id = cols.questions[col].id;
-				if (hasCourse){
-					for (var course in people[person]){
-						for (var i = 0; i < these.length; i++){
-							people[person][course][id] = people[person][course][id].replace(these[i], those[i]);
-						}
-					}
-				}
-				else{
-					for (var i = 0; i < these.length; i++){
-						people[person][id] = people[person][id].replace(these[i], those[i]);
-					}
-				}
-			}
-		}
-	}
-
-	return people;
-}
-
-/**
- * [leaderLevel description]
- * @param  {[type]} p [description]
- * @return {[type]}   [description]
- */
-Config.leaderLevel = function(p){
-	var level = "";
-
-	if (p == 'instructor')
-		level = 'tgl';
-	else if (p == 'tgl')
-		level = 'aim';
-	else if (p == 'aim')
-		level = 'im';
-
-	return level;
-}
-
-/**
- * UPDATE AND UPLOAD XML FILES WITH SPECIFIC DATA
- * @param  {Object} people object containing all the people with their courses and their responses
- * @param  {Object} cols   contains information concerning the survey being processed
- */
-Config.prototype._uploadSurvey = function(people, cols, hasCourse){
-	Sharepoint.total = Object.keys(people).length;
-	for (var person in people){
-		Sharepoint.getFile(ims.url.base + 'master/' + person.split('@')[0] + '.xml', function(data){
-			var email = $(data).find('semester[code=FA15] > people > person').attr('email');
-			var placement = cols.placement.toLowerCase();
-			var level = Config.leaderLevel(placement);
-			var leader = $(data).find('semester[code=FA15] > people > person > roles > role[type="'  + placement + '"] > leadership > person[type=' + level + '"]').attr('email');
-			var surveys = $(data).find('semester[code=FA15] > people > person > roles > role[type="' + placement + '"] > surveys');
-			var survey = null;
-			if (hasCourse){
-				for (var course in people[email]){
-					var cId = $(data).find('semester[code=FA15] > people > person > courses > course:contains(' + course + ')').attr('id');
-					if ($(surveys).find('> survey[id="' + cols.id + '"][courseid="' + cId + '"]').length != 0){
-						$(surveys).find('> survey[id="' + cols.id + '"][courseid="' + cId + '"]').remove();
-					}
-					$(surveys).append('<survey id="' + cols.id + '" reviewed="false" courseid="' + cId + '"></survey>');
-					for (var id in people[email][course]){
-						$(surveys).find('> survey[id="' + cols.id + '"][courseid="' + cId + '"]').append('<answer id="' + id + '">' + Config._cleanXml(people[email][course][id]) + '</answer>');
-					}
-				}
-				survey = $(surveys).find('> survey[id="' + cols.id + '"]').clone();
-			}
-			else{
-				if ($(surveys).find('> survey[id="' + cols.id + '"]').length != 0){
-					$(surveys).find('> survey[id="' + cols.id + '"]').remove();
-				}
-				$(surveys).append('<survey id="' + cols.id + '" reviewed="false"></survey>');
-				for (var id in people[email]){
-					$(surveys).find('> survey[id="' + cols.id + '"]').append('<answer id="' + id + '">' + Config._cleanXml(people[email][id]) + '</answer>');
-				}
-				survey = $(surveys).find('> survey[id="' + cols.id + '"]').clone();
-			}
-			Sharepoint.getFile(ims.url.base + 'master/' + leader + '.xml', function(data){
-				$(data).find('semester[code=FA15] > people > person > roles > role[type="' + level + '"] > stewardship > people > person[email="' + email + '"] > roles > role[type="' + placement + '"] surveys').append(survey);
-				Sharepoint.postFile(data, 'master/', leader + '.xml', function(){});
-			});
-			Sharepoint.postFile(data, 'master/', email + '.xml', function(){
-				if (Sharepoint.current == Sharepoint.total){
-					setTimeout(function(){
-						ims.loading.reset(); 
-					}, 1000);
-				}
-			});
-		});
-	}
-}
-
-Config._cleanXml = function(str){
-	if (str == undefined) return "";
-	return str.replace(/&/g, '&amp;')
-       		  .replace(/</g, '&lt;')
-              .replace(/>/g, '&gt;');
-} 
-
-/**
- * FINDS A SURVEY AND COLLECTS ALL PERTINENT INFORMATION ABOUT IT
- * @param  {String} surveyId the id for the current survey
- * @return {Object}          contains information for the current survey
- */
+<<<<<<< HEAD
 Config.prototype._getSurveyColumns = function(surveyId){
 	var survey = $(this._xml).find('semester[code=FA15] > surveys > survey[id="' + surveyId + '"]');
 	var columns = {
@@ -358,23 +154,24 @@ Config.prototype._getSurveyColumns = function(surveyId){
 	});
 
 	return columns;
+=======
+Config.getLeader = function(p){
+	switch (p){
+		case 'instructor' return 'tgl';
+		case 'tgl': return 'aim';
+		case 'aim': return 'im';
+		default: throw 'Invalid';
+	}
+>>>>>>> grant
 }
 
-/**
- * [getSurveyIdByName description]
- * @param  {[type]} survey [description]
- * @return {[type]}        [description]
- */
-Config.prototype.getSurveyIdByName = function(survey){
-	console.log('returning a survey Id');
-}
 
 /**
- * CONVERTS A LETTER TO THE NUMERICAL EQUIVALENT
- * @param  {String} letter  Character that maps to a column
- * @return {Integer}        the numerical column
+ * Convert a column letter to number
+ * @param  {String} letter  Letter combination referencing an excel column
+ * @return {Integer}        Numerical value of the excel column
  */
-Config.getCol = function(letter){
+Config.columnLetterToNumber = function(letter){
 	console.log('returning the numeric col from the letter');
 	if(!isNaN(letter)) return letter;
 
@@ -386,12 +183,14 @@ Config.getCol = function(letter){
 		return (letter.charCodeAt(1) - 65) + 25;
 	}
 }
+
 /**
- * CONVERTS A NUMBER TO THE COLUMN LETTER
- * @param  {String} letter  Character that maps to a column
- * @return {Integer}        the numerical column
+ * TODO:
+ * 		- Change AZ as the highest to BZ
+ * @param  {Integer} number Numerical value that is associated with an excel column
+ * @return {String}         Column as a string
  */
-Config.toCol = function(num){
+Config.columnNumberToLetter = function(number){
 	console.log('returning the letter col from the number');
 	if (num < 26){
 		return String.fromCharCode(num + 65);
@@ -404,4 +203,8 @@ Config.toCol = function(num){
 
 
 
+/**
+ * Only one survey instance can be initalized at one time
+ * @type {Config}
+ */
 window.config = new Config();

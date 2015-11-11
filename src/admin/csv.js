@@ -1,4 +1,10 @@
+
+
+
 // GROUP CSV
+/**
+ * CSV Object
+ */
 function CSV(){
 	console.log('new CSV object created');
 	this._data = null;
@@ -13,6 +19,8 @@ CSV.prototype.getData = function(){
 
 /**
  * READ THE CSV INTO _DATA
+ * @param  {Object}   file     Contains the selected file
+ * @param  {Function} callback callbacks the csv data
  */
 CSV.prototype.readFile = function(file, callback){
 	console.log('retrieving data form csv');
@@ -28,6 +36,7 @@ CSV.prototype.readFile = function(file, callback){
 
 /**
  * DOWNLOAD A STRING AS A CSV
+ * @param  {String} csvString CSV in string form
  */
 CSV.downloadCSV = function(csvString){
 	console.log('CSV downloaded')
