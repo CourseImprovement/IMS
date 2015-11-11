@@ -1558,11 +1558,11 @@ Survey.prototype.process = function(rows){
 			person._row = rows[i];
 			again = true;
 		}
-		if (eCol == -1) continue;
+		if (cCol == -1) continue;
 		person.course = rows[i][cCol];
 		if (person.isValid()){
-			person.process();
 			if (!again) this.people.push(person);
+			person.process();
 		}
 	}
 	
