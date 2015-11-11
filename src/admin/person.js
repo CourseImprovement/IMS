@@ -16,11 +16,18 @@ function Person(obj, isXml){
 	}
 	else{
 		this._email = obj.email;
+		this.cleanEmail();
 		this._row = obj.row;
 		this._placement = obj.placement.toLowerCase();
 		this._leader = null;
 		this._answers = obj.answers;
 		this.course = obj.course;
+	}
+}
+
+Person.prototype.cleanEmail = function(){
+	if (this._email.indexOf('@') > -1){
+		this._email = this._email.split('@')[0];
 	}
 }
 
