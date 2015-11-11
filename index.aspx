@@ -5,18 +5,18 @@
 	<meta charset="UTF-8">
 	<link type="image/x-icon" href="//www.byui.edu/prebuilt/stylenew/images/ico/favicon.ico" rel="shortcut icon">
 	<link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.4.0/css/font-awesome.min.css">
-	<link rel="stylesheet" type="text/css" href="//courseimprovement.github.io/IMS/css/style.css">
+	<link rel="stylesheet" type="text/css" href="https://courseimprovement.github.io/IMS/css/style.css">
 	<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.3.15/angular.min.js"></script>
 	<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
-	<script type="text/javascript" src='//courseimprovement.github.io/IMS/lib/crypto.js'></script>
+	<script type="text/javascript" src='https://courseimprovement.github.io/IMS/lib/crypto.js'></script>
 	<script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.11.4/jquery-ui.min.js"></script>
 	<script type="text/javascript" src='https://cdnjs.cloudflare.com/ajax/libs/highcharts/4.1.8/highcharts.js'></script>
 	<script type="text/javascript" src='https://cdnjs.cloudflare.com/ajax/libs/highcharts/4.1.8/highcharts-more.js'></script>
 	<script type="text/javascript" src='https://cdnjs.cloudflare.com/ajax/libs/highcharts/4.1.8/modules/exporting.js'></script>
-	<script type="text/javascript" src='//courseimprovement.github.io/IMS/lib/angular.highcharts.js'></script>
+	<script type="text/javascript" src='https://courseimprovement.github.io/IMS/lib/angular.highcharts.js'></script>
 	<script type="text/javascript" src='../_layouts/15/SP.RequestExecutor.js'></script>
 
-	<script type="text/javascript" src='//courseimprovement.github.io/IMS/build/ims.js'></script>
+	<script type="text/javascript" src='https://courseimprovement.github.io/IMS/build/ims.js'></script>
 	<title>IMS | Dashboard</title>
 	
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
