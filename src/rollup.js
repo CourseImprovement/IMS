@@ -36,20 +36,17 @@ Rollup.prototype._getData = function(){
 	var _this = this;
 	var sem = ims.semesters.getCurrentCode();
 	var level = this._level.toLowerCase();
-	if (level == 'aim' || level == 'tgl') {
-		$(this._xml).find('semester[code=' + sem + '] ' + level + '[email=' + this._email + '] > rollup[question*="' + this._question + '"] week').sort(function(a, b){
-			if ($(a).attr('week') == 'Intro') return false;
-			return parseInt($(a).attr('week')) > parseInt($(b).attr('week'));
-		}).each(function(){
-			_this._data.push($(this).text());
-		});
-	}
-	else{
-		$(this._xml).find('semester[code=' + sem + '] > rollup[question*="' + this._question + '"] week').sort(function(a, b){
-			if ($(a).attr('week') == 'Intro') return false;
-			return parseInt($(a).attr('week')) > parseInt($(b).attr('week'));
-		}).each(function(){
-			_this._data.push($(this).text());
-		});
-	}	
+
+	$(this._xml).find('semester[code=' + sem + '] person[email=' + this._email + '][type=' + level + '] question[name*="' + this._question + '"] survey').sort(function(a, b){
+
+		var aname = $(Survey.getConfig()).find('semester[code=' + sem + '] survey[id=' + $(a).attr('id') + ']').attr(name);
+		if (aname.indexOf('Intro') > -1) return false;
+		var aweek = parseInt(aname.split(': Week ')[1]);
+		var bname = $(Survey.getConfig()).find('semester[code=' + sem + '] survey[id=' + $(b).attr('id') + ']').attr(name);
+		var bweek = parseInt(bname.split(': Week ')[1]);
+		return parseInt(aweek > bweek);
+
+	}).each(function(){
+		_this._data.push($(this).attr('value'));
+	});
 }
