@@ -562,6 +562,7 @@ CSV.prototype.readFile = function(file, callback){
 
 	reader.onload = function(e) {
 	  var text = reader.result;
+	  text = text.replace(/@byui.edu/g, '');
 	  csv = Papa.parse(text);
 	  callback(csv);
 	}
