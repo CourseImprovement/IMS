@@ -294,7 +294,7 @@ Config.prototype._initSetup = function(){
 		_this._xml = $(data)[0];
 		console.log('getting all the surveys');
 		$(_this._xml).find('semester[code=' + _this.getCurrentSemester() + '] survey').each(function(){
-			this.surveys.push(new Survey($(this), true));
+			_this.surveys.push(new Survey($(this), true));
 		});
 	});
 }
