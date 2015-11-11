@@ -36,7 +36,10 @@ Config.prototype.getSurveys = function(){
  * @return {Object}    Xml of the survey with id of 'id'
  */
 Config.prototype.getSurveyById = function(id){
-	return $(this._xml).find('semester[code="' + this.getCurrentSemester() + '"] surveys survey[id=' + id + ']');
+	for (var i = 0; i < this.surveys.length; i++){
+		if (this.surveys[i].id == parseInt(id)) return this.surveys[i];
+	}
+	return null;
 }
 
 /** 

@@ -158,7 +158,12 @@ app.controller('adminCtrl', ["$scope", function($scope){
 	 * @function
 	 * @memberOf angular
 	 */
-	$scope.processSurvey = function(survey){
+	$scope.processSurvey = function(id){
+		var survey = window.config.getSurveyById(id);
+		if (!survey){
+			alert('Error');
+			return;
+		}
 		var csv = new CSV();
 		csv.readFile($scope.file, function(file){
 			survey.process(file.data);

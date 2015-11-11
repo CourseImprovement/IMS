@@ -290,7 +290,10 @@ Config.prototype.getSurveys = function(){
  * @return {Object}    Xml of the survey with id of 'id'
  */
 Config.prototype.getSurveyById = function(id){
-	return $(this._xml).find('semester[code="' + this.getCurrentSemester() + '"] surveys survey[id=' + id + ']');
+	for (var i = 0; i < this.surveys.length; i++){
+		if (this.surveys[i].id == parseInt(id)) return this.surveys[i];
+	}
+	return null;
 }
 
 /** 
@@ -674,7 +677,12 @@ app.controller('adminCtrl', ["$scope", function($scope){
 	 * @function
 	 * @memberOf angular
 	 */
-	$scope.processSurvey = function(survey){
+	$scope.processSurvey = function(id){
+		var survey = window.config.getSurveyById(id);
+		if (!survey){
+			alert('Error');
+			return;
+		}
 		var csv = new CSV();
 		csv.readFile($scope.file, function(file){
 			survey.process(file.data);
