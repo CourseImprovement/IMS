@@ -62,7 +62,7 @@ Person.prototype.getLeader = function(){
 	if (!person){
 		person = ims.sharepoint.getXmlByEmail(email);
 		person = new Person(person, true);
-		window.config.addPerson(person);
+		window.config.addPerson(email, person);
 	}
 	this._leader = person;
 }

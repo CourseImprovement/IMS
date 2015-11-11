@@ -316,7 +316,7 @@ function Config(){
 	this._initSetup();
 	this._xml;
 	this.semesters = ims.sharepoint.getSemesterConfig();
-	this.selectedSurvey = null;
+	 = null;
 	this.otherPeople = {};
 }
 
@@ -419,8 +419,8 @@ Config.prototype.getPerson = function(email){
  * Add person to global list
  * @param {Object} person Contains all information regarding a person
  */
-Config.prototype.addPerson = function(person){
-	this.otherPeople[person.email] = person;
+Config.prototype.addPerson = function(email, person){
+	this.otherPeople[email] = person;
 }
 
 /**
@@ -1109,7 +1109,7 @@ Person.prototype.getLeader = function(){
 	if (!person){
 		person = ims.sharepoint.getXmlByEmail(email);
 		person = new Person(person, true);
-		window.config.addPerson(person);
+		window.config.addPerson(email, person);
 	}
 	this._leader = person;
 }
