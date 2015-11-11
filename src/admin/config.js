@@ -22,6 +22,15 @@ Config.prototype.getCurrentSemester = function(){
 	return $(this.semesters).find('[current=true]').attr('name');
 }
 
+/**
+ * Returns the survey using the id
+ * @param  {Integer} id Numerical id for the survey
+ * @return {Object}    Xml of the survey with id of 'id'
+ */
+Config.prototype.getSurveyById = function(id){
+	return $(window.config._xml).find('semester[code="' + this.getCurrentSemester() + '"] surveys survey[id=' + id + ']');
+}
+
 /** 
  * Inital setup. Create the survey objects
  */

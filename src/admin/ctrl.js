@@ -1,13 +1,14 @@
-/**
- * @namespace angular
- */ 
+
+
 
 /**
+ * @namespace angular
  * @typedef {Object} Xml_Document An xml document which contians organizational data and personnel data 
  */
 var app = angular.module('admin', []);
 app.controller('adminCtrl', ["$scope", function($scope){
 
+	var sem = window.config.getCurrentSemester();
 
 	// GROUP - MENU TOGGLE
 	/**
@@ -158,6 +159,7 @@ app.controller('adminCtrl', ["$scope", function($scope){
 	 * @memberOf angular
 	 */
 	$scope.processSurvey = function(survey){
+		var survey = new Survey(window.config.getSurveyById(survey), true);
 		var csv = new CSV();
 		csv.readFile($scope.file, function(file){
 			window.config.surveyProcessing(survey, file.data);

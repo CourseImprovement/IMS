@@ -157,7 +157,7 @@ Survey.prototype.process = function(rows){
 		}
 	}
 	
-	for (var i = 0; i < this.people.length; i++){
+	/*for (var i = 0; i < this.people.length; i++){
 		this.people[i].save();
 	}
 
@@ -165,7 +165,7 @@ Survey.prototype.process = function(rows){
 		window.config.otherPeople[email].save();
 	}
 
-	Sharepoint.postFile(window.config.getMaster(), 'master/', 'master.xml', function(){});
+	Sharepoint.postFile(window.config.getMaster(), 'master/', 'master.xml', function(){});*/
 }
 
 /**
