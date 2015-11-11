@@ -55,7 +55,7 @@ Survey.prototype._setXmlQuestions = function(){
  * @return {Object} Survey in xml form
  */
 Survey.prototype.toXml = function(){
-	var survey = $('<survey reviewed="false"><questions></questions></survey>');
+	var survey = $('<survey><questions></questions></survey>');
 	survey.attr('id', this.id)
 		.attr('placement', this.placement)
 		.attr('type', this.type)

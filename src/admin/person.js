@@ -114,7 +114,7 @@ Person.prototype.getCourseIdByName = function(name){
  * @return {Object} Survey in xml form
  */
 Person.prototype.toXml = function(){
-	var xml = $('<survey></survey>');
+	var xml = $('<survey reviewed="false"></survey>');
 	var id = window.config.selectedSurvey.id;
 	xml.attr('id', id);
 	if(!!this.course){
