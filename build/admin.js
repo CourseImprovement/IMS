@@ -1524,11 +1524,11 @@ Survey.prototype.process = function(rows){
 				email: rows[i][eCol],
 				row: rows[i],
 				placement: this.placement,
-				answers: Answers.collect(this, rows[i])
+				answers: Answer.collect(this, rows[i])
 			});
 		}
 		else{
-			person._answers = Answers.collect(this, rows[i]);
+			person._answers = Answer.collect(this, rows[i]);
 			person._row = rows[i];
 		}
 		if (eCol == -1) continue;
