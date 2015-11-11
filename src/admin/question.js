@@ -1,3 +1,12 @@
+
+
+
+// GROUP QUESTION
+/**
+ * Question Object
+ * @param {Object}  question Information for a question
+ * @param {Boolean} isXml    Is the question param xml
+ */
 function Question(question, isXml){
 	if (isXml){
 		this.id = parseInt($(question).attr('id'));
@@ -32,7 +41,7 @@ Question.prototype.modify = function(prop, val){
  * 	<text></text>
  * 	<replace with what/>
  * </question>
- * @return {[type]} [description]
+ * @return {Object} Question in xml form
  */
 Question.prototype.toXml = function(){
 	var xml = $('<question><text></text><replace /></question>');
@@ -41,3 +50,4 @@ Question.prototype.toXml = function(){
 	$(xml).find('replace').attr('with', this.replaceWith.join(';')).attr('what', this.replaceWhat.join(';'));
 	return xml;
 }
+// GROUP QUESTION END

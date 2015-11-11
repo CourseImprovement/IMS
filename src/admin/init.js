@@ -1,7 +1,6 @@
 //  GROUP IMS
 /**
- * [ims description]
- * @type {Object}
+ * IMS Object
  */
 window.ims = {};
 ims.url = {};
@@ -41,10 +40,16 @@ ims.loading = {
 
 // GROUP SHAREPOINT 
 /**
- * [Sharepoint description]
+ * Sharepoint rest api calls
  * @type {Object}
  */
 var Sharepoint = {
+	/**
+	 * Retrieves file from sharepoint
+	 * @param  {String}   url      Location of the file in sharepoint
+	 * @param  {Function} callback Callback the file
+	 * @param  {Object}   err      Notifies of an error
+	 */
 	getFile: function(url, callback, err){
 		$.get(url, function(map){
 			callback(map);
@@ -52,6 +57,13 @@ var Sharepoint = {
 			if (err) err(a, b, c);
 		})
 	},
+	/**
+	 * Posts a file to sharepoint
+	 * @param  {String}   str      The file in string form
+	 * @param  {String}   path     Destination of the file
+	 * @param  {String}   fileName Name of the file
+	 * @param  {Function} callback Successful or unsuccessful post
+	 */
 	postFile: function(str, path, fileName, callback){
 		var buffer = (new XMLSerializer()).serializeToString(str);
 		$.ajax({
@@ -89,8 +101,6 @@ var Sharepoint = {
 	current: 0
 }
 
-window.ims = {};
-
 /**
  * Sharepoint items
  * @namespace ims.sharepoint
@@ -122,14 +132,14 @@ ims.sharepoint = {
 	 * @function
 	 */
 	makePostRequest: function(hostUrl, restCommand, data, callback) {
-    var executor = new SP.RequestExecutor(hostUrl);
-    var info = {
-      'url': restCommand,
-      'method': "POST",
-      'data': JSON.stringify(data),
-      'success': callback
-    };  
-    executor.executeAsync(info);
+	    var executor = new SP.RequestExecutor(hostUrl);
+	    var info = {
+	      'url': restCommand,
+	      'method': "POST",
+	      'data': JSON.stringify(data),
+	      'success': callback
+	    };  
+	    executor.executeAsync(info);
 	},	
 	/**
 	 * Posts the current user xml file.
@@ -147,28 +157,28 @@ ims.sharepoint = {
 
 		var fileName = User.getCurrent().getEmail() + '.xml';
 		var url = ims.sharepoint.base + "_api/Web/GetFolderByServerRelativeUrl('" + ims.sharepoint.relativeBase + "Instructor%20Reporting/Master')/Files/add(overwrite=true, url='" + fileName + "')";
-    $['ajax']({
-		    'url': ims.sharepoint.base + "_api/contextinfo",
-		    'header': {
-		        "accept": "application/json; odata=verbose",
-		        "content-type": "application/json;odata=verbose"
-		    },
-		    'type': "POST",
-		    'contentType': "application/json;charset=utf-8"
-		}).done(function(d) {
-			jQuery['ajax']({
-	        'url': url,
-	        'type': "POST",
-	        'data': buffer,
-	        'processData': false,
-	        'headers': {
-	            "accept": "application/json;odata=verbose",
-	            "X-RequestDigest": $(d).find('d\\:FormDigestValue, FormDigestValue').text()
-	        },
-	        'success': function(){
-	        	
-	        }
-	    });
+    		$['ajax']({
+			    'url': ims.sharepoint.base + "_api/contextinfo",
+			    'header': {
+			        "accept": "application/json; odata=verbose",
+			        "content-type": "application/json;odata=verbose"
+			    },
+			    'type': "POST",
+			    'contentType': "application/json;charset=utf-8"
+			}).done(function(d) {
+				jQuery['ajax']({
+		        'url': url,
+		        'type': "POST",
+		        'data': buffer,
+		        'processData': false,
+		        'headers': {
+		            "accept": "application/json;odata=verbose",
+		            "X-RequestDigest": $(d).find('d\\:FormDigestValue, FormDigestValue').text()
+		        },
+		        'success': function(){
+		        	
+		        }
+		    });
 		});
 	},
 	/**
@@ -187,13 +197,13 @@ ims.sharepoint = {
 		var url = ims.sharepoint.base + 'Instructor%20Reporting/config/semesters.xml';
 		var doc = null;
 		$['ajax']({
-	    'url': url,
-	    'success': function(d) {
-	      doc = d;
-	    },
-	    'async': false
-	  });
-	  return doc;
+		    'url': url,
+		    'success': function(d) {
+		      	doc = d;
+		    },
+		    'async': false
+	    });
+	  	return doc;
 	},	
 	/**
 	 * Get a XML file for a given user by email address.
@@ -203,33 +213,32 @@ ims.sharepoint = {
 	 * @memberOf ims.sharepoint
 	 */
 	getXmlByEmail: function(email){
-		var url = ims.sharepoint.base + 'Instructor%20Reporting/Master/' + email + '.xml'
+		var url = ims.sharepoint.base + 'Instructor%20Reporting/Master/' + email + '.xml';
 		var doc = null;
 		$['ajax']({
-	    'url': url,
-	    'success': function(d) {
-	      doc = d;
-	    },
-	    'error': function(a, b, c){
-	    	if (a && a.responseText && a.responseText.indexOf('404') > -1){
-	    		doc = null;
-	    	}	
-	    	else if (c && c.message.indexOf('Invalid XML') > -1){
-	    		var out = '';
+		    'url': url,
+		    'success': function(d) {
+		      	doc = d;
+		    },
+		    'error': function(a, b, c){
+		    	if (a && a.responseText && a.responseText.indexOf('404') > -1){
+		    		doc = null;
+		    	}	
+		    	else if (c && c.message.indexOf('Invalid XML') > -1){
+		    		var out = '';
 					for (var i = 0; i < a.responseText.length; i++){
 						if (i % 2 == 0){
 							out += a.responseText[i];
 						}
 					}
 					doc = $['parseXML'](a.responseText);
-	    	}
-	    },
-	    'async': false
-	  });
-	  return doc;
+		    	}
+		    },
+		    'async': false
+	    });
+	  	return doc;
 	}
 };
-
 // GROUP SHAREPOINT END
 
 
@@ -240,6 +249,6 @@ ims.sharepoint = {
 String.prototype.encodeXML = function(){
 	if (this == undefined) return "";
 	return this.replace(/&/g, '&amp;')
-       		  .replace(/</g, '&lt;')
-              .replace(/>/g, '&gt;');
+       		   .replace(/</g, '&lt;')
+               .replace(/>/g, '&gt;');
 }

@@ -1,3 +1,10 @@
+
+
+
+// GROUP ROLLUP
+/**
+ * Rollup Object
+ */
 function Rollup(){
 	this._xml = ims.sharepoint.getXmlByEmail('rollup');
 	this._surveyId = window.config.selectedSurvey.id;
@@ -5,6 +12,10 @@ function Rollup(){
 	this._questions = [];
 }
 
+/**
+ * [update description]
+ * @return {[type]} [description]
+ */
 Rollup.prototype.update = function(){
 	var master = window.config.getMaster();
 	var _this = this;
@@ -24,3 +35,4 @@ Rollup.prototype.update = function(){
 		}
 	})
 }
+// GROUP ROLLUP END
