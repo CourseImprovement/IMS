@@ -35,10 +35,11 @@ Config.prototype.getSurveyById = function(id){
  * Inital setup. Create the survey objects
  */
 Config.prototype._initSetup = function(){
+	var _this = this;
 	Sharepoint.getFile(ims.url.base + 'config/config.xml', function(data){
-		this._xml = $(data)[0];
+		_this._xml = $(data)[0];
 		console.log('getting all the surveys');
-		$(this._xml).find('semester[code=' + this.getCurrentSemester() + '] survey').each(function(){
+		$(_this._xml).find('semester[code=' + _this.getCurrentSemester() + '] survey').each(function(){
 			this.surveys.push(new Survey($(this), true));
 		});
 	});
