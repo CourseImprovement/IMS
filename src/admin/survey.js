@@ -145,26 +145,28 @@ Survey.prototype.process = function(rows){
 	}
 	for (var i = spot; i < rows[i].length; i++){
 		// clean answers  and then add them to their respective individual
-		var person = this.getPerson(rows[i][eCol]);
-		var again = false;
-		if (!person){
-			person = new Person({
-				email: rows[i][eCol],
-				row: rows[i],
-				placement: this.placement,
-				answers: Answer.collect(this, rows[i])
-			}, false, true);
-		}
-		else{
-			person._answers = Answer.collect(this, rows[i]);
-			person._row = rows[i];
-			again = true;
-		}
-		if (cCol == -1) continue;
-		person.course = rows[i][cCol];
-		if (person.isValid()){
-			if (!again) this.people.push(person);
-			person.process();
+		if (rows[i].length > 1){
+			var person = this.getPerson(rows[i][eCol]);
+			var again = false;
+			if (!person){
+				person = new Person({
+					email: rows[i][eCol],
+					row: rows[i],
+					placement: this.placement,
+					answers: Answer.collect(this, rows[i])
+				}, false, true);
+			}
+			else{
+				person._answers = Answer.collect(this, rows[i]);
+				person._row = rows[i];
+				again = true;
+			}
+			if (cCol == -1) continue;
+			person.course = rows[i][cCol];
+			if (person.isValid()){
+				if (!again) this.people.push(person);
+				person.process();
+			}
 		}
 	}
 	
