@@ -33,10 +33,11 @@ function Survey(survey, isXml){
  * @return {Object}       Person with the email of 'email'
  */
 Survey.prototype.getPerson = function(email){
+	if (!email) return false;
+	if (email.indexOf('@') > -1){
+		email = email.split('@')[0];
+	}
 	for (var i = 0; i < this.people.length; i++){
-		if (email == 'miyasakim'){
-			var a = 120;
-		}
 		if (this.people[i]._email == email) return this.people[i];
 	}
 	return false;
