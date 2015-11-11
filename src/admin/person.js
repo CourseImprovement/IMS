@@ -118,8 +118,8 @@ Person.prototype.toXml = function(){
 	var id = window.config.selectedSurvey.id;
 	xml.attr('id', id);
 	if(!!this.course){
-		var cId = this.getCourseIdByName(this.course);
-		xml.attr('courseid', cId);
+		this.course = this.getCourseIdByName(this.course);
+		xml.attr('courseid', this.course);
 	}
 	for (var i = 0; i < this._answers.length; i++){
 		xml.append(this._answers[i].toXml());

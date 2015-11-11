@@ -1165,8 +1165,8 @@ Person.prototype.toXml = function(){
 	var id = window.config.selectedSurvey.id;
 	xml.attr('id', id);
 	if(!!this.course){
-		var cId = this.getCourseIdByName(this.course);
-		xml.attr('courseid', cId);
+		this.course = this.getCourseIdByName(this.course);
+		xml.attr('courseid', this.course);
 	}
 	for (var i = 0; i < this._answers.length; i++){
 		xml.append(this._answers[i].toXml());
@@ -1439,7 +1439,7 @@ Survey.prototype._setXmlQuestions = function(){
  * @return {Object} Survey in xml form
  */
 Survey.prototype.toXml = function(){
-	var survey = $('<survey><questions></questions></survey>');
+	var survey = $('<survey reviewed="false"><questions></questions></survey>');
 	survey.attr('id', this.id)
 		.attr('placement', this.placement)
 		.attr('type', this.type)
