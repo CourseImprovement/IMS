@@ -1130,7 +1130,7 @@ Person.prototype.getXml = function(){
  * Retrieves a person's leader
  */
 Person.prototype.getLeader = function(){
-	console.log(this._email +' leader email 2:' + $(this._xml).find('semester[code=' + window.config.getCurrentSemester() + '] > people > person > roles > role[type=' + this._placement + '] > leadership > person[type=' + Config.getLeader(this._placement) + ']').attr('email'));
+	console.log(this._email + ' is ' + this._placement + 'with leader who is a' + Config.getLeader(this._placement) + 'email 2:' + $(this._xml).find('semester[code=' + window.config.getCurrentSemester() + '] > people > person > roles > role[type=' + this._placement + '] > leadership > person[type=' + Config.getLeader(this._placement) + ']').attr('email'));
 	var email = $(this._xml).find('semester[code=' + window.config.getCurrentSemester() + '] > people > person > roles > role[type=' + this._placement + '] > leadership > person[type=' + Config.getLeader(this._placement) + ']').attr('email');
 	var person = window.config.getPerson(email);
 	if (!person){
