@@ -40,7 +40,7 @@ Rollup.prototype.update = function(){
 
 	var result = {}
 	for (var i = 0; i < this._questions.length; i++){
-		result[this._questions[i]] = {};
+		result[this._questions[i].id] = {};
 	}
 
 	$(master).find('semester[code=' + window.config.getCurrentSemester() + '] > people > person > roles > role[type=instructor]').each(function(){
