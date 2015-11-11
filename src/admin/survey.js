@@ -158,10 +158,6 @@ Survey.prototype.process = function(rows){
 	Sharepoint.postFile(window.config.getMaster(), 'master/', 'master.xml', function(){});
 }
 
-Survey.prototype.answerReplace = function(){
-	
-}
-
 /**
  * Get the question by Id
  * @param  {[type]} id [description]
