@@ -1417,7 +1417,7 @@ Survey.prototype.getPerson = function(email){
 Survey.prototype._setXmlQuestions = function(){
 	var _this = this;
 	$(this._xml).find('question').each(function(){
-		_this.questions.push(new Question(this));
+		_this.questions.push(new Question(this, true));
 	})
 }
 
