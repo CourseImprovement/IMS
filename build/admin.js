@@ -1163,8 +1163,8 @@ Person.prototype.toXml = function(){
 		var cId = this.getCourseIdByName(this.course);
 		xml.attr('courseid', cId);
 	}
-	for (var i = 0; i < this.answers.length; i++){
-		xml.append(this.answers[i].toXml());
+	for (var i = 0; i < this._answers.length; i++){
+		xml.append(this._answers[i].toXml());
 	}
 	return xml;
 }
