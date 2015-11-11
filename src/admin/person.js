@@ -42,7 +42,7 @@ Person.cleanEmail = function(email){
 
 Person.prototype.cleanEmailInternal = function(){
 	try{
-		return Person.cleanEmail(this._email);
+		this._email = Person.cleanEmail(this._email);
 	}
 	catch(e){
 		this._valid = false;
