@@ -166,7 +166,11 @@ Survey.prototype.process = function(rows){
 		window.config.otherPeople[email].save();
 	}
 
+<<<<<<< HEAD
+	Sharepoint.postFile(window.config.getMaster(), 'master/', 'master.xml', function(){});
+=======
 	Sharepoint.postFile(window.config.getMaster(), 'master/', 'master.xml', function(){});*/
+>>>>>>> grant
 }
 
 /**
