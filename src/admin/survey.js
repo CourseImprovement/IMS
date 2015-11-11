@@ -135,8 +135,15 @@ Survey.prototype.process = function(rows){
 	if (this.course){
 		cCol = Config.columnLetterToNumber(this.course);
 	}
-	for (var i = 4; i < rows[i].length; i++){
-		// clean answers and then add them to their respective individual
+	var spot = 0;
+	for (var i = 0; i < rows.length; i++){
+		if (rows[i][2].match(/\./g).length >= 2){
+			spot = i;
+			break;
+		}
+	}
+	for (var i = spot; i < rows[i].length; i++){
+		// clean answers  and then add them to their respective individual
 		var person = this.getPerson(rows[i][eCol]);
 		if (!person){
 			person = new Person({
@@ -165,12 +172,8 @@ Survey.prototype.process = function(rows){
 	for (var email in window.config.otherPeople){
 		window.config.otherPeople[email].save();
 	}
-
-<<<<<<< HEAD
 	Sharepoint.postFile(window.config.getMaster(), 'master/', 'master.xml', function(){});
-=======
-	Sharepoint.postFile(window.config.getMaster(), 'master/', 'master.xml', function(){});*/
->>>>>>> grant
+	*/
 }
 
 /**

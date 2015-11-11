@@ -159,10 +159,9 @@ app.controller('adminCtrl', ["$scope", function($scope){
 	 * @memberOf angular
 	 */
 	$scope.processSurvey = function(survey){
-		var survey = new Survey(window.config.getSurveyById(survey), true);
 		var csv = new CSV();
 		csv.readFile($scope.file, function(file){
-			window.config.surveyProcessing(survey, file.data);
+			survey.process(file.data);
 		});
 	}
 	// GROUP - PROCESS SURVEY END

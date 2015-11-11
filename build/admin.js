@@ -277,6 +277,14 @@ Config.prototype.getCurrentSemester = function(){
 }
 
 /**
+ * Get all the serveys
+ * @return {[type]} [description]
+ */
+Config.prototype.getSurveys = function(){
+	return this.surveys;
+}
+
+/**
  * Returns the survey using the id
  * @param  {Integer} id Numerical id for the survey
  * @return {Object}    Xml of the survey with id of 'id'
@@ -667,10 +675,9 @@ app.controller('adminCtrl', ["$scope", function($scope){
 	 * @memberOf angular
 	 */
 	$scope.processSurvey = function(survey){
-		var survey = new Survey(window.config.getSurveyById(survey), true);
 		var csv = new CSV();
 		csv.readFile($scope.file, function(file){
-			window.config.surveyProcessing(survey, file.data);
+			survey.process(file.data);
 		});
 	}
 	// GROUP - PROCESS SURVEY END
@@ -1494,8 +1501,15 @@ Survey.prototype.process = function(rows){
 	if (this.course){
 		cCol = Config.columnLetterToNumber(this.course);
 	}
-	for (var i = 4; i < rows[i].length; i++){
-		// clean answers and then add them to their respective individual
+	var spot = 0;
+	for (var i = 0; i < rows.length; i++){
+		if (rows[i][2].match(/\./g).length >= 2){
+			spot = i;
+			break;
+		}
+	}
+	for (var i = spot; i < rows[i].length; i++){
+		// clean answers  and then add them to their respective individual
 		var person = this.getPerson(rows[i][eCol]);
 		if (!person){
 			person = new Person({
@@ -1524,8 +1538,8 @@ Survey.prototype.process = function(rows){
 	for (var email in window.config.otherPeople){
 		window.config.otherPeople[email].save();
 	}
-
-	Sharepoint.postFile(window.config.getMaster(), 'master/', 'master.xml', function(){});*/
+	Sharepoint.postFile(window.config.getMaster(), 'master/', 'master.xml', function(){});
+	*/
 }
 
 /**

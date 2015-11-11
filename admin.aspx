@@ -195,7 +195,7 @@
 	<!-- PROCESS -->
 	<div class="container" ng-if='mode == "Process"' id="process">
 		<select class="big-btn" ng-model='selectSurvey'>
-			<option ng-repeat='s in surveys | orderBy:"name"' value='{{s.id}}'>{{s.name}}</option>
+			<option ng-repeat='s in surveys | orderBy:"name"' value='{{s}}'>{{s.name}}</option>
 		</select>
 		<div class="big-btn" ng-click='chooseFile()'>
 			Choose File
