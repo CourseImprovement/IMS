@@ -1511,7 +1511,7 @@ Survey.prototype.process = function(rows){
 	}
 	var spot = 0;
 	for (var i = 0; i < rows.length; i++){
-		if (rows[i][2].match(/\./g).length >= 2){
+		if (rows[i][2].match(/\./g) && rows[i][2].match(/\./g).length >= 2){
 			spot = i;
 			break;
 		}
