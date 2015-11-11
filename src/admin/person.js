@@ -12,6 +12,7 @@ function Person(obj, isXml, downloadXml){
 		this._tmpXml = $(obj).find('semester[code=' + window.config.getCurrentSemester() + '] > people > person');
 		this._role = $(this._tmpXml);
 		this._email = $(this._tmpXml).attr('email');
+		this.cleanEmailInternal();
 		if (downloadXml){
 			this.getXml();
 		}
@@ -21,6 +22,7 @@ function Person(obj, isXml, downloadXml){
 	}
 	else{
 		this._email = obj.email;
+		this.cleanEmailInternal();
 		this._row = obj.row;
 		this._placement = obj.placement.toLowerCase();
 		this._leader = null;
@@ -28,7 +30,6 @@ function Person(obj, isXml, downloadXml){
 		this.course = obj.course;
 	}
 	this._valid = true;
-	this.cleanEmailInternal();
 }
 
 Person.cleanEmail = function(email){
