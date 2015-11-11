@@ -10,7 +10,7 @@ function Config(){
 	this._initSetup();
 	this._xml;
 	this.semesters = ims.sharepoint.getSemesterConfig();
-	this.selectedSurvey;
+	this.selectedSurvey = null;
 	this.otherPeople = {};
 }
 

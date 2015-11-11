@@ -316,7 +316,7 @@ function Config(){
 	this._initSetup();
 	this._xml;
 	this.semesters = ims.sharepoint.getSemesterConfig();
-	this.selectedSurvey;
+	this.selectedSurvey = null;
 	this.otherPeople = {};
 }
 
@@ -731,6 +731,7 @@ app.controller('adminCtrl', ["$scope", function($scope){
 	 */
 	$scope.processSurvey = function(id){
 		var survey = window.config.getSurveyById(id);
+		window.config.selectedSurvey = survey;
 		if (!survey){
 			alert('Error');
 			return;
