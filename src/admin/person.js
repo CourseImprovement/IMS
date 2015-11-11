@@ -80,6 +80,7 @@ Person.prototype.getLeader = function(){
 	if (!person){
 		person = new Person({email: email}, false, true);
 		window.config.addPerson(email, person);
+		
 	}
 	this._leader = person;
 }
