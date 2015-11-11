@@ -44,8 +44,9 @@ Survey.prototype.getPerson = function(email){
  * the XML
  */
 Survey.prototype._setXmlQuestions = function(){
+	var _this = this;
 	$(this._xml).find('question').each(function(){
-		this.questions.push(new Question(this));
+		_this.questions.push(new Question(this));
 	})
 }
 
