@@ -33,10 +33,7 @@ function Survey(survey, isXml){
  * @return {Object}       Person with the email of 'email'
  */
 Survey.prototype.getPerson = function(email){
-	if (!email) return false;
-	if (email.indexOf('@') > -1){
-		email = email.split('@')[0];
-	}
+	email = Person.cleanEmail(email);
 	for (var i = 0; i < this.people.length; i++){
 		if (this.people[i]._email == email) return this.people[i];
 	}
@@ -149,6 +146,7 @@ Survey.prototype.process = function(rows){
 	for (var i = spot; i < rows[i].length; i++){
 		// clean answers  and then add them to their respective individual
 		var person = this.getPerson(rows[i][eCol]);
+		var again = false;
 		if (!person){
 			person = new Person({
 				email: rows[i][eCol],
@@ -160,12 +158,13 @@ Survey.prototype.process = function(rows){
 		else{
 			person._answers = Answer.collect(this, rows[i]);
 			person._row = rows[i];
+			again = true;
 		}
 		if (eCol == -1) continue;
 		person.course = rows[i][cCol];
 		if (person.isValid()){
 			person.process();
-			this.people.push(person);
+			if (!again) this.people.push(person);
 		}
 	}
 	

@@ -30,10 +30,15 @@ function Person(obj, isXml, getXml){
 	}
 }
 
-Person.prototype.cleanEmail = function(){
-	if (this._email.indexOf('@') > -1){
-		this._email = this._email.split('@')[0];
+Person.cleanEmail = function(email){
+	if (email.indexOf('@') > -1){
+		email = email.split('@')[0];
 	}
+	return email;
+}
+
+Person.prototype.cleanEmail = function(){
+	return Person.cleanEmail(this._email);
 }
 
 /**
