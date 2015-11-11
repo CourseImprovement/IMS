@@ -1059,7 +1059,6 @@ function Person(obj, isXml, downloadXml){
 	if (isXml){
 		this._tmpXml = $(obj).find('semester[code=' + window.config.getCurrentSemester() + '] > people > person');
 		this._role = $(this._tmpXml);
-		console.log('email 1:' + $(this._tmpXml).attr('email'));
 		this._email = $(this._tmpXml).attr('email');
 		this.cleanEmailInternal();
 		if (downloadXml){
@@ -1124,7 +1123,7 @@ Person.prototype.getXml = function(){
  * Retrieves a person's leader
  */
 Person.prototype.getLeader = function(){
-	console.log('email 2:' + $(this._xml).find('semester[code=' + window.config.getCurrentSemester() + '] > people > person > roles > role[type=' + this._placement + '] > leadership > person[type=' + Config.getLeader(this._placement) + ']').attr('email'));
+	console.log(this._email +' leader email 2:' + $(this._xml).find('semester[code=' + window.config.getCurrentSemester() + '] > people > person > roles > role[type=' + this._placement + '] > leadership > person[type=' + Config.getLeader(this._placement) + ']').attr('email'));
 	var email = $(this._xml).find('semester[code=' + window.config.getCurrentSemester() + '] > people > person > roles > role[type=' + this._placement + '] > leadership > person[type=' + Config.getLeader(this._placement) + ']').attr('email');
 	var person = window.config.getPerson(email);
 	if (!person){
