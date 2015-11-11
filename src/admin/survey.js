@@ -134,7 +134,7 @@ Survey.prototype.process = function(rows){
 	if (this.course){
 		cCol = Config.columnLetterToNumber(this.course);
 	}
-	for (var i = 4; i < rows[i].length){
+	for (var i = 4; i < rows[i].length; i++){
 		// clean answers and then add them to their respective individual
 		var person = this.getPerson(rows[i][eCol]);
 		if (!person){
