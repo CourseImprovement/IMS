@@ -408,7 +408,13 @@ Config.prototype.getHighestSurveyId = function(){
  * @return {Object}       The object of a person with attribute 'email'
  */
 Config.prototype.getPerson = function(email){
-	email = Person.cleanEmail(email);
+	try{
+		email = Person.cleanEmail(email);
+	}
+	catch(e){
+		console.log(email);
+		throw e;
+	}
 	var person = this.selectedSurvey.getPerson(email);
 	if (!person){
 		person = this.otherPeople[email];
@@ -1432,7 +1438,13 @@ function Survey(survey, isXml){
  * @return {Object}       Person with the email of 'email'
  */
 Survey.prototype.getPerson = function(email){
-	email = Person.cleanEmail(email);
+	try{
+		email = Person.cleanEmail(email);
+	}
+	catch(e){
+		console.log(email);
+		throw e;
+	}
 	for (var i = 0; i < this.people.length; i++){
 		if (this.people[i]._email == email) return this.people[i];
 	}

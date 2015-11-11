@@ -102,7 +102,13 @@ Config.prototype.getHighestSurveyId = function(){
  * @return {Object}       The object of a person with attribute 'email'
  */
 Config.prototype.getPerson = function(email){
-	email = Person.cleanEmail(email);
+	try{
+		email = Person.cleanEmail(email);
+	}
+	catch(e){
+		console.log(email);
+		throw e;
+	}
 	var person = this.selectedSurvey.getPerson(email);
 	if (!person){
 		person = this.otherPeople[email];

@@ -33,7 +33,13 @@ function Survey(survey, isXml){
  * @return {Object}       Person with the email of 'email'
  */
 Survey.prototype.getPerson = function(email){
-	email = Person.cleanEmail(email);
+	try{
+		email = Person.cleanEmail(email);
+	}
+	catch(e){
+		console.log(email);
+		throw e;
+	}
 	for (var i = 0; i < this.people.length; i++){
 		if (this.people[i]._email == email) return this.people[i];
 	}
