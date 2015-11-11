@@ -411,7 +411,7 @@ Config.prototype._getSurveyColumns = function(surveyId){
 
 Config.getLeader = function(p){
 	switch (p){
-		case 'instructor' return 'tgl';
+		case 'instructor': return 'tgl';
 		case 'tgl': return 'aim';
 		case 'aim': return 'im';
 		default: throw 'Invalid';
