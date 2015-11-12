@@ -143,8 +143,8 @@ Rollup.prototype.aimLevelUpdate = function(){
 		for (var i = 0; i < _this._questions.length; i++){
 			result[email][_this._questions[i].spot] = [];
 			$(this).find('> roles > role[type=aim] > stewardship > people person').each(function(){
-				$(_this._master).find('semester[code=' + window.config.getCurrentSemester() + '] > people > person[email="' + $(this).attr('email') + '"]').each(function(){
-					var text = $(this).find('survey[id=' + _this._surveyId + '] answer[id=' + _this._questions[i].id + ']').text();
+				$(_this._master).find('semester[code=' + window.config.getCurrentSemester() + '] > people > person[email="' + $(this).attr('email') + '"] survey[id=' + _this._surveyId + '] answer[id=' + _this._questions[i].id + ']').each(function(){
+					var text = $(this).text();
 					if (text.length == 0) return;
 					if (questions[_this._questions[i].spot] == 'Weekly Hours'){
 						var credits = 0;
