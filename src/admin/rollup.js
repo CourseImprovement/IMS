@@ -101,7 +101,7 @@ Rollup.prototype.update = function(){
 			if (isAim){
 				if (!aims[q]) aims[q] = {};
 				if (!aims[q][tgl]) aims[q][tgl] = [];
-				aims[q][tgl].concat(result[q][tgl].raw);
+				aims[q][tgl].concat(result[q][tgl]);
 			}
 			var count = ary.length;
 			var sum = 0;
@@ -121,14 +121,34 @@ Rollup.prototype.update = function(){
 			$(this._xml).find('semester[code=' + window.config.getCurrentSemester() + '] person[email=' + tgl + '][type=tgl] question[name="' + questions[q] + '"]').append('<survey id="' + this._surveyId + '" value="' + avg + '" />');
 		}
 		for (var aim in aims[q]){
-			var ary = aims[q][aim];
-			var count = ary.length;
-			var sum = ary.sum();
-			var avg = Rollup.avg(sum, count);
-
+			var avg = 0;
+			if (questions[q] == 'Weekly Hours'){
+				var ary = aims[q][aim];
+				var count = ary.length;
+				var sum = 0;
+				var credits = 0;
+				for (var i = 0; i < count; i++){
+					sum += ary[i].sum;
+					credits += ary[i].credits;
+				}
+				avg = Rollup.avg(sum, credits);
+			}
+			else{
+				var ary = aims[q][aim];
+				var count = ary.length;
+				var sum = ary.sum();
+				avg = Rollup.avg(sum, count);
+			}
 			$(this._xml).find('semester[code=' + window.config.getCurrentSemester() + '] person[email=' + tgl + '][type=aim] question[name="' + questions[q] + '"]').append('<survey id="' + this._surveyId + '" value="' + avg + '" />');
 		}
-		$(this._xml).find('semester[code=' + window.config.getCurrentSemester() + '] > questions > question[name="' + questions[q] + '"]').append('<survey id="' + this._surveyId + '" value="' + avg + '" />');
+		var rollupValue = 0;
+		if (questions[q] == 'Weekly Hours'){
+			rollupValue = Rollup.avg(top[q].sum, top[q].credits);
+		}
+		else{
+			rollupValue = Rollup.avg(top[q].sum, top[q].total);
+		}
+		$(this._xml).find('semester[code=' + window.config.getCurrentSemester() + '] > questions > question[name="' + questions[q] + '"]').append('<survey id="' + this._surveyId + '" value="' + rollupValue + '" />');
 	}
 
 	this.aimLevelUpdate();
@@ -201,7 +221,7 @@ Rollup.prototype.aimLevelUpdate = function(){
 				}
 			}
 			
-			var avg = sum / total;
+			var avg = Rollup.avg(sum, total);
 			$(question).append('<survey id="' + this._surveyId + '" value="' + avg + '"/>');
 		}
 	}
