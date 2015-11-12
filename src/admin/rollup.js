@@ -156,7 +156,7 @@ Rollup.prototype.aimLevelUpdate = function(){
 		for (var q in result[a]){
 			var total = result[a][q].length;
 			var sum = 0;
-			var question = $(window._rollup).find('semester[code=' + window.config.getCurrentSemester() + '] people > person[email=' + a + '] question[name="' + questions[q] + '"]');
+			var question = $(window._rollup).find('semester[code=' + window.config.getCurrentSemester() + '] people > person[email=' + a + '][type=aim] question[name="' + questions[q] + '"]');
 			for (var i = 0; i < result[a][q].length; i++){
 				sum += result[a][q][i];
 			}
