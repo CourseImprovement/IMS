@@ -1154,7 +1154,6 @@ Person.prototype.getXml = function(){
  * Retrieves a person's leader
  */
 Person.prototype.getLeader = function(){
-	console.log(email);
 	var email = $(this._xml).find('semester[code=' + window.config.getCurrentSemester() + '] > people > person > roles > role[type=' + this._placement + '] > leadership > person[type=' + Config.getLeader(this._placement) + ']').attr('email');
 	var person = window.config.getPerson(email);
 	if (!person){
