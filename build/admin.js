@@ -507,7 +507,7 @@ Config.getLeader = function(p){
 		case 'instructor': return 'tgl';
 		case 'tgl': return 'aim';
 		case 'aim': return 'im';
-		default: throw 'Invalid ' + e;
+		default: throw 'Invalid ' + p;
 	}
 }
 
@@ -1773,14 +1773,14 @@ Survey.prototype.process = function(rows){
 					placement: this.placement,
 					answers: Answer.collect(this, rows[i])
 				}, false, true);
-				oldPlacement = person._placement;
+				oldPlacement = person._placement.toLowerCase();
 			}
 			else{
 				person._answers = Answer.collect(this, rows[i]);
 				person._row = rows[i];
 				again = true;
-				oldPlacement = person._placement;
-				person._placement = this.placement;
+				oldPlacement = person._placement.toLowerCase();
+				person._placement = this.placement.toLowerCase();
 			}
 			if (cCol != -1){
 				person.course = Survey.cleanCourse(rows[i][cCol]);
@@ -1789,7 +1789,7 @@ Survey.prototype.process = function(rows){
 				if (!again) this.people.push(person);
 				person.process();
 				this.processed++;
-				person._placement = oldPlacement;
+				person._placement = oldPlacement.toLowerCase();
 			}
 			else{
 				console.log('Invalid person: ' + rows[i][eCol]);

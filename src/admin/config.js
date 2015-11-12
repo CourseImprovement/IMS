@@ -179,7 +179,7 @@ Config.getLeader = function(p){
 		case 'instructor': return 'tgl';
 		case 'tgl': return 'aim';
 		case 'aim': return 'im';
-		default: throw 'Invalid ' + e;
+		default: throw 'Invalid ' + p;
 	}
 }
 
