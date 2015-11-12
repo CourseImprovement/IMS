@@ -1405,7 +1405,7 @@ Rollup.prototype.aimLevelUpdate = function(){
 		var email = $(this).attr('email'); 
 		result[email] = {};
 		for (var i = 0; i < _this._questions.length; i++){
-			result[email][_this._questions[i].id] = []
+			result[email][_this._questions[i].id] = [];
 			$(this).find('> roles > role[type=aim] > stewardship > people person').each(function(){
 				$(master).find('semester[code=' + window.config.getCurrentSemester() + '] > people > person[email="' + $(this).attr('email') + '"]').each(function(){
 					var text = $(this).find('survey[id=' + _this._surveyId + '] answer[id=' + _this._questions[i].id + ']').text();
