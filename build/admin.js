@@ -252,6 +252,28 @@ String.prototype.encodeXML = function(){
        		   .replace(/</g, '&lt;')
                .replace(/>/g, '&gt;');
 }
+
+Array.prototype.sum = function(){
+	if (this == undefined) return false;
+	var sum = 0;
+	for (var i = 0; i < this.length; i++){
+		if (Number.isFloat(this[i])){
+			sum += this[i];
+		}
+	}
+	return sum;
+}
+
+Number.isInt = function(n){
+    return Number(n) === n && n % 1 === 0;
+}
+
+Number.isFloat = function(n){
+    return n === Number(n) && n % 1 !== 0;
+}
+
+
+
 // GROUP ANSWER
 /**
  * Answer object
@@ -1265,6 +1287,10 @@ function Rollup(){
 	this._questions = [];
 }
 
+Rollup.avg = function(sum, count){
+	return Math.floor((sum / count) * 10) / 10;
+}
+
 /**
  * [update description]
  * @return {[type]} [description]
@@ -1326,19 +1352,14 @@ Rollup.prototype.update = function(){
 				top[q].sum += ary[i];
 				top[q].total++;
 			}
-			var avg = sum / count;
-			avg = Math.floor(avg * 10) / 10;
+			var avg = Rollup.avg(sum, count);
 			$(this._xml).find('semester[code=' + window.config.getCurrentSemester() + '] person[email=' + tgl + '][type=tgl] question[name="' + questions[q] + '"]').append('<survey id="' + this._surveyId + '" value="' + avg + '" />');
 		}
 		for (var aim in aims[q]){
 			var ary = aims[q][aim];
 			var count = ary.length;
-			var sum = 0;
-			for (var i = 0; i < count; i++){
-				sum += ary[i];
-			}
-			var avg = sum / count;
-			avg = Math.floor(avg * 10) / 10;
+			var sum = ary.sum();
+			var avg = Rollup.avg(sum, count);
 
 			$(this._xml).find('semester[code=' + window.config.getCurrentSemester() + '] person[email=' + tgl + '][type=aim] question[name="' + questions[q] + '"]').append('<survey id="' + this._surveyId + '" value="' + avg + '" />');
 		}

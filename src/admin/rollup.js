@@ -13,6 +13,10 @@ function Rollup(){
 	this._questions = [];
 }
 
+Rollup.avg = function(sum, count){
+	return Math.floor((sum / count) * 10) / 10;
+}
+
 /**
  * [update description]
  * @return {[type]} [description]
@@ -74,19 +78,14 @@ Rollup.prototype.update = function(){
 				top[q].sum += ary[i];
 				top[q].total++;
 			}
-			var avg = sum / count;
-			avg = Math.floor(avg * 10) / 10;
+			var avg = Rollup.avg(sum, count);
 			$(this._xml).find('semester[code=' + window.config.getCurrentSemester() + '] person[email=' + tgl + '][type=tgl] question[name="' + questions[q] + '"]').append('<survey id="' + this._surveyId + '" value="' + avg + '" />');
 		}
 		for (var aim in aims[q]){
 			var ary = aims[q][aim];
 			var count = ary.length;
-			var sum = 0;
-			for (var i = 0; i < count; i++){
-				sum += ary[i];
-			}
-			var avg = sum / count;
-			avg = Math.floor(avg * 10) / 10;
+			var sum = ary.sum();
+			var avg = Rollup.avg(sum, count);
 
 			$(this._xml).find('semester[code=' + window.config.getCurrentSemester() + '] person[email=' + tgl + '][type=aim] question[name="' + questions[q] + '"]').append('<survey id="' + this._surveyId + '" value="' + avg + '" />');
 		}
