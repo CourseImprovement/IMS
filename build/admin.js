@@ -1690,7 +1690,15 @@ Survey.prototype.process = function(rows){
 	for (var i = spot; i < rows.length; i++){
 		// clean answers  and then add them to their respective individual
 		if (rows[i][eCol] != undefined){
-			var person = window.config.getPerson(rows[i][eCol]);
+			var person = null;
+			try{
+				person = window.config.getPerson(rows[i][eCol]);
+			}
+			catch (e){
+				console.log(e);
+				console.log(rows[i]);
+				continue;
+			}
 			var again = false;
 			if (!person){
 				person = new Person({
