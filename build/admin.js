@@ -1458,7 +1458,6 @@ Rollup.prototype.aimLevelUpdate = function(){
 	for (var a in result){
 		for (var q in result[a]){
 			var total = result[a][q].length;
-			var credits = 0
 			var sum = 0;
 			var question = $(window._rollup).find('semester[code=' + window.config.getCurrentSemester() + '] people > person[email=' + a + '][type=aim] question[name="' + questions[q] + '"]');
 			
@@ -1474,7 +1473,7 @@ Rollup.prototype.aimLevelUpdate = function(){
 					sum += result[a][q][i];
 				}
 			}
-			
+			console.log('sum: ' + sum + ' - total: ' + total);
 			var avg = sum / total;
 			$(question).append('<survey id="' + this._surveyId + '" value="' + avg + '"/>');
 		}
