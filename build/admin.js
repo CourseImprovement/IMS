@@ -1337,7 +1337,7 @@ Rollup.prototype.update = function(){
 					credits += parseInt($(this).closest('roles').parent().find("course[id=" + courseid + ']').attr('credit'));
 					sum += parseFloat($(this).text());
 				});
-				if (sum == 0 || credits == 0) continue;
+				if (isNaN(sum) || isNaN(credits) || sum == 0 || credits == 0) continue;
 				if (credits == 1){
 					credits = 1.5 * credits;
 				}
