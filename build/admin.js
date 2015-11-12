@@ -1734,6 +1734,14 @@ Survey.prototype.process = function(rows){
 		}
 	}
 
+	for (var email in window.config.otherPeople){
+		var person = window.config.otherPeople[email];
+		if (person.isValid()){
+			person.process();
+			this.processed++
+		}
+	}
+
 	var rollup = new Rollup();
 	rollup.update();
 	
