@@ -177,7 +177,7 @@ Survey.prototype.process = function(rows){
 				again = true;
 			}
 			if (cCol != -1){
-				person.course = rows[i][cCol];
+				person.course = Survey.cleanCourse(rows[i][cCol]);
 			}
 			if (person.isValid()){
 				if (!again) this.people.push(person);
@@ -210,6 +210,14 @@ Survey.prototype.process = function(rows){
 	}
 	Sharepoint.postFile(window.config.getMaster(), 'master/', 'master.xml', function(){});
 	*/
+}
+
+Survey.cleanCourse = function(str){
+	var found = str.match(/([a-zA-Z]{1,}[0-9]{3})/g);
+	if (found && found.length > 0){
+		str = str.split(/([a-zA-Z]{1,})/g).join(' ');
+	}
+	return str.trim().toUpperCase();
 }
 
 /**
