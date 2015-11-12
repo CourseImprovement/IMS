@@ -68,13 +68,13 @@ Rollup.prototype.update = function(){
 					continue;
 				}
 				if (credits == 1){
-					credits = 1.5 * credits;
+					credits = 1.5;
 				}
 				else if (credits == 2){
-					credits = 2.25 * credits;
+					credits = 2.25;
 				}
 				else if (credits >= 3){
-					credits = 3 * credits;
+					credits = credits;
 				}
 				if (!result[_this._questions[i].spot][leader]) result[_this._questions[i].spot][leader] = [];
 				var avg = Rollup.avg(sum, credits);
