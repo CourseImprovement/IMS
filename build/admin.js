@@ -1415,7 +1415,7 @@ Rollup.prototype.aimLevelUpdate = function(){
 		}
 	});
 
-	var t = 10;
+	console.log(result);
 }
 // GROUP ROLLUP END
 
