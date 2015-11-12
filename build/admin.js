@@ -1292,7 +1292,7 @@ Rollup.prototype.update = function(){
 
 	var result = {}
 	for (var i = 0; i < this._questions.length; i++){
-		result[this._questions[i].id] = {};
+		result[this._questions[i].spot] = {};
 	}
 
 	$(master).find('semester[code=' + window.config.getCurrentSemester() + '] > people > person > roles > role[type=instructor]').each(function(){
@@ -1301,8 +1301,8 @@ Rollup.prototype.update = function(){
 		for (var i = 0; i < _this._questions.length; i++){
 			var text = $(this).find('survey[id=' + _this._surveyId + '] answer[id=' + _this._questions[i].id + ']').text();
 			if (text.length == 0) continue;
-			if (!result[_this._questions[i].id][leader]) result[_this._questions[i].id][leader] = [];
-			result[_this._questions[i].id][leader].push(parseFloat(text));
+			if (!result[_this._questions[i].spot][leader]) result[_this._questions[i].spot][leader] = [];
+			result[_this._questions[i].spot][leader].push(parseFloat(text));
 		}
 	});
 
