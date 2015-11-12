@@ -162,7 +162,7 @@ Rollup.prototype.aimLevelUpdate = function(){
 		'Building Faith in Jesus Christ',
 		'Weekly Hours'
 	]
-	var surveys = [1, 2, 3, 5, 8, 9, 11];
+	var surveys = [1, 2, 3, 6, 9, 10, 11];
 	for (var idx = 0; idx < surveys.length; idx++){
 		var qs = [];
 		$(window.config._xml).find('semester[code=' + window.config.getCurrentSemester() + '] survey[id=' + surveys[idx] + '] question').each(function(){
