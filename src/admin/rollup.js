@@ -137,19 +137,30 @@ Rollup.prototype.aimLevelUpdate = function(){
 	]
 	var surveys = [1, 2, 3, 5, 8, 9, 11];
 	for (var idx = 0; idx < surveys.length; idx++){
+		var qs = [];
+		$(window.config._xml).find('semester[code=' + window.config.getCurrentSemester() + '] survey[id=' + surveys[idx] + '] question').each(function(){
+			for (var i = 0; i < questions.length; i++){
+				if ($(this).find('text:contains("' + questions[i] + '")').length > 0){
+					qs.push({
+						id: $(this).attr('id'),
+						spot: i
+					});
+				}
+			}
+		});
 
 		var result = {};
 		var _this = this;
 		$(this._master).find('semester[code=' + window.config.getCurrentSemester() + '] > people > person[highestrole=aim]').each(function(){
 			var email = $(this).attr('email'); 
 			result[email] = {};
-			for (var i = 0; i < _this._questions.length; i++){
-				result[email][_this._questions[i].spot] = [];
+			for (var i = 0; i < _this.qs.length; i++){
+				result[email][_this.qs[i].spot] = [];
 				$(this).find('> roles > role[type=aim] > stewardship > people person').each(function(){
-					$(_this._master).find('semester[code=' + window.config.getCurrentSemester() + '] > people > person[email="' + $(this).attr('email') + '"] survey[id="' + surveys[idx] + '"] answer[id=' + _this._questions[i].id + ']').each(function(){
+					$(_this._master).find('semester[code=' + window.config.getCurrentSemester() + '] > people > person[email="' + $(this).attr('email') + '"] survey[id="' + surveys[idx] + '"] answer[id=' + _this.qs[i].id + ']').each(function(){
 						var text = $(this).text();
 						if (text.length == 0) return;
-						if (questions[_this._questions[i].spot] == 'Weekly Hours'){
+						if (questions[_this.qs[i].spot] == 'Weekly Hours'){
 							var credits = 0;
 							var courses = $(this).parent().parent().parent().parent().parent().find('> courses course');
 							var num = $(courses).length;
@@ -164,13 +175,13 @@ Rollup.prototype.aimLevelUpdate = function(){
 								
 								credits += credit / num;
 							});
-							result[email][_this._questions[i].spot].push({
+							result[email][_this.qs[i].spot].push({
 								hours: parseFloat(text),
 								credits: credits
 							});
 						}
 						else {
-							result[email][_this._questions[i].spot].push(parseFloat(text));
+							result[email][_this.qs[i].spot].push(parseFloat(text));
 						}
 					});
 				});
