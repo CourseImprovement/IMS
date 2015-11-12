@@ -1331,6 +1331,8 @@ Rollup.prototype.update = function(){
 		result[this._questions[i].spot] = {};
 	}
 
+	var hours = {total: 0, credits: 0}
+
 	$(master).find('semester[code=' + window.config.getCurrentSemester() + '] > people > person > roles > role[type=instructor]').each(function(){
 		var leader = $(this).find('leadership person[type=tgl]').attr('email');
 		console.log(leader + ' - ' + $(this).parents('person').attr('email'));
@@ -1358,8 +1360,7 @@ Rollup.prototype.update = function(){
 					credits = credits;
 				}
 				if (!result[_this._questions[i].spot][leader]) result[_this._questions[i].spot][leader] = [];
-				var avg = Rollup.avg(sum, credits);
-				result[_this._questions[i].spot][leader].push(avg);
+				result[_this._questions[i].spot][leader].push({credits: credits, sum: sum});
 			}
 			else{
 				var text = $(this).find('survey[id=' + _this._surveyId + '] answer[id=' + _this._questions[i].id + ']').text();
@@ -1374,7 +1375,7 @@ Rollup.prototype.update = function(){
 	var aims = {};
 
 	for (var q in result){
-		top[q] = {total: 0, sum: 0}
+		top[q] = {total: 0, sum: 0, credits: 0}
 		for (var tgl in result[q]){
 			var ary = result[q][tgl];
 			var isAim = $(master).find('semester[code=' + window.config.getCurrentSemester() + '] > people > person[email=' + tgl + ']').attr('highestrole') == 'aim';
@@ -1386,9 +1387,16 @@ Rollup.prototype.update = function(){
 			var count = ary.length;
 			var sum = 0;
 			for (var i = 0; i < count; i++){
-				sum += ary[i];
-				top[q].sum += ary[i];
-				top[q].total++;
+				if (questions[q] == 'Weekly Hours'){
+					top[q].sum += ary[i].sum;
+					top[q].credits += ary[i].credits;
+					top[q].total++;
+				}
+				else{
+					sum += ary[i];
+					top[q].sum += ary[i];
+					top[q].total++;
+				}
 			}
 			var avg = Rollup.avg(sum, count);
 			$(this._xml).find('semester[code=' + window.config.getCurrentSemester() + '] person[email=' + tgl + '][type=tgl] question[name="' + questions[q] + '"]').append('<survey id="' + this._surveyId + '" value="' + avg + '" />');
