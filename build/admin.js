@@ -1456,6 +1456,7 @@ Rollup.prototype.aimLevelUpdate = function(){
 		'Building Faith in Jesus Christ',
 		'Weekly Hours'
 	]
+	console.log(window.config._xml);
 	var surveys = [1, 2, 3, 6, 9, 10, 11];
 	for (var idx = 0; idx < surveys.length; idx++){
 		var qs = [];
