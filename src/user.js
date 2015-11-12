@@ -219,7 +219,7 @@ User.prototype.getLeader = function(){
 	else if (this._baseRole == 'instructor') type = 'tgl';
 	var result = $(this._xml).find('> leadership person[type=' + type + ']').attr('email');
 	if (!result){
-		result = $(this._xml).closest('semester').find('role:not([type=' + this._baseRole + '])');
+		result = $(this._xml).parents('semester').find('role:not([type=' + this._baseRole + '])');
 		type = $(result).attr('type');
 		if (type == 'tgl') type = 'aim';
 		result = $(result).find('leadership person[type=' + type + ']').attr('email');

@@ -377,7 +377,7 @@ ims.sharepoint = {
 		if (role == 'AIM'){
 			var doc = $(ims.globals.tgls[email]).find('semester[code=' + sem + '] survey[id=' + id + ']').attr('reviewed', reviewed ? 'true' : 'false');
 
-			var buffer = str2ab($(doc).closest('semesters')[0].outerHTML);
+			var buffer = str2ab($(doc).parents('semesters')[0].outerHTML);
 
 			var fileName = email + '.xml';
 			var url = ims.sharepoint.base + "_api/Web/GetFolderByServerRelativeUrl('" + ims.sharepoint.relativeBase + "Instructor%20Reporting/Master')/Files/add(overwrite=true, url='" + fileName + "')";
@@ -408,7 +408,7 @@ ims.sharepoint = {
 		else if (role == 'TGL'){
 			var doc = $(ims.globals.instructors[email]).find('semester[code=' + sem + '] survey[id=' + id + ']').attr('reviewed', reviewed ? 'true' : 'false');
 
-			var buffer = str2ab($(doc).closest('semesters')[0].outerHTML);
+			var buffer = str2ab($(doc).parents('semesters')[0].outerHTML);
 
 			var fileName = email + '.xml';
 			var url = ims.sharepoint.base + "_api/Web/GetFolderByServerRelativeUrl('" + ims.sharepoint.relativeBase + "Instructor%20Reporting/Master')/Files/add(overwrite=true, url='" + fileName + "')";
@@ -2609,7 +2609,7 @@ User.prototype.getLeader = function(){
 	else if (this._baseRole == 'instructor') type = 'tgl';
 	var result = $(this._xml).find('> leadership person[type=' + type + ']').attr('email');
 	if (!result){
-		result = $(this._xml).closest('semester').find('role:not([type=' + this._baseRole + '])');
+		result = $(this._xml).parents('semester').find('role:not([type=' + this._baseRole + '])');
 		type = $(result).attr('type');
 		if (type == 'tgl') type = 'aim';
 		result = $(result).find('leadership person[type=' + type + ']').attr('email');
