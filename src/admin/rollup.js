@@ -124,6 +124,14 @@ Rollup.prototype.update = function(){
 }
 
 Rollup.prototype.aimLevelUpdate = function(){
+	var questions = [
+		'Seek Development Opportunities',
+		'Inspire a Love for Learning',
+		'Develop Relationships with and among Students',
+		'Embrace University Citizenship',
+		'Building Faith in Jesus Christ',
+		'Weekly Hours'
+	]
 	var result = {};
 	var _this = this;
 	$(this._master).find('semester[code=' + window.config.getCurrentSemester() + '] > people > person[highestrole=aim]').each(function(){
@@ -142,5 +150,8 @@ Rollup.prototype.aimLevelUpdate = function(){
 	});
 
 	console.log(result);
+	for (var a in result){
+		$(window._rollup).find('semester[code=' + window.config.getCurrentSemester() + '] people > person[email=' + a + '] question[name="' + questions[q] + '"]')
+	}
 }
 // GROUP ROLLUP END
