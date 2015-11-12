@@ -53,6 +53,7 @@ Rollup.prototype.update = function(){
 	$(master).find('semester[code=' + window.config.getCurrentSemester() + '] > people > person > roles > role[type=instructor]').each(function(){
 		var leader = $(this).find('leadership person[type=tgl]').attr('email');
 		console.log(leader + ' - ' + $(this).closest('person').attr('email'));
+		if ($(this).find('survey[id=' + this._surveyId + ']').length == 0) return;
 		for (var i = 0; i < _this._questions.length; i++){
 			if (questions[_this._questions[i].spot] == 'Weekly Hours'){
 				var sum = 0;
