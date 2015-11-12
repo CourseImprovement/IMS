@@ -1704,11 +1704,15 @@ Survey.prototype.process = function(rows){
 				person._row = rows[i];
 				again = true;
 			}
-			if (cCol == -1) continue;
-			person.course = rows[i][cCol];
+			if (cCol != -1){
+				person.course = rows[i][cCol];
+			}
 			if (person.isValid()){
 				if (!again) this.people.push(person);
 				person.process();
+			}
+			else{
+				console.log('Invalid person: ' + rows[i][eCol]);
 			}
 		}
 	}
