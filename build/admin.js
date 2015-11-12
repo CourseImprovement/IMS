@@ -1432,15 +1432,11 @@ Rollup.prototype.aimLevelUpdate = function(){
 			});
 		}
 	});
-
-<<<<<<< HEAD
 	var t = 10;
-=======
 	console.log(result);
 	for (var a in result){
 		$(window._rollup).find('semester[code=' + window.config.getCurrentSemester() + '] people > person[email=' + a + '] question[name="' + questions[q] + '"]')
 	}
->>>>>>> 4f49e9280abaffdc9286145ec32d853bae5435ff
 }
 // GROUP ROLLUP END
 
