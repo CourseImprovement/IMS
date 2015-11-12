@@ -1479,6 +1479,8 @@ Rollup.prototype.aimLevelUpdate = function(){
 			$(question).append('<survey id="' + this._surveyId + '" value="' + avg + '"/>');
 		}
 	}
+
+	console.log(window._rollup);
 }
 // GROUP ROLLUP END
 
