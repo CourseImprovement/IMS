@@ -183,6 +183,7 @@ Rollup.prototype.aimLevelUpdate = function(){
 			if (question[q] == 'Weekly Hours'){
 				total = 0;
 				for (var i = 0; i < result[a][q].length; i++){
+					console.log('credits: ' + result[a][q][i].hours);
 					console.log('credits: ' + result[a][q][i].credits);
 					sum += result[a][q][i].hours;
 					total += result[a][q][i].credits;
