@@ -914,8 +914,7 @@ Role.prototype.getLowerRoleInit = function(){
  */
 Role.prototype.getQuestionForGroup = function(email, name){
     var role = this.getRoleName().toLowerCase();
-    if (this._user.isCurrent() && role == 'tgl' && this._user.getHighestRole().toLowerCase() == 'aim') role = 'aim';
-    else if (role == 'instructor' && this._user.getHighestRole().toLowerCase() == 'tgl') role = 'aim';
+    if (this._user.isCurrent() && role == 'tgl' && this._user.getHighestRole().toLowerCase() == 'aim') role = 'tgl';
     else if (role == 'instructor') role = 'tgl';
 	return new Rollup({level: role, email: email, question: name});
 }

@@ -68,7 +68,9 @@ Person.prototype.isValid = function(){
  * [getXml description]
  */
 Person.prototype.getXml = function(){
-	this._xml = ims.sharepoint.getXmlByEmail(this._email);
+	if (!this._xml){
+		this._xml = ims.sharepoint.getXmlByEmail(this._email);
+	}
 }
 
 /**
@@ -79,7 +81,7 @@ Person.prototype.getLeader = function(){
 	var email = $(this._xml).find('semester[code=' + window.config.getCurrentSemester() + '] > people > person > roles > role[type=' + this._placement + '] > leadership > person[type=' + Config.getLeader(this._placement) + ']').attr('email');
 	var person = window.config.getPerson(email);
 	if (!person){
-		person = new Person({email: email}, false, true);
+		person = new Person({email: email, placement: Config.getLeader(this._placement)}, false, true);
 		window.config.addPerson(email, person);
 		
 	}
