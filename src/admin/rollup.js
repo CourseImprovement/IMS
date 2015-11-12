@@ -120,7 +120,7 @@ Rollup.prototype.update = function(){
 		$(this._xml).find('semester[code=' + window.config.getCurrentSemester() + '] > questions > question[name="' + questions[q] + '"]').append('<survey id="' + this._surveyId + '" value="' + avg + '" />');
 	}
 
-	this.aimLevelUpdate();
+	var a = 10;
 }
 
 Rollup.prototype.aimLevelUpdate = function(){
@@ -134,9 +134,8 @@ Rollup.prototype.aimLevelUpdate = function(){
 			$(this).find('> roles > role[type=aim] > stewardship > people person').each(function(){
 				$(master).find('semester[code=' + window.config.getCurrentSemester() + '] > people > person[email="' + $(this).attr('email') + '"]').each(function(){
 					var text = $(this).find('survey[id=' + _this._surveyId + '] answer[id=' + _this._questions[i].id + ']').text();
-					if (text.length != 0){
-						result[email][_this._questions[i].id].push(parseFloat(text));
-					}
+					if (text.length == 0) return;
+					result[email][_this._questions[i].id].push(parseFloat(text));
 				});
 			});
 		}
