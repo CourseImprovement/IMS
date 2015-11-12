@@ -29,7 +29,8 @@ Rollup.prototype.update = function(){
 		'Inspire a Love for Learning',
 		'Develop Relationships with and among Students',
 		'Embrace University Citizenship',
-		'Building Faith in Jesus Christ'
+		'Building Faith in Jesus Christ',
+		'Weekly Hours'
 	]
 	$(window.config._xml).find('semester[code=' + window.config.getCurrentSemester() + '] survey[id=' + this._surveyId + '] question').each(function(){
 		for (var i = 0; i < questions.length; i++){
@@ -51,10 +52,34 @@ Rollup.prototype.update = function(){
 		var leader = $(this).find('leadership person[type=tgl]').attr('email');
 		console.log(leader + ' - ' + $(this).closest('person').attr('email'));
 		for (var i = 0; i < _this._questions.length; i++){
-			var text = $(this).find('survey[id=' + _this._surveyId + '] answer[id=' + _this._questions[i].id + ']').text();
-			if (text.length == 0) continue;
-			if (!result[_this._questions[i].spot][leader]) result[_this._questions[i].spot][leader] = [];
-			result[_this._questions[i].spot][leader].push(parseFloat(text));
+			if (questions[_this._questions[i].spot] == 'Weekly Hours'){
+				var sum = 0;
+				var credits = 0;
+				$(this).find('survey[id=' + _this._surveyId + '] answer[id=' + _this._questions[i].id + ']').each(function(){
+					if ($(this).text().length == 0) return;
+					var courseid = $(this).closest('survey').attr('courseid');
+					credits += parseInt($(this).closest('roles').parent().find("course[id=" + courseid + ']').attr('credit'));
+					sum += parseFloat($(this).text());
+				});
+				if (credits == 1){
+					credits = 1.5 * credits;
+				}
+				else if (credits == 2){
+					credits = 2.25 * credits;
+				}
+				else if (credits >= 3){
+					credits = 3 * credits;
+				}
+				if (!result[_this._questions[i].spot][leader]) result[_this._questions[i].spot][leader] = [];
+				var avg = Rollup.avg(sum, credits);
+				result[_this._questions[i].spot][leader].push(avg);
+			}
+			else{
+				var text = $(this).find('survey[id=' + _this._surveyId + '] answer[id=' + _this._questions[i].id + ']').text();
+				if (text.length == 0) continue;
+				if (!result[_this._questions[i].spot][leader]) result[_this._questions[i].spot][leader] = [];
+				result[_this._questions[i].spot][leader].push(parseFloat(text));
+			}
 		}
 	});
 
