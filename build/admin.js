@@ -1412,7 +1412,7 @@ Rollup.prototype.update = function(){
 		$(this._xml).find('semester[code=' + window.config.getCurrentSemester() + '] > questions > question[name="' + questions[q] + '"]').append('<survey id="' + this._surveyId + '" value="' + avg + '" />');
 	}
 
-	var a = 10;
+	this.aimLevelUpdate();
 }
 
 Rollup.prototype.aimLevelUpdate = function(){
@@ -1432,23 +1432,23 @@ Rollup.prototype.aimLevelUpdate = function(){
 		for (var i = 0; i < _this._questions.length; i++){
 			result[email][_this._questions[i].spot] = [];
 			$(this).find('> roles > role[type=aim] > stewardship > people person').each(function(){
-				$(_this._master).find('semester[code=' + window.config.getCurrentSemester() + '] > people > person[email="' + $(this).attr('email') + '"]').each(function(){
-					var text = $(this).find('survey[id=' + _this._surveyId + '] answer[id=' + _this._questions[i].id + ']').text();
+				$(_this._master).find('semester[code=' + window.config.getCurrentSemester() + '] > people > person[email="' + $(this).attr('email') + '"] survey[id=' + _this._surveyId + '] answer[id=' + _this._questions[i].id + ']').each(function(){
+					var text = $(this).text();
 					if (text.length == 0) return;
 					if (questions[_this._questions[i].spot] == 'Weekly Hours'){
 						var credits = 0;
-						$(this).find('> courses course').each(function(){
+						var courses = $(this).parent().parent().parent().parent().parent().find('> courses course');
+						var num = $(courses).length;
+						$(courses).each(function(){
 							var credit = parseFloat($(this).attr('credit'));
 							if (credit == 1){
-								credit = 1.5 * credit;
+								credit = 1.5;
 							}
 							else if (credits == 2){
-								credit = 2.25 * credit;
+								credit = 2.25;
 							}
-							else if (credit >= 3){
-								credit = 3 * credit;
-							}
-							credits += credit;
+							
+							credits += credit / num;
 						});
 						result[email][_this._questions[i].spot].push({
 							hours: parseFloat(text),
@@ -1462,15 +1462,14 @@ Rollup.prototype.aimLevelUpdate = function(){
 			});
 		}
 	});
-	
+
 	for (var a in result){
 		for (var q in result[a]){
 			var total = result[a][q].length;
-			var credits = 0
 			var sum = 0;
 			var question = $(window._rollup).find('semester[code=' + window.config.getCurrentSemester() + '] people > person[email=' + a + '][type=aim] question[name="' + questions[q] + '"]');
 			
-			if (question[q] == 'Weekly Hours'){
+			if (questions[q] == 'Weekly Hours'){
 				total = 0;
 				for (var i = 0; i < result[a][q].length; i++){
 					sum += result[a][q][i].hours;
