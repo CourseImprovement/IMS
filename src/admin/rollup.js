@@ -148,7 +148,9 @@ Rollup.prototype.aimLevelUpdate = function(){
 					if (text.length == 0) return;
 					if (questions[_this._questions[i].spot] == 'Weekly Hours'){
 						var credits = 0;
-						$(this).find('> courses course').each(function(){
+						var courses = $(this).parent().parent().parent().parent().parent().find('> courses course');
+						var num = $(courses).length;
+						$(courses).each(function(){
 							var credit = parseFloat($(this).attr('credit'));
 							if (credit == 1){
 								credit = 1.5;
@@ -157,7 +159,7 @@ Rollup.prototype.aimLevelUpdate = function(){
 								credit = 2.25;
 							}
 							
-							credits += credit;
+							credits += credit / num;
 						});
 						result[email][_this._questions[i].spot].push({
 							hours: parseFloat(text),
