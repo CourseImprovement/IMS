@@ -25,6 +25,7 @@ function Survey(survey, isXml){
 		this._setXmlQuestions();
 		this.people = [];
 	}
+	this.processed = 0;
 }
 
 /**
@@ -149,10 +150,18 @@ Survey.prototype.process = function(rows){
 			break;
 		}
 	}
-	for (var i = spot; i < rows[i].length; i++){
+	for (var i = spot; i < rows.length; i++){
 		// clean answers  and then add them to their respective individual
 		if (rows[i][eCol] != undefined){
-			var person = window.config.getPerson(rows[i][eCol]);
+			var person = null;
+			try{
+				person = window.config.getPerson(rows[i][eCol]);
+			}
+			catch (e){
+				console.log(e);
+				console.log(rows[i]);
+				continue;
+			}
 			var again = false;
 			if (!person){
 				person = new Person({
@@ -167,12 +176,25 @@ Survey.prototype.process = function(rows){
 				person._row = rows[i];
 				again = true;
 			}
-			if (cCol == -1) continue;
-			person.course = rows[i][cCol];
+			if (cCol != -1){
+				person.course = rows[i][cCol];
+			}
 			if (person.isValid()){
 				if (!again) this.people.push(person);
 				person.process();
+				this.processed++;
 			}
+			else{
+				console.log('Invalid person: ' + rows[i][eCol]);
+			}
+		}
+	}
+
+	for (var email in window.config.otherPeople){
+		var person = window.config.otherPeople[email];
+		if (person.isValid()){
+			person.process();
+			this.processed++
 		}
 	}
 
