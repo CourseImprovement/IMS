@@ -1427,7 +1427,29 @@ Rollup.prototype.aimLevelUpdate = function(){
 				$(_this._master).find('semester[code=' + window.config.getCurrentSemester() + '] > people > person[email="' + $(this).attr('email') + '"]').each(function(){
 					var text = $(this).find('survey[id=' + _this._surveyId + '] answer[id=' + _this._questions[i].id + ']').text();
 					if (text.length == 0) return;
-					result[email][_this._questions[i].spot].push(parseFloat(text));
+					if (questions[_this._questions[i].spot] == 'Weekly Hours'){
+						var credits = 0;
+						$(this).find('> courses course').each(function(){
+							var credit = parseFloat($(this).attr('credit'));
+							if (credit == 1){
+								credit = 1.5 * credit;
+							}
+							else if (credits == 2){
+								credit = 2.25 * credit;
+							}
+							else if (credit >= 3){
+								credit = 3 * credit;
+							}
+							credits += credit;
+						});
+						result[email][_this._questions[i].spot].push({
+							hours: parseFloat(text),
+							credits: credits
+						});
+					}
+					else {
+						result[email][_this._questions[i].spot].push(parseFloat(text));
+					}
 				});
 			});
 		}
@@ -1436,15 +1458,29 @@ Rollup.prototype.aimLevelUpdate = function(){
 	for (var a in result){
 		for (var q in result[a]){
 			var total = result[a][q].length;
+			var credits = 0
 			var sum = 0;
 			var question = $(window._rollup).find('semester[code=' + window.config.getCurrentSemester() + '] people > person[email=' + a + '][type=aim] question[name="' + questions[q] + '"]');
-			for (var i = 0; i < result[a][q].length; i++){
-				sum += result[a][q][i];
+			
+			if (question[q] == 'Weekly Hours'){
+				total = 0;
+				for (var i = 0; i < result[a][q].length; i++){
+					sum += result[a][q][i].hours;
+					total += result[a][q][i].credits;
+				}
 			}
+			else{
+				for (var i = 0; i < result[a][q].length; i++){
+					sum += result[a][q][i];
+				}
+			}
+			
 			var avg = sum / total;
 			$(question).append('<survey id="' + this._surveyId + '" value="' + avg + '"/>');
 		}
 	}
+
+	console.log(window._rollup);
 }
 // GROUP ROLLUP END
 
