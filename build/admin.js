@@ -1484,7 +1484,7 @@ Rollup.prototype.aimLevelUpdate = function(){
 						if (text.length == 0) return;
 						if (questions[qs[i].spot] == 'Weekly Hours'){
 							var credits = 0;
-							var courses = $(this).parent().parent().parent().parent().parent().find('> courses course');
+							var courses = $(this).parents('person').find('> courses course');
 							var num = $(courses).length;
 							$(courses).each(function(){
 								var credit = parseFloat($(this).attr('credit'));
