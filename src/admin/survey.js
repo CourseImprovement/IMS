@@ -150,7 +150,7 @@ Survey.prototype.process = function(rows){
 			break;
 		}
 	}
-	for (var i = spot; i < rows[i].length; i++){
+	for (var i = spot; i < rows.length; i++){
 		// clean answers  and then add them to their respective individual
 		if (rows[i][eCol] != undefined){
 			var person = window.config.getPerson(rows[i][eCol]);
@@ -175,7 +175,6 @@ Survey.prototype.process = function(rows){
 				if (!again) this.people.push(person);
 				person.process();
 				this.processed++;
-				console.log('Processed: ' + this.processed + ' people');
 			}
 			else{
 				console.log('Invalid person: ' + rows[i][eCol]);
