@@ -1385,17 +1385,16 @@ Rollup.prototype.update = function(){
 				aims[q][tgl].concat(result[q][tgl]);
 			}
 			var count = ary.length;
+			top[q].total += count;
 			var sum = 0;
 			for (var i = 0; i < count; i++){
 				if (questions[q] == 'Weekly Hours'){
 					top[q].sum += ary[i].sum;
 					top[q].credits += ary[i].credits;
-					top[q].total++;
 				}
 				else{
 					sum += ary[i];
 					top[q].sum += ary[i];
-					top[q].total++;
 				}
 			}
 			var avg = Rollup.avg(sum, count);
