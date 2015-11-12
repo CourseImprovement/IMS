@@ -1333,19 +1333,19 @@ Rollup.prototype.update = function(){
 
 	$(master).find('semester[code=' + window.config.getCurrentSemester() + '] > people > person > roles > role[type=instructor]').each(function(){
 		var leader = $(this).find('leadership person[type=tgl]').attr('email');
-		console.log(leader + ' - ' + $(this).closest('person').attr('email'));
+		console.log(leader + ' - ' + $(this).parents('person').attr('email'));
 		for (var i = 0; i < _this._questions.length; i++){
 			if (questions[_this._questions[i].spot] == 'Weekly Hours'){
 				var sum = 0;
 				var credits = 0;
 				$(this).find('survey[id=' + _this._surveyId + '] answer[id=' + _this._questions[i].id + ']').each(function(){
 					if ($(this).text().length == 0) return;
-					var courseid = $(this).closest('survey').attr('courseid');
-					credits += parseInt($(this).closest('roles').parent().find("course[id=" + courseid + ']').attr('credit'));
+					var courseid = $(this).parents('survey').attr('courseid');
+					credits += parseInt($(this).parents('roles').parent().find("course[id=" + courseid + ']').attr('credit'));
 					sum += parseFloat($(this).text());
 				});
 				if (isNaN(sum) || isNaN(credits) || sum == 0 || credits == 0){
-					console.log($(this).closest('person').attr('email') + ' - 0 credits');
+					console.log($(this).parents('person').attr('email') + ' - 0 credits');
 					continue;
 				}
 				if (credits == 1){
@@ -1777,7 +1777,7 @@ Survey.prototype.process = function(rows){
 				again = true;
 			}
 			if (cCol != -1){
-				person.course = rows[i][cCol];
+				person.course = Survey.cleanCourse(rows[i][cCol]);
 			}
 			if (person.isValid()){
 				if (!again) this.people.push(person);
@@ -1790,13 +1790,13 @@ Survey.prototype.process = function(rows){
 		}
 	}
 
-	for (var email in window.config.otherPeople){
-		var person = window.config.otherPeople[email];
-		if (person.isValid()){
-			person.process();
-			this.processed++
-		}
-	}
+	// for (var email in window.config.otherPeople){
+	// 	var person = window.config.otherPeople[email];
+	// 	if (person.isValid()){
+	// 		person.process();
+	// 		this.processed++
+	// 	}
+	// }
 
 	var rollup = new Rollup();
 	rollup.update();
@@ -1810,6 +1810,14 @@ Survey.prototype.process = function(rows){
 	}
 	Sharepoint.postFile(window.config.getMaster(), 'master/', 'master.xml', function(){});
 	*/
+}
+
+Survey.cleanCourse = function(str){
+	var found = str.match(/([a-zA-Z]{1,}[0-9]{3})/g);
+	if (found && found.length > 0){
+		str = str.split(/([a-zA-Z]{1,})/g).join(' ');
+	}
+	return str.trim().toUpperCase();
 }
 
 /**
