@@ -1398,6 +1398,7 @@ Rollup.prototype.update = function(){
 				}
 			}
 			var avg = Rollup.avg(sum, count);
+			$(this._xml).find('semester[code=' + window.config.getCurrentSemester() + '] person[email=' + tgl + '][type=tgl] question[name="' + questions[q] + '"] survey[id=' + this._surveyId + ']').remove();
 			$(this._xml).find('semester[code=' + window.config.getCurrentSemester() + '] person[email=' + tgl + '][type=tgl] question[name="' + questions[q] + '"]').append('<survey id="' + this._surveyId + '" value="' + avg + '" />');
 		}
 		for (var aim in aims[q]){
@@ -1419,6 +1420,7 @@ Rollup.prototype.update = function(){
 				var sum = ary.sum();
 				avg = Rollup.avg(sum, count);
 			}
+			$(this._xml).find('semester[code=' + window.config.getCurrentSemester() + '] person[email=' + tgl + '][type=aim] question[name="' + questions[q] + '"] survey[id=' + this._surveyId + ']').remove();
 			$(this._xml).find('semester[code=' + window.config.getCurrentSemester() + '] person[email=' + tgl + '][type=aim] question[name="' + questions[q] + '"]').append('<survey id="' + this._surveyId + '" value="' + avg + '" />');
 		}
 		var rollupValue = 0;
@@ -1428,6 +1430,7 @@ Rollup.prototype.update = function(){
 		else{
 			rollupValue = Rollup.avg(top[q].sum, top[q].total);
 		}
+		$(this._xml).find('semester[code=' + window.config.getCurrentSemester() + '] > questions > question[name="' + questions[q] + '"] > survey[id=' + this._surveyId + ']').remove();
 		$(this._xml).find('semester[code=' + window.config.getCurrentSemester() + '] > questions > question[name="' + questions[q] + '"]').append('<survey id="' + this._surveyId + '" value="' + rollupValue + '" />');
 	}
 
