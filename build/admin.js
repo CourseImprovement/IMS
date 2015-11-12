@@ -1395,7 +1395,7 @@ Rollup.prototype.update = function(){
 		$(this._xml).find('semester[code=' + window.config.getCurrentSemester() + '] > questions > question[name="' + questions[q] + '"]').append('<survey id="' + this._surveyId + '" value="' + avg + '" />');
 	}
 
-	this.aimLevelUpdate();
+	var a = 10;
 }
 
 Rollup.prototype.aimLevelUpdate = function(){
