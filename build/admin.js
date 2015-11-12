@@ -1286,6 +1286,7 @@ function Rollup(){
 	this._surveyId = window.config.selectedSurvey.id;
 	this._week = window.config.selectedSurvey.getWeekNumber();
 	this._questions = [];
+	this._master = window.config.getMaster();
 }
 
 Rollup.avg = function(sum, count){
@@ -1307,6 +1308,7 @@ Rollup.prototype.update = function(){
 		'Building Faith in Jesus Christ',
 		'Weekly Hours'
 	]
+	// GETS THE SURVEY CURRENTLY TAKEN AND FINDS THE IDS FOR EACH INSTRUCTOR STANDARD
 	$(window.config._xml).find('semester[code=' + window.config.getCurrentSemester() + '] survey[id=' + this._surveyId + '] question').each(function(){
 		for (var i = 0; i < questions.length; i++){
 			if ($(this).find('text:contains("' + questions[i] + '")').length > 0){
@@ -1393,8 +1395,28 @@ Rollup.prototype.update = function(){
 		$(this._xml).find('semester[code=' + window.config.getCurrentSemester() + '] > questions > question[name="' + questions[q] + '"]').append('<survey id="' + this._surveyId + '" value="' + avg + '" />');
 	}
 
+	this.aimLevelUpdate();
+}
 
+Rollup.prototype.aimLevelUpdate = function(){
+	var result = {};
+	var _this = this;
+	$(this._master).find('semester[code=' + window.config.getCurrentSemester() + '] > people > person[highestrole=aim]').each(function(){
+		var email = $(this).attr('email'); 
+		result[email] = {};
+		for (var i = 0; i < _this._questions.length; i++){
+			result[email][_this._questions[i].id] = []
+			$(this).find('> roles > role[type=aim] > stewardship > people person').each(function(){
+				$(master).find('semester[code=' + window.config.getCurrentSemester() + '] > people > person[email="' + $(this).attr('email') + '"]').each(function(){
+					var text = $(this).find('survey[id=' + _this._surveyId + '] answer[id=' + _this._questions[i].id + ']').text();
+					if (text.length == 0) continue;
+					result[email][_this._questions[i].id].push(parseFloat(text));
+				});
+			});
+		}
+	});
 
+	var t = 10;
 }
 // GROUP ROLLUP END
 
