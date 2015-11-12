@@ -89,7 +89,7 @@ Rollup.prototype.update = function(){
 					sums += parseFloat($(this).text());
 					totals++;
 				})
-				if (isNaN(sum) || isNaN(totals) || sums == 0 || totals == 0){
+				if (isNaN(sums) || isNaN(totals) || sums == 0 || totals == 0){
 					console.log('No data for: ' + $(this).parents('person').attr('email'));
 					continue;
 				}
