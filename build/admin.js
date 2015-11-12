@@ -1344,7 +1344,10 @@ Rollup.prototype.update = function(){
 					credits += parseInt($(this).closest('roles').parent().find("course[id=" + courseid + ']').attr('credit'));
 					sum += parseFloat($(this).text());
 				});
-				if (isNaN(sum) || isNaN(credits) || sum == 0 || credits == 0) continue;
+				if (isNaN(sum) || isNaN(credits) || sum == 0 || credits == 0){
+					console.log($(this).closest('person').attr('email') + ' - 0 credits');
+					continue;
+				}
 				if (credits == 1){
 					credits = 1.5 * credits;
 				}
@@ -1422,7 +1425,7 @@ Rollup.prototype.aimLevelUpdate = function(){
 		}
 	});
 
-	console.log(result);
+	var t = 10;
 }
 // GROUP ROLLUP END
 
