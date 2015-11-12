@@ -36,8 +36,14 @@ Rollup.prototype._getData = function(){
 	var _this = this;
 	var sem = ims.semesters.getCurrentCode();
 	var level = this._level.toLowerCase();
+	if (level == '*'){
+		level = '';
+	}
+	else{
+		level = '=' + level;
+	}
 
-	$(this._xml).find('semester[code=' + sem + '] person[email=' + this._email + '][type=' + level + '] question[name*="' + this._question + '"] survey').sort(function(a, b){
+	$(this._xml).find('semester[code=' + sem + '] person[email=' + this._email + '][type' + level + '] question[name*="' + this._question + '"] survey').sort(function(a, b){
 
 		var aname = $(Survey.getConfig()).find('semester[code=' + sem + '] survey[id=' + $(a).attr('id') + ']').attr('name');
 		if (aname.indexOf('Intro') > -1) return false;
