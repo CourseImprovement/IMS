@@ -151,14 +151,12 @@ Rollup.prototype.aimLevelUpdate = function(){
 						$(this).find('> courses course').each(function(){
 							var credit = parseFloat($(this).attr('credit'));
 							if (credit == 1){
-								credit = 1.5 * credit;
+								credit = 1.5;
 							}
 							else if (credits == 2){
-								credit = 2.25 * credit;
+								credit = 2.25;
 							}
-							else if (credit >= 3){
-								credit = 3 * credit;
-							}
+							
 							credits += credit;
 						});
 						result[email][_this._questions[i].spot].push({
