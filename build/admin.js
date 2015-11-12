@@ -1363,10 +1363,20 @@ Rollup.prototype.update = function(){
 				result[_this._questions[i].spot][leader].push({credits: credits, sum: sum});
 			}
 			else{
-				var text = $(this).find('survey[id=' + _this._surveyId + '] answer[id=' + _this._questions[i].id + ']').text();
-				if (text.length == 0) continue;
+				var sums = 0;
+				var totals = 0;
+				$(this).find('survey[id=' + _this._surveyId + '] answer[id=' + _this._questions[i].id + ']').each(function(){
+					if ($(this).text().length == 0) return;
+					sum += parseFloat($(this).text());
+					totals++;
+				})
+				if (isNaN(sum) || isNaN(totals) || sum == 0 || totals == 0){
+					console.log('No data for: ' + $(this).parents('person').attr('email'));
+					continue;
+				}
+				var avg = Rollup.avg(sums, totals);
 				if (!result[_this._questions[i].spot][leader]) result[_this._questions[i].spot][leader] = [];
-				result[_this._questions[i].spot][leader].push(parseFloat(text));
+				result[_this._questions[i].spot][leader].push(avg);
 			}
 		}
 	});
