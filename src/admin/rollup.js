@@ -86,7 +86,7 @@ Rollup.prototype.update = function(){
 				var totals = 0;
 				$(this).find('survey[id=' + _this._surveyId + '] answer[id=' + _this._questions[i].id + ']').each(function(){
 					if ($(this).text().length == 0) return;
-					sum += parseFloat($(this).text());
+					sums += parseFloat($(this).text());
 					totals++;
 				})
 				if (isNaN(sum) || isNaN(totals) || sum == 0 || totals == 0){
