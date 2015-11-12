@@ -1453,6 +1453,8 @@ Rollup.prototype.aimLevelUpdate = function(){
 		}
 	});
 	
+	console.log(result);
+
 	for (var a in result){
 		for (var q in result[a]){
 			var total = result[a][q].length;
