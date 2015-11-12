@@ -1562,6 +1562,7 @@ function Survey(survey, isXml){
 		this._setXmlQuestions();
 		this.people = [];
 	}
+	this.processed = 0;
 }
 
 /**
@@ -1710,6 +1711,8 @@ Survey.prototype.process = function(rows){
 			if (person.isValid()){
 				if (!again) this.people.push(person);
 				person.process();
+				this.processed++;
+				console.log('Processed: ' + tis.processed + ' people');
 			}
 			else{
 				console.log('Invalid person: ' + rows[i][eCol]);
