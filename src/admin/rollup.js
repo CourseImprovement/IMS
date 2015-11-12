@@ -197,7 +197,7 @@ Rollup.prototype.aimLevelUpdate = function(){
 				}
 				
 				var avg = sum / total;
-				$(question).append('<survey id="' + this._surveyId + '" value="' + avg + '"/>');
+				$(question).append('<survey id="' + surveys[idx] + '" value="' + avg + '"/>');
 			}
 		}
 
