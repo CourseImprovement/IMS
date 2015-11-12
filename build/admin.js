@@ -1712,7 +1712,7 @@ Survey.prototype.process = function(rows){
 				if (!again) this.people.push(person);
 				person.process();
 				this.processed++;
-				console.log('Processed: ' + tis.processed + ' people');
+				console.log('Processed: ' + this.processed + ' people');
 			}
 			else{
 				console.log('Invalid person: ' + rows[i][eCol]);
