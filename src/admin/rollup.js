@@ -134,8 +134,9 @@ Rollup.prototype.aimLevelUpdate = function(){
 			$(this).find('> roles > role[type=aim] > stewardship > people person').each(function(){
 				$(master).find('semester[code=' + window.config.getCurrentSemester() + '] > people > person[email="' + $(this).attr('email') + '"]').each(function(){
 					var text = $(this).find('survey[id=' + _this._surveyId + '] answer[id=' + _this._questions[i].id + ']').text();
-					if (text.length == 0) continue;
-					result[email][_this._questions[i].id].push(parseFloat(text));
+					if (text.length != 0){
+						result[email][_this._questions[i].id].push(parseFloat(text));
+					}
 				});
 			});
 		}
