@@ -252,3 +252,24 @@ String.prototype.encodeXML = function(){
        		   .replace(/</g, '&lt;')
                .replace(/>/g, '&gt;');
 }
+
+Array.prototype.sum = function(){
+	if (this == undefined) return false;
+	var sum = 0;
+	for (var i = 0; i < this.length; i++){
+		if (Number.isFloat(this[i])){
+			sum += this[i];
+		}
+	}
+	return sum;
+}
+
+Number.isInt = function(n){
+    return Number(n) === n && n % 1 === 0;
+}
+
+Number.isFloat = function(n){
+    return n === Number(n) && n % 1 !== 0;
+}
+
+

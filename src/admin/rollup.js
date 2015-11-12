@@ -14,6 +14,10 @@ function Rollup(){
 	this._master = window.config.getMaster();
 }
 
+Rollup.avg = function(sum, count){
+	return Math.floor((sum / count) * 10) / 10;
+}
+
 /**
  * [update description]
  * @return {[type]} [description]
@@ -26,12 +30,13 @@ Rollup.prototype.update = function(){
 		'Inspire a Love for Learning',
 		'Develop Relationships with and among Students',
 		'Embrace University Citizenship',
-		'Building Faith in Jesus Christ'
+		'Building Faith in Jesus Christ',
+		'Weekly Hours'
 	]
 	// GETS THE SURVEY CURRENTLY TAKEN AND FINDS THE IDS FOR EACH INSTRUCTOR STANDARD
 	$(window.config._xml).find('semester[code=' + window.config.getCurrentSemester() + '] survey[id=' + this._surveyId + '] question').each(function(){
 		for (var i = 0; i < questions.length; i++){
-			if ($(this).find('text:contains("' + questions[i] + '")')){
+			if ($(this).find('text:contains("' + questions[i] + '")').length > 0){
 				_this._questions.push({
 					id: $(this).attr('id'),
 					spot: i
@@ -42,17 +47,42 @@ Rollup.prototype.update = function(){
 
 	var result = {}
 	for (var i = 0; i < this._questions.length; i++){
-		result[this._questions[i].id] = {};
+		result[this._questions[i].spot] = {};
 	}
 
 	$(master).find('semester[code=' + window.config.getCurrentSemester() + '] > people > person > roles > role[type=instructor]').each(function(){
 		var leader = $(this).find('leadership person[type=tgl]').attr('email');
 		console.log(leader + ' - ' + $(this).closest('person').attr('email'));
+		if ($(this).find('survey[id=' + this._surveyId + ']').length == 0) return;
 		for (var i = 0; i < _this._questions.length; i++){
-			var text = $(this).find('survey[id=' + _this._surveyId + '] answer[id=' + _this._questions[i].id + ']').text();
-			if (text.length == 0) continue;
-			if (!result[_this._questions[i].id][leader]) result[_this._questions[i].id][leader] = [];
-			result[_this._questions[i].id][leader].push(parseFloat(text));
+			if (questions[_this._questions[i].spot] == 'Weekly Hours'){
+				var sum = 0;
+				var credits = 0;
+				$(this).find('survey[id=' + _this._surveyId + '] answer[id=' + _this._questions[i].id + ']').each(function(){
+					if ($(this).text().length == 0) return;
+					var courseid = $(this).closest('survey').attr('courseid');
+					credits += parseInt($(this).closest('roles').parent().find("course[id=" + courseid + ']').attr('credit'));
+					sum += parseFloat($(this).text());
+				});
+				if (credits == 1){
+					credits = 1.5 * credits;
+				}
+				else if (credits == 2){
+					credits = 2.25 * credits;
+				}
+				else if (credits >= 3){
+					credits = 3 * credits;
+				}
+				if (!result[_this._questions[i].spot][leader]) result[_this._questions[i].spot][leader] = [];
+				var avg = Rollup.avg(sum, credits);
+				result[_this._questions[i].spot][leader].push(avg);
+			}
+			else{
+				var text = $(this).find('survey[id=' + _this._surveyId + '] answer[id=' + _this._questions[i].id + ']').text();
+				if (text.length == 0) continue;
+				if (!result[_this._questions[i].spot][leader]) result[_this._questions[i].spot][leader] = [];
+				result[_this._questions[i].spot][leader].push(parseFloat(text));
+			}
 		}
 	});
 
@@ -76,19 +106,14 @@ Rollup.prototype.update = function(){
 				top[q].sum += ary[i];
 				top[q].total++;
 			}
-			var avg = sum / count;
-			avg = Math.floor(avg * 10) / 10;
+			var avg = Rollup.avg(sum, count);
 			$(this._xml).find('semester[code=' + window.config.getCurrentSemester() + '] person[email=' + tgl + '][type=tgl] question[name="' + questions[q] + '"]').append('<survey id="' + this._surveyId + '" value="' + avg + '" />');
 		}
 		for (var aim in aims[q]){
 			var ary = aims[q][aim];
 			var count = ary.length;
-			var sum = 0;
-			for (var i = 0; i < count; i++){
-				sum += ary[i];
-			}
-			var avg = sum / count;
-			avg = Math.floor(avg * 10) / 10;
+			var sum = ary.sum();
+			var avg = Rollup.avg(sum, count);
 
 			$(this._xml).find('semester[code=' + window.config.getCurrentSemester() + '] person[email=' + tgl + '][type=aim] question[name="' + questions[q] + '"]').append('<survey id="' + this._surveyId + '" value="' + avg + '" />');
 		}
