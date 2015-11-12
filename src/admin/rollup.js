@@ -29,7 +29,7 @@ Rollup.prototype.update = function(){
 	]
 	$(window.config._xml).find('semester[code=' + window.config.getCurrentSemester() + '] survey[id=' + this._surveyId + '] question').each(function(){
 		for (var i = 0; i < questions.length; i++){
-			if ($(this).find('text:contains("' + questions[i] + '")')){
+			if ($(this).find('text:contains("' + questions[i] + '")').length > 0){
 				_this._questions.push({
 					id: $(this).attr('id'),
 					spot: i
