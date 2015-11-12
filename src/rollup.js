@@ -42,8 +42,12 @@ Rollup.prototype._getData = function(){
 	else{
 		level = '=' + level;
 	}
+	var email = '';
+	if (this._email){
+		email = '=' + this._email;
+	}
 
-	$(this._xml).find('semester[code=' + sem + '] person[email=' + this._email + '][type' + level + '] question[name*="' + this._question + '"] survey').sort(function(a, b){
+	$(this._xml).find('semester[code=' + sem + '] person[email' + this._email + '][type' + level + '] question[name*="' + this._question + '"] survey').sort(function(a, b){
 
 		var aname = $(Survey.getConfig()).find('semester[code=' + sem + '] survey[id=' + $(a).attr('id') + ']').attr('name');
 		if (aname.indexOf('Intro') > -1) return false;
