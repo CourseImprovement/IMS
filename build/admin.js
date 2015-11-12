@@ -1251,7 +1251,7 @@ Question.prototype.toXml = function(){
 }
 // GROUP QUESTION END
 
-
+window._rollup;
 
 // GROUP ROLLUP
 /**
@@ -1259,6 +1259,7 @@ Question.prototype.toXml = function(){
  */
 function Rollup(){
 	this._xml = ims.sharepoint.getXmlByEmail('rollup');
+	window._rollup = this._xml;
 	this._surveyId = window.config.selectedSurvey.id;
 	this._week = window.config.selectedSurvey.getWeekNumber();
 	this._questions = [];
@@ -1343,6 +1344,8 @@ Rollup.prototype.update = function(){
 		}
 		$(this._xml).find('semester[code=' + window.config.getCurrentSemester() + '] > questions > question[name="' + questions[q] + '"]').append('<survey id="' + this._surveyId + '" value="' + avg + '" />');
 	}
+
+
 
 }
 // GROUP ROLLUP END
