@@ -173,8 +173,6 @@ Rollup.prototype.aimLevelUpdate = function(){
 			});
 		}
 	});
-	
-	console.log(result);
 
 	for (var a in result){
 		for (var q in result[a]){
@@ -182,11 +180,9 @@ Rollup.prototype.aimLevelUpdate = function(){
 			var sum = 0;
 			var question = $(window._rollup).find('semester[code=' + window.config.getCurrentSemester() + '] people > person[email=' + a + '][type=aim] question[name="' + questions[q] + '"]');
 			
-			if (question[q] == 'Weekly Hours'){
+			if (questions[q] == 'Weekly Hours'){
 				total = 0;
 				for (var i = 0; i < result[a][q].length; i++){
-					console.log('credits: ' + result[a][q][i].hours);
-					console.log('credits: ' + result[a][q][i].credits);
 					sum += result[a][q][i].hours;
 					total += result[a][q][i].credits;
 				}
