@@ -1508,12 +1508,9 @@ Rollup.prototype.aimLevelUpdate = function(){
 				var avg = sum / total;
 				$(question).append('<survey id="' + surveys[idx] + '" value="' + avg + '"/>');
 			}
-<<<<<<< HEAD
 			
 			var avg = Rollup.avg(sum, total);
 			$(question).append('<survey id="' + this._surveyId + '" value="' + avg + '"/>');
-=======
->>>>>>> 43f58939017f622e8530f3a2abfc6fa90b0597b1
 		}
 
 	}
