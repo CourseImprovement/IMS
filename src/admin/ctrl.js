@@ -277,7 +277,7 @@ app.controller('adminCtrl', ["$scope", function($scope){
 		$scope.surveyCourseCol = $(survey).attr('course');
 		
 		for (var i = 0; i < questions.length; i++){
-			var row = Config.getCol($(questions[i]).attr('col'));
+			var row = Config.columnLetterToNumber($(questions[i]).attr('col'));
 			var text = $(questions[i]).find('text').first().text();
 			var what = $(questions[i]).find('replace').attr('what');
 			var awith = $(questions[i]).find('replace').attr('with');
