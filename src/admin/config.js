@@ -114,7 +114,7 @@ Config.prototype.getHighestSurveyId = function(){
 			id = this.id;
 		}
 	});
-	return id;
+	return parseInt(id);
 }
 
 /**
@@ -205,6 +205,33 @@ Config.prototype.surveyModify = function(name, emailCol, weekCol, typeCol, place
 	survey.modify('course', courseCol);
 	survey.updateQuestions(questions);
 	survey.save();
+}
+
+Config.prototype.surveyRegister = function(name, emailCol, weekCol, typeCol, placement, courseCol, questions){
+	var qSet = [];
+
+	for (var i = 0; i < questions.length; i++){
+		questions[i]['id'] = i + 1;
+		questions[i].col = Config.columnNumberToLetter(questions[i].col); 
+		qSet.push(new Question(questions[i], false));
+	}
+
+	var survey = {
+		id: this.getHighestSurveyId(),
+		placement: placement,
+		type: typeCol,
+		email: emailCol,
+		name: name,
+		questions: qSet
+	}
+
+	if (weekCol){
+		survey['week'] = weekCol;
+	}
+
+	if (courseCol){
+		survey['course'] = courseCol;
+	}
 }
 
 Config.getLeader = function(p){

@@ -442,7 +442,7 @@ Config.prototype.getHighestSurveyId = function(){
 			id = this.id;
 		}
 	});
-	return id;
+	return parseInt(id);
 }
 
 /**
@@ -533,6 +533,33 @@ Config.prototype.surveyModify = function(name, emailCol, weekCol, typeCol, place
 	survey.modify('course', courseCol);
 	survey.updateQuestions(questions);
 	survey.save();
+}
+
+Config.prototype.surveyRegister = function(name, emailCol, weekCol, typeCol, placement, courseCol, questions){
+	var qSet = [];
+
+	for (var i = 0; i < questions.length; i++){
+		questions[i]['id'] = i + 1;
+		questions[i].col = Config.columnNumberToLetter(questions[i].col); 
+		qSet.push(new Question(questions[i], false));
+	}
+
+	var survey = {
+		id: this.getHighestSurveyId(),
+		placement: placement,
+		type: typeCol,
+		email: emailCol,
+		name: name,
+		questions: qSet
+	}
+
+	if (weekCol){
+		survey['week'] = weekCol;
+	}
+
+	if (courseCol){
+		survey['course'] = courseCol;
+	}
 }
 
 Config.getLeader = function(p){
@@ -1743,6 +1770,22 @@ function Survey(survey, isXml){
 		this._setXmlQuestions();
 		this.people = [];
 	}
+	else{
+		this.id = parseInt(survey.id);
+		if (survey.week != undefined){
+			this.week = survey.week;
+		}
+		this.placement = survey.placement;
+		this.type = survey.type;
+		this.email = survey.email;
+		this.name = survey.name;
+		if (survey.course){
+			this.course = survey.course;
+		}
+		this.questions = survey.questions;
+		this._xml = this.toXml();
+		this.people = [];
+	}
 	this.processed = 0;
 }
 
@@ -1983,6 +2026,7 @@ Survey.prototype.updateQuestions = function(qs){
 	var questions = this.idQuestions(qs);
 	this.questions = [];
 	for (var i = 0; i < questions.length; i++){
+		questions[i].col = Config.columnNumberToLetter(questions[i].col);
 		this.questions.push(new Question(questions[i], false));
 	}
 }

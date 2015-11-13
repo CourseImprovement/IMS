@@ -25,6 +25,22 @@ function Survey(survey, isXml){
 		this._setXmlQuestions();
 		this.people = [];
 	}
+	else{
+		this.id = parseInt(survey.id);
+		if (survey.week != undefined){
+			this.week = survey.week;
+		}
+		this.placement = survey.placement;
+		this.type = survey.type;
+		this.email = survey.email;
+		this.name = survey.name;
+		if (survey.course){
+			this.course = survey.course;
+		}
+		this.questions = survey.questions;
+		this._xml = this.toXml();
+		this.people = [];
+	}
 	this.processed = 0;
 }
 
@@ -265,6 +281,7 @@ Survey.prototype.updateQuestions = function(qs){
 	var questions = this.idQuestions(qs);
 	this.questions = [];
 	for (var i = 0; i < questions.length; i++){
+		questions[i].col = Config.columnNumberToLetter(questions[i].col);
 		this.questions.push(new Question(questions[i], false));
 	}
 }
