@@ -1299,10 +1299,10 @@ function Question(question, isXml){
 		this.col = Config.columnLetterToNumber($(question).attr('col'));
 		this.replaceWhat = $(question).find('replace').attr('what');
 		this.replaceWith = $(question).find('replace').attr('with');
-		if (this.replaceWith.indexOf(';') > -1){
+		if (this.replaceWith && this.replaceWith.indexOf(';') > -1){
 			this.replaceWith = this.replaceWith.split(';');
 		}
-		if (this.replaceWhat.indexOf(';') > -1){
+		if (this.replaceWhat && this.replaceWhat.indexOf(';') > -1){
 			this.replaceWhat = this.replaceWhat.split(';');
 		}
 		this._xml = question;
@@ -1313,10 +1313,10 @@ function Question(question, isXml){
 		this.col = Config.columnNumberToLetter(question.col);
 		this.replaceWhat = question.replaceWhat;
 		this.replaceWith = question.replaceWith;
-		if (this.replaceWith.indexOf(';') > -1){
+		if (this.replaceWith && this.replaceWith.indexOf(';') > -1){
 			this.replaceWith = this.replaceWith.split(';');
 		}
-		if (this.replaceWhat.indexOf(';') > -1){
+		if (this.replaceWhat && this.replaceWhat.indexOf(';') > -1){
 			this.replaceWhat = this.replaceWhat.split(';');
 		}
 		this._xml = this.toXml();
@@ -1358,7 +1358,7 @@ Question.prototype.toXml = function(){
 	var xml = $('<question><text></text><replace /></question>');
 	$(xml).attr('id', this.id);
 	$(xml).find('text').text(this.text);
-	if (this.replaceWith.indexOf(';') > -1 && this.replaceWhat.indexOf(';') > -1){
+	if (this.replaceWith && this.replaceWhat && this.replaceWith.indexOf(';') > -1 && this.replaceWhat.indexOf(';') > -1){
 		this.replaceWith = this.replaceWith.join(';');
 		this.replaceWhat = this.replaceWhat.join(';');
 	}
