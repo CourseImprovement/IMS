@@ -225,7 +225,7 @@ app.controller('adminCtrl', ["$scope", function($scope){
 	 * [surveyModifications description]
 	 * @return {[type]} [description]
 	 */
-	$scope.surveyModifications = function(type, survey){
+	$scope.surveyModifications = function(type, surveyId){
 		if (type == 'register'){
 			// REGISTER NEW SURVEY - PERFORM IN CTRL
 			var csv = new CSV();
@@ -236,18 +236,18 @@ app.controller('adminCtrl', ["$scope", function($scope){
 		}
 		else if (type == 'delete'){
 			// DELETE SURVEY
-			window.config.surveyRemove(survey);
+			window.config.surveyRemove(surveyId);
 			$scope.mode = 'home';
 		}
 		else if (type == 'copy'){
 			// COPY SURVEY
-			window.config.surveyCopy(survey);
+			var survey = window.config.getSurveyById(surveyId);
 			$scope.mode = 'home';
 		}
 		else if (type == 'modify'){
 			// MODIFY SURVEY - PERFORM IN CTRL
 			$scope.mode = 'RegisterStart';
-			$scope.modifySurvey(survey);
+			$scope.modifySurvey(surveyId);
 		}
 		else{
 			throw 'Invalid $scope.mode';
