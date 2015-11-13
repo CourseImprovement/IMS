@@ -195,6 +195,18 @@ Config.prototype._getSurveyColumns = function(surveyId){
 	return columns;
 }
 
+/**
+ * [surveyModify description]
+ * @param  {[type]} name      [description]
+ * @param  {[type]} emailCol  [description]
+ * @param  {[type]} weekCol   [description]
+ * @param  {[type]} typeCol   [description]
+ * @param  {[type]} placement [description]
+ * @param  {[type]} courseCol [description]
+ * @param  {[type]} questions [description]
+ * @param  {[type]} surveyId  [description]
+ * @return {[type]}           [description]
+ */
 Config.prototype.surveyModify = function(name, emailCol, weekCol, typeCol, placement, courseCol, questions, surveyId){
 	var survey = window.config.getSurveyById(surveyId);
 	survey.modify('week', weekCol);
@@ -207,14 +219,25 @@ Config.prototype.surveyModify = function(name, emailCol, weekCol, typeCol, place
 	survey.save();
 }
 
+/**
+ * [surveyRegister description]
+ * @param  {[type]} name      [description]
+ * @param  {[type]} emailCol  [description]
+ * @param  {[type]} weekCol   [description]
+ * @param  {[type]} typeCol   [description]
+ * @param  {[type]} placement [description]
+ * @param  {[type]} courseCol [description]
+ * @param  {[type]} questions [description]
+ * @return {[type]}           [description]
+ */
 Config.prototype.surveyRegister = function(name, emailCol, weekCol, typeCol, placement, courseCol, questions){
-	var qSet = [];
+	var questionSet = [];
 
 	for (var i = 0; i < questions.length; i++){
 		questions[i]['id'] = i + 1;
 		console.log(questions[i].col);
 		questions[i].col = Config.columnNumberToLetter(questions[i].col); 
-		qSet.push(new Question(questions[i], false));
+		questionSet.push(new Question(questions[i], false));
 	}
 
 	var survey = {
@@ -223,13 +246,22 @@ Config.prototype.surveyRegister = function(name, emailCol, weekCol, typeCol, pla
 		type: typeCol,
 		email: emailCol,
 		name: name,
-		questions: qSet
+		questions: questionSet
 	}
 
 	if (weekCol) survey['week'] = weekCol;
 	if (courseCol) survey['course'] = courseCol;
+
+	var newSurvey = new Survey(survey, false);
+	newSurvey.save();
+	this.surveys.push(newSurvey);
 }
 
+/**
+ * [getLeader description]
+ * @param  {[type]} p [description]
+ * @return {[type]}   [description]
+ */
 Config.getLeader = function(p){
 	switch (p){
 		case 'instructor': return 'tgl';
