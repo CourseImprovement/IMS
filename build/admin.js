@@ -1012,11 +1012,11 @@ app.controller('adminCtrl', ["$scope", function($scope){
 	 */
 	$scope.editQuestion = function(q){
 		if ($scope.file != null){
-			$scope.arow = window.config.columnNumberToLetter(q.row);
+			$scope.arow = Config.columnNumberToLetter(q.row);
 			$('#arow').val($scope.arow);
 		}
 		else{
-			$scope.arow2 = window.config.columnNumberToLetter(q.row);
+			$scope.arow2 = Config.columnNumberToLetter(q.row);
 			$('#arow2').val($scope.arow);
 		}
 		$scope.atext = q.text;
