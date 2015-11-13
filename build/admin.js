@@ -1885,8 +1885,14 @@ Survey.prototype.save = function(){
 	}
 
 	var parent = $(this._xml).parent();
-	this.remove();
-	parent.append(survey);
+	if (parent.length != 0){ // modified survey
+		this.remove();
+		parent.append(survey);
+	}
+	else{ // registered survey
+		$(window.config._xml).find('semester [code="' + window.config.getCurrentSemester() + '"] surveys').append(survey);
+	}
+	
 
 	// Sharepoint.postFile(window.config._xml, 'config/', 'config.xml', function(){
 	// 	alert('Survey removal was successful!')
