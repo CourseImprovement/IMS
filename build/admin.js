@@ -997,11 +997,13 @@ app.controller('adminCtrl', ["$scope", function($scope){
 		setTimeout(function(){
 			$scope.$apply(function(){
 				if ($scope.file == null){
+					row = $('#arow2').val();
 					if (!isNaN(row)){
 						row = Config.columnNumberToLetter(row);
 					}
 				}
 				else{
+					row = $('#arow').val();
 					if (isNaN(row)){
 						row = Config.columnLetterToNumber(row);
 					}
