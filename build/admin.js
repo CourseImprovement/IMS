@@ -998,16 +998,15 @@ app.controller('adminCtrl', ["$scope", function($scope){
 			$scope.$apply(function(){
 				if ($scope.file == null){
 					row = $('#arow2').val();
-					if (!isNaN(row)){
-						row = Config.columnNumberToLetter(row);
-					}
 				}
 				else{
 					row = $('#arow').val();
-					if (isNaN(row)){
-						row = Config.columnLetterToNumber(row);
-					}
 				}
+
+				if (isNaN(row)){
+					row = Config.columnLetterToNumber(row);
+				}
+				
 				$scope.questions.push({col: row, text: text, replaceWhat: what, replaceWith: awith});
 				$scope.showDialog = false;
 			});
