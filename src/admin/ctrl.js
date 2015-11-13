@@ -371,9 +371,9 @@ app.controller('adminCtrl', ["$scope", function($scope){
 				}
 
 				if (isNaN(row)){
-					row = Config.columnLetterToNumber(row);
+					row = parseInt(Config.columnLetterToNumber(row));
 				}
-				
+
 				$scope.questions.push({col: row, text: text, replaceWhat: what, replaceWith: awith});
 				$scope.showDialog = false;
 			});
