@@ -243,7 +243,7 @@ app.controller('adminCtrl', ["$scope", function($scope){
 			// COPY SURVEY
 			var survey = window.config.getSurveyById(surveyId);
 			var copy = survey.copy();
-			window.config.pushSurvey(copy);
+			window.config.addSurvey(copy);
 			$scope.mode = 'home';
 		}
 		else if (type == 'modify'){

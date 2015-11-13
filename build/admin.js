@@ -346,8 +346,9 @@ function Config(){
  * Add a survey to the list of surveys
  * @param  {Object} survey Survey to be copied
  */
-Config.prototype.pushSurvey = function(survey){
+Config.prototype.addSurvey = function(survey){
 	this.surveys.push(survey);
+	this._xml.find('semester[code=' + _this.getCurrentSemester() + '] surveys').append(survey._xml);
 }
 
 /**
@@ -381,7 +382,11 @@ Config.prototype.getSurveyById = function(id){
 Config.prototype.remove = function(id){
 	var newSurveys = [];
 	for (var i = 0; i < this.surveys.length; i++){
-		if (this.surveys[i].id != parseInt(id)) newSurveys.push(this.surveys[i]);
+		if (this.surveys[i].id != parseInt(id)) 
+			newSurveys.push(this.surveys[i]);
+		else{
+			$(this._xml).find('semester[code=' + _this.getCurrentSemester() + '] survey[id="' + id + '"]').remove();
+		}
 	}
 	this.surveys = newSurveys;
 }
@@ -860,7 +865,7 @@ app.controller('adminCtrl', ["$scope", function($scope){
 			// COPY SURVEY
 			var survey = window.config.getSurveyById(surveyId);
 			var copy = survey.copy();
-			window.config.pushSurvey(copy);
+			window.config.addSurvey(copy);
 			$scope.mode = 'home';
 		}
 		else if (type == 'modify'){
