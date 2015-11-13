@@ -1890,7 +1890,7 @@ Survey.prototype.save = function(){
 		parent.append(survey);
 	}
 	else{ // registered survey
-		$(window.config._xml).find('semester [code="' + window.config.getCurrentSemester() + '"] surveys').append(survey);
+		$(window.config._xml).find('semester[code="' + window.config.getCurrentSemester() + '"] surveys').append(survey);
 	}
 	
 
