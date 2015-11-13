@@ -1004,10 +1004,10 @@ app.controller('adminCtrl', ["$scope", function($scope){
 				}
 
 				if (isNaN(row)){
-					row = parseInt(Config.columnLetterToNumber(row));
+					row = Config.columnLetterToNumber(row);
 				}
 
-				$scope.questions.push({col: row, text: text, replaceWhat: what, replaceWith: awith});
+				$scope.questions.push({col: parseInt(row), text: text, replaceWhat: what, replaceWith: awith});
 				$scope.showDialog = false;
 			});
 		}, 10);
