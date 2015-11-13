@@ -1337,7 +1337,11 @@ Question.prototype.toXml = function(){
 	var xml = $('<question><text></text><replace /></question>');
 	$(xml).attr('id', this.id);
 	$(xml).find('text').text(this.text);
-	$(xml).find('replace').attr('with', this.replaceWith.join(';')).attr('what', this.replaceWhat.join(';'));
+	if (this.replaceWith.indexOf(';') > -1 && this.replaceWhat.indexOf(';') > -1){
+		this.replaceWith = this.replaceWith.join(';');
+		this.replaceWhat = this.replaceWhat.join(';');
+	}
+	$(xml).find('replace').attr('with', this.replaceWith).attr('what', this.replaceWhat);
 	return xml;
 }
 // GROUP QUESTION END
