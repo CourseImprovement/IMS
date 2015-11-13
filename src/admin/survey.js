@@ -252,18 +252,13 @@ Survey.prototype.hasAttrs = function(obj){
 }
 
 Survey.prototype.updateQuestions = function(qs){
-	var spot = 0;
 	for (var j = 0; j < this.questions.length; j++){
-		var theSame = false;
 		for (var i = 0; i < qs.length; i++){
 			if (Question.areSame(qs[i], this.questions[j])){
-				spot = i;
+				qs[i]['id'] = this.questions[j].id;
 				theSame = true
 			}
-		}
-		if (theSame){
-			qs[spot]['id'] = this.questions[j].id;
-		}		
+		}	
 	}
 
 	var questions = this.idQuestions(qs);
@@ -275,22 +270,18 @@ Survey.prototype.updateQuestions = function(qs){
 
 Survey.prototype.idQuestions = function(questions){
 	var topId = 0;
-	var count = 0;
 	for (var i = 0; i < questions.length; i++){
 		if (questions[i].id && questions[i].id > topId){
 			topId = questions[i].id;
-			count++;
 		}
 	}
 
-	if (count != questions.length){
-		for (var i = 0; i < questions.length; i++){
-			if (questions[i].id == undefined){
-				questions[i]['id'] = ++topId;
-			}
+	for (var i = 0; i < questions.length; i++){
+		if (questions[i].id == undefined){
+			questions[i]['id'] = ++topId;
 		}
 	}
-	
+
 	return questions;
 }
 
