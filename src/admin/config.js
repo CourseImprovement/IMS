@@ -195,6 +195,17 @@ Config.prototype._getSurveyColumns = function(surveyId){
 	return columns;
 }
 
+Config.prototype.surveyModify = function(name, emailCol, weekCol, typeCol, placement, courseCol, questions, surveyId){
+	var survey = window.config.getSurveyById(surveyId);
+	survey.modify('week', weekCol);
+	survey.modify('placement', placement);
+	survey.modify('type', typeCol);
+	survey.modify('email', emailCol);
+	survey.modify('name', name);
+	survey.modify('course', courseCol);
+	survey.checkQuestionsForModifications(questions);
+}
+
 Config.getLeader = function(p){
 	switch (p){
 		case 'instructor': return 'tgl';
@@ -203,7 +214,6 @@ Config.getLeader = function(p){
 		default: throw 'Invalid ' + p;
 	}
 }
-
 
 /**
  * Convert a column letter to number

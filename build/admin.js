@@ -523,6 +523,17 @@ Config.prototype._getSurveyColumns = function(surveyId){
 	return columns;
 }
 
+Config.prototype.surveyModify = function(name, emailCol, weekCol, typeCol, placement, courseCol, questions, surveyId){
+	var survey = window.config.getSurveyById(surveyId);
+	survey.modify('week', weekCol);
+	survey.modify('placement', placement);
+	survey.modify('type', typeCol);
+	survey.modify('email', emailCol);
+	survey.modify('name', name);
+	survey.modify('course', courseCol);
+	survey.checkQuestionsForModifications(questions);
+}
+
 Config.getLeader = function(p){
 	switch (p){
 		case 'instructor': return 'tgl';
@@ -531,7 +542,6 @@ Config.getLeader = function(p){
 		default: throw 'Invalid ' + p;
 	}
 }
-
 
 /**
  * Convert a column letter to number
@@ -847,7 +857,8 @@ app.controller('adminCtrl', ["$scope", function($scope){
 	 * [surveyModifications description]
 	 * @return {[type]} [description]
 	 */
-	$scope.surveyModifications = function(type, surveyId){
+	$scope.surveyModifications = function(type, id){
+		surveyId = id;
 		if (type == 'register'){
 			// REGISTER NEW SURVEY - PERFORM IN CTRL
 			var csv = new CSV();
@@ -858,12 +869,12 @@ app.controller('adminCtrl', ["$scope", function($scope){
 		}
 		else if (type == 'delete'){
 			// DELETE SURVEY
-			window.config.remove(surveyId);
+			window.config.remove(id);
 			$scope.mode = 'home';
 		}
 		else if (type == 'copy'){
 			// COPY SURVEY
-			var survey = window.config.getSurveyById(surveyId);
+			var survey = window.config.getSurveyById(id);
 			var copy = survey.copy();
 			window.config.addSurvey(copy);
 			$scope.mode = 'home';
@@ -871,7 +882,7 @@ app.controller('adminCtrl', ["$scope", function($scope){
 		else if (type == 'modify'){
 			// MODIFY SURVEY - PERFORM IN CTRL
 			$scope.mode = 'RegisterStart';
-			$scope.modifySurvey(surveyId);
+			$scope.modifySurvey(id);
 		}
 		else{
 			throw 'Invalid $scope.mode';
@@ -885,10 +896,12 @@ app.controller('adminCtrl', ["$scope", function($scope){
 	 */
 	$scope.modifySurvey = function(id){
 		if (!id || id.length < 1) return;
+		
 		var survey = $(window.config._xml).find('semester[code=FA15] survey[id="' + id + '"]');
 		var questions = $(survey).find('question');
 		var name = $(survey).attr('name');
 		var week = name.split(': Week ')[1];
+
 		$scope.Placement = $(survey).attr('placement');
 		$scope.surveyWeek = week;
 		$scope.surveyName = name.split(': Week')[0];
@@ -942,7 +955,7 @@ app.controller('adminCtrl', ["$scope", function($scope){
 		var typeCol = null;
 		var weekCol = null;
 		var courseCol = null;
-		if (surveyId != null){
+		if ($scope.file != null){
 			emailCol = e;
 			typeCol = t;
 			weekCol = w;
@@ -1794,10 +1807,11 @@ Survey.prototype.remove = function(){
  * @param  {String} value  [description]
  * @param  {Boolean} save  [description]
  */
-Survey.prototype.modify = function(prop, value, save){
-	this[prop] = value;
-	if (save){
-		this.save();
+Survey.prototype.modify = function(prop, value){
+	if (this[prop] == undefined) return;
+
+	if (this[prop] != value){
+		this[prop] = value;
 	}
 }
 
@@ -1928,6 +1942,12 @@ Survey.prototype.hasAttrs = function(obj){
 		if (this[keys[i]] != obj[keys[i]]) return false;
 	}
 	return true;
+}
+
+Survey.prototype.checkQuestionsForModifications = function(qs){
+	for (var i = 0; i < qs.length; i++){
+		
+	}
 }
 
 Survey.prototype.getWeekNumber = function(){

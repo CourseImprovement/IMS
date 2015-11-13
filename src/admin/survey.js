@@ -114,10 +114,11 @@ Survey.prototype.remove = function(){
  * @param  {String} value  [description]
  * @param  {Boolean} save  [description]
  */
-Survey.prototype.modify = function(prop, value, save){
-	this[prop] = value;
-	if (save){
-		this.save();
+Survey.prototype.modify = function(prop, value){
+	if (this[prop] == undefined) return;
+
+	if (this[prop] != value){
+		this[prop] = value;
 	}
 }
 
@@ -248,6 +249,12 @@ Survey.prototype.hasAttrs = function(obj){
 		if (this[keys[i]] != obj[keys[i]]) return false;
 	}
 	return true;
+}
+
+Survey.prototype.checkQuestionsForModifications = function(qs){
+	for (var i = 0; i < qs.length; i++){
+		
+	}
 }
 
 Survey.prototype.getWeekNumber = function(){
