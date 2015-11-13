@@ -251,10 +251,47 @@ Survey.prototype.hasAttrs = function(obj){
 	return true;
 }
 
-Survey.prototype.checkQuestionsForModifications = function(qs){
-	for (var i = 0; i < qs.length; i++){
-		
+Survey.prototype.updateQuestions = function(qs){
+	var spot = 0;
+	for (var j = 0; j < this.questions.length; j++){
+		var theSame = false;
+		for (var i = 0; i < qs.length; i++){
+			if (Question.areSame(qs[i], this.questions[j])){
+				spot = i;
+				theSame = true
+			}
+		}
+		if (theSame){
+			qs[spot]['id'] = this.questions[j].id;
+		}		
 	}
+
+	var questions = this.idQuestions(qs);
+	this.questions = [];
+	for (var i = 0; i < questions.length; i++){
+		this.questions.push(new Question(questions[i], false));
+	}
+}
+
+Survey.prototype.idQuestions = function(questions){
+	var topId = 0;
+	var count = 0;
+	for (var i = 0; i < questions.length; i++){
+		if (questions[i].id && questions[i].id > topId){
+			topId = questions[i].id;
+			count++;
+		}
+	}
+
+	if (count != questions.length){
+		for (var i = 0; i < questions.length; i++){
+			if (questions[i].id == undefined){
+				questions[i]['id'] = ++topId;
+			}
+		}
+	}
+	
+	return questions;
 }
 
 Survey.prototype.getWeekNumber = function(){

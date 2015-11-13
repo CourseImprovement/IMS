@@ -22,6 +22,32 @@ function Question(question, isXml){
 		}
 		this._xml = question;
 	}
+	else{
+		this.id = parseInt(question.id);
+		this.text = question.text;
+		this.col = Config.columnNumberToLetter(question.col);
+		this.replaceWhat = question.replaceWhat;
+		this.replaceWith = question.replaceWith;
+		if (this.replaceWith.indexOf(';') > -1){
+			this.replaceWith = this.replaceWith.split(';');
+		}
+		if (this.replaceWhat.indexOf(';') > -1){
+			this.replaceWhat = this.replaceWhat.split(';');
+		}
+		this._xml = this.toXml();
+	}
+}
+
+Question.areSame = function(newQ, oldQ){
+	if (newQ.text != oldQ.text || 
+		newQ.row != oldQ.col ||
+		newQ.awith != oldQ.replaceWith || 
+		newQ.what != oldQ.replaceWhat){
+		return false;
+	}
+	else{
+		return true;
+	}
 }
 
 /**

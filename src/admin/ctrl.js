@@ -284,7 +284,7 @@ app.controller('adminCtrl', ["$scope", function($scope){
 			var text = $(questions[i]).find('text').first().text();
 			var what = $(questions[i]).find('replace').attr('what');
 			var awith = $(questions[i]).find('replace').attr('with');
-			$scope.questions.push({row: row, text: text, what: what, awith: awith});
+			$scope.questions.push({col: row, text: text, replaceWhat: what, replaceWith: awith});
 		}
 	}
 	/**
@@ -380,7 +380,7 @@ app.controller('adminCtrl', ["$scope", function($scope){
 					row = $('#arow2').val();
 				}
 				
-				$scope.questions.push({row: row, text: text, what: what, awith: awith});
+				$scope.questions.push({col: row, text: text, replaceWhat: what, replaceWith: awith});
 				$scope.showDialog = false;
 			});
 		}, 10);

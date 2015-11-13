@@ -203,7 +203,8 @@ Config.prototype.surveyModify = function(name, emailCol, weekCol, typeCol, place
 	survey.modify('email', emailCol);
 	survey.modify('name', name);
 	survey.modify('course', courseCol);
-	survey.checkQuestionsForModifications(questions);
+	survey.updateQuestions(questions);
+	survey.save();
 }
 
 Config.getLeader = function(p){

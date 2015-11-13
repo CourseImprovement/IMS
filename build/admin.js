@@ -531,7 +531,8 @@ Config.prototype.surveyModify = function(name, emailCol, weekCol, typeCol, place
 	survey.modify('email', emailCol);
 	survey.modify('name', name);
 	survey.modify('course', courseCol);
-	survey.checkQuestionsForModifications(questions);
+	survey.updateQuestions(questions);
+	survey.save();
 }
 
 Config.getLeader = function(p){
@@ -916,7 +917,7 @@ app.controller('adminCtrl', ["$scope", function($scope){
 			var text = $(questions[i]).find('text').first().text();
 			var what = $(questions[i]).find('replace').attr('what');
 			var awith = $(questions[i]).find('replace').attr('with');
-			$scope.questions.push({row: row, text: text, what: what, awith: awith});
+			$scope.questions.push({col: row, text: text, replaceWhat: what, replaceWith: awith});
 		}
 	}
 	/**
@@ -1012,7 +1013,7 @@ app.controller('adminCtrl', ["$scope", function($scope){
 					row = $('#arow2').val();
 				}
 				
-				$scope.questions.push({row: row, text: text, what: what, awith: awith});
+				$scope.questions.push({col: row, text: text, replaceWhat: what, replaceWith: awith});
 				$scope.showDialog = false;
 			});
 		}, 10);
@@ -1284,6 +1285,32 @@ function Question(question, isXml){
 			this.replaceWhat = this.replaceWhat.split(';');
 		}
 		this._xml = question;
+	}
+	else{
+		this.id = parseInt(question.id);
+		this.text = question.text;
+		this.col = Config.columnNumberToLetter(question.col);
+		this.replaceWhat = question.replaceWhat;
+		this.replaceWith = question.replaceWith;
+		if (this.replaceWith.indexOf(';') > -1){
+			this.replaceWith = this.replaceWith.split(';');
+		}
+		if (this.replaceWhat.indexOf(';') > -1){
+			this.replaceWhat = this.replaceWhat.split(';');
+		}
+		this._xml = this.toXml();
+	}
+}
+
+Question.areSame = function(newQ, oldQ){
+	if (newQ.text != oldQ.text || 
+		newQ.row != oldQ.col ||
+		newQ.awith != oldQ.replaceWith || 
+		newQ.what != oldQ.replaceWhat){
+		return false;
+	}
+	else{
+		return true;
 	}
 }
 
@@ -1944,10 +1971,47 @@ Survey.prototype.hasAttrs = function(obj){
 	return true;
 }
 
-Survey.prototype.checkQuestionsForModifications = function(qs){
-	for (var i = 0; i < qs.length; i++){
-		
+Survey.prototype.updateQuestions = function(qs){
+	var spot = 0;
+	for (var j = 0; j < this.questions.length; j++){
+		var theSame = false;
+		for (var i = 0; i < qs.length; i++){
+			if (Question.areSame(qs[i], this.questions[j])){
+				spot = i;
+				theSame = true
+			}
+		}
+		if (theSame){
+			qs[spot]['id'] = this.questions[j].id;
+		}		
 	}
+
+	var questions = this.idQuestions(qs);
+	this.questions = [];
+	for (var i = 0; i < questions.length; i++){
+		this.questions.push(new Question(questions[i], false));
+	}
+}
+
+Survey.prototype.idQuestions = function(questions){
+	var topId = 0;
+	var count = 0;
+	for (var i = 0; i < questions.length; i++){
+		if (questions[i].id && questions[i].id > topId){
+			topId = questions[i].id;
+			count++;
+		}
+	}
+
+	if (count != questions.length){
+		for (var i = 0; i < questions.length; i++){
+			if (questions[i].id == undefined){
+				questions[i]['id'] = ++topId;
+			}
+		}
+	}
+	
+	return questions;
 }
 
 Survey.prototype.getWeekNumber = function(){
