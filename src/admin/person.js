@@ -29,6 +29,12 @@ function Person(obj, isXml, downloadXml){
 		this._answers = obj.answers;
 		this.course = obj.course;
 	}
+	if (downloadXml){
+		this.getXml();
+	}
+	else{
+		this._xml = obj;
+	}
 	this._valid = true;
 }
 
