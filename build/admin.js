@@ -593,6 +593,8 @@ Config.columnLetterToNumber = function(letter){
  */
 Config.columnNumberToLetter = function(num){
 	console.log('returning the letter col from the number');
+	if(isNaN(num)) return num;
+
 	if (num < 26){
 		return String.fromCharCode(num + 65);
 	}
