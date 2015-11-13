@@ -399,7 +399,9 @@ app.controller('adminCtrl', ["$scope", function($scope){
 			$scope.arow = parseInt($scope.arow);
 			q.row = $scope.arow;
 			setTimeout(function(){
-				$('#arow').val($scope.arow);
+				$scope.$apply(function(){
+					$('#arow').val($scope.arow);
+				});
 			}, 100);
 		}
 		$scope.atext = q.text;
