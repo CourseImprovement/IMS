@@ -348,7 +348,7 @@ function Config(){
  */
 Config.prototype.addSurvey = function(survey){
 	this.surveys.push(survey);
-	this._xml.find('semester[code=' + this.getCurrentSemester() + '] surveys').append(survey._xml);
+	$(this._xml).find('semester[code=' + this.getCurrentSemester() + '] surveys').append(survey._xml);
 }
 
 /**
