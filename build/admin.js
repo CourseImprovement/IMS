@@ -1012,19 +1012,12 @@ app.controller('adminCtrl', ["$scope", function($scope){
 	 */
 	$scope.editQuestion = function(q){
 		if ($scope.file != null){
-			$scope.arow2 = ims.csv.toCol(q.row);
+			$scope.arow = window.config.columnNumberToLetter(q.row);
+			$('#arow').val($scope.arow);
 		}
 		else{
-			$scope.arow = q.row;
-		}
-		if (Number.isInteger(parseInt($scope.arow))){
-			$scope.arow = parseInt($scope.arow);
-			q.row = $scope.arow;
-			setTimeout(function(){
-				$scope.$apply(function(){
-					$('#arow').val($scope.arow);
-				});
-			}, 100);
+			$scope.arow2 = window.config.columnNumberToLetter(q.row);
+			$('#arow2').val($scope.arow);
 		}
 		$scope.atext = q.text;
 		$scope.awhat = q.what;
