@@ -348,7 +348,7 @@ function Config(){
  */
 Config.prototype.addSurvey = function(survey){
 	this.surveys.push(survey);
-	this._xml.find('semester[code=' + _this.getCurrentSemester() + '] surveys').append(survey._xml);
+	this._xml.find('semester[code=' + this.getCurrentSemester() + '] surveys').append(survey._xml);
 }
 
 /**
@@ -385,7 +385,7 @@ Config.prototype.remove = function(id){
 		if (this.surveys[i].id != parseInt(id)) 
 			newSurveys.push(this.surveys[i]);
 		else{
-			$(this._xml).find('semester[code=' + _this.getCurrentSemester() + '] survey[id="' + id + '"]').remove();
+			$(this._xml).find('semester[code=' + this.getCurrentSemester() + '] survey[id="' + id + '"]').remove();
 		}
 	}
 	this.surveys = newSurveys;
