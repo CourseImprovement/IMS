@@ -343,6 +343,14 @@ function Config(){
 }
 
 /**
+ * Add a survey to the list of surveys
+ * @param  {Object} survey Survey to be copied
+ */
+Config.prototype.pushSurvey = function(survey){
+	this.surveys.push(survey);
+}
+
+/**
  * Gets the current semester from the semester xml file
  * @return {String} The semester name. e.g. FA15, WI16
  */
@@ -843,6 +851,8 @@ app.controller('adminCtrl', ["$scope", function($scope){
 		else if (type == 'copy'){
 			// COPY SURVEY
 			var survey = window.config.getSurveyById(surveyId);
+			var copy = survey.copy();
+			window.config.pushSurvey(copy);
 			$scope.mode = 'home';
 		}
 		else if (type == 'modify'){
@@ -1823,7 +1833,7 @@ Survey.prototype.process = function(rows){
 			}
 			catch (e){
 				console.log(e);
-				console.log(rows[i]);
+				console.log('(Survey.prototype.process) ' + rows[i]);
 				continue;
 			}
 			var again = false;
@@ -1854,7 +1864,7 @@ Survey.prototype.process = function(rows){
 				person._placement = oldPlacement.toLowerCase();
 			}
 			else{
-				console.log('Invalid person: ' + rows[i][eCol]);
+				console.log('(Survey.prototype.process) Invalid person: ' + rows[i][eCol]);
 			}
 		}
 	}

@@ -242,6 +242,8 @@ app.controller('adminCtrl', ["$scope", function($scope){
 		else if (type == 'copy'){
 			// COPY SURVEY
 			var survey = window.config.getSurveyById(surveyId);
+			var copy = survey.copy();
+			window.config.pushSurvey(copy);
 			$scope.mode = 'home';
 		}
 		else if (type == 'modify'){

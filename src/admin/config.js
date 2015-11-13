@@ -15,6 +15,14 @@ function Config(){
 }
 
 /**
+ * Add a survey to the list of surveys
+ * @param  {Object} survey Survey to be copied
+ */
+Config.prototype.pushSurvey = function(survey){
+	this.surveys.push(survey);
+}
+
+/**
  * Gets the current semester from the semester xml file
  * @return {String} The semester name. e.g. FA15, WI16
  */

@@ -159,7 +159,7 @@ Survey.prototype.process = function(rows){
 			}
 			catch (e){
 				console.log(e);
-				console.log(rows[i]);
+				console.log('(Survey.prototype.process) ' + rows[i]);
 				continue;
 			}
 			var again = false;
@@ -190,7 +190,7 @@ Survey.prototype.process = function(rows){
 				person._placement = oldPlacement.toLowerCase();
 			}
 			else{
-				console.log('Invalid person: ' + rows[i][eCol]);
+				console.log('(Survey.prototype.process) Invalid person: ' + rows[i][eCol]);
 			}
 		}
 	}
