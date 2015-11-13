@@ -853,7 +853,7 @@ app.controller('adminCtrl', ["$scope", function($scope){
 		}
 		else if (type == 'delete'){
 			// DELETE SURVEY
-			window.config.surveyRemove(surveyId);
+			window.config.remove(surveyId);
 			$scope.mode = 'home';
 		}
 		else if (type == 'copy'){
