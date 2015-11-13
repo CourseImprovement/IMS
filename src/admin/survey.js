@@ -85,7 +85,7 @@ Survey.prototype.toXml = function(){
  */
 Survey.prototype.save = function(){
 	var survey = this.toXml();
-
+	$(survey).find('questions question').remove();
 	for (var i = 0; i < this.questions.length; i++){
 		var q = this.questions[i];
 		var xml = q.toXml();
