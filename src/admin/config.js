@@ -226,10 +226,10 @@ Config.columnLetterToNumber = function(letter){
 /**
  * TODO:
  * 		- Change AZ as the highest to BZ
- * @param  {Integer} number Numerical value that is associated with an excel column
+ * @param  {Integer} num Numerical value that is associated with an excel column
  * @return {String}         Column as a string
  */
-Config.columnNumberToLetter = function(number){
+Config.columnNumberToLetter = function(num){
 	console.log('returning the letter col from the number');
 	if (num < 26){
 		return String.fromCharCode(num + 65);
