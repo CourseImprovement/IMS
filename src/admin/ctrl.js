@@ -363,23 +363,16 @@ app.controller('adminCtrl', ["$scope", function($scope){
 	$scope.addQuestion = function(row, text, what, awith){
 		setTimeout(function(){
 			$scope.$apply(function(){
-				if ($scope.file != null){
-					if (row != $('#arow2').val())
-						row = $('#arow2').val();
-					if (!row)
-						row = $('#arow').val();
-					row = Config.getCol(row);
+				if ($scope.file == null){
+					if (!isNaN(row)){
+						row = Config.columnNumberToLetter(row);
+					}
 				}
 				else{
-					row = parseInt($('#arow').val());
+					if (isNaN(row)){
+						row = Config.columnLetterToNumber(row);
+					}
 				}
-				if (isNaN(row) || row.length == 0){
-					row = $('#arow').val();
-				}
-				if (isNaN(row) || row.length == 0){
-					row = $('#arow2').val();
-				}
-				
 				$scope.questions.push({col: row, text: text, replaceWhat: what, replaceWith: awith});
 				$scope.showDialog = false;
 			});
