@@ -40,9 +40,9 @@ function Question(question, isXml){
 
 Question.areSame = function(newQ, oldQ){
 	if (newQ.text != oldQ.text || 
-		newQ.row != oldQ.col ||
-		newQ.awith != oldQ.replaceWith || 
-		newQ.what != oldQ.replaceWhat){
+		newQ.col != oldQ.col ||
+		newQ.replaceWith != oldQ.replaceWith || 
+		newQ.replaceWhat != oldQ.replaceWhat){
 		return false;
 	}
 	else{
