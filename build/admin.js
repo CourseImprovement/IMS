@@ -378,6 +378,14 @@ Config.prototype.getSurveyById = function(id){
 	return null;
 }
 
+Config.prototype.remove = function(id){
+	var newSurveys = [];
+	for (var i = 0; i < this.surveys.length; i++){
+		if (this.surveys[i].id != parseInt(id)) newSurveys.push(this.surveys[i]);
+	}
+	this.surveys = newSurveys;
+}
+
 /** 
  * Inital setup. Create the survey objects
  */
