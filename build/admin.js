@@ -540,12 +540,13 @@ Config.prototype.surveyRegister = function(name, emailCol, weekCol, typeCol, pla
 
 	for (var i = 0; i < questions.length; i++){
 		questions[i]['id'] = i + 1;
+		console.log(questions[i].col);
 		questions[i].col = Config.columnNumberToLetter(questions[i].col); 
 		qSet.push(new Question(questions[i], false));
 	}
 
 	var survey = {
-		id: this.getHighestSurveyId(),
+		id: this.getHighestSurveyId() + 1,
 		placement: placement,
 		type: typeCol,
 		email: emailCol,
@@ -553,13 +554,8 @@ Config.prototype.surveyRegister = function(name, emailCol, weekCol, typeCol, pla
 		questions: qSet
 	}
 
-	if (weekCol){
-		survey['week'] = weekCol;
-	}
-
-	if (courseCol){
-		survey['course'] = courseCol;
-	}
+	if (weekCol) survey['week'] = weekCol;
+	if (courseCol) survey['course'] = courseCol;
 }
 
 Config.getLeader = function(p){
