@@ -896,7 +896,7 @@ app.controller('adminCtrl', ["$scope", function($scope){
 	 */
 	$scope.modifySurvey = function(id){
 		if (!id || id.length < 1) return;
-		
+
 		var survey = $(window.config._xml).find('semester[code=FA15] survey[id="' + id + '"]');
 		var questions = $(survey).find('question');
 		var name = $(survey).attr('name');
@@ -955,7 +955,7 @@ app.controller('adminCtrl', ["$scope", function($scope){
 		var typeCol = null;
 		var weekCol = null;
 		var courseCol = null;
-		if ($scope.file != null){
+		if ($scope.file == null){
 			emailCol = e;
 			typeCol = t;
 			weekCol = w;
