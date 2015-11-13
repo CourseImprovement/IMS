@@ -67,7 +67,8 @@ Survey.prototype.toXml = function(){
 	survey.attr('id', this.id)
 		.attr('placement', this.placement)
 		.attr('type', this.type)
-		.attr('name', this.name);
+		.attr('name', this.name)
+		.attr('email', this.email);
 
 	if (this.week){
 		survey.attr('week', this.week);
@@ -85,7 +86,7 @@ Survey.prototype.toXml = function(){
  */
 Survey.prototype.save = function(){
 	var survey = this.toXml();
-	$(survey).find('questions question').remove();
+	
 	for (var i = 0; i < this.questions.length; i++){
 		var q = this.questions[i];
 		var xml = q.toXml();
