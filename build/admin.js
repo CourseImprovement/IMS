@@ -885,9 +885,7 @@ app.controller('adminCtrl', ["$scope", function($scope){
 	 */
 	$scope.modifySurvey = function(id){
 		if (!id || id.length < 1) return;
-		surveyId = id;
-		var config = window.config.getXml()
-		var survey = $(config).find('semester[code=FA15] survey[id="' + id + '"]');
+		var survey = $(window.config._xml).find('semester[code=FA15] survey[id="' + id + '"]');
 		var questions = $(survey).find('question');
 		var name = $(survey).attr('name');
 		var week = name.split(': Week ')[1];
