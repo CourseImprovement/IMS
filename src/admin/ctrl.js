@@ -163,7 +163,9 @@ app.controller('adminCtrl', ["$scope", function($scope){
 		setTimeout(function(){
 			$('body').append('<input type="file" id="surveyFile">');
 			$('#surveyFile').change(function(){
-				$scope.file = this.files[0];
+				$scope.$apply(function(){
+					$scope.file = this.files[0];
+				});
 				$(this).remove();
 			}).click();
 		}, 100);
