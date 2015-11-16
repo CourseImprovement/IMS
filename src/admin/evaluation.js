@@ -6,9 +6,9 @@
  * Evaluations
  * @param {Array} array all data necessary for evaluations
  */
-function Evaluations(array){
+function Evaluations(array, file){
 	this._evaluations = array;
-	this._file = $('#surveyFile')[0].files[0];
+	this._file = file;
 }
 
 /**

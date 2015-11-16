@@ -115,7 +115,7 @@ app.controller('adminCtrl', ["$scope", function($scope){
 	 * @function
 	 */
 	$scope.CreateEvaluationCSV = function(){
-		var e = new Evaluations($scope.evaluations);
+		var e = new Evaluations($scope.evaluations, $scope.file);
 		e.parseCSV();
 		$scope.mode = 'home';
 	}
