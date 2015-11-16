@@ -792,7 +792,7 @@ app.controller('adminCtrl', ["$scope", function($scope){
 					sets.splice(i, 1);
 					if (start > end) throw "columns need to be read from left to right";
 					for (var j = start; j <= end; j++){
-						sets.splice(i, 1, Config.columnNumberToLetter(i));
+						sets.splice(i, 0, Config.columnNumberToLetter(j));
 					}
 				}
 			}
