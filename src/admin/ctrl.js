@@ -90,6 +90,10 @@ app.controller('adminCtrl', ["$scope", function($scope){
 	 * @function
 	 */
 	$scope.addEvaluation = function(bRole, fRole, email, columns, questions, logics){
+		if (bRole == fRole){
+			alert("The evaluations can not be done at the same level. e.g. by: INSTRUCTOR for: INSTRUCTOR");
+			return;
+		}
 		if (bRole == null || fRole == null || email == null || columns == null || questions == null || logics == null){
 			alert("Some information was left out!");
 			return;
