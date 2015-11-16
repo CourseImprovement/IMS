@@ -186,7 +186,7 @@
 				<div id="surveyData" class="submit" ng-click='chooseFile()'>
 					Choose File
 				</div>
-				<button ng-click='CreateEvaluationCSV()' class="submit">Start</button>
+				<button ng-click='CreateEvaluationCSV()' class="submit" ng-if="file != null">Start</button>
 				<button ng-click='changeMode("LeadershipEval")' class="submit">Back</button>
 			</div>
 		</div>
