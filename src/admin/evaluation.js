@@ -8,7 +8,7 @@
  */
 function Evaluations(array){
 	this._evaluations = array;
-	this._file = $('#surveyData')[0].files[0];
+	this._file = $('#surveyFile')[0].files[0];
 }
 
 /**
