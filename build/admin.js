@@ -1777,6 +1777,7 @@ Rollup.prototype.update = function(){
 				aims[q][tgl] = aims[q][tgl].concat(result[q][tgl]);
 			}
 			var count = ary.length;
+			var credits = 0;
 			top[q].total += count;
 			var sum = 0;
 			for (var i = 0; i < count; i++){
@@ -1784,11 +1785,15 @@ Rollup.prototype.update = function(){
 					top[q].sum += ary[i].sum;
 					top[q].credits += ary[i].credits;
 					sum += ary[i].sum;
+					credits += ary[i].credits;
 				}
 				else{
 					sum += ary[i];
 					top[q].sum += ary[i];
 				}
+			}
+			if (questions[q] == 'Weekly Hours'){
+				count = credits;
 			}
 			var avg = Rollup.avg(sum, count);
 			$(this._xml).find('semester[code=' + window.config.getCurrentSemester() + '] person[email=' + tgl + '][type=tgl] question[name="' + questions[q] + '"] survey[id=' + this._surveyId + ']').remove();
