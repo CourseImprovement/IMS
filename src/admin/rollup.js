@@ -7,7 +7,6 @@ window._rollup;
  */
 function Rollup(){
 	this._xml = ims.sharepoint.getXmlByEmail('rollup');
-	window._rollup = this._xml;
 	this._surveyId = window.config.selectedSurvey.id;
 	this._week = window.config.selectedSurvey.getWeekNumber();
 	this._questions = [];
@@ -111,7 +110,7 @@ Rollup.prototype.update = function(){
 			if (isAim){
 				if (!aims[q]) aims[q] = {};
 				if (!aims[q][tgl]) aims[q][tgl] = [];
-				aims[q][tgl].concat(result[q][tgl]);
+				aims[q][tgl] = aims[q][tgl].concat(result[q][tgl]);
 			}
 			var count = ary.length;
 			top[q].total += count;

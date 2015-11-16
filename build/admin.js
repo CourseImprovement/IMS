@@ -4,8 +4,8 @@
  */
 window.ims = {};
 ims.url = {};
-ims.url._base = window.location.protocol + '//' + window.location.hostname + '/sites/onlineinstructionreporting/';
-ims.url.relativeBase = '/sites/onlineinstructionreporting/';
+ims.url._base = window.location.protocol + '//' + window.location.hostname + '/sites/onlineinstructionreporting/onlineinstructionreportingdev/';
+ims.url.relativeBase = '/sites/onlineinstructionreporting/onlineinstructionreportingdev/';
 ims.url.base = ims.url._base + 'instructor%20Reporting/';
 ims.url.api = ims.url._base + '_api/';
 ims.url.site = ims.url._base; 
@@ -1672,7 +1672,6 @@ window._rollup;
  */
 function Rollup(){
 	this._xml = ims.sharepoint.getXmlByEmail('rollup');
-	window._rollup = this._xml;
 	this._surveyId = window.config.selectedSurvey.id;
 	this._week = window.config.selectedSurvey.getWeekNumber();
 	this._questions = [];
@@ -1776,7 +1775,7 @@ Rollup.prototype.update = function(){
 			if (isAim){
 				if (!aims[q]) aims[q] = {};
 				if (!aims[q][tgl]) aims[q][tgl] = [];
-				aims[q][tgl].concat(result[q][tgl]);
+				aims[q][tgl] = aims[q][tgl].concat(result[q][tgl]);
 			}
 			var count = ary.length;
 			top[q].total += count;
