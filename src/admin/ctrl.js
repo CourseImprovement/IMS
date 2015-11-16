@@ -162,7 +162,7 @@ app.controller('adminCtrl', ["$scope", function($scope){
 		var survey = window.config.getSurveyById(id);
 		window.config.selectedSurvey = survey;
 		if (!survey){
-			alert('Error');
+			alert('Invalid Survey');
 			return;
 		}
 		var csv = new CSV();
