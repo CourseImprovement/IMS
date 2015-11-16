@@ -106,7 +106,7 @@ app.controller('adminCtrl', ["$scope", function($scope){
 					}
 				}
 			}
-			return sets;
+			return sets.sort();
 		}
 		else{
 			return columns.split(';');
