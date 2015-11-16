@@ -161,13 +161,11 @@ app.controller('adminCtrl', ["$scope", function($scope){
 	 */
 	$scope.chooseFile = function(){
 		setTimeout(function(){
-			$scope.$apply(function(){
-				$('body').append('<input type="file" id="surveyFile">');
-				$('#surveyFile').change(function(){
-					$scope.file = this.files[0];
-					$(this).remove();
-				}).click();
-			});
+			$('body').append('<input type="file" id="surveyFile">');
+			$('#surveyFile').change(function(){
+				$scope.file = this.files[0];
+				$(this).remove();
+			}).click();
 		}, 100);
 	}
 	// GROUP - SELECT FILE END
