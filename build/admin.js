@@ -1972,7 +1972,9 @@ Survey.prototype.process = function(rows){
 		}
 	}
 	for (var i = spot; i < rows.length; i++){
-		ims.loading.set((i / rows.length) * 100);
+		setTimeout(function(){
+			ims.loading.set((i / rows.length) * 100);
+		}, 2);
 		// clean answers  and then add them to their respective individual
 		if (rows[i][eCol] != undefined){
 			var person = null;
