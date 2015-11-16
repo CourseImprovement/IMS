@@ -97,12 +97,12 @@ app.controller('adminCtrl', ["$scope", function($scope){
 			var sets = columns.split(';');
 			for (var i = 0; i < sets.length; i++){
 				if (sets[i].indexOf('-') > -1){
-					start = Config.columnLetterToNumber(sets[i].split('-')[0]);
-					end = Config.columnLetterToNumber(sets[i].split('-')[1]);
+					var start = Config.columnLetterToNumber(sets[i].split('-')[0]);
+					var end = Config.columnLetterToNumber(sets[i].split('-')[1]);
 					sets.splice(i, 1);
 					if (start > end) throw "columns need to be read from left to right";
 					for (var j = start; j <= end; j++){
-						sets.splice(i, Config.columnNumberToLetter(i));
+						sets.splice(i, 1, Config.columnNumberToLetter(i));
 					}
 				}
 			}
