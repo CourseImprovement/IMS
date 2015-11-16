@@ -176,7 +176,7 @@
 			<div class="row">
 				<ul class="no-bullet">
 					<li ng-repeat='e in evaluations track by $index'>
-						Evaluation by: {{evaluations.eBy}} for: {{evaluations.eFor}}
+						Evaluation by: {{evaluations.eBy}}      for: {{evaluations.eFor}}
 						<br>
 						Email Column: {{e.emailCol}}
 						<ul class="no-bullet">

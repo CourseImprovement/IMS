@@ -794,8 +794,8 @@ app.controller('adminCtrl', ["$scope", function($scope){
 		}
 
 		$scope.evaluations = {
-			eBy: bRole.splice(0,1),
-			eFor: fRole.splice(0,1),
+			eBy: bRole.split('b')[1],
+			eFor: fRole.split('f')[1],
 			emailCol: email,
 			dataSeries: eval
 		};
