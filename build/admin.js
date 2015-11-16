@@ -355,7 +355,8 @@ Config.prototype.addSurvey = function(survey){
  * @return {String} The semester name. e.g. FA15, WI16
  */
 Config.prototype.getCurrentSemester = function(){
-	return $(this.semesters).find('[current=true]').attr('name');
+	if (!this._currentSemester) this._currentSemester = $(this.semesters).find('[current=true]').attr('name');
+	return this._currentSemester;
 }
 
 /**
