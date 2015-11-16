@@ -702,6 +702,21 @@ app.controller('adminCtrl', ["$scope", function($scope){
 
 	// GROUP - MENU TOGGLE
 	/**
+	 * Reset all variables
+	 */
+	function reset(){
+		$scope.surveys = [];
+		$scope.surveyName = '';
+		$scope.surveyWeek = '';
+		$scope.Placement = '';
+		$scope.questions = [];
+		$scope.csv = [];
+		$scope.file = null;
+		surveyId = null;
+		editingQuestion = {};
+	}
+	
+	/**
 	 * Toggle page views. Default is the 'home' page
 	 * @memberOf angular
 	 * @type {String}
@@ -716,6 +731,10 @@ app.controller('adminCtrl', ["$scope", function($scope){
 	$scope.changeMode = function(mode){
 		if (mode == 'Register' || mode == 'Process'){
 			$scope.surveys = window.config.surveys;
+		}
+
+		if ($scope.mode == 'home'){
+			reset();
 		}
 		
 		$scope.mode = mode;
@@ -955,7 +974,7 @@ app.controller('adminCtrl', ["$scope", function($scope){
 	$scope.modifySurvey = function(id){
 		if (!id || id.length < 1) return;
 
-		var survey = $(window.config._xml).find('semester[code=FA15] survey[id="' + id + '"]');
+		var survey = $(window.config._xml).find('semester[code="' + sem + '"] survey[id="' + id + '"]');
 		var questions = $(survey).find('question');
 		var name = $(survey).attr('name');
 		var week = name.split(': Week ')[1];
