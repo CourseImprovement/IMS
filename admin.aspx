@@ -29,7 +29,7 @@
 			Semester Setup
 		</div>
 		<div class="big-btn" ng-click='changeMode("LeadershipEval")'>
-			Leadership Evaluation
+			Evaluations
 		</div>
 	</div>
 
@@ -152,10 +152,10 @@
  					<input type="text" ng-model='email' placeholder='Email Col' id="email" ng-keyup='email = upper($event)'>
  				</div>
  				<div class="row">
- 					<input type="text" ng-model='columns' placeholder='Data Column' id="columns" ng-keyup='columns = upper($event)'>
+ 					<input type="text" ng-model='columns' placeholder='Data Columns' id="columns" ng-keyup='columns = upper($event)'>
  				</div>
  				<div class="row">
- 					<input type="text" ng-model='questions' placeholder='Question Text'>
+ 					<input type="text" ng-model='questions' placeholder='Question Texts'>
  				</div>
  				<div class="row">
  					<input type="text" ng-model='logics' placeholder='Logic For Each Question'>
