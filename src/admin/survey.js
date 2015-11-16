@@ -175,6 +175,7 @@ Survey.prototype.process = function(rows){
 		}
 	}
 	var i = spot;
+	var _this = this;
 
 	function processItems(){
 		if (i >= rows.length) return;
@@ -196,25 +197,25 @@ Survey.prototype.process = function(rows){
 				person = new Person({
 					email: rows[i][eCol],
 					row: rows[i],
-					placement: this.placement,
-					answers: Answer.collect(this, rows[i])
+					placement: _this.placement,
+					answers: Answer.collect(_this, rows[i])
 				}, false, true);
 				oldPlacement = person._placement.toLowerCase();
 			}
 			else{
-				person._answers = Answer.collect(this, rows[i]);
+				person._answers = Answer.collect(_this, rows[i]);
 				person._row = rows[i];
 				again = true;
 				oldPlacement = person._placement.toLowerCase();
-				person._placement = this.placement.toLowerCase();
+				person._placement = _this.placement.toLowerCase();
 			}
 			if (cCol != -1){
 				person.course = Survey.cleanCourse(rows[i][cCol]);
 			}
 			if (person.isValid()){
-				if (!again) this.people.push(person);
+				if (!again) _this.people.push(person);
 				person.process();
-				this.processed++;
+				_this.processed++;
 				person._placement = oldPlacement.toLowerCase();
 			}
 			else{
