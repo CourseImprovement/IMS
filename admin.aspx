@@ -196,7 +196,7 @@
 					Choose File
 				</div>
 				<button ng-show="isFile" ng-click='CreateEvaluationCSV()' class="submit">Start</button>
-				<button ng-click='isFile = false; evaluations = {}; changeMode("LeadershipEval")' class="submit">Back</button>
+				<button ng-click='clearEvaluation(); changeMode("LeadershipEval")' class="submit">Back</button>
 			</div>
 		</div>
 	</div>

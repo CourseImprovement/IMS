@@ -127,6 +127,7 @@ app.controller('adminCtrl', ["$scope", function($scope){
 	$scope.clearEvaluation = function(){
 		$scope.evaluations = {};
 		$scope.evalAdded = false;
+		$scope.isFile = false;
 	}
 	/**
 	 * Create a new evaluation and parses the evaluations previously gathered
