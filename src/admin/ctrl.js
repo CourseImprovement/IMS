@@ -387,16 +387,16 @@ app.controller('adminCtrl', ["$scope", function($scope){
 	 */
 	$scope.editQuestion = function(q){
 		if ($scope.file != null){
-			$scope.arow = Config.columnNumberToLetter(q.row);
+			$scope.arow = Config.columnNumberToLetter(q.col);
 			$('#arow').val($scope.arow);
 		}
 		else{
-			$scope.arow2 = Config.columnNumberToLetter(q.row);
+			$scope.arow2 = Config.columnNumberToLetter(q.col);
 			$('#arow2').val($scope.arow);
 		}
 		$scope.atext = q.text;
-		$scope.awhat = q.what;
-		$scope.awith = q.awith;
+		$scope.awhat = q.replaceWhat;
+		$scope.awith = q.replaceWith;
 		$scope.showDialog = true;
 		editingQuestion.idx = $scope.questions.indexOf(q);
 		editingQuestion.q = q;
