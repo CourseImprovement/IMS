@@ -1773,7 +1773,7 @@ Rollup.prototype.update = function(){
 			if (isAim){
 				if (!aims[q]) aims[q] = {};
 				if (!aims[q][tgl]) aims[q][tgl] = [];
-				aims[q][tgl].concat(result[q][tgl]);
+				aims[q][tgl] = aims[q][tgl].concat(result[q][tgl]);
 			}
 			var count = ary.length;
 			top[q].total += count;
