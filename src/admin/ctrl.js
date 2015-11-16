@@ -97,8 +97,8 @@ app.controller('adminCtrl', ["$scope", function($scope){
 			var sets = columns.split(';');
 			for (var i = 0; i < sets.length; i++){
 				if (sets[i].indexOf('-') > -1){
-					start = Config.columnLetterToNumber(sets.split('-')[0]);
-					end = Config.columnLetterToNumber(sets.split('-')[1]);
+					start = Config.columnLetterToNumber(sets[i].split('-')[0]);
+					end = Config.columnLetterToNumber(sets[i].split('-')[1]);
 					sets.splice(i, 1);
 					if (first > last) throw "columns need to be read from left to right";
 					for (var j = start; j <= end; j++){
