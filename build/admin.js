@@ -2233,7 +2233,7 @@ Survey.prototype.process = function(rows){
 	var i = spot;
 
 	function processItems(){
-		if (i < rows.length) return;
+		if (i >= rows.length) return;
 		// clean answers  and then add them to their respective individual
 		if (rows[i][eCol] != undefined){
 			var person = null;
