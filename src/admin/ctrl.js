@@ -15,7 +15,6 @@ app.controller('adminCtrl', ["$scope", function($scope){
 	 * Reset all variables
 	 */
 	function reset(){
-		//$scope.surveys = [];
 		$scope.surveyName = '';
 		$scope.surveyWeek = '';
 		$scope.Placement = '';
@@ -23,6 +22,7 @@ app.controller('adminCtrl', ["$scope", function($scope){
 		$scope.csv = [];
 		$scope.file = null;
 		$scope.evaluations = {};
+		$scope.isFile = false;
 		surveyId = null;
 		editingQuestion = {};
 	}
@@ -173,6 +173,7 @@ app.controller('adminCtrl', ["$scope", function($scope){
 	 * @type {[type]}
 	 */
 	$scope.file = null;
+	$scope.isFile = false;
 	/**
 	 * Select a file
 	 * @function
@@ -182,6 +183,7 @@ app.controller('adminCtrl', ["$scope", function($scope){
 		setTimeout(function(){
 			$('body').append('<input type="file" id="surveyFile">');
 			$('#surveyFile').change(function(){
+				$scope.isFile = true;
 				$scope.file = this.files[0];
 				$(this).remove();
 			}).click();
