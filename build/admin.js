@@ -1222,7 +1222,6 @@ Evaluations.prototype.sendToCSV = function(obj, top){
 			csv += people[i] + ",";
 			for (var j = 0; j < evals.length; j++){
 				var answer = null;
-				console.log(evals[j].a);
 				if (isNaN(evals[j].a)){
 					if (evals[j].a != undefined){
 						answer = evals[j].a.replace(/( )|(\/\/\/)|(,)/g, "%20");
