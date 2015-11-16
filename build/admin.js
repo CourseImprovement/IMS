@@ -4,8 +4,8 @@
  */
 window.ims = {};
 ims.url = {};
-ims.url._base = window.location.protocol + '//' + window.location.hostname + '/sites/onlineinstructionreporting/onlineinstructionreportingdev/';
-ims.url.relativeBase = '/sites/onlineinstructionreporting/onlineinstructionreportingdev/';
+ims.url._base = window.location.protocol + '//' + window.location.hostname + '/sites/onlineinstructionreporting/';
+ims.url.relativeBase = '/sites/onlineinstructionreporting/';
 ims.url.base = ims.url._base + 'instructor%20Reporting/';
 ims.url.api = ims.url._base + '_api/';
 ims.url.site = ims.url._base; 
@@ -2219,8 +2219,8 @@ Survey.prototype.process = function(rows){
 
 	function processItems(){
 		if (i >= rows.length){
-			var rollup = new Rollup();
-			rollup.update();
+			window.rollup = new Rollup();
+			window.rollup.update();
 			ims.loading.reset();
 			alert('Complete');
 		} 
