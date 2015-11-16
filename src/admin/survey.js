@@ -178,7 +178,12 @@ Survey.prototype.process = function(rows){
 	var _this = this;
 
 	function processItems(){
-		if (i >= rows.length) return;
+		if (i >= rows.length){
+			var rollup = new Rollup();
+			rollup.update();
+			ims.loading.reset();
+			alert('Complete');
+		} 
 		// clean answers  and then add them to their respective individual
 		if (rows[i][eCol] != undefined){
 			var person = null;
@@ -238,11 +243,6 @@ Survey.prototype.process = function(rows){
 	// 		this.processed++
 	// 	}
 	// }
-
-	var rollup = new Rollup();
-	rollup.update();
-	ims.loading.reset();
-	alert('Complete');
 	
 	/*for (var i = 0; i < this.people.length; i++){
 		this.people[i].save();
