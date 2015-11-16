@@ -1322,8 +1322,9 @@ Evaluations.prototype.qIndex = function(q, qAnda){
  */
 Evaluations.prototype.parseCSV = function(){
 	_this = this;
-	ims.sp.getMap(function(mapXml){
-		ims.surveys.readAsCsv2(_this._file, function(csv){
+	Sharepoint.getFile(ims.url.base + 'master/map.xml', function(mapXml){
+		var csv = new CSV();
+		csv.readFile(_this._file, function(csv){
 			var count = {};
 			var people = {};
 			var numEvals = _this._evaluations.length;
