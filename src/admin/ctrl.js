@@ -117,6 +117,7 @@ app.controller('adminCtrl', ["$scope", function($scope){
 	$scope.CreateEvaluationCSV = function(){
 		var e = new Evaluations($scope.evaluations);
 		e.parseCSV();
+		$scope.mode = 'home';
 	}
 	// GROUP - LEADERSHIP EVALUATION END
 
@@ -357,6 +358,8 @@ app.controller('adminCtrl', ["$scope", function($scope){
 			courseCol = $('#cCol').val();
 			window.config.surveyRegister(name, emailCol, weekCol, typeCol, placement, courseCol, $scope.questions);
 		}
+
+		$scope.mode = 'home';
 	}
 	/**
 	 * Add a question to a survey
