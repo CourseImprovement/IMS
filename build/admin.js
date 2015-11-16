@@ -705,13 +705,14 @@ app.controller('adminCtrl', ["$scope", function($scope){
 	 * Reset all variables
 	 */
 	function reset(){
-		$scope.surveys = [];
+		//$scope.surveys = [];
 		$scope.surveyName = '';
 		$scope.surveyWeek = '';
 		$scope.Placement = '';
 		$scope.questions = [];
 		$scope.csv = [];
 		$scope.file = null;
+		$scope.evaluations = [];
 		surveyId = null;
 		editingQuestion = {};
 	}
