@@ -174,8 +174,16 @@ Survey.prototype.process = function(rows){
 			break;
 		}
 	}
-	for (var i = spot; i < rows.length; i++){
-		ims.loading.set((i / rows.length) * 100);
+	var i = spot;
+	var _this = this;
+
+	function processItems(){
+		if (i >= rows.length){
+			var rollup = new Rollup();
+			rollup.update();
+			ims.loading.reset();
+			alert('Complete');
+		} 
 		// clean answers  and then add them to their respective individual
 		if (rows[i][eCol] != undefined){
 			var person = null;
@@ -185,7 +193,8 @@ Survey.prototype.process = function(rows){
 			catch (e){
 				console.log(e);
 				console.log('(Survey.prototype.process) ' + rows[i]);
-				continue;
+				i++;
+				processItems();
 			}
 			var again = false;
 			var oldPlacement;
@@ -193,32 +202,39 @@ Survey.prototype.process = function(rows){
 				person = new Person({
 					email: rows[i][eCol],
 					row: rows[i],
-					placement: this.placement,
-					answers: Answer.collect(this, rows[i])
+					placement: _this.placement,
+					answers: Answer.collect(_this, rows[i])
 				}, false, true);
 				oldPlacement = person._placement.toLowerCase();
 			}
 			else{
-				person._answers = Answer.collect(this, rows[i]);
+				person._answers = Answer.collect(_this, rows[i]);
 				person._row = rows[i];
 				again = true;
 				oldPlacement = person._placement.toLowerCase();
-				person._placement = this.placement.toLowerCase();
+				person._placement = _this.placement.toLowerCase();
 			}
 			if (cCol != -1){
 				person.course = Survey.cleanCourse(rows[i][cCol]);
 			}
 			if (person.isValid()){
-				if (!again) this.people.push(person);
+				if (!again) _this.people.push(person);
 				person.process();
-				this.processed++;
+				_this.processed++;
 				person._placement = oldPlacement.toLowerCase();
 			}
 			else{
 				console.log('(Survey.prototype.process) Invalid person: ' + rows[i][eCol]);
 			}
 		}
+		i++;
+		setTimeout(function(){
+			ims.loading.set((i / rows.length) * 100);
+			processItems();
+		}, 10);
 	}
+
+	processItems();
 
 	// for (var email in window.config.otherPeople){
 	// 	var person = window.config.otherPeople[email];
@@ -227,9 +243,6 @@ Survey.prototype.process = function(rows){
 	// 		this.processed++
 	// 	}
 	// }
-
-	var rollup = new Rollup();
-	rollup.update();
 	
 	/*for (var i = 0; i < this.people.length; i++){
 		this.people[i].save();
