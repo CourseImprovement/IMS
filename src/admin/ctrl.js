@@ -90,6 +90,10 @@ app.controller('adminCtrl', ["$scope", function($scope){
 	 * @function
 	 */
 	$scope.addEvaluation = function(bRole, fRole, email, columns, questions, logics){
+		if (bRole == null || fRole == null || email == null || columns == null || questions == null || logics == null){
+			alert("Some information was left out!");
+			return;
+		}
 		var cs = columns.split(';');
 		var qs = questions.split(';');
 		var ls = logics.split(';');

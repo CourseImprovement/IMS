@@ -169,8 +169,8 @@
  					<input type="text" ng-model='logics' placeholder='Logic For Each Question'>
  				</div>
 			    <div class="row">
-	 				<button ng-click='addEvaluation(bRole, fRole, email, columns, questions, logics)'>Add</button>
-	 				<button ng-click="evaluations = {}">Clear</button>
+	 				<button ng-show="!evalAdded" ng-click='addEvaluation(bRole, fRole, email, columns, questions, logics)'>Add</button>
+	 				<button ng-show="evalAdded" ng-click="clearEvaluation()">Clear</button>
 	 			</div>
 			</div>
 			<div class="row">
