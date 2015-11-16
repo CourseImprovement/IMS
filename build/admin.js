@@ -712,7 +712,7 @@ app.controller('adminCtrl', ["$scope", function($scope){
 		$scope.questions = [];
 		$scope.csv = [];
 		$scope.file = null;
-		$scope.evaluations = [];
+		$scope.evaluations = {};
 		surveyId = null;
 		editingQuestion = {};
 	}
@@ -767,7 +767,7 @@ app.controller('adminCtrl', ["$scope", function($scope){
 
 
 	// GROUP - LEADERSHIP EVALUATION
-	$scope.evaluations = [];
+	$scope.evaluations = {};
 	/**
 	 * Adds the evaluation to the evaluations array
 	 * @param {String} role      The role of the ones being evaluated
@@ -778,7 +778,7 @@ app.controller('adminCtrl', ["$scope", function($scope){
 	 * @memberOf angular
 	 * @function
 	 */
-	$scope.addEvaluation = function(role, email, columns, questions, logics){
+	$scope.addEvaluation = function(bRole, fRole, email, columns, questions, logics){
 		var cs = columns.split(';');
 		var qs = questions.split(';');
 		var ls = logics.split(';');
@@ -793,11 +793,12 @@ app.controller('adminCtrl', ["$scope", function($scope){
 			});	
 		}
 
-		$scope.evaluations.push({
-			title: role,
+		$scope.evaluations = {
+			eBy: bRole
+			eFor: fRole,
 			emailCol: email,
 			dataSeries: eval
-		});
+		};
 	}
 	/**
 	 * Create a new evaluation and parses the evaluations previously gathered

@@ -169,13 +169,14 @@
  					<input type="text" ng-model='logics' placeholder='Logic For Each Question'>
  				</div>
 			    <div class="row">
-	 				<button ng-click='addEvaluation(bRole, fRole, email, columns, questions, logics)'>Add</button>
+	 				<button ng-if="evaluations == null" ng-click='addEvaluation(bRole, fRole, email, columns, questions, logics)'>Add</button>
+	 				<button ng-if="evaluations != null" ng-click="evaluations = {}">Clear</button>
 	 			</div>
 			</div>
 			<div class="row">
 				<ul class="no-bullet">
 					<li ng-repeat='e in evaluations track by $index'>
-						Evaluation for: {{e.title}}
+						Evaluation by: {{evaluations.eBy}} for: {{evaluations.eFor}}
 						<br>
 						Email Column: {{e.emailCol}}
 						<ul class="no-bullet">
