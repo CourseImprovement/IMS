@@ -141,11 +141,19 @@
 		<div class="box">
 			<div class="row">
 				<div class="row">
-					Evaluation for: 
-					<select ng-model='role'>
-						<option value="OCR">OCR</option>
-						<option value="TGL">TGL</option>
-						<option value="AIM">AIM</option>
+					Evaluation by: 
+					<select ng-model='bRole'>
+						<option value="bINSTRUCTOR">INSTRUCTOR</option>
+						<option value="bTGL">TGL</option>
+						<option value="bAIM">AIM</option>
+						<option value="bOCR">OCR</option>
+					</select>
+					for: 
+					<select ng-model='fRole'>
+						<option value="bINSTRUCTOR">INSTRUCTOR</option>
+						<option value="fTGL">TGL</option>
+						<option value="fAIM">AIM</option>
+						<option value="fOCR">OCR</option>
 					</select>
 				</div>
  				<div class="row"> 
@@ -161,7 +169,7 @@
  					<input type="text" ng-model='logics' placeholder='Logic For Each Question'>
  				</div>
 			    <div class="row">
-	 				<button ng-click='addEvaluation(role, email, columns, questions, logics)'>Add</button>
+	 				<button ng-click='addEvaluation(bRole, fRole, email, columns, questions, logics)'>Add</button>
 	 			</div>
 			</div>
 			<div class="row">
@@ -186,7 +194,7 @@
 				<div class="submit" ng-click='chooseFile()'>
 					Choose File
 				</div>
-				<button ng-click='CreateEvaluationCSV()' class="submit" ng-hide="file == null">Start</button>
+				<button ng-click='CreateEvaluationCSV()' class="submit">Start</button>
 				<button ng-click='changeMode("LeadershipEval")' class="submit">Back</button>
 			</div>
 		</div>
