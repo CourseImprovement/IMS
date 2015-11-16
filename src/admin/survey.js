@@ -174,8 +174,10 @@ Survey.prototype.process = function(rows){
 			break;
 		}
 	}
-	for (var i = spot; i < rows.length; i++){
-		ims.loading.set((i / rows.length) * 100);
+	var i = spot;
+
+	function processItems(){
+		if (i < rows.length) return;
 		// clean answers  and then add them to their respective individual
 		if (rows[i][eCol] != undefined){
 			var person = null;
@@ -218,6 +220,11 @@ Survey.prototype.process = function(rows){
 				console.log('(Survey.prototype.process) Invalid person: ' + rows[i][eCol]);
 			}
 		}
+		i++;
+		setTimout(function(){
+			ims.loading.set((i / rows.length) * 100);
+			processItems();
+		}, 10);
 	}
 
 	// for (var email in window.config.otherPeople){
