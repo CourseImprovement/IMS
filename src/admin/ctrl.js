@@ -100,7 +100,7 @@ app.controller('adminCtrl', ["$scope", function($scope){
 					start = Config.columnLetterToNumber(sets[i].split('-')[0]);
 					end = Config.columnLetterToNumber(sets[i].split('-')[1]);
 					sets.splice(i, 1);
-					if (first > last) throw "columns need to be read from left to right";
+					if (start > end) throw "columns need to be read from left to right";
 					for (var j = start; j <= end; j++){
 						sets.splice(i, Config.columnNumberToLetter(i));
 					}
