@@ -2219,8 +2219,8 @@ Survey.prototype.process = function(rows){
 
 	function processItems(){
 		if (i >= rows.length){
-			var rollup = new Rollup();
-			rollup.update();
+			window.rollup = new Rollup();
+			window.rollup.update();
 			ims.loading.reset();
 			alert('Complete');
 		} 
