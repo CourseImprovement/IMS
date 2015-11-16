@@ -273,7 +273,6 @@ Number.isFloat = function(n){
 }
 
 
-
 // GROUP ANSWER
 /**
  * Answer object
@@ -1970,6 +1969,7 @@ Survey.prototype.process = function(rows){
 		}
 	}
 	for (var i = spot; i < rows.length; i++){
+		ims.loading.set((spot / rows) * 100);
 		// clean answers  and then add them to their respective individual
 		if (rows[i][eCol] != undefined){
 			var person = null;

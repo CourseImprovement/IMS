@@ -272,4 +272,3 @@ Number.isFloat = function(n){
     return n === Number(n) && n % 1 !== 0;
 }
 
-
