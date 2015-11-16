@@ -278,7 +278,6 @@ Config.getLeader = function(p){
  * @return {Integer}        Numerical value of the excel column
  */
 Config.columnLetterToNumber = function(letter){
-	console.log('returning the numeric col from the letter');
 	if(!isNaN(letter)) return letter;
 
 	if (letter.length == 1){
@@ -297,14 +296,13 @@ Config.columnLetterToNumber = function(letter){
  * @return {String}         Column as a string
  */
 Config.columnNumberToLetter = function(num){
-	console.log('returning the letter col from the number');
 	if(isNaN(num)) return num;
 
 	if (num < 26){
 		return String.fromCharCode(num + 65);
 	}
 	else{
-		return "A" + String.fromCharCode((num - 26) + 65);
+		return String.fromCharCode(Math.floor(num / 26) + 64) + String.fromCharCode(num % 26 + 65);
 	}
 }
 // GROUP CONFIG END
