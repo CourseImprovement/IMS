@@ -2279,7 +2279,7 @@ Survey.prototype.process = function(rows){
 			}
 		}
 		i++;
-		setTimout(function(){
+		setTimeout(function(){
 			ims.loading.set((i / rows.length) * 100);
 			processItems();
 		}, 10);
