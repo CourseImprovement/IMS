@@ -767,8 +767,41 @@ app.controller('adminCtrl', ["$scope", function($scope){
 
 
 	// GROUP - LEADERSHIP EVALUATION
+	/**
+	 * [evalAdded description]
+	 * @type {Boolean}
+	 */
 	$scope.evalAdded = false;
+	/**
+	 * [evaluations description]
+	 * @type {Object}
+	 */
 	$scope.evaluations = {};
+	/**
+	 * [arrayOfColumns description]
+	 * @param  {[type]} columns [description]
+	 * @return {[type]}         [description]
+	 */
+	function arrayOfColumns(columns){
+		if (columns.indexOf('-') > -1){
+			var sets = columns.split(';');
+			for (var i = 0; i < sets.length; i++){
+				if (sets[i].indexOf('-') > -1){
+					start = Config.columnLetterToNumber(sets.split('-')[0]);
+					end = Config.columnLetterToNumber(sets.split('-')[1]);
+					sets.splice(i, 1);
+					if (first > last) throw "columns need to be read from left to right";
+					for (var j = start; j <= end; j++){
+						sets.splice(i, Config.columnNumberToLetter(i));
+					}
+				}
+			}
+			return sets;
+		}
+		else{
+			return columns.split(';');
+		}
+	}
 	/**
 	 * Adds the evaluation to the evaluations array
 	 * @param {String} role      The role of the ones being evaluated
@@ -788,7 +821,8 @@ app.controller('adminCtrl', ["$scope", function($scope){
 			alert("Some information was left out!");
 			return;
 		}
-		var cs = columns.split(';');
+		
+		var cs = arrayOfColumns(columns);
 		var qs = questions.split(';');
 		var ls = logics.split(';');
 
