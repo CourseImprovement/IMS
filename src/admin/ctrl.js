@@ -77,6 +77,7 @@ app.controller('adminCtrl', ["$scope", function($scope){
 
 
 	// GROUP - LEADERSHIP EVALUATION
+	$scope.evalAdded = false;
 	$scope.evaluations = {};
 	/**
 	 * Adds the evaluation to the evaluations array
@@ -109,6 +110,8 @@ app.controller('adminCtrl', ["$scope", function($scope){
 			emailCol: email,
 			dataSeries: eval
 		};
+
+		$scope.evalAdded = true;
 	}
 	/**
 	 * Create a new evaluation and parses the evaluations previously gathered

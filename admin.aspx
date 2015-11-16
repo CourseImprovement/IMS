@@ -175,17 +175,17 @@
 			</div>
 			<div class="row">
 				<ul class="no-bullet">
-					<li ng-repeat='e in evaluations track by $index'>
+					<li ng-show="evalAdded">
 						Evaluation by: {{evaluations.eBy}}      for: {{evaluations.eFor}}
 						<br>
-						Email Column: {{e.emailCol}}
+						Email Column: {{evaluations.emailCol}}
 						<ul class="no-bullet">
-							<li ng-repeat='d in e.dataSeries'>
-								Question Text: {{d.question}}
+							<li ng-repeat='e in evaluations.dataSeries'>
+								Question Text: {{e.question}}
 								<br>
-								Data Column: {{d.col}}
+								Data Column: {{e.col}}
 								<br>
-								Data Logic: {{d.logic}}
+								Data Logic: {{e.logic}}
 							</li>
 						</ul>
 					</li>
