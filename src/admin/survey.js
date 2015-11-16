@@ -187,7 +187,8 @@ Survey.prototype.process = function(rows){
 			catch (e){
 				console.log(e);
 				console.log('(Survey.prototype.process) ' + rows[i]);
-				continue;
+				i++;
+				processItems();
 			}
 			var again = false;
 			var oldPlacement;
@@ -226,6 +227,8 @@ Survey.prototype.process = function(rows){
 			processItems();
 		}, 10);
 	}
+
+	processItems();
 
 	// for (var email in window.config.otherPeople){
 	// 	var person = window.config.otherPeople[email];
