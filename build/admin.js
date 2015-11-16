@@ -1783,6 +1783,7 @@ Rollup.prototype.update = function(){
 				if (questions[q] == 'Weekly Hours'){
 					top[q].sum += ary[i].sum;
 					top[q].credits += ary[i].credits;
+					sum += ary[i].sum;
 				}
 				else{
 					sum += ary[i];
