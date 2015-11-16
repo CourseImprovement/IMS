@@ -104,7 +104,7 @@ app.controller('adminCtrl', ["$scope", function($scope){
 		}
 
 		$scope.evaluations = {
-			eBy: bRole
+			eBy: bRole,
 			eFor: fRole,
 			emailCol: email,
 			dataSeries: eval
