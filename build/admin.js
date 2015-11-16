@@ -852,7 +852,7 @@ app.controller('adminCtrl', ["$scope", function($scope){
 		var survey = window.config.getSurveyById(id);
 		window.config.selectedSurvey = survey;
 		if (!survey){
-			alert('Error');
+			alert('Invalid Survey');
 			return;
 		}
 		var csv = new CSV();
@@ -1561,7 +1561,7 @@ Rollup.prototype.update = function(){
 		$(this._xml).find('semester[code=' + window.config.getCurrentSemester() + '] > questions > question[name="' + questions[q] + '"]').append('<survey id="' + this._surveyId + '" value="' + rollupValue + '" />');
 	}
 
-	this.aimLevelUpdate();
+	//this.aimLevelUpdate();
 }
 
 Rollup.prototype.aimLevelUpdate = function(){
