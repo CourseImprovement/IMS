@@ -1167,23 +1167,6 @@ function Evaluations(array, file){
 }
 
 /**
- * Converts a letter to a number. used for mapping the csv
- * @param  {String} letter column letter
- * @return {Interger}        column letter as number
- */
-Evaluations.prototype.letterToNumber = function(letter){
-	if(!isNaN(letter)) return letter;
-
-	if (letter.length == 1){
-		return letter.charCodeAt(0) - 65;
-	}
-	else{
-		if (letter[1] == 'A') return 26;
-		return letter.charCodeAt(1) % 65 + 25;
-	}
-}
-
-/**
  * Finds the location of answer, question, and display logic
  * @param  {Array} array contains the instructions for an evaluations data series
  * @return {Array}       new array containing the proper column locations (in nmeric form)
@@ -1193,7 +1176,7 @@ Evaluations.prototype.getColumnLocations = function(array){
 
 	for (var i = 0; i < array.length; i++){
 		newArray.push({
-			col: this.letterToNumber(array[i].col),
+			col: Config.columnLetterToNumber(array[i].col),
 			question: array[i].question,
 			logic: array[i].logic
 		});
@@ -1331,7 +1314,7 @@ Evaluations.prototype.parseCSV = function(){
 			/*LOOP THROUGH EACH GROUP BEING EVALUATED E.G. OCR, TGL, AIM*/
 			for (var e = 0; e < numEvals; e++){
 				var evaluatees = $(mapXml).find('semester[code=FA15] ' + _this._evaluations[e].title.toLowerCase());
-				var emailCol = _this.letterToNumber(_this._evaluations[e].emailCol);
+				var emailCol = Config.columnLetterToNumber(_this._evaluations[e].emailCol);
 				var locations = _this.getColumnLocations(_this._evaluations[e].dataSeries);
 				var rows = csv.data;
 				/*COLLECT THE ROLES FROM THE MAP FILE*/
