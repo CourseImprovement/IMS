@@ -188,7 +188,9 @@ app.controller('adminCtrl', ["$scope", function($scope){
 		}
 		var csv = new CSV();
 		csv.readFile($scope.file, function(file){
-			survey.process(file.data);
+			setTimeout(function(){
+				survey.process(file.data);
+			}, 10);
 		});
 	}
 	// GROUP - PROCESS SURVEY END

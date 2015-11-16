@@ -877,7 +877,9 @@ app.controller('adminCtrl', ["$scope", function($scope){
 		}
 		var csv = new CSV();
 		csv.readFile($scope.file, function(file){
-			survey.process(file.data);
+			setTimeout(function(){
+				survey.process(file.data);
+			}, 10);
 		});
 	}
 	// GROUP - PROCESS SURVEY END
@@ -1972,9 +1974,7 @@ Survey.prototype.process = function(rows){
 		}
 	}
 	for (var i = spot; i < rows.length; i++){
-		setTimeout(function(){
-			ims.loading.set((i / rows.length) * 100);
-		}, 2);
+		ims.loading.set((i / rows.length) * 100);
 		// clean answers  and then add them to their respective individual
 		if (rows[i][eCol] != undefined){
 			var person = null;
