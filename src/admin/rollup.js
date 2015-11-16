@@ -7,7 +7,6 @@ window._rollup;
  */
 function Rollup(){
 	this._xml = ims.sharepoint.getXmlByEmail('rollup');
-	window._rollup = this._xml;
 	this._surveyId = window.config.selectedSurvey.id;
 	this._week = window.config.selectedSurvey.getWeekNumber();
 	this._questions = [];
