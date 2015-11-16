@@ -804,6 +804,13 @@ app.controller('adminCtrl', ["$scope", function($scope){
 		$scope.evalAdded = true;
 	}
 	/**
+	 * Resets the current evaluation
+	 */
+	$scope.clearEvaluation = function(){
+		$scope.evaluations = {};
+		$scope.evalAdded = false;
+	}
+	/**
 	 * Create a new evaluation and parses the evaluations previously gathered
 	 * @memberOf angular
 	 * @function
