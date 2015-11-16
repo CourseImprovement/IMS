@@ -6,26 +6,9 @@
  * Evaluations
  * @param {Array} array all data necessary for evaluations
  */
-function Evaluations(array){
+function Evaluations(array, file){
 	this._evaluations = array;
-	this._file = $('#surveyData')[0].files[0];
-}
-
-/**
- * Converts a letter to a number. used for mapping the csv
- * @param  {String} letter column letter
- * @return {Interger}        column letter as number
- */
-Evaluations.prototype.letterToNumber = function(letter){
-	if(!isNaN(letter)) return letter;
-
-	if (letter.length == 1){
-		return letter.charCodeAt(0) - 65;
-	}
-	else{
-		if (letter[1] == 'A') return 26;
-		return letter.charCodeAt(1) % 65 + 25;
-	}
+	this._file = file;
 }
 
 /**
@@ -38,7 +21,7 @@ Evaluations.prototype.getColumnLocations = function(array){
 
 	for (var i = 0; i < array.length; i++){
 		newArray.push({
-			col: this.letterToNumber(array[i].col),
+			col: Config.columnLetterToNumber(array[i].col),
 			question: array[i].question,
 			logic: array[i].logic
 		});
@@ -84,7 +67,6 @@ Evaluations.prototype.sendToCSV = function(obj, top){
 			csv += people[i] + ",";
 			for (var j = 0; j < evals.length; j++){
 				var answer = null;
-				console.log(evals[j].a);
 				if (isNaN(evals[j].a)){
 					if (evals[j].a != undefined){
 						answer = evals[j].a.replace(/( )|(\/\/\/)|(,)/g, "%20");
@@ -167,15 +149,16 @@ Evaluations.prototype.qIndex = function(q, qAnda){
  */
 Evaluations.prototype.parseCSV = function(){
 	_this = this;
-	ims.sp.getMap(function(mapXml){
-		ims.surveys.readAsCsv2(_this._file, function(csv){
+	Sharepoint.getFile(ims.url.base + 'master/map.xml', function(mapXml){
+		var csv = new CSV();
+		csv.readFile(_this._file, function(csv){
 			var count = {};
 			var people = {};
 			var numEvals = _this._evaluations.length;
 			/*LOOP THROUGH EACH GROUP BEING EVALUATED E.G. OCR, TGL, AIM*/
 			for (var e = 0; e < numEvals; e++){
 				var evaluatees = $(mapXml).find('semester[code=FA15] ' + _this._evaluations[e].title.toLowerCase());
-				var emailCol = _this.letterToNumber(_this._evaluations[e].emailCol);
+				var emailCol = Config.columnLetterToNumber(_this._evaluations[e].emailCol);
 				var locations = _this.getColumnLocations(_this._evaluations[e].dataSeries);
 				var rows = csv.data;
 				/*COLLECT THE ROLES FROM THE MAP FILE*/

@@ -183,7 +183,7 @@
 				</ul>
 			</div>
 			<div class="row">
-				<div class="submit" ng-click='chooseFile()'>
+				<div id="surveyData" class="submit" ng-click='chooseFile()'>
 					Choose File
 				</div>
 				<button ng-click='CreateEvaluationCSV()' class="submit">Start</button>

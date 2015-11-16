@@ -115,7 +115,7 @@ app.controller('adminCtrl', ["$scope", function($scope){
 	 * @function
 	 */
 	$scope.CreateEvaluationCSV = function(){
-		var e = new Evaluations($scope.evaluations);
+		var e = new Evaluations($scope.evaluations, $scope.file);
 		e.parseCSV();
 		$scope.mode = 'home';
 	}
@@ -250,6 +250,8 @@ app.controller('adminCtrl', ["$scope", function($scope){
 	 */
 	$scope.surveyModifications = function(type, id){
 		surveyId = id;
+		var survey = window.config.getSurveyById(id);
+		window.config.selectedSurvey = survey;
 		if (type == 'register'){
 			// REGISTER NEW SURVEY - PERFORM IN CTRL
 			var csv = new CSV();
@@ -265,7 +267,6 @@ app.controller('adminCtrl', ["$scope", function($scope){
 		}
 		else if (type == 'copy'){
 			// COPY SURVEY
-			var survey = window.config.getSurveyById(id);
 			var copy = survey.copy();
 			window.config.addSurvey(copy);
 			$scope.mode = 'home';
