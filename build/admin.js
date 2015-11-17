@@ -2287,8 +2287,8 @@ Survey.prototype.process = function(rows){
 				}
 			}
 			
-			for (var i = 0; i < this.people.length; i++){
-				this.people[i].save();
+			for (var j = 0; j < this.people.length; j++){
+				this.people[j].save();
 			}
 
 			for (var email in window.config.otherPeople){
