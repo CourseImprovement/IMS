@@ -18,7 +18,7 @@ app.controller('adminCtrl', ["$scope", function($scope){
 		$scope.surveyName = '';
 		$scope.surveyWeek = '';
 		$scope.Placement = '';
-		$scope.questions = [];
+		//$scope.questions = [];
 		$scope.csv = [];
 		$scope.file = null;
 		$scope.evaluations = {};
