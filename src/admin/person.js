@@ -10,7 +10,7 @@
 function Person(obj, isXml, downloadXml){
 	if (isXml){
 		this._tmpXml = $(obj).find('semester[code=' + window.config.getCurrentSemester() + '] > people > person');
-		this._role = $(this._tmpXml);
+		this._placement = $(this._tmpXml).attr('highestrole');
 		this._email = $(this._tmpXml).attr('email');
 		this.cleanEmailInternal();
 		if (downloadXml){

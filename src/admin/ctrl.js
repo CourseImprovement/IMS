@@ -62,7 +62,8 @@ app.controller('adminCtrl', ["$scope", function($scope){
 	 * @function
 	 */
 	$scope.checkPermissions = function(){
-
+		var p = new Permissions();
+		var checked = p.check();
 	}
 	/**
 	 * Alerts the user to the percentage completed

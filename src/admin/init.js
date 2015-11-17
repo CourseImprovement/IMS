@@ -204,6 +204,18 @@ ims.sharepoint = {
 		    'async': false
 	    });
 	  	return doc;
+	},
+	getPermissionsXml: function(){
+		var url = ims.sharepoint.base + 'Instructor%20Reporting/config/permissions.xml';
+		var doc = null;
+		$['ajax']({
+		    'url': url,
+		    'success': function(d) {
+		      	doc = d;
+		    },
+		    'async': false
+	    });
+	  	return doc;
 	},	
 	/**
 	 * Get a XML file for a given user by email address.

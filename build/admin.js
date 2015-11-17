@@ -204,6 +204,18 @@ ims.sharepoint = {
 		    'async': false
 	    });
 	  	return doc;
+	},
+	getPermissionsXml: function(){
+		var url = ims.sharepoint.base + 'Instructor%20Reporting/config/permissions.xml';
+		var doc = null;
+		$['ajax']({
+		    'url': url,
+		    'success': function(d) {
+		      	doc = d;
+		    },
+		    'async': false
+	    });
+	  	return doc;
 	},	
 	/**
 	 * Get a XML file for a given user by email address.
@@ -486,6 +498,17 @@ Config.prototype.getMaster = function(){
 }
 
 /**
+ * get the map file
+ * @return {Object} The map xml
+ */
+Config.prototype.getMap = function(){
+	if (!this._map){
+		this._map = ims.sharepoint.getXmlByEmail('map');
+	}
+	return this._map;
+}
+
+/**
  * Get the next up leader as string
  * @param  {String} p  A role
  * @return {String}    That role's immediate leader
@@ -751,7 +774,8 @@ app.controller('adminCtrl', ["$scope", function($scope){
 	 * @function
 	 */
 	$scope.checkPermissions = function(){
-
+		var p = new Permissions();
+		var checked = p.check();
 	}
 	/**
 	 * Alerts the user to the percentage completed
@@ -1438,7 +1462,24 @@ Evaluations.prototype.parseCSV = function(){
 	});
 }
 // GROUP EVALUATIONS END
+function Master(isMap){
+	this._xml = ims.sharepoint.getXmlByEmail('master');
+	this.init();
+}
 
+Master.prototype.init = function(){
+	var sem = window.config.getCurrentSemester();
+	this.people = [];
+	var _this = this;
+	$(this._xml).find('semester[code=' + sem + '] > people > person').each(function(){
+		var person = $('<semesters><semester code="' + sem + '"><people></people></semester></semesters>');
+		person.find('people').append($(this).clone());
+		console.log(person[0]);
+		_this.people.push(new Person(person[0], true, false));
+	});	
+}
+
+window.master = new Master();
 
 
 // GROUP PERMISSIONS
@@ -1447,14 +1488,45 @@ Evaluations.prototype.parseCSV = function(){
  */
 function Permissions(){
 	console.log('new Permissions object created');
-	this._map = null;
+	this._map = window.config.getMap();
+	this._xml = this.getPermissionsXml();
+	this._areDifferent = $(this._map).html() != $(this._xml).html();
+	if (this._areDifferent){
+		this._old = this.setOld();
+		this._new = this.setNew();
+	}
 	this._toChange = null;
+}
+
+Permissions._xml = null;
+
+Permissions.prototype.getPermissionsXml = function(){
+	if (!Permissions._xml){
+		Permissions._xml = ims.sharepoint.getPermissionsXml();
+	}
+	return Permissions._xml;
+}
+
+Permissions.prototype.setOld = function(){
+	var _this = this;
+	$(this._xml).find('file').each(function(){
+		var email = $(this).attr('name');
+		_this._old[email] = [];
+		$(this).find('user').each(function(){
+			_this._old[email].push($(this).attr('email'));
+		});
+	});
+}
+
+Permissions.prototype.setNew = function(){
+	
 }
 
 /**
  * CHECK IF THERE ARE ANY CHANGES TO DO
  */
 Permissions.prototype.check = function(){
+	if (!this._areDifferent) return true;
 	console.log('Checking if permissions need changing');
 }
 
@@ -1477,7 +1549,7 @@ Permissions.prototype.update = function(){
 function Person(obj, isXml, downloadXml){
 	if (isXml){
 		this._tmpXml = $(obj).find('semester[code=' + window.config.getCurrentSemester() + '] > people > person');
-		this._role = $(this._tmpXml);
+		this._placement = $(this._tmpXml).attr('highestrole');
 		this._email = $(this._tmpXml).attr('email');
 		this.cleanEmailInternal();
 		if (downloadXml){

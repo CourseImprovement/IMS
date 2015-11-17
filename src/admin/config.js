@@ -158,6 +158,17 @@ Config.prototype.getMaster = function(){
 }
 
 /**
+ * get the map file
+ * @return {Object} The map xml
+ */
+Config.prototype.getMap = function(){
+	if (!this._map){
+		this._map = ims.sharepoint.getXmlByEmail('map');
+	}
+	return this._map;
+}
+
+/**
  * Get the next up leader as string
  * @param  {String} p  A role
  * @return {String}    That role's immediate leader
