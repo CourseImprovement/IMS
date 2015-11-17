@@ -61,7 +61,10 @@ Rollup.prototype.update = function(){
 				$(this).find('survey[id=' + _this._surveyId + '] answer[id=' + _this._questions[i].id + ']').each(function(){
 					if ($(this).text().length == 0) return;
 					var courseid = $(this).parents('survey').attr('courseid');
-					credits += parseInt($(this).parents('roles').parent().find("course[id=" + courseid + ']').attr('credit'));
+					var tmpCredits += parseInt($(this).parents('roles').parent().find("course[id=" + courseid + ']').attr('credit'));
+					var sections = $(this).parents('roles').parent().find("course[id=" + courseid + ']').attr('section').split(/ /g).length;
+
+					credits += (tmpCredits * sections);
 					sum += parseFloat($(this).text());
 				});
 				if (isNaN(sum) || isNaN(credits) || sum == 0 || credits == 0){
@@ -167,99 +170,5 @@ Rollup.prototype.update = function(){
 		$(this._xml).find('semester[code=' + window.config.getCurrentSemester() + '] > questions > question[name="' + questions[q] + '"] > survey[id=' + this._surveyId + ']').remove();
 		$(this._xml).find('semester[code=' + window.config.getCurrentSemester() + '] > questions > question[name="' + questions[q] + '"]').append('<survey id="' + this._surveyId + '" value="' + rollupValue + '" />');
 	}
-
-	//this.aimLevelUpdate();
-}
-
-Rollup.prototype.aimLevelUpdate = function(){
-	var questions = [
-		'Seek Development Opportunities',
-		'Inspire a Love for Learning',
-		'Develop Relationships with and among Students',
-		'Embrace University Citizenship',
-		'Building Faith in Jesus Christ',
-		'Weekly Hours'
-	]
-	console.log(window.config._xml);
-	var surveys = [1, 2, 3, 6, 9, 10, 11];
-	for (var idx = 0; idx < surveys.length; idx++){
-		var qs = [];
-		$(window.config._xml).find('semester[code=' + window.config.getCurrentSemester() + '] survey[id=' + surveys[idx] + '] question').each(function(){
-			for (var i = 0; i < questions.length; i++){
-				if ($(this).find('text:contains("' + questions[i] + '")').length > 0){
-					qs.push({
-						id: $(this).attr('id'),
-						spot: i
-					});
-				}
-			}
-		});
-
-		var result = {};
-		var _this = this;
-		$(this._master).find('semester[code=' + window.config.getCurrentSemester() + '] > people > person[highestrole=aim]').each(function(){
-			var email = $(this).attr('email'); 
-			result[email] = {};
-			for (var i = 0; i < qs.length; i++){
-				result[email][qs[i].spot] = [];
-				$(this).find('> roles > role[type=aim] > stewardship > people person').each(function(){
-					$(_this._master).find('semester[code=' + window.config.getCurrentSemester() + '] > people > person[email="' + $(this).attr('email') + '"] survey[id="' + surveys[idx] + '"] answer[id=' + qs[i].id + ']').each(function(){
-						var text = $(this).text();
-						if (text.length == 0) return;
-						if (questions[qs[i].spot] == 'Weekly Hours'){
-							var credits = 0;
-							var courses = $(this).parents('person').find('> courses course');
-							var num = $(courses).length;
-							$(courses).each(function(){
-								var credit = parseFloat($(this).attr('credit'));
-								if (credit == 1){
-									credit = 1.5;
-								}
-								else if (credits == 2){
-									credit = 2.25;
-								}
-								
-								credits += credit / num;
-							});
-							result[email][qs[i].spot].push({
-								hours: parseFloat(text),
-								credits: credits
-							});
-						}
-						else {
-							result[email][qs[i].spot].push(parseFloat(text));
-						}
-					});
-				});
-			}
-		});
-
-		for (var a in result){
-			for (var q in result[a]){
-				var total = result[a][q].length;
-				var sum = 0;
-				var question = $(window._rollup).find('semester[code=' + window.config.getCurrentSemester() + '] people > person[email=' + a + '][type=aim] question[name="' + questions[q] + '"]');
-				
-				if (questions[q] == 'Weekly Hours'){
-					total = 0;
-					for (var i = 0; i < result[a][q].length; i++){
-						sum += result[a][q][i].hours;
-						total += result[a][q][i].credits;
-					}
-				}
-				else{
-					for (var i = 0; i < result[a][q].length; i++){
-						sum += result[a][q][i];
-					}
-				}
-				
-				var avg = Rollup.avg(sum, total);
-				$(question).append('<survey id="' + surveys[idx] + '" value="' + avg + '"/>');
-			}
-		}
-
-	}
-
-	console.log(window._rollup);
 }
 // GROUP ROLLUP END
