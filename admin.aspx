@@ -143,17 +143,17 @@
 				<div class="row">
 					Evaluation by: 
 					<select ng-model='bRole'>
-						<option value="bINSTRUCTOR">INSTRUCTOR</option>
-						<option value="bTGL">TGL</option>
-						<option value="bAIM">AIM</option>
-						<option value="bOCR">OCR</option>
+						<option value="INSTRUCTOR">INSTRUCTOR</option>
+						<option value="TGL">TGL</option>
+						<option value="AIM">AIM</option>
+						<option value="OCR">OCR</option>
 					</select>
 					for: 
 					<select ng-model='fRole'>
-						<option value="bINSTRUCTOR">INSTRUCTOR</option>
-						<option value="fTGL">TGL</option>
-						<option value="fAIM">AIM</option>
-						<option value="fOCR">OCR</option>
+						<option value="INSTRUCTOR">INSTRUCTOR</option>
+						<option value="TGL">TGL</option>
+						<option value="AIM">AIM</option>
+						<option value="OCR">OCR</option>
 					</select>
 				</div>
  				<div class="row"> 

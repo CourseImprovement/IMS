@@ -147,8 +147,8 @@ app.controller('adminCtrl', ["$scope", function($scope){
 		}
 
 		$scope.evaluations = {
-			eBy: bRole.split('b')[1],
-			eFor: fRole.split('f')[1],
+			eBy: bRole,
+			eFor: fRole,
 			emailCol: email,
 			dataSeries: eval
 		};
@@ -310,27 +310,23 @@ app.controller('adminCtrl', ["$scope", function($scope){
 		surveyId = id;
 		var survey = window.config.getSurveyById(id);
 		window.config.selectedSurvey = survey;
-		if (type == 'register'){
-			// REGISTER NEW SURVEY - PERFORM IN CTRL
+		if (type == 'register'){ // REGISTER NEW SURVEY - PERFORM IN CTRL
 			var csv = new CSV();
 			csv.readFile($scope.file, function(file){
 				$scope.csv = file.data[1];
 			});
 			$scope.mode = 'RegisterStart';
 		}
-		else if (type == 'delete'){
-			// DELETE SURVEY
+		else if (type == 'delete'){ // DELETE SURVEY
 			window.config.remove(id);
 			$scope.mode = 'home';
 		}
-		else if (type == 'copy'){
-			// COPY SURVEY
+		else if (type == 'copy'){ // COPY SURVEY
 			var copy = survey.copy();
 			window.config.addSurvey(copy);
 			$scope.mode = 'home';
 		}
-		else if (type == 'modify'){
-			// MODIFY SURVEY - PERFORM IN CTRL
+		else if (type == 'modify'){ // MODIFY SURVEY - PERFORM IN CTRL
 			$scope.mode = 'RegisterStart';
 			$scope.modifySurvey(id);
 		}
@@ -340,7 +336,7 @@ app.controller('adminCtrl', ["$scope", function($scope){
 	}
 	/**
 	 * Updates a surveys data comlumns
-	 * @param  {string} id Id of the survey to be modified
+	 * @param  {String} id Id of the survey to be modified
 	 * @function
 	 * @memberOf angular
 	 */
@@ -371,12 +367,12 @@ app.controller('adminCtrl', ["$scope", function($scope){
 	}
 	/**
 	 * Submits a newly created survey and saves it to the config file
-	 * @param  {string} name      Name of the survey
-	 * @param  {string} week      When the survey was taken
-	 * @param  {string} placement Who the survey is for
-	 * @param  {string} e         Email column
-	 * @param  {string} t         Type column
-	 * @param  {string} w         Week column
+	 * @param  {String} name      Name of the survey
+	 * @param  {String} week      When the survey was taken
+	 * @param  {String} placement Who the survey is for
+	 * @param  {String} e         Email column
+	 * @param  {String} t         Type column
+	 * @param  {String} w         Week column
 	 * @function
 	 * @memberOf angular
 	 */
