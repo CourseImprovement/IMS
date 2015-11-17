@@ -157,7 +157,7 @@ Evaluations.prototype.parseCSV = function(){
 			var numEvals = _this._evaluations.length;
 			/*LOOP THROUGH EACH GROUP BEING EVALUATED E.G. OCR, TGL, AIM*/
 			for (var e = 0; e < numEvals; e++){
-				var evaluatees = $(mapXml).find('semester[code=FA15] ' + _this._evaluations[e].title.toLowerCase());
+				var evaluatees = $(mapXml).find('semester[code=FA15] ' + _this._evaluations[e].fRole.toLowerCase());
 				var emailCol = Config.columnLetterToNumber(_this._evaluations[e].emailCol);
 				var locations = _this.getColumnLocations(_this._evaluations[e].dataSeries);
 				var rows = csv.data;
