@@ -285,7 +285,7 @@ Config.columnLetterToNumber = function(letter){
 	}
 	else{
 		if (letter[1] == 'A') return 26;
-		return (letter.charCodeAt(1) - 65) + 25;
+		return (letter.charCodeAt(1) - 65) + 26;
 	}
 }
 
