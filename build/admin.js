@@ -2215,9 +2215,9 @@ Survey.prototype.save = function(){
 	}
 	
 
-	// Sharepoint.postFile(window.config._xml, 'config/', 'config.xml', function(){
-	// 	alert('Survey removal was successful!')
-	// });
+	Sharepoint.postFile(window.config._xml, 'config/', 'config.xml', function(){
+		alert('Survey change was successful!');
+	});
 }
 
 /**
@@ -2234,7 +2234,7 @@ Survey.prototype.remove = function(){
  * @param  {Boolean} save  [description]
  */
 Survey.prototype.modify = function(prop, value){
-	if (this[prop] == undefined) return;
+	if (value == undefined) return;
 
 	if (this[prop] != value){
 		this[prop] = value;
