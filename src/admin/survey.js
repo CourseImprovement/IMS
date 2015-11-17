@@ -203,6 +203,8 @@ Survey.prototype.process = function(rows){
 			for (var email in window.config.otherPeople){
 				window.config.otherPeople[email].save();
 			}
+			
+			Sharepoint.postFile(window.rollup._xml, 'master/', 'rollup.xml', function(){});
 			Sharepoint.postFile(window.config.getMaster(), 'master/', 'master.xml', function(){});
 			
 			ims.loading.reset();

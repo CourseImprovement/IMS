@@ -1112,10 +1112,10 @@ app.controller('adminCtrl', ["$scope", function($scope){
 	}
 	/**
 	 * Add aquestion to a survey
-	 * @param {string} row   Data row in CSV file
-	 * @param {string} text  Question text
-	 * @param {string} what  What to change in text
-	 * @param {string} awith Change the text with this
+	 * @param {String} row   Data row in CSV file
+	 * @param {String} text  Question text
+	 * @param {String} what  What to change in text
+	 * @param {String} awith Change the text with this
 	 * @function
 	 * @memberOf angular
 	 */
@@ -2292,6 +2292,8 @@ Survey.prototype.process = function(rows){
 			for (var email in window.config.otherPeople){
 				window.config.otherPeople[email].save();
 			}
+			
+			Sharepoint.postFile(window.rollup._xml, 'master/', 'rollup.xml', function(){});
 			Sharepoint.postFile(window.config.getMaster(), 'master/', 'master.xml', function(){});
 			
 			ims.loading.reset();

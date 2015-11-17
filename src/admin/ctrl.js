@@ -423,10 +423,10 @@ app.controller('adminCtrl', ["$scope", function($scope){
 	}
 	/**
 	 * Add aquestion to a survey
-	 * @param {string} row   Data row in CSV file
-	 * @param {string} text  Question text
-	 * @param {string} what  What to change in text
-	 * @param {string} awith Change the text with this
+	 * @param {String} row   Data row in CSV file
+	 * @param {String} text  Question text
+	 * @param {String} what  What to change in text
+	 * @param {String} awith Change the text with this
 	 * @function
 	 * @memberOf angular
 	 */
