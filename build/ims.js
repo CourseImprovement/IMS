@@ -2083,13 +2083,13 @@ Role.prototype.getSuggested = function(q){
     for (var i = 0; i < this._org.length; i++){
         var topUser = this._org[i];
         if (topUser.user.getEmail().toLowerCase().indexOf(q) > -1 ||
-            topUser.user.getFullName().indexOf(q) > -1){
+            topUser.user.getFullName().toLowerCase().indexOf(q) > -1){
             result.push(this._org[i]);
         }
         for (var j = 0; j < topUser.lower.length; j++){
             var lower = this._org[i].lower[j];
             if (lower.user.getEmail().toLowerCase().indexOf(q) > -1 ||
-                lower.user.getFullName().indexOf(q) > -1){
+                lower.user.getFullName().toLowerCase().indexOf(q) > -1){
                 result.push(lower);
             }
         }
