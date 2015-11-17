@@ -301,12 +301,12 @@ function Master(isMap){
 Master.prototype.init = function(){
 	var sem = window.config.getCurrentSemester();
 	this.people = [];
-	this.map = {};
+	this.graph = {};
 	var _this = this;
 	$(this._xml).find('semester[code=' + sem + '] > people > person').each(function(){
 		var mp = new MasterPerson(this, _this);
 		_this.people.push(mp);
-		_this.map[mp.email] = mp;
+		_this.graph[mp.email] = mp;
 	});	
 	for (var i = 0; i < this.people.length; i++){
 		this.people[i].addUpperAndLowers();
@@ -342,14 +342,14 @@ function MasterPerson(xml, master){
 MasterPerson.prototype.addUpperAndLowers = function(){
 	var _this = this;
 	$(this._xml).find('> roles > role[type=' + this.highestRole + '] > stewardship > people > person').each(function(){
-		var person = _this.master.map[$(this).attr('email')];
+		var person = _this.master.graph[$(this).attr('email')];
 		_this.lowers.push({
 			role: $(this).attr('type'),
 			person: person
 		});
 	});
 	$(this._xml).find('> roles > role[type=' + this.highestRole + '] > leadership > person').each(function(){
-		var person = _this.master.map[$(this).attr('email')];
+		var person = _this.master.graph[$(this).attr('email')];
 		_this.leaders[$(this).attr('type')] = person;
 		_this.uppers.push({
 			role: $(this).attr('type'),
