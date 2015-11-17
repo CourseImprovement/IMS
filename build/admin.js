@@ -2283,12 +2283,12 @@ Survey.prototype.process = function(rows){
 				var person = window.config.otherPeople[email];
 				if (person.isValid()){
 					person.process();
-					this.processed++
+					_this.processed++
 				}
 			}
 			
-			for (var j = 0; j < this.people.length; j++){
-				this.people[j].save();
+			for (var j = 0; j < _this.people.length; j++){
+				_this.people[j].save();
 			}
 
 			for (var email in window.config.otherPeople){
