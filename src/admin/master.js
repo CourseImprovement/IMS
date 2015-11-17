@@ -14,5 +14,3 @@ Master.prototype.init = function(){
 		_this.people.push(new Person(person[0], true, false));
 	});	
 }
-
-window.master = new Master();
