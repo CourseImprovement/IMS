@@ -1695,7 +1695,7 @@ Question.prototype.modify = function(prop, val){
  */
 Question.prototype.toXml = function(){
 	var xml = $('<question><text></text><replace /></question>');
-	$(xml).attr('id', this.id);
+	$(xml).attr('id', this.id).attr('col', this.col);
 	$(xml).find('text').text(this.text);
 	if (this.replaceWith && this.replaceWhat && this.replaceWith.indexOf(';') > -1 && this.replaceWhat.indexOf(';') > -1){
 		this.replaceWith = this.replaceWith.join(';');
