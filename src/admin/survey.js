@@ -181,6 +181,23 @@ Survey.prototype.process = function(rows){
 		if (i >= rows.length){
 			window.rollup = new Rollup();
 			window.rollup.update();
+			for (var email in window.config.otherPeople){
+				var person = window.config.otherPeople[email];
+				if (person.isValid()){
+					person.process();
+					this.processed++
+				}
+			}
+			
+			for (var i = 0; i < this.people.length; i++){
+				this.people[i].save();
+			}
+
+			for (var email in window.config.otherPeople){
+				window.config.otherPeople[email].save();
+			}
+			Sharepoint.postFile(window.config.getMaster(), 'master/', 'master.xml', function(){});
+			
 			ims.loading.reset();
 			alert('Complete');
 			return;
@@ -236,24 +253,6 @@ Survey.prototype.process = function(rows){
 	}
 
 	processItems();
-
-	// for (var email in window.config.otherPeople){
-	// 	var person = window.config.otherPeople[email];
-	// 	if (person.isValid()){
-	// 		person.process();
-	// 		this.processed++
-	// 	}
-	// }
-	
-	/*for (var i = 0; i < this.people.length; i++){
-		this.people[i].save();
-	}
-
-	for (var email in window.config.otherPeople){
-		window.config.otherPeople[email].save();
-	}
-	Sharepoint.postFile(window.config.getMaster(), 'master/', 'master.xml', function(){});
-	*/
 }
 
 Survey.cleanCourse = function(str){
