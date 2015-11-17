@@ -7,7 +7,7 @@ module.exports = function(grunt) {
         dest: 'build/ims.js'
       },
       admin: {
-        src: ['src/admin/init.js', 'src/admin/*.js'],
+        src: ['src/admin/init.js', 'src/admin/*.js', 'src/admin/master.js'],
         dest: 'build/admin.js'
       }
     },
