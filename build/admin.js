@@ -288,6 +288,7 @@ function Answer(obj){
  * Replaces text in answers and encodes certain characters to xml
  */
 Answer.prototype.clean = function(){
+	if (this._answer == undefined) return;
 	for (var i = 0; i < this._question.replaceWhat.length; i++){
 		var replaceWhat = new RegExp(this._question.replaceWhat[i], 'g');
 		var replaceWith = new RegExp(this._question.replaceWith[i], 'g');
@@ -1031,27 +1032,17 @@ app.controller('adminCtrl', ["$scope", function($scope){
 	$scope.modifySurvey = function(id){
 		if (!id || id.length < 1) return;
 
-		var survey = $(window.config._xml).find('semester[code="' + sem + '"] survey[id="' + id + '"]');
-		var questions = $(survey).find('question');
-		var name = $(survey).attr('name');
-		var week = name.split(': Week ')[1];
+		var survey = window.config.getSurveyById(id);
+		window.config.selectedSurvey = survey;
 
-		$scope.Placement = $(survey).attr('placement');
-		$scope.surveyWeek = week;
-		$scope.surveyName = name.split(': Week')[0];
-		$scope.questions = [];
-		$scope.surveyEmailCol = $(survey).attr('email');
-		$scope.surveyTypeCol = $(survey).attr('type');
-		$scope.surveyWeekCol = $(survey).attr('week');
-		$scope.surveyCourseCol = $(survey).attr('course');
-		
-		for (var i = 0; i < questions.length; i++){
-			var row = Config.columnLetterToNumber($(questions[i]).attr('col'));
-			var text = $(questions[i]).find('text').first().text();
-			var what = $(questions[i]).find('replace').attr('what');
-			var awith = $(questions[i]).find('replace').attr('with');
-			$scope.questions.push({col: row, text: text, replaceWhat: what, replaceWith: awith});
-		}
+		$scope.Placement = survey.placement
+		$scope.surveyWeek = survey.getWeekNumber();
+		$scope.surveyName = survey.getName();
+		$scope.questions = survey.questions;
+		$scope.surveyEmailCol = survey.email;
+		$scope.surveyTypeCol = survey.type;
+		$scope.surveyWeekCol = survey.week;
+		$scope.surveyCourseCol = survey.course;
 	}
 	/**
 	 * Submits a newly created survey and saves it to the config file
@@ -2172,6 +2163,13 @@ Survey.prototype._setXmlQuestions = function(){
 	})
 }
 
+Survey.prototype.getName = function(){
+	if (this.name.indexOf(':') > -1){
+		return this.name.split(':')[0];
+	}
+	return this.name;
+}
+
 /**
  * Use the objects member variables to create the survey node
  * @return {Object} Survey in xml form
@@ -2283,12 +2281,12 @@ Survey.prototype.process = function(rows){
 				var person = window.config.otherPeople[email];
 				if (person.isValid()){
 					person.process();
-					this.processed++
+					_this.processed++
 				}
 			}
 			
-			for (var i = 0; i < this.people.length; i++){
-				this.people[i].save();
+			for (var j = 0; j < _this.people.length; j++){
+				_this.people[j].save();
 			}
 
 			for (var email in window.config.otherPeople){
@@ -2422,6 +2420,15 @@ Survey.prototype.idQuestions = function(questions){
 }
 
 Survey.prototype.getWeekNumber = function(){
-	
+	if (this.name.indexOf(':') > -1){
+		if (this.name.indexOf('Intro') > -1){
+			return 'Intro';
+		}
+		else{
+			var num = this.name.split(': Week ')[1];
+			return parseInt(num);
+		}
+	}	
+	return null;
 }
 // GROUP SURVEY END

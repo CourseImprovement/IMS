@@ -74,6 +74,13 @@ Survey.prototype._setXmlQuestions = function(){
 	})
 }
 
+Survey.prototype.getName = function(){
+	if (this.name.indexOf(':') > -1){
+		return this.name.split(':')[0];
+	}
+	return this.name;
+}
+
 /**
  * Use the objects member variables to create the survey node
  * @return {Object} Survey in xml form
@@ -185,12 +192,12 @@ Survey.prototype.process = function(rows){
 				var person = window.config.otherPeople[email];
 				if (person.isValid()){
 					person.process();
-					this.processed++
+					_this.processed++
 				}
 			}
 			
-			for (var i = 0; i < this.people.length; i++){
-				this.people[i].save();
+			for (var j = 0; j < _this.people.length; j++){
+				_this.people[j].save();
 			}
 
 			for (var email in window.config.otherPeople){
@@ -324,6 +331,15 @@ Survey.prototype.idQuestions = function(questions){
 }
 
 Survey.prototype.getWeekNumber = function(){
-	
+	if (this.name.indexOf(':') > -1){
+		if (this.name.indexOf('Intro') > -1){
+			return 'Intro';
+		}
+		else{
+			var num = this.name.split(': Week ')[1];
+			return parseInt(num);
+		}
+	}	
+	return null;
 }
 // GROUP SURVEY END

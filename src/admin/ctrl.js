@@ -343,27 +343,17 @@ app.controller('adminCtrl', ["$scope", function($scope){
 	$scope.modifySurvey = function(id){
 		if (!id || id.length < 1) return;
 
-		var survey = $(window.config._xml).find('semester[code="' + sem + '"] survey[id="' + id + '"]');
-		var questions = $(survey).find('question');
-		var name = $(survey).attr('name');
-		var week = name.split(': Week ')[1];
+		var survey = window.config.getSurveyById(id);
+		window.config.selectedSurvey = survey;
 
-		$scope.Placement = $(survey).attr('placement');
-		$scope.surveyWeek = week;
-		$scope.surveyName = name.split(': Week')[0];
-		$scope.questions = [];
-		$scope.surveyEmailCol = $(survey).attr('email');
-		$scope.surveyTypeCol = $(survey).attr('type');
-		$scope.surveyWeekCol = $(survey).attr('week');
-		$scope.surveyCourseCol = $(survey).attr('course');
-		
-		for (var i = 0; i < questions.length; i++){
-			var row = Config.columnLetterToNumber($(questions[i]).attr('col'));
-			var text = $(questions[i]).find('text').first().text();
-			var what = $(questions[i]).find('replace').attr('what');
-			var awith = $(questions[i]).find('replace').attr('with');
-			$scope.questions.push({col: row, text: text, replaceWhat: what, replaceWith: awith});
-		}
+		$scope.Placement = survey.placement
+		$scope.surveyWeek = survey.getWeekNumber();
+		$scope.surveyName = survey.getName();
+		$scope.questions = survey.questions;
+		$scope.surveyEmailCol = survey.email;
+		$scope.surveyTypeCol = survey.type;
+		$scope.surveyWeekCol = survey.week;
+		$scope.surveyCourseCol = survey.course;
 	}
 	/**
 	 * Submits a newly created survey and saves it to the config file

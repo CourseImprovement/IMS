@@ -13,6 +13,7 @@ function Answer(obj){
  * Replaces text in answers and encodes certain characters to xml
  */
 Answer.prototype.clean = function(){
+	if (this._answer == undefined) return;
 	for (var i = 0; i < this._question.replaceWhat.length; i++){
 		var replaceWhat = new RegExp(this._question.replaceWhat[i], 'g');
 		var replaceWith = new RegExp(this._question.replaceWith[i], 'g');
