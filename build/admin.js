@@ -1032,6 +1032,7 @@ app.controller('adminCtrl', ["$scope", function($scope){
 		if (!id || id.length < 1) return;
 
 		var survey = window.config.getSurveyById(id);
+		window.config.selectedSurvey = survey;
 
 		$scope.Placement = survey.placement
 		$scope.surveyWeek = survey.getWeekNumber();
