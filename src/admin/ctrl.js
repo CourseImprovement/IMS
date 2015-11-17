@@ -347,7 +347,7 @@ app.controller('adminCtrl', ["$scope", function($scope){
 
 		$scope.Placement = survey.placement
 		$scope.surveyWeek = survey.getWeekNumber();
-		$scope.surveyName = survey.name;
+		$scope.surveyName = survey.getName();
 		$scope.questions = survey.questions;
 		$scope.surveyEmailCol = survey.email;
 		$scope.surveyTypeCol = survey.type;

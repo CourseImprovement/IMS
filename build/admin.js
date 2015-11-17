@@ -1035,7 +1035,7 @@ app.controller('adminCtrl', ["$scope", function($scope){
 
 		$scope.Placement = survey.placement
 		$scope.surveyWeek = survey.getWeekNumber();
-		$scope.surveyName = survey.name;
+		$scope.surveyName = survey.getName();
 		$scope.questions = survey.questions;
 		$scope.surveyEmailCol = survey.email;
 		$scope.surveyTypeCol = survey.type;
@@ -2161,6 +2161,13 @@ Survey.prototype._setXmlQuestions = function(){
 	})
 }
 
+Survey.prototype.getName = function(){
+	if (this.name.indexOf(':') > -1){
+		return this.name.split(':')[0];
+	}
+	return this.name;
+}
+
 /**
  * Use the objects member variables to create the survey node
  * @return {Object} Survey in xml form
@@ -2411,6 +2418,15 @@ Survey.prototype.idQuestions = function(questions){
 }
 
 Survey.prototype.getWeekNumber = function(){
-	
+	if (this.name.indexOf(':') > -1){
+		if (this.name.indexOf('Intro') > -1){
+			return 'Intro';
+		}
+		else{
+			var num = this.name.split(': Week ')[1];
+			return parseInt(num);
+		}
+	}	
+	return null;
 }
 // GROUP SURVEY END
