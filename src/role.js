@@ -17,7 +17,7 @@ function Role(role, user, dontSetOrg){
  */
 Role.prototype.getTiles = function(){
 	var role = this.getRoleName().toLowerCase();
-	if (role == 'aim'){
+	if (role == 'aim' || role == 'im'){
 		return [
 			[
 				new Tile({

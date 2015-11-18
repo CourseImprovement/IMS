@@ -285,6 +285,53 @@ Number.isFloat = function(n){
 }
 
 
+
+function changeAll(){
+	var master = ims.sharepoint.getXmlByEmail('master');
+
+	$(master).find('person[highestrole=aim]').each(function(){
+		var people = $(this).find('roles > role[type=aim] > stewardship > people > person');
+		$(this).find('roles > role[type=tgl] > stewardship').remove();
+		$(this).find('roles > role[type=tgl]').append('<stewardship><people></people></stewardship>');
+		for (var i = 0; i < people.length; i++){
+			var person = people[i];
+			$(this).find('roles > role[type=tgl] > stewardship > people')
+				.append('<person first="' + $(person).attr('first') + '" last="' + $(person).attr('last') + '" email="' + $(person).attr('email') + '" type="instructor"></person>');
+		}
+	})
+
+	$(master).find('semester > people > person').each(function(){
+		var xml;
+		try{
+			xml = ims.sharepoint.getXmlByEmail($(this).attr('email'));
+		}
+		catch(e){
+
+		}
+		if (!xml){
+			xml = $('<semesters><semester code="FA15"><people><person></person></people></semester></semesters>');
+		}
+		$(xml).find('semester > people > person').remove();
+		$(xml).find('semester > people').append($(this).clone());
+
+
+		$(xml).find('semester > people > person > roles > role > stewardship > people > person').each(function(){
+			var type = $(this).attr('type');
+			var underXml = $(master).find('semester > people > person[email=' + $(this).attr('email') + ']').clone();
+			$(underXml).attr('type', type).removeAttr('highestrole');
+			$(underXml).find('role:not([type=' + type + '])').remove();
+			var email = $(this).attr('email');
+			var p = $(this).parent();
+			p.find('person[email=' + email + ']').remove();
+			p.append(underXml);
+		});
+
+
+		Sharepoint.postFile($(xml)[0], 'Master/', $(this).attr('email') + '.xml', function(){});
+	})
+	Sharepoint.postFile($(master)[0], 'Master/', 'master.xml', function(){});
+}
+
 /**
  * Get the master file
  * @param {Boolean} isMap [description]
@@ -1542,14 +1589,8 @@ Evaluations.prototype.parseCSV = function(){
  */
 function Permissions(){
 	console.log('new Permissions object created');
-	this._map = window.config.getMap();
 	this._xml = this.getPermissionsXml();
-	this._areDifferent = $(this._map).html() != $(this._xml).html();
-	if (this._areDifferent){
-		this._old = this.setOld();
-		this._new = this.setNew();
-	}
-	this._toChange = null;
+	var map = window.config.getMaster();
 }
 
 Permissions._xml = null;
@@ -1559,21 +1600,6 @@ Permissions.prototype.getPermissionsXml = function(){
 		Permissions._xml = ims.sharepoint.getPermissionsXml();
 	}
 	return Permissions._xml;
-}
-
-Permissions.prototype.setOld = function(){
-	var _this = this;
-	$(this._xml).find('file').each(function(){
-		var email = $(this).attr('name');
-		_this._old[email] = [];
-		$(this).find('user').each(function(){
-			_this._old[email].push($(this).attr('email'));
-		});
-	});
-}
-
-Permissions.prototype.setNew = function(){
-	
 }
 
 /**
@@ -1590,7 +1616,7 @@ Permissions.prototype.check = function(){
 Permissions.prototype.update = function(){
 	console.log('updating the permissions');
 }
-// GROUP PERMISSIONS END
+// GROUP PERM             ISSIONS END
 
 
 
