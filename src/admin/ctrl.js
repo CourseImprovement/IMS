@@ -64,6 +64,12 @@ app.controller('adminCtrl', ["$scope", function($scope){
 	$scope.checkPermissions = function(){
 		var p = new Permissions();
 		var checked = p.check();
+		if (checked){
+			alert('Permissions needs changes');
+		}
+		else{
+			alert('No permission changes needed');
+		}
 	}
 	/**
 	 * Alerts the user to the percentage completed
