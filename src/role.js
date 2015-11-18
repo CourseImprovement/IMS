@@ -18,18 +18,18 @@ function Role(role, user, dontSetOrg){
 Role.prototype.getTiles = function(){
 	var role = this.getRoleName().toLowerCase();
 	if (role == 'aim' || role == 'im'){
-		return [
+		return [ 
 			[
 				new Tile({
 					title: 'Tasks To Review',
-					helpText: 'This tile displays tasks that your TGLs have completed and that as an AIM you need to review.',
+					helpText: 'This tile displays tasks that your ' + this._nextLower(role).toUpperCase() + 's have completed and that as an ' + role.toUpperCase() + ' you need to review.',
 					type: 'task-list',
 					data: this.getTasksToReview(false),
 					hidden: ''
 				}),
 				new Tile({
-					title: 'Completed AIM Tasks',
-					helpText: 'This tile displays AIM tasks that you have completed.',
+					title: 'Completed ' + role.toUpperCase() + ' Tasks',
+					helpText: 'This tile displays ' + role.toUpperCase() + ' tasks that you have completed.',
 					type: 'survey-list',
 					data: this.getCompletedTasks(),
 					hidden: ''
@@ -37,8 +37,8 @@ Role.prototype.getTiles = function(){
 			],
 			[
 				new Tile({
-					title: 'Incomplete TGL Tasks',
-					helpText: 'This tile displays overdue tasks for TGLs in your area.',
+					title: 'Incomplete ' + this._nextLower(role).toUpperCase() + ' Tasks',
+					helpText: 'This tile displays overdue tasks for ' + this._nextLower(role).toUpperCase() + 's in your area.',
 					type: 'review-list',
 					data: this.getIncompleteTasks(),
 					hidden: ''
