@@ -1054,7 +1054,14 @@ Role.prototype.getTiles = function(){
 					type: 'roster',
 					data: this.getRoster(),
 					hidden: ''
-				})
+				}),
+                new Tile({
+                    title: 'Evaluations',
+                    helpText: 'This tile displays evaluations on you as a ' + role.toUpperCase() + '.',
+                    type: 'survey-list',
+                    data: [],
+                    hidden: ''
+                }),
 			],
 			[
 				new Tile({
