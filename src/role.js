@@ -33,7 +33,15 @@ Role.prototype.getTiles = function(){
 					type: 'survey-list',
 					data: this.getCompletedTasks(),
 					hidden: ''
-				})
+				}),
+                new Tile({
+                    title: 'Instructor Standards',
+                    helpText: 'This tile displays the average score for each instructor standard. Click on a standard\'s line in the graph to view individual instructor scores for that standard',
+                    type: 'graph',
+                    data: this.getInstructorStandards(),
+                    hidden: '',
+                    config: 'TGLInstructorStandards'
+                }),
 			],
 			[
 				new Tile({
@@ -45,7 +53,7 @@ Role.prototype.getTiles = function(){
 				}),
 				new Tile({
 					title: 'Roster',
-					helpText: 'This tile displays your instructors.',
+					helpText: 'This tile displays your ' + this._nextLower(role).toUpperCase() + 's.',
 					type: 'roster',
 					data: this.getRoster(),
 					hidden: ''
