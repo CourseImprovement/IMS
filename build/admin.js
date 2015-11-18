@@ -395,7 +395,7 @@ MasterPerson.prototype.addUpperAndLowers = function(){
 			person: person
 		});
 	});
-	$(this._xml).find('> roles > role > leadership > person').each(function(){
+	$(this._xml).find('> roles > role > leadership > people > person').each(function(){
 		var person = _this.master.graph[$(this).attr('email')];
 		_this.leaders[$(this).attr('type')] = person;
 		_this.uppers.push({
