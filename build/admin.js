@@ -1623,6 +1623,7 @@ Permissions.prototype.check = function(){
 	var add = [];
 	var remove = [];
 	for (var i = 0; i < this.people.length; i++){
+		console.log(this.people[i].email);
 		if (this.people[i].access.length == this.map.graph[this.people[i].email].uppers.length){
 			console.log('fine');
 		}
