@@ -1061,7 +1061,7 @@ Role.prototype.getTiles = function(){
                     type: 'survey-list',
                     data: [],
                     hidden: ''
-                }),
+                })
 			],
 			[
 				new Tile({
@@ -1092,6 +1092,13 @@ Role.prototype.getTiles = function(){
 					data: this.getIncompleteTasks(),
 					hidden: ''
 				}),
+                new Tile({
+                    title: 'Evaluations',
+                    helpText: 'This tile displays evaluations on you as a ' + role.toUpperCase() + '.',
+                    type: 'survey-list',
+                    data: [],
+                    hidden: ''
+                }),
 				new Tile({
 					title: 'Roster',
 					helpText: 'This tile displays your instructors.',
