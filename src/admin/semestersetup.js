@@ -112,8 +112,6 @@ SemesterSetup.prototype._createOrg = function(){
 			inst.course['section'] = this._csv[rows][5];
 			inst.course['pwsection'] = '';
 		}
-		console.log('inst');
-		console.log(inst);
 
 		// TGL OBJECT
 		var tgl = {
@@ -125,8 +123,6 @@ SemesterSetup.prototype._createOrg = function(){
 			course: null,
 			stewardship: inst
 		};
-		console.log('tgl');
-		console.log(tgl);
 		
 		// AIM OBJECT
 		var aim = {
@@ -138,8 +134,6 @@ SemesterSetup.prototype._createOrg = function(){
 			course: null,
 			stewardship: tgl
 		};
-		console.log('aim');
-		console.log(aim);
 
 		// IM OBJECT
 		var im = new OSMPerson({
@@ -151,8 +145,6 @@ SemesterSetup.prototype._createOrg = function(){
 			course: null,
 			stewardship: aim
 		});
-		console.log('im');
-		console.log(im);
 
 		// OCR OBJECT
 		var ocr = {
@@ -187,13 +179,13 @@ SemesterSetup.prototype.addImToOrg = function(im){
 	}
 	else{
 		for (var i = 0; i < this._org.IM.length; i++){ // IM LEVEL
-			if (this._org.IM[i].email == im.email){
+			if (this._org.IM[i].email == im.email){ // DOES THE IM ALREADY EXIST
 				for (var a = 0; a < this._org.IM[i].stewardship.length; a++){ // AIM LEVEL
-					if (this._org.IM[i].stewardship[a].email == im.stewardship[0].email){
+					if (this._org.IM[i].stewardship[a].email == im.stewardship[0].email){ // DOES THE AIM ALREADY EXIST
 						for (var t = 0; t < this._org.IM[i].stewardship[a].stewardship.length; t++){ // TGL LEVEL
-							if (this._org.IM[i].stewardship[a].stewardship[t].email == im.stewardship[0].stewardship[0].email){
+							if (this._org.IM[i].stewardship[a].stewardship[t].email == im.stewardship[0].stewardship[0].email){ // DOES THE TGL ALREADY EXIST
 								for (var l = 0; l < this._org.IM[i].stewardship[a].stewardship[t].stewardship.length; l++){ // INSTRUCTOR LEVEL
-									if (this._org.IM[i].stewardship[a].stewardship[t].stewardship[l].email == im.stewardship[0].stewardship[0].stewardship[0].email){
+									if (this._org.IM[i].stewardship[a].stewardship[t].stewardship[l].email == im.stewardship[0].stewardship[0].stewardship[0].email){ // DOES THE INSTRUCTOR ALREADY EXIST
 										return;
 									}
 								}
