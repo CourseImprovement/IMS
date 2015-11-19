@@ -206,7 +206,7 @@ ims.sharepoint = {
 
 			callback(result);
 		});
-	}
+	},
 	/**
 	 * Posts the current user xml file.
 	 * @return {null} Nothing is returned
