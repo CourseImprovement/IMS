@@ -2427,14 +2427,17 @@ SemesterSetup.prototype.addImToOrg = function(im){
 										return;
 									}
 								}
+								console.log('a');
 								this._org.IM[i]._stewardship[a]._stewardship[t]._stewardship.push(new OSMPerson(im._stewardship._stewardship._stewardship));
 								return;
 							}
 						}
+						console.log('b');
 						this._org.IM[i]._stewardship[a]._stewardship.push(new OSMPerson(im._stewardship._stewardship));
 						return;
 					}
 				}
+				console.log('c');
 				this._org.IM[i]._stewardship.push(new OSMPerson(im._stewardship));
 				return;
 			}
