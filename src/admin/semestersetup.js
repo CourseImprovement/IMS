@@ -188,11 +188,11 @@ SemesterSetup.prototype.addImToOrg = function(im){
 		for (var i = 0; i < this._org.IM.length; i++){ // IM LEVEL
 			if (this._org.IM[i]._email == im._email){
 				for (var a = 0; a < this._org.IM[i]._stewardship.length; a++){ // AIM LEVEL
-					if (this._org.IM[i]._stewardship[a]._email == im._stewardship._email){
+					if (this._org.IM[i]._stewardship[a]._email == im._stewardship[0]._email){
 						for (var t = 0; t < this._org.IM[i]._stewardship[a]._stewardship.length; t++){ // TGL LEVEL
-							if (this._org.IM[i]._stewardship[a]._stewardship[t]._email == im._stewardship._stewardship._email){
+							if (this._org.IM[i]._stewardship[a]._stewardship[t]._email == im._stewardship[0]._stewardship[0]._email){
 								for (var l = 0; l < this._org.IM[i]._stewardship[a]._stewardship[t]._stewardship.length; l++){ // INSTRUCTOR LEVEL
-									if (this._org.IM[i]._stewardship[a]._stewardship[t]._stewardship[l]._email == im._stewardship._stewardship._stewardship._email){
+									if (this._org.IM[i]._stewardship[a]._stewardship[t]._stewardship[l]._email == im._stewardship[0]._stewardship[0]._stewardship[0]._email){
 										return;
 									}
 								}
