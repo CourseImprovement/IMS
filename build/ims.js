@@ -1031,14 +1031,14 @@ Role.prototype.getTiles = function(){
 					data: this.getCompletedTasks(),
 					hidden: ''
 				}),
-                // new Tile({
-                //     title: 'Instructor Standards',
-                //     helpText: 'This tile displays the average score for each instructor standard. Click on a standard\'s line in the graph to view individual instructor scores for that standard',
-                //     type: 'graph',
-                //     data: this.getInstructorStandards(),
-                //     hidden: '',
-                //     config: 'TGLInstructorStandards'
-                // }),
+                new Tile({
+                    title: 'Instructor Standards',
+                    helpText: 'This tile displays the average score for each instructor standard. Click on a standard\'s line in the graph to view individual instructor scores for that standard',
+                    type: 'graph',
+                    data: this.getInstructorStandards(),
+                    hidden: '',
+                    config: 'TGLInstructorStandards'
+                })
 			],
 			[
 				new Tile({
@@ -1055,13 +1055,13 @@ Role.prototype.getTiles = function(){
 					data: this.getRoster(),
 					hidden: ''
 				}),
-                // new Tile({
-                //     title: 'Evaluations',
-                //     helpText: 'This tile displays evaluations on you as a ' + role.toUpperCase() + '.',
-                //     type: 'survey-list',
-                //     data: [],
-                //     hidden: ''
-                // })
+                new Tile({
+                    title: 'Evaluations',
+                    helpText: 'This tile displays evaluations on you as a ' + role.toUpperCase() + '.',
+                    type: 'survey-list',
+                    data: [],
+                    hidden: ''
+                })
 			],
 			[
 				new Tile({
@@ -1092,13 +1092,13 @@ Role.prototype.getTiles = function(){
 					data: this.getIncompleteTasks(),
 					hidden: ''
 				}),
-                // new Tile({
-                //     title: 'Evaluations',
-                //     helpText: 'This tile displays evaluations on you as a ' + role.toUpperCase() + '.',
-                //     type: 'survey-list',
-                //     data: [],
-                //     hidden: ''
-                // }),
+                new Tile({
+                    title: 'Evaluations',
+                    helpText: 'This tile displays evaluations on you as a ' + role.toUpperCase() + '.',
+                    type: 'survey-list',
+                    data: [],
+                    hidden: ''
+                }),
 				new Tile({
 					title: 'Roster',
 					helpText: 'This tile displays your instructors.',
