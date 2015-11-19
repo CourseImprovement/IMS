@@ -2455,7 +2455,7 @@ SemesterSetup.prototype.addOcrmToOrg = function(ocrm){
 								return;
 							}
 						}
-						this._org.OCRM[m].stewardship[o].stewardship.push(new OSMPerson(ocrm.stewardship[0])); // ADD INST
+						this._org.OCRM[m].stewardship[o].stewardship.push(new OSMPerson(ocrm.stewardship[0].stewardship[0])); // ADD INST
 					}
 				}
 				this._org.OCRM[m].stewardship.push(new OSMPerson(ocrm.stewardship[0])); // ADD OCR
