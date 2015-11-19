@@ -2238,7 +2238,6 @@ Rollup.prototype.update = function(){
  * @param {Array} csv Contains the rows from the csv file
  */
 function SemesterSetup(csv){
-	console.log('new SemesterSetup object was created');
 	this._csv = csv;
 	this._org = {};
 	this._rollup = null;
@@ -2248,7 +2247,6 @@ function SemesterSetup(csv){
 }
 
 function OSMPerson(obj){
-	console.log('creating a new person');
 	this.first = obj.first;
 	this.last = obj.last;
 	this.email = obj.email;
@@ -2290,7 +2288,6 @@ OSMPerson.prototype.addRole = function(role){
 }
 
 function Course(obj){
-	console.log('creating a new course');
 	this.name = obj.name; 
 	this.section = obj.section; 
 	this.credits = obj.credits; 
@@ -2302,7 +2299,6 @@ function Course(obj){
  * PERFORMS A COMPLETE SEMESTER SETUP
  */
 SemesterSetup.prototype.semesterSetup = function(){
-	console.log('semester is being setup');
 	this._createOrg();
 	this._createMaster();
 	this._createIndividualFiles();
@@ -2314,7 +2310,6 @@ SemesterSetup.prototype.semesterSetup = function(){
  * @return {[type]} [description]
  */
 SemesterSetup.prototype._createOrg = function(){
-	console.log('rollup is being created');
 	this._org['IM'] = [];
 	this._org['OCRM'] = [];
 
@@ -2425,6 +2420,7 @@ SemesterSetup.prototype.addImToOrg = function(im){
 										return;
 									}
 								}
+								console.log(im.stewardship[0].stewardship[0].stewardship[0]);
 								this._org.IM[i].stewardship[a].stewardship[t].stewardship.push(new OSMPerson(im.stewardship[0].stewardship[0].stewardship[0])); // ADD INST
 								return;
 							}
