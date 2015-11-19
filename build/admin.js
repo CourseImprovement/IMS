@@ -185,6 +185,14 @@ ims.sharepoint = {
 		$.get(allItemFiles, callback);
 	},
 	/**
+	 * Get the site users, used in permissions
+	 * @param  {Function} callback [description]
+	 * @return {[type]}            [description]
+	 */
+	getSiteUsers: function(callback){
+		$.get(ims.url._base + '_api/Web/siteUsers', callback);
+	},
+	/**
 	 * Posts the current user xml file.
 	 * @return {null} Nothing is returned
 	 * @function
@@ -1657,6 +1665,9 @@ Permissions.prototype.init = function(){
 		_this.people.push(p);
 		_this.graph[p.email] = p;
 	});
+	ims.sharepoint.getSiteUsers(function(users){
+		_this.siteUsers = users;
+	})
 }
 
 Permissions._xml = null;
@@ -1760,7 +1771,7 @@ PermissionsPerson.prototype.addUsers = function(){
 	ims.sharepoint.getFileItems(this.email, function(listItemsXml){
 		for (var i = 0; i < _this.results.add.length; i++){
 			var file = _this.results.add[i];
-			var user = $(siteUsers).find('d\\:Email:contains(' + file.email + '), Email:contains(' + file.email + ')');
+			var user = $(_this.permissions.siteUsers).find('d\\:Email:contains(' + file.email + '), Email:contains(' + file.email + ')');
 			var id = $(user).parent().find('d\\:Id, Id').text();
 			var begin = $(listItemsXml).find('[title=RoleAssignments]').attr('href');
 			var raHref = '/addroleassignment(principalid=' + id + ',roledefid=1073741830)';
