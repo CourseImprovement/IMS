@@ -2420,15 +2420,20 @@ SemesterSetup.prototype.addImToOrg = function(im){
 										return;
 									}
 								}
+								console.log('add inst');
 								console.log(im.stewardship[0].stewardship[0].stewardship[0]);
 								this._org.IM[i].stewardship[a].stewardship[t].stewardship.push(new OSMPerson(im.stewardship[0].stewardship[0].stewardship[0])); // ADD INST
 								return;
 							}
 						}
+						console.log('add tgl');
+						console.log(im.stewardship[0].stewardship[0]);
 						this._org.IM[i].stewardship[a].stewardship.push(new OSMPerson(im.stewardship[0].stewardship[0])); // ADD TGL
 						return;
 					}
 				}
+				console.log('add aim');
+				console.log(im.stewardship[0]);
 				this._org.IM[i].stewardship.push(new OSMPerson(im.stewardship[0])); // ADD AIM
 				return;
 			}
