@@ -2195,7 +2195,7 @@ function Tile(config) {
 }
 
 Tile.getAll = function(role) {
-  var name = role.getnameName().toLowerCase();
+  var name = role.getRoleName().toLowerCase();
   if (name == 'aim' || name == 'im') {
     return [
       [
