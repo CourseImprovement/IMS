@@ -1017,8 +1017,13 @@ app.controller('adminCtrl', ["$scope", function($scope){
 	 * @function
 	 */
 	$scope.semesterSetup = function(){
-		var s = new SemesterSetup();
-		s.semesterSetup();
+		var csv = new CSV();
+		csv.readFile($scope.file, function(file){
+			setTimeout(function(){
+				var s = new SemesterSetup(file.data);
+				s.semesterSetup();
+			}, 10);
+		});
 	}
 	/**
 	 * Updates all semester files based on provided org file 
@@ -2019,6 +2024,9 @@ Rollup.prototype.update = function(){
 			$(this._xml).find('semester[code=' + window.config.getCurrentSemester() + '] person[email=' + aim + '][type=aim] question[name="' + questions[q] + '"] survey[id=' + this._surveyId + ']').remove();
 			$(this._xml).find('semester[code=' + window.config.getCurrentSemester() + '] person[email=' + aim + '][type=aim] question[name="' + questions[q] + '"]').append('<survey id="' + this._surveyId + '" value="' + avg + '" />');
 		}
+		// organize aims under ims
+		// concat aim underling responses
+		// calculate everything
 		var rollupValue = 0;
 		if (questions[q] == 'Weekly Hours'){
 			rollupValue = Rollup.avg(top[q].sum, top[q].credits);
@@ -2042,31 +2050,61 @@ Rollup.prototype.update = function(){
 function SemesterSetup(csv){
 	console.log('new SemesterSetup object was created');
 	this._csv = csv;
-	this._map = null;
+	this._org = {};
 	this._rollup = null;
 	this._master = null;
 	this._individualFiles = null;
 	this._sem = null; 
 }
 
+function OSMPerson(obj){
+	console.log('creating a new person');
+	this._first = obj.first;
+	this._last = obj.last;
+	this._email = obj.email;
+	this._isNew = obj.isNew;
+	this._roles = [];
+	this._roles.push(obj.role);
+	this._courses = [];
+	this._courses.push(new Course(obj.course));
+	this._stewardship = [];
+	this._stewardship.push(new OSMPerson(obj.stewardship));
+}
+
+OSMPerson.prototype.addCourse = function(course){
+
+}
+
+OSMPerson.prototype.addRole = function(role){
+
+}
+
+function Course(obj){
+	console.log('creating a new course');
+	this._name = obj.name; 
+	this._section = obj.section; 
+	this._credits = obj.credits; 
+	this._isPilot = obj.isPilot; 
+	this._pwsection = obj.pwsection;
+}
+
 /**
  * PERFORMS A COMPLETE SEMESTER SETUP
- * @return {[type]} [description]
  */
 SemesterSetup.prototype.semesterSetup = function(){
 	console.log('semester is being setup');
-	this._createMap();
-	this._createIndividualFiles();
+	this._createOrg();
 	this._createMaster();
+	this._createIndividualFiles();
 	this._createRollup();
 }
 
 /**
- * CREATES A NEW SEMESTER MAP SECTION IN THE MAP FILE
+ * CREATES A NEW ORG FROM THE CSV
  * @return {[type]} [description]
  */
-SemesterSetup.prototype._createMap = function(){
-	console.log('map is being created');
+SemesterSetup.prototype._createOrg = function(){
+	console.log('rollup is being created');
 }
 
 /**
@@ -2082,7 +2120,7 @@ SemesterSetup.prototype._createRollup = function(){
  * @return {[type]} [description]
  */
 SemesterSetup.prototype._createMaster = function(){
-	console.log('map is being created');
+	console.log('master is being created');
 }
 
 /**
@@ -2094,33 +2132,11 @@ SemesterSetup.prototype._createIndividualFiles = function(){
 }
 
 /**
- * UPDATES THE CURRENT SEMESTER SETUP
- * @return {[type]} [description]
- */
-SemesterSetup.prototype.semesterUpdate = function(){
-	console.log('semester is being updated');
-	if (this._isDifferent()){
-		this._updateMap();
-		this._updateIndividualFiles();
-		this._updateMaster();
-		this._updateRollup();
-	}
-}
-
-/**
  * CHECKS IF THE MAP HAS CHANGED
  * @return {Boolean} [description]
  */
 SemesterSetup.prototype._isDifferent = function(){
 	console.log('are the semesters already the same');
-}
-
-/**
- * CHECKS FOR MAP CHANGES AND CHANGES TO BE THE MOST CURRENT
- * @return {[type]} [description]
- */
-SemesterSetup.prototype._updateMap = function(){
-	console.log('map is being updated');
 }
 
 /**
