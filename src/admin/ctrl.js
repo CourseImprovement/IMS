@@ -186,8 +186,13 @@ app.controller('adminCtrl', ["$scope", function($scope){
 	 * @function
 	 */
 	$scope.semesterSetup = function(){
-		var s = new SemesterSetup();
-		s.semesterSetup();
+		var csv = new CSV();
+		csv.readFile($scope.file, function(file){
+			setTimeout(function(){
+				var s = new SemesterSetup(file.data);
+				s.semesterSetup();
+			}, 10);
+		});
 	}
 	/**
 	 * Updates all semester files based on provided org file 

@@ -160,6 +160,9 @@ Rollup.prototype.update = function(){
 			$(this._xml).find('semester[code=' + window.config.getCurrentSemester() + '] person[email=' + aim + '][type=aim] question[name="' + questions[q] + '"] survey[id=' + this._surveyId + ']').remove();
 			$(this._xml).find('semester[code=' + window.config.getCurrentSemester() + '] person[email=' + aim + '][type=aim] question[name="' + questions[q] + '"]').append('<survey id="' + this._surveyId + '" value="' + avg + '" />');
 		}
+		// organize aims under ims
+		// concat aim underling responses
+		// calculate everything
 		var rollupValue = 0;
 		if (questions[q] == 'Weekly Hours'){
 			rollupValue = Rollup.avg(top[q].sum, top[q].credits);
