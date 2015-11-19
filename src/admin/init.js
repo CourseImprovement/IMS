@@ -193,6 +193,21 @@ ims.sharepoint = {
 		$.get(ims.url._base + '_api/Web/siteUsers', callback);
 	},
 	/**
+	 * Get the role ids
+	 * @param  {Function} callback [description]
+	 * @return {[type]}            [description]
+	 */
+	getRoles: function(callback){
+		$.get(ims.url._base + '_api/Web/roledefinitions', function(xml){
+			var result = {};
+			$(xml).find('properties Name, m\\:properties d\\:Name').each(function(){
+				result[$(this).text()] = $(this).prev().text();
+			})
+
+			callback(result);
+		});
+	},
+	/**
 	 * Posts the current user xml file.
 	 * @return {null} Nothing is returned
 	 * @function

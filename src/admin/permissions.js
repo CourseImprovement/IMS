@@ -27,6 +27,9 @@ Permissions.prototype.init = function(){
 	ims.sharepoint.getSiteUsers(function(users){
 		_this.siteUsers = {xml: users, add: []};
 	})
+	ims.sharepoint.getRoles(function(roles){
+		_this.roles = roles;
+	})
 }
 
 Permissions._xml = null;
@@ -130,16 +133,16 @@ PermissionsPerson.prototype.addUsers = function(){
 	ims.sharepoint.getFileItems(this.email, function(listItemsXml){
 		for (var i = 0; i < _this.results.add.length; i++){
 			var file = _this.results.add[i];
-			var user = $(_this.permissions.siteUsers.xml).find('d\\:Email:contains(' + file.email + '), Email:contains(' + file.email + ')');
+			var user = $(_this.permissions.siteUsers.xml).find('d\\:Email:contains(' + file + '), Email:contains(' + file + ')');
 			var id = $(user).parent().find('d\\:Id, Id').text();
 			if (id){
 				var begin = $(listItemsXml).find('[title=RoleAssignments]').attr('href');
-				var raHref = '/addroleassignment(principalid=' + id + ',roledefid=1073741830)';
+				var raHref = '/addroleassignment(principalid=' + id + ',roledefid=' + _this.roles.Edit + ')';
 							
 
-				// ims.sharepoint.makePostRequest('_api/' + begin + raHref, function(){}, function(){
-				// 	err.push(u);
-				// });	
+				ims.sharepoint.makePostRequest('_api/' + begin + raHref, function(){}, function(){
+					err.push(u);
+				});	
 			}
 			else{
 				_this.permissions.siteUsers.add.push(file);
