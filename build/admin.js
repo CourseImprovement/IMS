@@ -1756,9 +1756,9 @@ PermissionsPerson.prototype.removeUsers = function(){
 
 PermissionsPerson.prototype.addUsers = function(){
 	var err = [];
-	for (var i = 0; i < this.results.add.length; i++){
-		var file = this.results.add[i];
-		ims.sharepoint.getFileItems(this.email, function(listItemsXml){
+	ims.sharepoint.getFileItems(this.email, function(listItemsXml){
+		for (var i = 0; i < this.results.add.length; i++){
+			var file = this.results.add[i];
 			var user = $(siteUsers).find('d\\:Email:contains(' + file.email + '), Email:contains(' + file.email + ')');
 			var id = $(user).parent().find('d\\:Id, Id').text();
 			var begin = $(listItemsXml).find('[title=RoleAssignments]').attr('href');
@@ -1767,9 +1767,9 @@ PermissionsPerson.prototype.addUsers = function(){
 
 			ims.sharepoint.makePostRequest('_api/' + begin + raHref, function(){}, function(){
 				err.push(u);
-			});
-		});
-	}
+			});	
+		}
+	});
 }
 // GROUP PermissionsPerson END
 
