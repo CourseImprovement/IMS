@@ -2343,6 +2343,8 @@ SemesterSetup.prototype._createOrg = function(){
 			inst.course['section'] = this._csv[rows][5];
 			inst.course['pwsection'] = '';
 		}
+		console.log('inst');
+		console.log(inst);
 
 		// TGL OBJECT
 		var tgl = {
@@ -2354,6 +2356,8 @@ SemesterSetup.prototype._createOrg = function(){
 			course: null,
 			stewardship: inst
 		};
+		console.log('tgl');
+		console.log(tgl);
 		
 		// AIM OBJECT
 		var aim = {
@@ -2365,6 +2369,8 @@ SemesterSetup.prototype._createOrg = function(){
 			course: null,
 			stewardship: tgl
 		};
+		console.log('aim');
+		console.log(aim);
 
 		// IM OBJECT
 		var im = new OSMPerson({
@@ -2376,6 +2382,8 @@ SemesterSetup.prototype._createOrg = function(){
 			course: null,
 			stewardship: aim
 		});
+		console.log('im');
+		console.log(im);
 
 		// OCR OBJECT
 		var ocr = {
@@ -2420,20 +2428,14 @@ SemesterSetup.prototype.addImToOrg = function(im){
 										return;
 									}
 								}
-								console.log('add inst');
-								console.log(im.stewardship[0].stewardship[0].stewardship[0]);
 								this._org.IM[i].stewardship[a].stewardship[t].stewardship.push(new OSMPerson(im.stewardship[0].stewardship[0].stewardship[0])); // ADD INST
 								return;
 							}
 						}
-						console.log('add tgl');
-						console.log(im.stewardship[0].stewardship[0]);
 						this._org.IM[i].stewardship[a].stewardship.push(new OSMPerson(im.stewardship[0].stewardship[0])); // ADD TGL
 						return;
 					}
 				}
-				console.log('add aim');
-				console.log(im.stewardship[0]);
 				this._org.IM[i].stewardship.push(new OSMPerson(im.stewardship[0])); // ADD AIM
 				return;
 			}
