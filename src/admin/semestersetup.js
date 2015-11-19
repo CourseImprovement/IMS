@@ -25,9 +25,13 @@ function OSMPerson(obj){
 	this._roles = [];
 	this._roles.push(obj.role);
 	this._courses = [];
-	this._courses.push(new Course(obj.course));
+	if (obj.course != null){
+		this._courses.push(new Course(obj.course));
+	}
 	this._stewardship = [];
-	this._stewardship.push(new OSMPerson(obj.stewardship));
+	if (obj.stewardship != null){
+		this._stewardship.push(new OSMPerson(obj.stewardship));
+	}
 }
 
 OSMPerson.prototype.addCourse = function(course){
