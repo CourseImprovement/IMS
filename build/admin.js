@@ -181,7 +181,7 @@ ims.sharepoint = {
 	 * @return {[type]}            [description]
 	 */
 	getFileItems: function(fileName, callback){
-		var allItemFiles = ims.url.base + 	"_api/Web/GetFileByServerRelativeUrl('" + ims.url.relativeBase + "Instructor%20Reporting/Master/" + fileName + ".xml')/ListItemAllFields";
+		var allItemFiles = ims.url._base + 	"_api/Web/GetFileByServerRelativeUrl('" + ims.url.relativeBase + "Instructor%20Reporting/Master/" + fileName + ".xml')/ListItemAllFields";
 		$.get(allItemFiles, callback);
 	},
 	/**
