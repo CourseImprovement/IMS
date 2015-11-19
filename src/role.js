@@ -41,7 +41,7 @@ Role.prototype.getTiles = function(){
                     data: this.getInstructorStandards(),
                     hidden: '',
                     config: 'TGLInstructorStandards'
-                }),
+                })
 			],
 			[
 				new Tile({

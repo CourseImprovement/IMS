@@ -54,14 +54,14 @@ function MasterPerson(xml, master){
  */
 MasterPerson.prototype.addUpperAndLowers = function(){
 	var _this = this;
-	$(this._xml).find('> roles > role[type=' + this.highestRole + '] > stewardship > people > person').each(function(){
+	$(this._xml).find('> roles > role > stewardship > people > person').each(function(){
 		var person = _this.master.graph[$(this).attr('email')];
 		_this.lowers.push({
 			role: $(this).attr('type'),
 			person: person
 		});
 	});
-	$(this._xml).find('> roles > role[type=' + this.highestRole + '] > leadership > person').each(function(){
+	$(this._xml).find('> roles > role > leadership person').each(function(){
 		var person = _this.master.graph[$(this).attr('email')];
 		_this.leaders[$(this).attr('type')] = person;
 		_this.uppers.push({

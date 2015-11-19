@@ -499,7 +499,7 @@ ims.sharepoint = {
 function Course(xml){
 	this._name = $(xml).text();
 	this._sections = $(xml).attr('section').indexOf(' ') > -1 ? $(xml).attr('section').split(' ') : [$(xml).attr('section')];
-	this._credits = parseInt($(xml).attr('credit')) * this._sections.length;
+	this._credits = parseInt($(xml).attr('credit'));
 	this._pilot = $(xml).attr('pilot') == 'true';
 	this._id = $(xml).attr('id');
 }
@@ -1038,7 +1038,7 @@ Role.prototype.getTiles = function(){
                     data: this.getInstructorStandards(),
                     hidden: '',
                     config: 'TGLInstructorStandards'
-                }),
+                })
 			],
 			[
 				new Tile({

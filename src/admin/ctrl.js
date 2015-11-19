@@ -61,9 +61,16 @@ app.controller('adminCtrl', ["$scope", function($scope){
 	 * @memberOf angular
 	 * @function
 	 */
+	var permissionsGlobal;
 	$scope.checkPermissions = function(){
-		var p = new Permissions();
-		var checked = p.check();
+		if (!permissionsGlobal) permissionsGlobal = new Permissions();
+		var checked = permissionsGlobal.check();
+		if (checked){
+			alert('Permissions needs changes');
+		}
+		else{
+			alert('No permission changes needed');
+		}
 	}
 	/**
 	 * Alerts the user to the percentage completed
@@ -71,7 +78,7 @@ app.controller('adminCtrl', ["$scope", function($scope){
 	 * @memberOf angular
 	 */
 	$scope.permissions = function(){
-
+		if (!permissionsGlobal) permissionsGlobal = new Permissions();
 	}
 	// GROUP - PERMISSIONS END
 
