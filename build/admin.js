@@ -1765,9 +1765,9 @@ PermissionsPerson.prototype.addUsers = function(){
 			var raHref = '/addroleassignment(principalid=' + id + ',roledefid=1073741830)';
 						
 
-			ims.sharepoint.makePostRequest('_api/' + begin + raHref, function(){}, function(){
-				err.push(u);
-			});	
+			// ims.sharepoint.makePostRequest('_api/' + begin + raHref, function(){}, function(){
+			// 	err.push(u);
+			// });	
 		}
 	});
 }
