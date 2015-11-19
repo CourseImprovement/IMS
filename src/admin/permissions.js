@@ -27,6 +27,9 @@ Permissions.prototype.init = function(){
 	ims.sharepoint.getSiteUsers(function(users){
 		_this.siteUsers = {xml: users, add: []};
 	})
+	ims.sharepoint.getRoles(function(roles){
+		_this.roles = roles;
+	})
 }
 
 Permissions._xml = null;
@@ -137,9 +140,9 @@ PermissionsPerson.prototype.addUsers = function(){
 				var raHref = '/addroleassignment(principalid=' + id + ',roledefid=1073741830)';
 							
 
-				// ims.sharepoint.makePostRequest('_api/' + begin + raHref, function(){}, function(){
-				// 	err.push(u);
-				// });	
+				ims.sharepoint.makePostRequest('_api/' + begin + raHref, function(){}, function(){
+					err.push(u);
+				});	
 			}
 			else{
 				_this.permissions.siteUsers.add.push(file);

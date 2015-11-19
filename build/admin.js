@@ -193,6 +193,21 @@ ims.sharepoint = {
 		$.get(ims.url._base + '_api/Web/siteUsers', callback);
 	},
 	/**
+	 * Get the role ids
+	 * @param  {Function} callback [description]
+	 * @return {[type]}            [description]
+	 */
+	getRoles: function(callback){
+		$.get(ims.url._base + '_api/Web/roledefinitions', function(xml){
+			var result = {};
+			$(xml).find('properties Name, m\\:properties d\\:Name').each(function(){
+				result[$(this).text()] = $(this).prev().text();
+			})
+
+			callback(result);
+		});
+	}
+	/**
 	 * Posts the current user xml file.
 	 * @return {null} Nothing is returned
 	 * @function
@@ -1673,6 +1688,9 @@ Permissions.prototype.init = function(){
 	ims.sharepoint.getSiteUsers(function(users){
 		_this.siteUsers = {xml: users, add: []};
 	})
+	ims.sharepoint.getRoles(function(roles){
+		_this.roles = roles;
+	})
 }
 
 Permissions._xml = null;
@@ -1783,9 +1801,9 @@ PermissionsPerson.prototype.addUsers = function(){
 				var raHref = '/addroleassignment(principalid=' + id + ',roledefid=1073741830)';
 							
 
-				// ims.sharepoint.makePostRequest('_api/' + begin + raHref, function(){}, function(){
-				// 	err.push(u);
-				// });	
+				ims.sharepoint.makePostRequest('_api/' + begin + raHref, function(){}, function(){
+					err.push(u);
+				});	
 			}
 			else{
 				_this.permissions.siteUsers.add.push(file);
