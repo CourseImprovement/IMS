@@ -186,25 +186,25 @@ SemesterSetup.prototype.addImToOrg = function(im){
 	}
 	else{
 		for (var i = 0; i < this._org.IM.length; i++){ // IM LEVEL
-			if (this._org.IM[i].email == im.email){
-				for (var a = 0; a < this._org.IM[i].stewardship.length; a++){ // AIM LEVEL
-					if (this._org.IM[i].stewardship[a].email == im.stewardship.email){
-						for (var t = 0; t < this._org.IM[i].stewardship[a].stewardship.length; t++){ // TGL LEVEL
-							if (this._org.IM[i].stewardship[a].stewardship[t].email == im.stewardship.stewardship.email){
-								for (var l = 0; l < this._org.IM[i].stewardship[a].stewardship[t].stewardship.length; l++){
-									if (this._org.IM[i].stewardship[a].stewardship[t].stewardship[l].email == im.stewardship.stewardship.stewardship.email){
+			if (this._org.IM[i]._email == im.email){
+				for (var a = 0; a < this._org.IM[i]._stewardship.length; a++){ // AIM LEVEL
+					if (this._org.IM[i]._stewardship[a]._email == im.stewardship.email){
+						for (var t = 0; t < this._org.IM[i]._stewardship[a].stewardship.length; t++){ // TGL LEVEL
+							if (this._org.IM[i]._stewardship[a]._stewardship[t]._email == im.stewardship.stewardship.email){
+								for (var l = 0; l < this._org.IM[i]._stewardship[a]._stewardship[t]._stewardship.length; l++){ // INSTRUCTOR LEVEL
+									if (this._org.IM[i]._stewardship[a]._stewardship[t]._stewardship[l]._email == im.stewardship.stewardship.stewardship.email){
 										return;
 									}
 								}
-								this._org.IM[i].stewardship[a].stewardship[t].stewardship.push(new OSMPerson(im.stewardship.stewardship.stewardship));
+								this._org.IM[i]._stewardship[a]._stewardship[t]._stewardship.push(new OSMPerson(im.stewardship.stewardship.stewardship));
 								return;
 							}
 						}
-						this._org.IM[i].stewardship[a].stewardship.push(new OSMPerson(im.stewardship.stewardship));
+						this._org.IM[i]._stewardship[a]._stewardship.push(new OSMPerson(im.stewardship.stewardship));
 						return;
 					}
 				}
-				this._org.IM[i].stewardship.push(new OSMPerson(im.stewardship));
+				this._org.IM[i]._stewardship.push(new OSMPerson(im.stewardship));
 				return;
 			}
 		}
