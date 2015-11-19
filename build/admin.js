@@ -2445,7 +2445,7 @@ SemesterSetup.prototype.addOcrmToOrg = function(ocrm){
 			if (this._org.OCRM[m].email == ocrm.email){
 				for (var o = 0; o < this._org.OCRM[m].stewardship.length; o++){ // OCR LEVEL
 					if (this._org.OCRM[m].stewardship[o].email == ocrm.stewardship[0].email){
-						for (var i = 0; this._org.OCRM[m].stewardship[o].stewardship.ength; i++){ // INST LEVEL
+						for (var i = 0; this._org.OCRM[m].stewardship[o].stewardship.length; i++){ // INST LEVEL
 							if (this._org.OCRM[m].stewardship[o].stewardship[i].email == ocrm.stewardship[0].stewardship[0].email){
 								return;
 							}
