@@ -2326,6 +2326,7 @@ SemesterSetup.prototype._createOrg = function(){
 	//firstname|lastname|email|coursenumber|totalCredits|JenzabarSectionNumber|TglEmail|TglName|AimEmail|AimName|ImEmail|ImName|OcrEmail|OcrName|OcrmName|OcrmEmail|isNewTeacher|isPilot|IsOcr|isPathway|Semester
 
 	for (var rows = ++start; rows < this._csv.length; rows++){
+		if (this._csv[rows].length == 1) continue;
 		// INSTRUCTOR OBJECT
 		var inst = {
 			first: this._csv[rows][0],
