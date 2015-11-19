@@ -2752,7 +2752,7 @@ User.prototype.getSmartGoals = function(){
 	var weeklyReflections = this.getWeeklyReflections();
 	var goals = [];
 	for (var i = 0; i < weeklyReflections.length; i++){
-		if (weeklyReflections[i].getName().toLowerCase().indexOf('week 2') > -1){
+		if (weeklyReflections[i].getWeek() == '2'){
 			goals = weeklyReflections[i].getQuestionsContainingText('smart');
 		}
 	}
