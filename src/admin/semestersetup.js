@@ -186,25 +186,25 @@ SemesterSetup.prototype.addImToOrg = function(im){
 	}
 	else{
 		for (var i = 0; i < this._org.IM.length; i++){ // IM LEVEL
-			if (this._org.IM[i]._email == im.email){
+			if (this._org.IM[i]._email == im._email){
 				for (var a = 0; a < this._org.IM[i]._stewardship.length; a++){ // AIM LEVEL
-					if (this._org.IM[i]._stewardship[a]._email == im.stewardship.email){
-						for (var t = 0; t < this._org.IM[i]._stewardship[a].stewardship.length; t++){ // TGL LEVEL
-							if (this._org.IM[i]._stewardship[a]._stewardship[t]._email == im.stewardship.stewardship.email){
+					if (this._org.IM[i]._stewardship[a]._email == im._stewardship._email){
+						for (var t = 0; t < this._org.IM[i]._stewardship[a]._stewardship.length; t++){ // TGL LEVEL
+							if (this._org.IM[i]._stewardship[a]._stewardship[t]._email == im._stewardship._stewardship._email){
 								for (var l = 0; l < this._org.IM[i]._stewardship[a]._stewardship[t]._stewardship.length; l++){ // INSTRUCTOR LEVEL
-									if (this._org.IM[i]._stewardship[a]._stewardship[t]._stewardship[l]._email == im.stewardship.stewardship.stewardship.email){
+									if (this._org.IM[i]._stewardship[a]._stewardship[t]._stewardship[l]._email == im._stewardship._stewardship._stewardship._email){
 										return;
 									}
 								}
-								this._org.IM[i]._stewardship[a]._stewardship[t]._stewardship.push(new OSMPerson(im.stewardship.stewardship.stewardship));
+								this._org.IM[i]._stewardship[a]._stewardship[t]._stewardship.push(new OSMPerson(im._stewardship._stewardship._stewardship));
 								return;
 							}
 						}
-						this._org.IM[i]._stewardship[a]._stewardship.push(new OSMPerson(im.stewardship.stewardship));
+						this._org.IM[i]._stewardship[a]._stewardship.push(new OSMPerson(im._stewardship._stewardship));
 						return;
 					}
 				}
-				this._org.IM[i]._stewardship.push(new OSMPerson(im.stewardship));
+				this._org.IM[i]._stewardship.push(new OSMPerson(im._stewardship));
 				return;
 			}
 		}
