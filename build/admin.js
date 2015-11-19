@@ -2451,9 +2451,11 @@ SemesterSetup.prototype.addOcrmToOrg = function(ocrm){
 							}
 						}
 						this._org.OCRM[m].stewardship[o].stewardship.push(new OSMPerson(ocrm.stewardship[0].stewardship[0])); // ADD INST
+						return;
 					}
 				}
 				this._org.OCRM[m].stewardship.push(new OSMPerson(ocrm.stewardship[0])); // ADD OCR
+				return;
 			}
 		}
 		this._org.OCRM.push(ocrm); // ADD OCRM
