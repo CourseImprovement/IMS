@@ -2,9 +2,6 @@ function Semester(obj){
 	if (typeof obj == 'string'){
 		this._code = obj;
 	}
-	else{
-		// xml
-	}
 }
 
 /**
@@ -28,13 +25,12 @@ Semester.prototype.getHref = function(){
 }
 
 function Semesters(){
-	this._xml = ims.sharepoint.getSemesterConfig();
 	this._current = null;
 }
 
 Semesters.prototype.getCurrent = function(){
 	if (!this._current){
-		this._current = new Semester($(this._xml).find('[current=true]').attr('name'));
+		this._current = new Semester($(Survey.getConfig()).find('semester[current=true]').attr('code'));
 	}
 	return this._current;
 }

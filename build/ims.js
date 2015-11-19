@@ -438,30 +438,6 @@ ims.sharepoint = {
 		}
 	},
 	/**
-	 * Get the semester configuration file. This file allows for us to see which semester is the current semester.
-	 *
-	 * <pre><code>
-	 *  var currentSemester = $(ims.sharepoint.getSemesterConfiguration()).find('[current=true]').attr('name');
-	 * </code></pre>
-	 *
-	 * 
-	 * @return {XMLDocument} Use JQuery to find the current semester
-	 * @function
-	 * @memberOf ims.sharepoint
-	 */
-	getSemesterConfig: function(){
-		var url = ims.sharepoint.base + 'Instructor%20Reporting/config/semesters.xml';
-		var doc = null;
-		$['ajax']({
-	    'url': url,
-	    'success': function(d) {
-	      doc = d;
-	    },
-	    'async': false
-	  });
-	  return doc;
-	},	
-	/**
 	 * Get a XML file for a given user by email address.
 	 * @param  {string} email The first part of the users given email address
 	 * @return {XMLDocument}       Use JQuery to find the current users document
@@ -937,7 +913,7 @@ function Question(xml, survey){
 	this._id = $(xml).attr('id');
 	this._surveyId = survey.id;
 	this._qconfig = $(Survey.getConfig()).find('survey[id=' + this._surveyId + '] question[id=' + this._id + ']')[0];
-	this._text = $(this._qconfig).find('text').text();
+	this._text = $(this._qconfig).text();
 	this._cleanAnswer();
 }
 
@@ -979,9 +955,8 @@ Question.prototype.hasAnswer = function(){
  */
 Question.prototype._cleanAnswer = function(){
 	this._answer = this._answer.replace(/\\/g, '\n');
-	var replace = $(this._qconfig).find('replace');
-	var rwhat = replace.attr('what');
-	var rwith = replace.attr('with');
+	var rwhat = $(this._qconfig).attr('replacewhat');
+	var rwith = $(this._qconfig).attr('replacewith');
 	if (rwhat && rwhat.length > 0){
 		rwhat = rwhat.split(';');
 	}
@@ -1013,211 +988,7 @@ function Role(role, user, dontSetOrg){
  * @return {[type]} [description]
  */
 Role.prototype.getTiles = function(){
-	var role = this.getRoleName().toLowerCase();
-	if (role == 'aim' || role == 'im'){
-		return [ 
-			[
-				new Tile({
-					title: 'Tasks To Review',
-					helpText: 'This tile displays tasks that your ' + this._nextLower(role).toUpperCase() + 's have completed and that as an ' + role.toUpperCase() + ' you need to review.',
-					type: 'task-list',
-					data: this.getTasksToReview(false),
-					hidden: ''
-				}),
-				new Tile({
-					title: 'Completed ' + role.toUpperCase() + ' Tasks',
-					helpText: 'This tile displays ' + role.toUpperCase() + ' tasks that you have completed.',
-					type: 'survey-list',
-					data: this.getCompletedTasks(),
-					hidden: ''
-				}),
-                new Tile({
-                    title: 'Instructor Standards',
-                    helpText: 'This tile displays the average score for each instructor standard. Click on a standard\'s line in the graph to view individual instructor scores for that standard',
-                    type: 'graph',
-                    data: this.getInstructorStandards(),
-                    hidden: '',
-                    config: 'TGLInstructorStandards'
-                })
-			],
-			[
-				new Tile({
-					title: 'Incomplete ' + this._nextLower(role).toUpperCase() + ' Tasks',
-					helpText: 'This tile displays overdue tasks for ' + this._nextLower(role).toUpperCase() + 's in your area.',
-					type: 'review-list',
-					data: this.getIncompleteTasks(),
-					hidden: ''
-				}),
-				new Tile({
-					title: 'Roster',
-					helpText: 'This tile displays your ' + this._nextLower(role).toUpperCase() + 's.',
-					type: 'roster',
-					data: this.getRoster(),
-					hidden: ''
-				}),
-                new Tile({
-                    title: 'Evaluations',
-                    helpText: 'This tile displays evaluations on you as a ' + role.toUpperCase() + '.',
-                    type: 'survey-list',
-                    data: [],
-                    hidden: ''
-                })
-			],
-			[
-				new Tile({
-					title: 'Average Instructor Hours by Group',
-					helpText: 'This tile displays the average instructor weekly hours/credit for each teaching group.',
-					type: 'graph',
-					data: this.getAvgInstructorHoursByGroup(),
-					hidden: '',
-					config: 'AIMInstructorHours'
-				})
-			]
-		]
-	}
-	else if (role == 'tgl' || role == 'atgl'){
-		return [
-			[
-				new Tile({
-					title: 'Completed TGL Tasks',
-					helpText: 'This tile displays TGL tasks that you have completed.',
-					type: 'survey-list',
-					data: this.getCompletedTasks(),
-					hidden: ''
-				}),
-				new Tile({
-					title: 'Incomplete Instructor Tasks',
-					helpText: 'This tile displays overdue tasks for TGLs in your area.',
-					type: 'review-list',
-					data: this.getIncompleteTasks(),
-					hidden: ''
-				}),
-                new Tile({
-                    title: 'Evaluations',
-                    helpText: 'This tile displays evaluations on you as a ' + role.toUpperCase() + '.',
-                    type: 'survey-list',
-                    data: [],
-                    hidden: ''
-                }),
-				new Tile({
-					title: 'Roster',
-					helpText: 'This tile displays your instructors.',
-					type: 'roster',
-					data: this.getRoster(),
-					hidden: ''
-				})
-			],
-			[				
-				new Tile({
-					title: 'Tasks To Review',
-					helpText: 'This tile displays tasks that your TGLs have completed and that as an AIM you need to review.',
-					type: 'task-list',
-					data: this.getTasksToReview(true),
-					hidden: ''
-				})
-			],
-			[
-				new Tile({
-					title: 'Instructor Standards',
-					helpText: 'This tile displays the average score for each instructor standard. Click on a standard\'s line in the graph to view individual instructor scores for that standard',
-					type: 'graph',
-					data: this.getInstructorStandards(),
-					hidden: '',
-					config: 'TGLInstructorStandards'
-				}),
-				new Tile({
-					title: 'Instructor Hours',
-					helpText: 'This tile displays the average instructor hours/credit for each instructor.',
-					type: 'graph',
-					data: this.getInstructorHours(),
-					hidden: '',
-					config: 'TGLInstructorHours'
-				})
-			]
-		]
-	}
-	else if (role == 'instructor'){
-		return [
-			[
-				this._user.showCourseMenu() ? 
-                    new Tile({
-                        title: 'Completed Instructor Tasks',
-                        helpText: 'These are the tasks that you completed. The link opens the results.',
-                        type: 'course-survey-list',
-                        data: this.getCompletedTasksByCourse(),
-                        hidden: ''
-                    })
-                 : 
-
-                    new Tile({
-    					title: 'Completed Instructor Tasks',
-    					helpText: 'These are the tasks that you completed. The link opens the results.',
-    					type: 'survey-list',
-    					data: this.getCompletedTasks(),
-    					hidden: ''
-    				}),
-				new Tile({
-					title: 'Hours Spent',
-					helpText: 'The total number of hours recorded over the weeks',
-					type: 'graph',
-					data: this.getSingleInstructorHours(),
-					hidden: '',
-					config: 'InstructorInstructorHours'
-				}),
-				new Tile({
-					title: 'Inspire a Love for Learning',
-					helpText: 'The self reported performance for one of the five instructor standards.',
-					type: 'graph',
-					data: this.getSingleInstructorStandard('Inspire a Love'),
-					hidden: '',
-					config: 'InstructorInstructorStandard1'
-				})
-			],
-			[
-				new Tile({
-					title: 'SMART Goals',
-					helpText: 'The SMART goals set by the instructor during the Week 2 Weekly Reflection.',
-					type: 'smart',
-					data: this._user.getSmartGoals(),
-					hidden: ''
-				}),
-				new Tile({
-					title: 'Building Faith in Jesus Christ',
-					helpText: 'The self reported performance for one of the five instructor standards.',
-					type: 'graph',
-					data: this.getSingleInstructorStandard('Building Faith'),
-					hidden: '',
-					config: 'InstructorInstructorStandard2'
-				}),
-				new Tile({
-					title: 'Seek Development Opportunities',
-					helpText: 'The self reported performance for one of the five instructor standards.',
-					type: 'graph',
-					data: this.getSingleInstructorStandard('Seek Development'),
-					hidden: '',
-					config: 'InstructorInstructorStandard3'
-				})
-			],
-			[
-				new Tile({
-					title: 'Develop Relationships with and Among Students',
-					helpText: 'The self reported performance for one of the five instructor standards.',
-					type: 'graph',
-					data: this.getSingleInstructorStandard('Develop Relationships'),
-					hidden: '',
-					config: 'InstructorInstructorStandard4'
-				}),
-				new Tile({
-					title: 'Embrace University Citizenship',
-					helpText: 'The self reported performance for one of the five instructor standards.',
-					type: 'graph',
-					data: this.getSingleInstructorStandard('Embrace University'),
-					hidden: '',
-					config: 'InstructorInstructorStandard5'
-				})
-			]
-		];
-	}
+	return Tile.getAll(this);
 }
 
 Role.prototype.getSingleInstructorStandard = function(name){
@@ -2086,7 +1857,7 @@ Role.prototype._getHats = function(){
     for (var i = 0; i < roles.length; i++){
         var userRole = this._user.getRoleAs(roles[i]);
         var name = roles[i];
-        if (name == 'aim' || name == 'tgl') name = name.toUpperCase();
+        if (name == 'aim' || name == 'tgl' || name == 'im') name = name.toUpperCase();
         else name = name.charAt(0).toUpperCase() + name.slice(1);
         var isSelected = this.getRoleName().toUpperCase() == name.toUpperCase();
         if (isSelected) window._selectedRole = name;
@@ -2204,12 +1975,12 @@ Rollup.prototype._getData = function(){
 	var level = this._level.toLowerCase();
 	if (level == '*'){
 		$(this._xml).find('semester[code=' + sem + '] > questions question[name*="' + this._question + '"] survey').sort(function(a, b){
+			var week = $(Survey.getConfig()).find('semester[code=' + sem + '] survey[id=' + $(a).attr('id') + ']').attr('week');
+			if (week.toLowerCase().indexOf('intro') > -1 || week.toLowerCase().indexOf('conclusion') > -1) return false;
 
-			var aname = $(Survey.getConfig()).find('semester[code=' + sem + '] survey[id=' + $(a).attr('id') + ']').attr('name');
-			if (aname.indexOf('Intro') > -1) return false;
-			var aweek = parseInt(aname.split(': Week ')[1]);
-			var bname = $(Survey.getConfig()).find('semester[code=' + sem + '] survey[id=' + $(b).attr('id') + ']').attr('name');
-			var bweek = parseInt(bname.split(': Week ')[1]);
+			var aweek = parseInt(week);
+			var bname = $(Survey.getConfig()).find('semester[code=' + sem + '] survey[id=' + $(b).attr('id') + ']').attr('week');
+			var bweek = parseInt(bname);
 			return parseInt(aweek > bweek);
 
 		}).each(function(){
@@ -2218,12 +1989,12 @@ Rollup.prototype._getData = function(){
 	}
 	else{
 		$(this._xml).find('semester[code=' + sem + '] person[email=' + this._email + '][type=' + level + '] question[name*="' + this._question + '"] survey').sort(function(a, b){
+			var week = $(Survey.getConfig()).find('semester[code=' + sem + '] survey[id=' + $(a).attr('id') + ']').attr('week');
+			if (week.toLowerCase().indexOf('intro') > -1 || week.toLowerCase().indexOf('conclusion') > -1) return false;
 
-			var aname = $(Survey.getConfig()).find('semester[code=' + sem + '] survey[id=' + $(a).attr('id') + ']').attr('name');
-			if (aname.indexOf('Intro') > -1) return false;
-			var aweek = parseInt(aname.split(': Week ')[1]);
-			var bname = $(Survey.getConfig()).find('semester[code=' + sem + '] survey[id=' + $(b).attr('id') + ']').attr('name');
-			var bweek = parseInt(bname.split(': Week ')[1]);
+			var aweek = parseInt(week);
+			var bname = $(Survey.getConfig()).find('semester[code=' + sem + '] survey[id=' + $(b).attr('id') + ']').attr('week');
+			var bweek = parseInt(bname);
 			return parseInt(aweek > bweek);
 
 		}).each(function(){
@@ -2234,9 +2005,6 @@ Rollup.prototype._getData = function(){
 function Semester(obj){
 	if (typeof obj == 'string'){
 		this._code = obj;
-	}
-	else{
-		// xml
 	}
 }
 
@@ -2261,13 +2029,12 @@ Semester.prototype.getHref = function(){
 }
 
 function Semesters(){
-	this._xml = ims.sharepoint.getSemesterConfig();
 	this._current = null;
 }
 
 Semesters.prototype.getCurrent = function(){
 	if (!this._current){
-		this._current = new Semester($(this._xml).find('[current=true]').attr('name'));
+		this._current = new Semester($(Survey.getConfig()).find('semester[current=true]').attr('code'));
 	}
 	return this._current;
 }
@@ -2295,7 +2062,7 @@ function Survey(xml, user){
 	this._config = $(Survey.getConfig()).find('survey[id=' + this.id + ']');
 	this._name = $(this._config).attr('name');
 	this._placement = $(this._config).attr('placement');
-	this._week = this.getName().indexOf(': ') > -1 ? this.getName().split(': ')[1] : '';
+	this._week = $(this._config).attr('week');
 	this._answers = [];
 	this._setAnswers();
 	this._reviewed = $(this._xml).attr('reviewed') == 'true';
@@ -2325,9 +2092,9 @@ Survey.prototype._setAnswers = function(){
  */
 Survey.prototype.getName = function(){
 	if (this.withCourse && this._user.getCourses().length > 1){
-		return this._name + ' - ' + this.getCourse().getName();
+		return this._name + ': ' + this._week + ' - ' + this.getCourse().getName();
 	}
-	return this._name;
+	return this._name + ': ' + this._week;
 }
 
 /**
@@ -2417,14 +2184,219 @@ Survey.prototype.getCourse = function(){
 Survey.prototype.getQuestions = function(){
 	return this.getAnswers();
 }
-function Tile(config){
-	if (!config) throw "Invalid config of tile";
-	this.title = config.title;
-	this.helpText = config.helpText;
-	this.type = config.type;
-	this.data = config.data;
-	this.hidden = config.hidden;
-	this.config = config.config;
+function Tile(config) {
+  if (!config) throw "Invalid config of tile";
+  this.title = config.title;
+  this.helpText = config.helpText;
+  this.type = config.type;
+  this.data = config.data;
+  this.hidden = config.hidden;
+  this.config = config.config;
+}
+
+Tile.getAll = function(role) {
+  var name = role.getnameName().toLowerCase();
+  if (name == 'aim' || name == 'im') {
+    return [
+      [
+        new Tile({
+          title: 'Tasks To Review',
+          helpText: 'This tile displays tasks that your ' + role._nextLower(name).toUpperCase() + 's have completed and that as an ' + name.toUpperCase() + ' you need to review.',
+          type: 'task-list',
+          data: role.getTasksToReview(false),
+          hidden: ''
+        }),
+        new Tile({
+          title: 'Completed ' + name.toUpperCase() + ' Tasks',
+          helpText: 'This tile displays ' + name.toUpperCase() + ' tasks that you have completed.',
+          type: 'survey-list',
+          data: role.getCompletedTasks(),
+          hidden: ''
+        }),
+        new Tile({
+          title: 'Instructor Standards',
+          helpText: 'This tile displays the average score for each instructor standard. Click on a standard\'s line in the graph to view individual instructor scores for that standard',
+          type: 'graph',
+          data: role.getInstructorStandards(),
+          hidden: '',
+          config: 'TGLInstructorStandards'
+        })
+      ],
+      [
+        new Tile({
+          title: 'Incomplete ' + role._nextLower(name).toUpperCase() + ' Tasks',
+          helpText: 'This tile displays overdue tasks for ' + role._nextLower(name).toUpperCase() + 's in your area.',
+          type: 'review-list',
+          data: role.getIncompleteTasks(),
+          hidden: ''
+        }),
+        new Tile({
+          title: 'Roster',
+          helpText: 'This tile displays your ' + role._nextLower(name).toUpperCase() + 's.',
+          type: 'roster',
+          data: role.getRoster(),
+          hidden: ''
+        }),
+        new Tile({
+          title: 'Evaluations',
+          helpText: 'This tile displays evaluations others have completed about you in your name as an ' + (name.toLowerCase() == 'aim' ? 'Assistant Instructor Manager' : 'Instructor Manager') + '.',
+          type: 'survey-list',
+          data: [],
+          hidden: ''
+        })
+      ],
+      [
+        new Tile({
+          title: 'Average Instructor Hours by Group',
+          helpText: 'This tile displays the average instructor weekly hours/credit for each teaching group.',
+          type: 'graph',
+          data: role.getAvgInstructorHoursByGroup(),
+          hidden: '',
+          config: 'AIMInstructorHours'
+        })
+      ]
+    ]
+  } else if (name == 'tgl' || name == 'atgl') {
+    return [
+      [
+        new Tile({
+          title: 'Completed TGL Tasks',
+          helpText: 'This tile displays TGL tasks that you have completed.',
+          type: 'survey-list',
+          data: role.getCompletedTasks(),
+          hidden: ''
+        }),
+        new Tile({
+          title: 'Incomplete Instructor Tasks',
+          helpText: 'This tile displays overdue tasks for TGLs in your area.',
+          type: 'review-list',
+          data: role.getIncompleteTasks(),
+          hidden: ''
+        }),
+        new Tile({
+          title: 'Evaluations',
+          helpText: 'This tile displays evaluations on you as a ' + name.toUpperCase() + '.',
+          type: 'survey-list',
+          data: [],
+          hidden: ''
+        }),
+        new Tile({
+          title: 'Roster',
+          helpText: 'This tile displays your instructors.',
+          type: 'roster',
+          data: role.getRoster(),
+          hidden: ''
+        })
+      ],
+      [
+        new Tile({
+          title: 'Tasks To Review',
+          helpText: 'This tile displays tasks that your TGLs have completed and that as an AIM you need to review.',
+          type: 'task-list',
+          data: role.getTasksToReview(true),
+          hidden: ''
+        })
+      ],
+      [
+        new Tile({
+          title: 'Instructor Standards',
+          helpText: 'This tile displays the average score for each instructor standard. Click on a standard\'s line in the graph to view individual instructor scores for that standard',
+          type: 'graph',
+          data: role.getInstructorStandards(),
+          hidden: '',
+          config: 'TGLInstructorStandards'
+        }),
+        new Tile({
+          title: 'Instructor Hours',
+          helpText: 'This tile displays the average instructor hours/credit for each instructor.',
+          type: 'graph',
+          data: role.getInstructorHours(),
+          hidden: '',
+          config: 'TGLInstructorHours'
+        })
+      ]
+    ]
+  } else if (name == 'instructor') {
+    return [
+      [
+        role._user.showCourseMenu() ?
+        new Tile({
+          title: 'Completed Instructor Tasks',
+          helpText: 'These are the tasks that you completed. The link opens the results.',
+          type: 'course-survey-list',
+          data: role.getCompletedTasksByCourse(),
+          hidden: ''
+        }) :
+
+        new Tile({
+          title: 'Completed Instructor Tasks',
+          helpText: 'These are the tasks that you completed. The link opens the results.',
+          type: 'survey-list',
+          data: role.getCompletedTasks(),
+          hidden: ''
+        }),
+        new Tile({
+          title: 'Hours Spent',
+          helpText: 'The total number of hours recorded over the weeks',
+          type: 'graph',
+          data: role.getSingleInstructorHours(),
+          hidden: '',
+          config: 'InstructorInstructorHours'
+        }),
+        new Tile({
+          title: 'Inspire a Love for Learning',
+          helpText: 'The self reported performance for one of the five instructor standards.',
+          type: 'graph',
+          data: role.getSingleInstructorStandard('Inspire a Love'),
+          hidden: '',
+          config: 'InstructorInstructorStandard1'
+        })
+      ],
+      [
+        new Tile({
+          title: 'SMART Goals',
+          helpText: 'The SMART goals set by the instructor during the Week 2 Weekly Reflection.',
+          type: 'smart',
+          data: role._user.getSmartGoals(),
+          hidden: ''
+        }),
+        new Tile({
+          title: 'Building Faith in Jesus Christ',
+          helpText: 'The self reported performance for one of the five instructor standards.',
+          type: 'graph',
+          data: role.getSingleInstructorStandard('Building Faith'),
+          hidden: '',
+          config: 'InstructorInstructorStandard2'
+        }),
+        new Tile({
+          title: 'Seek Development Opportunities',
+          helpText: 'The self reported performance for one of the five instructor standards.',
+          type: 'graph',
+          data: role.getSingleInstructorStandard('Seek Development'),
+          hidden: '',
+          config: 'InstructorInstructorStandard3'
+        })
+      ],
+      [
+        new Tile({
+          title: 'Develop Relationships with and Among Students',
+          helpText: 'The self reported performance for one of the five instructor standards.',
+          type: 'graph',
+          data: role.getSingleInstructorStandard('Develop Relationships'),
+          hidden: '',
+          config: 'InstructorInstructorStandard4'
+        }),
+        new Tile({
+          title: 'Embrace University Citizenship',
+          helpText: 'The self reported performance for one of the five instructor standards.',
+          type: 'graph',
+          data: role.getSingleInstructorStandard('Embrace University'),
+          hidden: '',
+          config: 'InstructorInstructorStandard5'
+        })
+      ]
+    ];
+  }
 }
 window._currentUser = null;
 if (ims.aes.value.ce){

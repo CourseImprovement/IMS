@@ -6,7 +6,7 @@ function Survey(xml, user){
 	this._config = $(Survey.getConfig()).find('survey[id=' + this.id + ']');
 	this._name = $(this._config).attr('name');
 	this._placement = $(this._config).attr('placement');
-	this._week = this.getName().indexOf(': ') > -1 ? this.getName().split(': ')[1] : '';
+	this._week = $(this._config).attr('week');
 	this._answers = [];
 	this._setAnswers();
 	this._reviewed = $(this._xml).attr('reviewed') == 'true';
@@ -36,9 +36,9 @@ Survey.prototype._setAnswers = function(){
  */
 Survey.prototype.getName = function(){
 	if (this.withCourse && this._user.getCourses().length > 1){
-		return this._name + ' - ' + this.getCourse().getName();
+		return this._name + ': ' + this._week + ' - ' + this.getCourse().getName();
 	}
-	return this._name;
+	return this._name + ': ' + this._week;
 }
 
 /**

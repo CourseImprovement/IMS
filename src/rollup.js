@@ -38,12 +38,12 @@ Rollup.prototype._getData = function(){
 	var level = this._level.toLowerCase();
 	if (level == '*'){
 		$(this._xml).find('semester[code=' + sem + '] > questions question[name*="' + this._question + '"] survey').sort(function(a, b){
+			var week = $(Survey.getConfig()).find('semester[code=' + sem + '] survey[id=' + $(a).attr('id') + ']').attr('week');
+			if (week.toLowerCase().indexOf('intro') > -1 || week.toLowerCase().indexOf('conclusion') > -1) return false;
 
-			var aname = $(Survey.getConfig()).find('semester[code=' + sem + '] survey[id=' + $(a).attr('id') + ']').attr('name');
-			if (aname.indexOf('Intro') > -1) return false;
-			var aweek = parseInt(aname.split(': Week ')[1]);
-			var bname = $(Survey.getConfig()).find('semester[code=' + sem + '] survey[id=' + $(b).attr('id') + ']').attr('name');
-			var bweek = parseInt(bname.split(': Week ')[1]);
+			var aweek = parseInt(week);
+			var bname = $(Survey.getConfig()).find('semester[code=' + sem + '] survey[id=' + $(b).attr('id') + ']').attr('week');
+			var bweek = parseInt(bname);
 			return parseInt(aweek > bweek);
 
 		}).each(function(){
@@ -52,12 +52,12 @@ Rollup.prototype._getData = function(){
 	}
 	else{
 		$(this._xml).find('semester[code=' + sem + '] person[email=' + this._email + '][type=' + level + '] question[name*="' + this._question + '"] survey').sort(function(a, b){
+			var week = $(Survey.getConfig()).find('semester[code=' + sem + '] survey[id=' + $(a).attr('id') + ']').attr('week');
+			if (week.toLowerCase().indexOf('intro') > -1 || week.toLowerCase().indexOf('conclusion') > -1) return false;
 
-			var aname = $(Survey.getConfig()).find('semester[code=' + sem + '] survey[id=' + $(a).attr('id') + ']').attr('name');
-			if (aname.indexOf('Intro') > -1) return false;
-			var aweek = parseInt(aname.split(': Week ')[1]);
-			var bname = $(Survey.getConfig()).find('semester[code=' + sem + '] survey[id=' + $(b).attr('id') + ']').attr('name');
-			var bweek = parseInt(bname.split(': Week ')[1]);
+			var aweek = parseInt(week);
+			var bname = $(Survey.getConfig()).find('semester[code=' + sem + '] survey[id=' + $(b).attr('id') + ']').attr('week');
+			var bweek = parseInt(bname);
 			return parseInt(aweek > bweek);
 
 		}).each(function(){
