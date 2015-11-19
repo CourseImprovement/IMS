@@ -278,30 +278,6 @@ ims.sharepoint = {
 		}
 	},
 	/**
-	 * Get the semester configuration file. This file allows for us to see which semester is the current semester.
-	 *
-	 * <pre><code>
-	 *  var currentSemester = $(ims.sharepoint.getSemesterConfiguration()).find('[current=true]').attr('name');
-	 * </code></pre>
-	 *
-	 * 
-	 * @return {XMLDocument} Use JQuery to find the current semester
-	 * @function
-	 * @memberOf ims.sharepoint
-	 */
-	getSemesterConfig: function(){
-		var url = ims.sharepoint.base + 'Instructor%20Reporting/config/semesters.xml';
-		var doc = null;
-		$['ajax']({
-	    'url': url,
-	    'success': function(d) {
-	      doc = d;
-	    },
-	    'async': false
-	  });
-	  return doc;
-	},	
-	/**
 	 * Get a XML file for a given user by email address.
 	 * @param  {string} email The first part of the users given email address
 	 * @return {XMLDocument}       Use JQuery to find the current users document

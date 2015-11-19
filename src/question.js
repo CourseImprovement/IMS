@@ -5,7 +5,7 @@ function Question(xml, survey){
 	this._id = $(xml).attr('id');
 	this._surveyId = survey.id;
 	this._qconfig = $(Survey.getConfig()).find('survey[id=' + this._surveyId + '] question[id=' + this._id + ']')[0];
-	this._text = $(this._qconfig).find('text').text();
+	this._text = $(this._qconfig).text();
 	this._cleanAnswer();
 }
 
@@ -47,9 +47,8 @@ Question.prototype.hasAnswer = function(){
  */
 Question.prototype._cleanAnswer = function(){
 	this._answer = this._answer.replace(/\\/g, '\n');
-	var replace = $(this._qconfig).find('replace');
-	var rwhat = replace.attr('what');
-	var rwith = replace.attr('with');
+	var rwhat = $(this._qconfig).attr('replacewhat');
+	var rwith = $(this._qconfig).attr('replacewith');
 	if (rwhat && rwhat.length > 0){
 		rwhat = rwhat.split(';');
 	}

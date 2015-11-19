@@ -98,7 +98,40 @@ var Sharepoint = {
 		});
 	},
 	total: 0,
-	current: 0
+	current: 0,
+	query: function(txt){
+		$.ajax({
+		    url: ims.url.api + "contextinfo",
+		    header: {
+		        "accept": "application/json; odata=verbose",
+		        "content-type": "application/json;odata=verbose"
+		    },
+		    type: "POST",
+		    contentType: "application/json;charset=utf-8"
+		}).done(function(d){
+			var url = 'https://webmailbyui.sharepoint.com/sites/onlineinstructionreporting/onlineinstructionreportingdev/_vti_bin/client.svc/ProcessQuery';
+			var xml = $('<Request xmlns="http://schemas.microsoft.com/sharepoint/clientquery/2009" SchemaVersion="15.0.0.0" LibraryVersion="16.0.0.0" ApplicationName="Javascript Library"><Actions><StaticMethod TypeId="{de2db963-8bab-4fb4-8a58-611aebc5254b}" Name="ClientPeoplePickerSearchUser" Id="0"><Parameters><Parameter TypeId="{ac9358c6-e9b1-4514-bf6e-106acbfb19ce}"><Property Name="AllowEmailAddresses" Type="Boolean">false</Property><Property Name="AllowMultipleEntities" Type="Boolean">true</Property><Property Name="AllowOnlyEmailAddresses" Type="Boolean">false</Property><Property Name="AllUrlZones" Type="Boolean">false</Property><Property Name="EnabledClaimProviders" Type="Null" /><Property Name="ForceClaims" Type="Boolean">false</Property><Property Name="MaximumEntitySuggestions" Type="Number">30</Property><Property Name="PrincipalSource" Type="Number">15</Property><Property Name="PrincipalType" Type="Number">5</Property><Property Name="QueryString" Type="String">sher</Property><Property Name="Required" Type="Boolean">true</Property><Property Name="SharePointGroupID" Type="Number">0</Property><Property Name="UrlZone" Type="Number">0</Property><Property Name="UrlZoneSpecified" Type="Boolean">false</Property><Property Name="Web" Type="Null" /><Property Name="WebApplicationID" Type="String">{00000000-0000-0000-0000-000000000000}</Property></Parameter></Parameters></StaticMethod></Actions><ObjectPaths /></Request>');
+			$(xml).find('Property[name=QueryString]').text(txt);
+			var buffer = (new XMLSerializer()).serializeToString($(xml)[0]);
+			$.ajax({
+				url: url,
+        type: "POST",
+        data: buffer,
+        headers: {
+            "accept": "*/*",
+            "X-RequestDigest": $(d).find('d\\:FormDigestValue, FormDigestValue').text(),
+            "X-Requested-With": 'XMLHttpRequest',
+            "Content-Type": 'text/xml'
+        },
+        success: function(data){
+        	console.log(data);
+        },
+        error: function(){
+        	alert("Error saving");
+        }
+			})
+		});
+	}
 }
 
 /**
@@ -140,7 +173,25 @@ ims.sharepoint = {
 	      'success': callback
 	    };  
 	    executor.executeAsync(info);
-	},	
+	},
+	/**
+	 * Get the file items, used in permissions
+	 * @param  {[type]}   fileName [description]
+	 * @param  {Function} callback [description]
+	 * @return {[type]}            [description]
+	 */
+	getFileItems: function(fileName, callback){
+		var allItemFiles = ims.url._base + 	"_api/Web/GetFileByServerRelativeUrl('" + ims.url.relativeBase + "Instructor%20Reporting/Master/" + fileName + ".xml')/ListItemAllFields";
+		$.get(allItemFiles, callback);
+	},
+	/**
+	 * Get the site users, used in permissions
+	 * @param  {Function} callback [description]
+	 * @return {[type]}            [description]
+	 */
+	getSiteUsers: function(callback){
+		$.get(ims.url._base + '_api/Web/siteUsers', callback);
+	},
 	/**
 	 * Posts the current user xml file.
 	 * @return {null} Nothing is returned
@@ -1593,8 +1644,6 @@ Evaluations.prototype.parseCSV = function(){
 	});
 }
 // GROUP EVALUATIONS END
-
-
 // GROUP PERMISSIONS
 /**
  * Permissions Object
@@ -1608,6 +1657,10 @@ function Permissions(){
 	this.changes = [];
 }
 
+/**
+ * Initalize and create all the necessary items to setup for permission
+ * @return {[type]} [description]
+ */
 Permissions.prototype.init = function(){
 	this.graph = {};
 	this.people = [];
@@ -1617,10 +1670,18 @@ Permissions.prototype.init = function(){
 		_this.people.push(p);
 		_this.graph[p.email] = p;
 	});
+	ims.sharepoint.getSiteUsers(function(users){
+		_this.siteUsers = {xml: users, add: []};
+	})
 }
 
 Permissions._xml = null;
 
+/**
+ * Get the permissions xml file. If it was already pulled, it will grab the 
+ * global version
+ * @return {[type]} [description]
+ */
 Permissions.prototype.getPermissionsXml = function(){
 	if (!Permissions._xml){
 		Permissions._xml = ims.sharepoint.getPermissionsXml();
@@ -1651,8 +1712,13 @@ Permissions.prototype.update = function(){
 		console.log('Changes needed');
 	}
 }
-// GROUP PERM             ISSIONS END
-
+// GROUP PERMISSIONS END
+// GROUP PermissionsPerson
+/**
+ * create a new permissions file person
+ * @param {[type]} xml         [description]
+ * @param {[type]} permissions [description]
+ */
 function PermissionsPerson(xml, permissions){
 	this.email = $(xml).attr('email');
 	this.people = [];
@@ -1669,7 +1735,13 @@ function PermissionsPerson(xml, permissions){
 	}
 }
 
+/**
+ * Check the permsisions based on the current master file
+ * @param  {Map} mapPerson [description]
+ * @return {[type]}           [description]
+ */
 PermissionsPerson.prototype.check = function(mapPerson){
+	if (!mapPerson) return null;
 	var results = {
 		email: this.email,
 		add: [],
@@ -1689,9 +1761,39 @@ PermissionsPerson.prototype.check = function(mapPerson){
 			results.remove.push(this.people[i].email);
 		}
 	}
+	this.results = results;
 	if (results.add.length > 0 || results.remove.length > 0) return results;
 	return null;
 }
+
+PermissionsPerson.prototype.removeUsers = function(){
+
+}
+
+PermissionsPerson.prototype.addUsers = function(){
+	var err = [];
+	var _this = this;
+	ims.sharepoint.getFileItems(this.email, function(listItemsXml){
+		for (var i = 0; i < _this.results.add.length; i++){
+			var file = _this.results.add[i];
+			var user = $(_this.permissions.siteUsers.xml).find('d\\:Email:contains(' + file.email + '), Email:contains(' + file.email + ')');
+			var id = $(user).parent().find('d\\:Id, Id').text();
+			if (id){
+				var begin = $(listItemsXml).find('[title=RoleAssignments]').attr('href');
+				var raHref = '/addroleassignment(principalid=' + id + ',roledefid=1073741830)';
+							
+
+				// ims.sharepoint.makePostRequest('_api/' + begin + raHref, function(){}, function(){
+				// 	err.push(u);
+				// });	
+			}
+			else{
+				_this.permissions.siteUsers.add.push(file);
+			}
+		}
+	});
+}
+// GROUP PermissionsPerson END
 
 
 
