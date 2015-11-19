@@ -140,7 +140,21 @@ ims.sharepoint = {
 	      'success': callback
 	    };  
 	    executor.executeAsync(info);
+<<<<<<< HEAD
 	},	
+=======
+	},
+	/**
+	 * Get the file items, used in permissions
+	 * @param  {[type]}   fileName [description]
+	 * @param  {Function} callback [description]
+	 * @return {[type]}            [description]
+	 */
+	getFileItems: function(fileName, callback){
+		var allItemFiles = ims.url._base + 	"_api/Web/GetFileByServerRelativeUrl('" + ims.url.relativeBase + "Instructor%20Reporting/Master/" + fileName + ".xml')/ListItemAllFields";
+		$.get(allItemFiles, callback);
+	},
+>>>>>>> e7fab742c9772099cf9a5f81cc8329009f8ebecd
 	/**
 	 * Posts the current user xml file.
 	 * @return {null} Nothing is returned
@@ -1693,6 +1707,33 @@ PermissionsPerson.prototype.check = function(mapPerson){
 	return null;
 }
 
+<<<<<<< HEAD
+=======
+PermissionsPerson.prototype.removeUsers = function(){
+
+}
+
+PermissionsPerson.prototype.addUsers = function(){
+	var err = [];
+	var _this = this;
+	ims.sharepoint.getFileItems(this.email, function(listItemsXml){
+		for (var i = 0; i < _this.results.add.length; i++){
+			var file = _this.results.add[i];
+			var user = $(siteUsers).find('d\\:Email:contains(' + file.email + '), Email:contains(' + file.email + ')');
+			var id = $(user).parent().find('d\\:Id, Id').text();
+			var begin = $(listItemsXml).find('[title=RoleAssignments]').attr('href');
+			var raHref = '/addroleassignment(principalid=' + id + ',roledefid=1073741830)';
+						
+
+			// ims.sharepoint.makePostRequest('_api/' + begin + raHref, function(){}, function(){
+			// 	err.push(u);
+			// });	
+		}
+	});
+}
+// GROUP PermissionsPerson END
+
+>>>>>>> e7fab742c9772099cf9a5f81cc8329009f8ebecd
 
 
 // GROUP PERSON
