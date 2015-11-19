@@ -2381,7 +2381,7 @@ SemesterSetup.prototype._createOrg = function(){
 			_isNew: null,
 			_role: 'im',
 			_course: null,
-			_stewardship: aim_
+			_stewardship: aim
 		});
 
 		// OCR OBJECT
