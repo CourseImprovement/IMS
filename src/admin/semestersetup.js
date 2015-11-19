@@ -18,19 +18,19 @@ function SemesterSetup(csv){
 
 function OSMPerson(obj){
 	console.log('creating a new person');
-	this._first = obj.first;
-	this._last = obj.last;
-	this._email = obj.email;
-	this._isNew = obj.isNew;
+	this._first = obj._first;
+	this._last = obj._last;
+	this._email = obj._email;
+	this._isNew = obj._isNew;
 	this._roles = [];
-	this._roles.push(obj.role);
+	this._roles.push(obj._role);
 	this._courses = [];
-	if (obj.course != null){
-		this._courses.push(new Course(obj.course));
+	if (obj._course != null){
+		this._courses.push(new Course(obj._course));
 	}
 	this._stewardship = [];
-	if (obj.stewardship != null){
-		this._stewardship.push(new OSMPerson(obj.stewardship));
+	if (obj._stewardship != null){
+		this._stewardship.push(new OSMPerson(obj._stewardship));
 	}
 }
 
@@ -60,11 +60,11 @@ OSMPerson.prototype.addRole = function(role){
 
 function Course(obj){
 	console.log('creating a new course');
-	this._name = obj.name; 
-	this._section = obj.section; 
-	this._credits = obj.credits; 
-	this._isPilot = obj.isPilot; 
-	this._pwsection = obj.pwsection;
+	this._name = obj._name; 
+	this._section = obj._section; 
+	this._credits = obj._credits; 
+	this._isPilot = obj._isPilot; 
+	this._pwsection = obj._pwsection;
 }
 
 /**
@@ -98,81 +98,81 @@ SemesterSetup.prototype._createOrg = function(){
 		if (this._csv[rows].length == 1) continue;
 		// INSTRUCTOR OBJECT
 		var inst = {
-			first: this._csv[rows][0],
-			last: this._csv[rows][1],
-			email: this._csv[rows][2],
-			isNew: this._csv[rows][16],
-			role: 'instructor',
-			course: {
+			_first: this._csv[rows][0],
+			_last: this._csv[rows][1],
+			_email: this._csv[rows][2],
+			_isNew: this._csv[rows][16],
+			_role: 'instructor',
+			_course: {
 				name: this._csv[rows][3],
 				credits: this._csv[rows][4],
 				isPilot: this._csv[rows][17]
 			},
-			stewardship: null
+			_stewardship: null
 		};
 
 		if (this._csv[rows][19] == 'TRUE'){
-			inst.course['pwsection'] = this._csv[rows][5];
-			inst.course['section'] = '';
+			inst._course['_pwsection'] = this._csv[rows][5];
+			inst._course['_section'] = '';
 		}
 		else{
-			inst.course['section'] = this._csv[rows][5];
-			inst.course['pwsection'] = '';
+			inst._course['_section'] = this._csv[rows][5];
+			inst._course['_pwsection'] = '';
 		}
 
 		// TGL OBJECT
 		var tgl = {
-			first: this._csv[rows][7].split(' ')[0],
-			last: this._csv[rows][7].split(' ')[1],
-			email: this._csv[rows][6],
-			isNew: null,
-			role: 'tgl',
-			course: null,
-			stewardship: inst
+			_first: this._csv[rows][7].split(' ')[0],
+			_last: this._csv[rows][7].split(' ')[1],
+			_email: this._csv[rows][6],
+			_isNew: null,
+			_role: 'tgl',
+			_course: null,
+			_stewardship: inst
 		};
 		
 		// AIM OBJECT
 		var aim = {
-			first: this._csv[rows][9].split(' ')[0],
-			last: this._csv[rows][9].split(' ')[1],
-			email: this._csv[rows][8],
-			isNew: null,
-			role: 'aim',
-			course: null,
-			stewardship: tgl
+			_first: this._csv[rows][9].split(' ')[0],
+			_last: this._csv[rows][9].split(' ')[1],
+			_email: this._csv[rows][8],
+			_isNew: null,
+			_role: 'aim',
+			_course: null,
+			_stewardship: tgl
 		};
 
 		// IM OBJECT
 		var im = new OSMPerson({
-			first: this._csv[rows][11].split(' ')[0],
-			last: this._csv[rows][11].split(' ')[1],
-			email: this._csv[rows][10],
-			isNew: null,
-			role: 'im',
-			course: null,
-			stewardship: aim
+			_first: this._csv[rows][11].split(' ')[0],
+			_last: this._csv[rows][11].split(' ')[1],
+			_email: this._csv[rows][10],
+			_isNew: null,
+			_role: 'im',
+			_course: null,
+			_stewardship: aim_
 		});
 
 		// OCR OBJECT
 		var ocr = {
-			first: this._csv[rows][13].split(' ')[0],
-			last: this._csv[rows][13].split(' ')[1],
-			email: this._csv[rows][12],
-			isNew: null,
-			role: 'ocr',
-			course: null,
-			stewardship: inst
+			_first: this._csv[rows][13].split(' ')[0],
+			_last: this._csv[rows][13].split(' ')[1],
+			_email: this._csv[rows][12],
+			_isNew: null,
+			_role: 'ocr',
+			_course: null,
+			_stewardship: inst
 		};
 
 		// OCRM OBJECT
 		var ocrm = new OSMPerson({
-			first: this._csv[rows][14].split(' ')[0],
-			last: this._csv[rows][14].split(' ')[1],
-			email: this._csv[rows][15],
-			isNew: null,
-			role: 'ocrm',
-			course: null,
-			stewardship: ocr
+			_first: this._csv[rows][14].split(' ')[0],
+			_last: this._csv[rows][14].split(' ')[1],
+			_email: this._csv[rows][15],
+			_isNew: null,
+			_role: 'ocrm',
+			_course: null,
+			_stewardship: ocr
 		});
 
 		this.addImToOrg(im);
