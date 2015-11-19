@@ -25,7 +25,7 @@ Permissions.prototype.init = function(){
 		_this.graph[p.email] = p;
 	});
 	ims.sharepoint.getSiteUsers(function(users){
-		_this.siteUsers = {xml: users, add: []};
+		_this.siteUsers = {xml: users, add: [], remove: []};
 	})
 	ims.sharepoint.getRoles(function(roles){
 		_this.roles = roles;
@@ -66,7 +66,9 @@ Permissions.prototype.check = function(){
 Permissions.prototype.update = function(){
 	console.log('updating the permissions');
 	if (this.check()){
-		console.log('Changes needed');
+		for (var i = 0; i < this.people.length; i++){
+			this.people[i].change();
+		}
 	}
 }
 // GROUP PERMISSIONS END
@@ -123,8 +125,35 @@ PermissionsPerson.prototype.check = function(mapPerson){
 	return null;
 }
 
-PermissionsPerson.prototype.removeUsers = function(){
+PermissionsPerson.prototype.change = function(){
+	if (this.results.add.length > 0) this.addUsers();
+	if (this.results.remove.length > 0) thos.removeUsers();
+}
 
+PermissionsPerson.prototype.removeUsers = function(){
+	var err = [];
+	var _this = this;
+	ims.sharepoint.getFileItems(this.email, function(listItemsXml){
+		for (var i = 0; i < _this.results.remove.length; i++){
+			var file = _this.results.remove[i];
+			var user = $(_this.permissions.siteUsers.xml).find('d\\:Email:contains(' + file + '), Email:contains(' + file + ')');
+			var id = $(user).parent().find('d\\:Id, Id').text();
+			if (id){
+				var begin = $(listItemsXml).find('[title=RoleAssignments]').attr('href');
+				var raHref = '/removeroleassignment(principalid=' + id + ',roledefid=' + _this.roles.Edit + ')';
+							
+
+				ims.sharepoint.makePostRequest('_api/' + begin + raHref, function(){
+					
+				}, function(){
+					err.push(u);
+				});	
+			}
+			else{
+				_this.permissions.siteUsers.remove.push(file);
+			}
+		}
+	});
 }
 
 PermissionsPerson.prototype.addUsers = function(){
@@ -140,7 +169,9 @@ PermissionsPerson.prototype.addUsers = function(){
 				var raHref = '/addroleassignment(principalid=' + id + ',roledefid=' + _this.roles.Edit + ')';
 							
 
-				ims.sharepoint.makePostRequest('_api/' + begin + raHref, function(){}, function(){
+				ims.sharepoint.makePostRequest('_api/' + begin + raHref, function(){
+
+				}, function(){
 					err.push(u);
 				});	
 			}
