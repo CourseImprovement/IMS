@@ -225,7 +225,7 @@
 		<div class="big-btn" ng-click='chooseFile()'>
 			Choose File
 		</div>
-		<button class="big-btn" ng-click='setupStart()'>Start</button>
+		<button class="big-btn" ng-click='semesterSetup()'>Start</button>
 		<button class="big-btn" ng-click='changeMode("home")'>Back</button>
 
 	</div>
