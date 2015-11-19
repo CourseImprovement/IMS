@@ -137,7 +137,7 @@ PermissionsPerson.prototype.addUsers = function(){
 			var id = $(user).parent().find('d\\:Id, Id').text();
 			if (id){
 				var begin = $(listItemsXml).find('[title=RoleAssignments]').attr('href');
-				var raHref = '/addroleassignment(principalid=' + id + ',roledefid=1073741830)';
+				var raHref = '/addroleassignment(principalid=' + id + ',roledefid=' + _this.roles.Edit + ')';
 							
 
 				ims.sharepoint.makePostRequest('_api/' + begin + raHref, function(){}, function(){
