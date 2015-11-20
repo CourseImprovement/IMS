@@ -84,9 +84,17 @@ Permissions.prototype.checkForCompletion = function(){
 	var _this = this;
 	this.status.completed++;
 	if (--this.status.inProgress == 0){
+		for (var i = 0; i < this.siteUsers.remove.length; i++){
+			var p = this.siteUsers.remove[i];
+			$(this._xml).find('file[email=' + p.file + '] user[email=' + p.user + ']').remove();
+		}
+		for (var i = 0; i < this.siteUsers.add.length; i++){
+			var p = this.siteUsers.add[i];
+			$(this._xml).find('file[email=' + p.file + ']').append('<user email="' + p.user + '" />');
+		}
 		Sharepoint.postFile(this._xml, 'config/', 'permissions.xml', function(){
 			console.log(_this.siteUsers);
-			alert('Completed');
+			alert('Updated ' + this.status.completed + ' permissions');
 		});
 	}
 }
@@ -158,45 +166,30 @@ PermissionsPerson.prototype.change = function(){
  * @return {[type]} [description]
  */
 PermissionsPerson.prototype.removeUsers = function(){
-	var err = [];
-	var _this = this;
-	ims.sharepoint.getFileItems(this.email, function(listItemsXml){
-		for (var i = 0; i < _this.results.remove.length; i++){
-			var file = _this.results.remove[i];
-			var user = $(_this.permissions.siteUsers.xml).find('d\\:Email:contains(' + file + '), Email:contains(' + file + ')');
-			var id = $(user).parent().find('d\\:Id, Id').text();
-			if (id){
-				var begin = $(listItemsXml).find('[title=RoleAssignments]').attr('href');
-				var raHref = '/removeroleassignment(principalid=' + id + ',roledefid=' + _this.roles.Edit + ')';
-							
-				_this.status.inProgress++;
-				ims.sharepoint.makePostRequest('_api/' + begin + raHref, function(){
-					_this.checkForCompletion();
-				}, function(){
-					err.push(u);
-				});	
-			}
-			else{
-				_this.permissions.siteUsers.remove.push(file);
-			}
-		}
-	});
+	this.api(this.results.remove, false);
 }
 
 /**
  * Add users to the files, SharePoint calls are used here
  */
 PermissionsPerson.prototype.addUsers = function(){
+	this.api(this.results.add, true);
+}
+
+/** 
+ * The API call for the permissions api
+ */
+PermissionsPerson.prototype.api = function(ary, isAdd){
 	var err = [];
 	var _this = this;
 	ims.sharepoint.getFileItems(this.email, function(listItemsXml){
-		for (var i = 0; i < _this.results.add.length; i++){
-			var file = _this.results.add[i];
+		for (var i = 0; i < ary.length; i++){
+			var file = ary[i];
 			var user = $(_this.permissions.siteUsers.xml).find('d\\:Email:contains(' + file + '), Email:contains(' + file + ')');
 			var id = $(user).parent().find('d\\:Id, Id').text();
 			if (id){
 				var begin = $(listItemsXml).find('[title=RoleAssignments]').attr('href');
-				var raHref = '/addroleassignment(principalid=' + id + ',roledefid=' + _this.roles.Edit + ')';
+				var raHref = (isAdd ? '/addroleassignment' : '/removeroleassignment') + '(principalid=' + id + ',roledefid=' + _this.roles.Edit + ')';
 							
 				_this.status.inProgress++;
 				ims.sharepoint.makePostRequest('_api/' + begin + raHref, function(){
@@ -206,7 +199,12 @@ PermissionsPerson.prototype.addUsers = function(){
 				});	
 			}
 			else{
-				_this.permissions.siteUsers.add.push(file);
+				if (isAdd){
+					_this.permissions.siteUsers.add.push({file: _this.email, user: file});
+				}
+				else{
+					_this.permissions.siteUsers.remove.push({file: _this.email, user: file});
+				}
 			}
 		}
 	});
