@@ -1662,6 +1662,11 @@ Evaluations.prototype.parseCSV = function(){
 // GROUP PERMISSIONS
 /**
  * Permissions Object
+ * NOTE:
+ * 	If the users are not found in the SharePoint site somewhere (anywhere),
+ * 	they will need to be added manually to the SharePoint site using some 
+ * 	sort of groups. An API was attempted to be made to automate this, 
+ * 	however, it has become difficult.
  */
 function Permissions(){
 	console.log('new Permissions object created');
@@ -1670,6 +1675,7 @@ function Permissions(){
 	this.map = new Master();
 	this.init();
 	this.changes = [];
+	this.status = {inProgress: 0, completed: 0};
 }
 
 /**
@@ -1685,9 +1691,11 @@ Permissions.prototype.init = function(){
 		_this.people.push(p);
 		_this.graph[p.email] = p;
 	});
+	// get the site users
 	ims.sharepoint.getSiteUsers(function(users){
-		_this.siteUsers = {xml: users, add: []};
+		_this.siteUsers = {xml: users, add: [], remove: []};
 	})
+	// Get the sharepoint site roles
 	ims.sharepoint.getRoles(function(roles){
 		_this.roles = roles;
 	})
@@ -1727,7 +1735,20 @@ Permissions.prototype.check = function(){
 Permissions.prototype.update = function(){
 	console.log('updating the permissions');
 	if (this.check()){
-		console.log('Changes needed');
+		for (var i = 0; i < this.people.length; i++){
+			this.people[i].change();
+		}
+	}
+}
+
+Permissions.prototype.checkForCompletion = function(){
+	var _this = this;
+	this.status.completed++;
+	if (--this.status.inProgress == 0){
+		Sharepoint.postFile(this._xml, 'config/', 'permissions.xml', function(){
+			console.log(_this.siteUsers);
+			alert('Completed');
+		});
 	}
 }
 // GROUP PERMISSIONS END
@@ -1784,10 +1805,48 @@ PermissionsPerson.prototype.check = function(mapPerson){
 	return null;
 }
 
-PermissionsPerson.prototype.removeUsers = function(){
-
+/**
+ * Change the permissions from the objects collected during check
+ * @return {[type]} [description]
+ */
+PermissionsPerson.prototype.change = function(){
+	if (this.results.add.length > 0) this.addUsers();
+	if (this.results.remove.length > 0) thos.removeUsers();
 }
 
+/**
+ * Remove the users from the files, SharePoint API calls are made here
+ * @return {[type]} [description]
+ */
+PermissionsPerson.prototype.removeUsers = function(){
+	var err = [];
+	var _this = this;
+	ims.sharepoint.getFileItems(this.email, function(listItemsXml){
+		for (var i = 0; i < _this.results.remove.length; i++){
+			var file = _this.results.remove[i];
+			var user = $(_this.permissions.siteUsers.xml).find('d\\:Email:contains(' + file + '), Email:contains(' + file + ')');
+			var id = $(user).parent().find('d\\:Id, Id').text();
+			if (id){
+				var begin = $(listItemsXml).find('[title=RoleAssignments]').attr('href');
+				var raHref = '/removeroleassignment(principalid=' + id + ',roledefid=' + _this.roles.Edit + ')';
+							
+				_this.status.inProgress++;
+				ims.sharepoint.makePostRequest('_api/' + begin + raHref, function(){
+					_this.checkForCompletion();
+				}, function(){
+					err.push(u);
+				});	
+			}
+			else{
+				_this.permissions.siteUsers.remove.push(file);
+			}
+		}
+	});
+}
+
+/**
+ * Add users to the files, SharePoint calls are used here
+ */
 PermissionsPerson.prototype.addUsers = function(){
 	var err = [];
 	var _this = this;
@@ -1800,8 +1859,10 @@ PermissionsPerson.prototype.addUsers = function(){
 				var begin = $(listItemsXml).find('[title=RoleAssignments]').attr('href');
 				var raHref = '/addroleassignment(principalid=' + id + ',roledefid=' + _this.roles.Edit + ')';
 							
-
-				ims.sharepoint.makePostRequest('_api/' + begin + raHref, function(){}, function(){
+				_this.status.inProgress++;
+				ims.sharepoint.makePostRequest('_api/' + begin + raHref, function(){
+					_this.checkForCompletion();
+				}, function(){
 					err.push(u);
 				});	
 			}
