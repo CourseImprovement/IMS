@@ -2345,17 +2345,18 @@ OSMPerson.prototype.addCourse = function(course){
 	this.courses.push(new Course(course));
 }
 
-/**
- * [addRole description]
- * @param {[type]} role [description]
- */
-OSMPerson.prototype.addRole = function(role){
-	for (var i = 0; i < this.roles.length; i++){
-		if (this.roles[i] == role){
-			return;
-		}
+OSMPerson.prototype.toXml = function(){
+	var xml = $('<person><roles></roles><courses></courses></person>');
+
+	$(xml).attr('first', this.first).attr('last', this.last).attr('email', this.email).attr('highestrole', this.roles[0]).attr('new', this.isNew);
+
+	$(xml).find('roles').append('<role type="' + this.roles[0] + '"><surveys></surveys><stewarship></stewarship><leadership></leadership></role>');
+
+	for (var c = 0; c < this.courses.length; c++){
+		$(xml).find('courses').append('<course credits="' + this.credits + '" id="' + (c + 1) + '" ocr="' + this.isOcr + '" pilot="' + this.pilot + '" section="' + this.section + '" pwsection="' + this.pwsection + '">' + this.name + '</course>');
 	}
-	this.roles.push(role);
+
+	return xml;
 }
 
 /**
@@ -2367,6 +2368,7 @@ function Course(obj){
 	this.section = obj.section; 
 	this.credits = obj.credits; 
 	this.isPilot = obj.isPilot; 
+	this.isOcr = obj.isOcr;
 	this.pwsection = obj.pwsection;
 }
 
@@ -2409,7 +2411,8 @@ SemesterSetup.prototype._createOrg = function(){
 			course: {
 				name: this._csv[rows][3],
 				credits: this._csv[rows][4],
-				isPilot: this._csv[rows][17]
+				isPilot: this._csv[rows][17],
+				isOcr: this._csv[rows][18]
 			},
 			stewardship: null
 		};
@@ -2568,6 +2571,20 @@ SemesterSetup.prototype._createRollup = function(){
  */
 SemesterSetup.prototype._createMaster = function(){
 	console.log('master is being created');
+	var masterXml = $('<semester><people></people></semester>');
+
+	for (var i = 0; i < this._org.IM.length; i++){
+		$(masterXml).find('people').append(this._org.IM[i].toXml());
+		for (var a = 0; a < this._org.IM[i].stewardship.length; a++){
+			$(masterXml).find('people').append(this._org.IM[i].stewardship[a].toXml());
+			for (var t = 0; t < this._org.IM[i].stewardship[a].stewardship.length; t++){
+				$(masterXml).find('people').append(this._org.IM[i].stewardship[a].stewardship[t].toXml());
+				for (var inst = 0; inst < this._org.IM[i].stewardship[a].stewardship[t].stewardship.length; inst++){
+					$(masterXml).find('people').append(this._org.IM[i].stewardship[a].stewardship[t].stewardship[inst].toXml());
+				}
+			}
+		}
+	}
 }
 
 /**
