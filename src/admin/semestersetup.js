@@ -454,8 +454,6 @@ SemesterSetup.prototype._createMaster = function(){
 			}
 		}
 	}
-
-	console.log(this.newMaster);
 }
 
 /**
