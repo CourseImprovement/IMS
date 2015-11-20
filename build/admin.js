@@ -2345,6 +2345,23 @@ OSMPerson.prototype.addCourse = function(course){
 	this.courses.push(new Course(course));
 }
 
+OSMPerson.prototype.addStewardship = function(){
+	var xml = $('<people></people>');
+	for (var i = 0; i < this.stewardship.length; i++){
+		$(xml).append('<person first="' + this.stewardship[i].first + '" last="' + this.stewardship[i].last + '" email="' + this.stewardship[i].email + '" type="' + this.stewardship[i].role + '" />')
+		if (this.stewardship[i].stewardship.length > 0) $(xml).find('person[email="' + this.stewardship[i].email + '"]').append('<people></people>');
+		for (var j = 0; j < this.stewardship[i].stewardship.length; j++){
+			$(xml).find('person[email="' + this.stewardship[i].email + '"] people').append('<person first="' + this.stewardship[i].stewardship[j].first + '" last="' + this.stewardship[i].stewardship[j].last + '" email="' + this.stewardship[i].stewardship[j].email + '" type="' + this.stewardship[i].stewardship[j].role + '" />');
+			if (this.stewardship[i].stewardship[j].stewardship.length > 0) $(xml).find('person[email="' + this.stewardship[i].email + '"] people person[email="' + this.stewardship[i].stewardship[j].email + '"]').append('<people></people>');
+			for (var k = 0; k < this.stewardship[i].stewardship[j].stewardship.length; k++){
+				$(xml).find('person[email="' + this.stewardship[i].email + '"] people person[email="' + this.stewardship[i].stewardship[j].stewardship[k].email + '"] people').append('<person first="' + this.stewardship[i].stewardship[j].stewardship[k].first + '" last="' + this.stewardship[i].stewardship[j].stewardship[k].last + '" email="' + this.stewardship[i].stewardship[j].stewardship[k].email + '" type="' + this.stewardship[i].stewardship[j].stewardship[k].role + '" />');
+			}
+		}
+	}
+
+	return xml;
+}
+
 /**
  * [toXml description]
  * @return {[type]} [description]
@@ -2368,6 +2385,10 @@ OSMPerson.prototype.toXml = function(){
 		$(xml).find('courses').append('<course credits="' + this.courses[c].credits + '" id="' + (c + 1) + '" ocr="' + this.courses[c].isOcr + '" pilot="' + this.courses[c].isPilot + '" section="' + this.courses[c].section + '" pwsection="' + this.courses[c].pwsection + '">' + this.courses[c].name + '</course>');
 	}
 
+	if (this.role != 'instructor'){
+		$(xml).find('roles role[type="' + this.role + '"] stewardship').append(this.addStewardship());
+	}
+
 	return xml;
 }
 
@@ -2384,6 +2405,10 @@ OSMPerson.prototype.addToXml = function(xml){
 	
 	for (var c = 0; c < this.courses.length; c++){
 		$(xml).find('courses').append('<course credits="' + this.courses[c].credits + '" id="' + (c + 1) + '" ocr="' + this.courses[c].isOcr + '" pilot="' + this.courses[c].isPilot + '" section="' + this.courses[c].section + '" pwsection="' + this.courses[c].pwsection + '">' + this.courses[c].name + '</course>');
+	}
+
+	if (this.role != 'instructor'){
+		$(xml).find('roles role[type="' + this.role + '"] stewardship').append(this.addStewardship());
 	}
 
 	return xml;
