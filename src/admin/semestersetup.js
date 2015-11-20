@@ -36,7 +36,7 @@ function OSMPerson(obj){
 OSMPerson.prototype.addCourse = function(course){
 	for (var i = 0; i < this.courses.length; i++){
 		if (this.courses[i].name == course.name){
-			if (course.section != undefined){
+			if (course.section != ""){
 				this.courses[i].section += ' ' + course.section;
 			}
 			else{
