@@ -112,7 +112,7 @@ OSMPerson.prototype.toXml = function(){
 	}
 
 	if (this.role != 'instructor'){
-		$(xml).find('roles role[type="' + this.role + '"] stewardship').append(this.addStewardship());
+		//$(xml).find('roles role[type="' + this.role + '"] stewardship').append(this.addStewardship());
 	}
 
 	return xml;
@@ -134,7 +134,7 @@ OSMPerson.prototype.addToXml = function(xml){
 	}
 
 	if (this.role != 'instructor'){
-		$(xml).find('roles role[type="' + this.role + '"] stewardship').append(this.addStewardship());
+		//$(xml).find('roles role[type="' + this.role + '"] stewardship').append(this.addStewardship());
 	}
 
 	return xml;
