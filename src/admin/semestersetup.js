@@ -411,17 +411,6 @@ SemesterSetup.prototype._createMaster = function(){
 				$(this.newMaster).find('people > person[email="' + aEmail + '"]').remove();
 				$(this.newMaster).find('people').append(this._org.OCRM[i].stewardship[o].addToXml(oXml));
 			}
-			for (var inst = 0; inst < this._org.OCRM[i].stewardship[o].stewardship.length; inst++){
-				var instEmail = this._org.OCRM[i].stewardship[o].stewardship[inst].email;
-				if ($(this.newMaster).find('people > person[email="' + instEmail + '"]').length == 0){
-					$(this.newMaster).find('people').append(this._org.OCRM[i].stewardship[o].stewardship[inst].toXml());
-				}
-				else{
-					var instXml = $(this.newMaster).find('people > person[email="' + instEmail + '"]').clone();
-					$(this.newMaster).find('people > person[email="' + instEmail + '"]').remove();
-					$(this.newMaster).find('people').append(this._org.OCRM[i].stewardship[o].stewardship[inst].addToXml(instXml));
-				}
-			}
 		}
 	}
 }
