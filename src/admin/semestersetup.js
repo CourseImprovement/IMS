@@ -20,7 +20,6 @@ function SemesterSetup(csv){
  * @param {Object} obj person object
  */
 function OSMPerson(obj){
-	console.log(obj);
 	this.first = obj.first;
 	this.last = obj.last;
 	this.email = obj.email;
@@ -48,7 +47,7 @@ OSMPerson.prototype.addCourse = function(course){
 				this.courses[i].section += ' ' + course.section;
 			}
 			else{
-				this.courses[i].pwsection += ' ' + course.section;
+				this.courses[i].pwsection += ' ' + course.pwsection;
 			}
 			return;
 		}
