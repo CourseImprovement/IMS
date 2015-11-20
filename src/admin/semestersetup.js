@@ -117,6 +117,8 @@ OSMPerson.prototype.toXml = function(){
 
 	if (this.role != 'instructor'){
 		$(xml).find('roles role[type="' + this.role + '"] stewardship').append(this.addStewardship());
+		console.log('end');
+		console.log('another end');
 	}
 
 	return xml;
