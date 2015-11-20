@@ -2476,21 +2476,21 @@ SemesterSetup.prototype.addImToOrg = function(im){
 		for (var i = 0; i < this._org.IM.length; i++){ // IM LEVEL
 			if (this._org.IM[i].email == im.email){ // DOES THE IM ALREADY EXIST
 				for (var a = 0; a < this._org.IM[i].stewardship.length; a++){ // AIM LEVEL
-					if (this._org.IM[i].stewardship[a].email == im.stewardship[0].email){ // DOES THE AIM ALREADY EXIST
+					if (this._org.IM[i].stewardship[a].email == im.stewardship.email){ // DOES THE AIM ALREADY EXIST
 						for (var t = 0; t < this._org.IM[i].stewardship[a].stewardship.length; t++){ // TGL LEVEL
-							if (this._org.IM[i].stewardship[a].stewardship[t].email == im.stewardship[0].stewardship[0].email){ // DOES THE TGL ALREADY EXIST
+							if (this._org.IM[i].stewardship[a].stewardship[t].email == im.stewardship.stewardship.email){ // DOES THE TGL ALREADY EXIST
 								for (var l = 0; l < this._org.IM[i].stewardship[a].stewardship[t].stewardship.length; l++){ // INSTRUCTOR LEVEL
-									if (this._org.IM[i].stewardship[a].stewardship[t].stewardship[l].email == im.stewardship[0].stewardship[0].stewardship[0].email){ // DOES THE INSTRUCTOR ALREADY EXIST
+									if (this._org.IM[i].stewardship[a].stewardship[t].stewardship[l].email == im.stewardship.stewardship.stewardship.email){ // DOES THE INSTRUCTOR ALREADY EXIST
 										return;
 									}
 								}
 								console.log('i - inst');
-								this._org.IM[i].stewardship[a].stewardship[t].stewardship.push(new OSMPerson(im.stewardship[0].stewardship[0].stewardship[0])); // ADD INST
+								this._org.IM[i].stewardship[a].stewardship[t].stewardship.push(new OSMPerson(im.stewardship.stewardship.stewardship)); // ADD INST
 								return;
 							}
 						}
 						console.log('tgl');
-						this._org.IM[i].stewardship[a].stewardship.push(new OSMPerson(im.stewardship[0].stewardship[0])); // ADD TGL
+						this._org.IM[i].stewardship[a].stewardship.push(new OSMPerson(im.stewardship.stewardship)); // ADD TGL
 						return;
 					}
 				}
@@ -2512,19 +2512,19 @@ SemesterSetup.prototype.addOcrmToOrg = function(ocrm){
 		for (var m = 0; m < this._org.OCRM.length; m++){ // OCRM LEVEL
 			if (this._org.OCRM[m].email == ocrm.email){
 				for (var o = 0; o < this._org.OCRM[m].stewardship.length; o++){ // OCR LEVEL
-					if (this._org.OCRM[m].stewardship[o].email == ocrm.stewardship[0].email){
+					if (this._org.OCRM[m].stewardship[o].email == ocrm.stewardship.email){
 						for (var i = 0; i < this._org.OCRM[m].stewardship[o].stewardship.length; i++){ // INST LEVEL
-							if (this._org.OCRM[m].stewardship[o].stewardship[i].email == ocrm.stewardship[0].stewardship[0].email){
+							if (this._org.OCRM[m].stewardship[o].stewardship[i].email == ocrm.stewardship.stewardship.email){
 								return;
 							}
 						}
 						console.log('o - inst');
-						this._org.OCRM[m].stewardship[o].stewardship.push(new OSMPerson(ocrm.stewardship[0].stewardship[0])); // ADD INST
+						this._org.OCRM[m].stewardship[o].stewardship.push(new OSMPerson(ocrm.stewardship.stewardship)); // ADD INST
 						return;
 					}
 				}
 				console.log('ocr');
-				this._org.OCRM[m].stewardship.push(new OSMPerson(ocrm.stewardship[0])); // ADD OCR
+				this._org.OCRM[m].stewardship.push(new OSMPerson(ocrm.stewardship)); // ADD OCR
 				return;
 			}
 		}
