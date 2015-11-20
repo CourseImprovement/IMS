@@ -2259,7 +2259,7 @@ function OSMPerson(obj){
 		this.courses.push(new Course(obj.course));
 	}
 	this.stewardship = [];
-	if (obj.stewardship != null){
+	if (obj.stewardship != null || obj.stewardship.length != 0){
 		this.stewardship.push(new OSMPerson(obj.stewardship));
 	}
 }
