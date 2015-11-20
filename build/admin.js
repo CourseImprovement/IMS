@@ -2512,7 +2512,7 @@ SemesterSetup.prototype.addImToOrg = function(im){
 					}
 				}
 				console.log('aim');
-				this._org.IM[i].stewardship.push(new OSMPerson(im.stewardship[0])); // ADD AIM
+				this._org.IM[i].stewardship.push(new OSMPerson(im.stewardship)); // ADD AIM
 				return;
 			}
 		}
