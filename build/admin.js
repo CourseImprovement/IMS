@@ -2456,30 +2456,31 @@ SemesterSetup.prototype._createOrg = function(){
 			stewardship: aim
 		};
 
-		// OCR OBJECT
-		var ocr = {
-			first: this._csv[rows][13].split(' ')[0].formalize(),
-			last: this._csv[rows][13].split(' ')[1].formalize(),
-			email: this._csv[rows][12].toLowerCase(),
-			isNew: null,
-			role: 'ocr',
-			course: null,
-			stewardship: inst
-		};
-
-		// OCRM OBJECT
-		var ocrm = {
-			first: this._csv[rows][14].split(' ')[0].formalize(),
-			last: this._csv[rows][14].split(' ')[1].formalize(),
-			email: this._csv[rows][15].toLowerCase(),
-			isNew: null,
-			role: 'ocrm',
-			course: null,
-			stewardship: ocr
-		};
-
 		this.addImToOrg(im);
-		if (ocrm.email != "" && ocr.email != ""){
+
+		if (this._csv[rows][13] != ""){
+			// OCR OBJECT
+			var ocr = {
+				first: this._csv[rows][13].split(' ')[0].formalize(),
+				last: this._csv[rows][13].split(' ')[1].formalize(),
+				email: this._csv[rows][12].toLowerCase(),
+				isNew: null,
+				role: 'ocr',
+				course: null,
+				stewardship: inst
+			};
+
+			// OCRM OBJECT
+			var ocrm = {
+				first: this._csv[rows][14].split(' ')[0].formalize(),
+				last: this._csv[rows][14].split(' ')[1].formalize(),
+				email: this._csv[rows][15].toLowerCase(),
+				isNew: null,
+				role: 'ocrm',
+				course: null,
+				stewardship: ocr
+			};
+
 			this.addOcrmToOrg(ocrm);
 		}
 	}
