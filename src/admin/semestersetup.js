@@ -11,6 +11,7 @@ function SemesterSetup(csv){
 	this._org = {};
 	this._rollup = null;
 	this._master = null;
+	this._newMaster = null;
 	this._individualFiles = null;
 	this._sem = null; 
 }
@@ -24,14 +25,13 @@ function OSMPerson(obj){
 	this.last = obj.last;
 	this.email = obj.email;
 	this.isNew = obj.isNew;
-	this.roles = [];
-	this.roles.push(obj.role);
+	this.role = obj.role;
 	this.courses = [];
 	if (obj.course != null){
 		this.courses.push(new Course(obj.course));
 	}
 	this.stewardship = [];
-	if (this.roles[0] != 'instructor'){
+	if (this.role != 'instructor'){
 		this.stewardship.push(new OSMPerson(obj.stewardship));
 	}
 }
@@ -56,17 +56,67 @@ OSMPerson.prototype.addCourse = function(course){
 }
 
 OSMPerson.prototype.toXml = function(){
-	var xml = $('<person><roles></roles><courses></courses></person>');
+	var xml = null;
+	if ($(this.newMaster).find('semester > people > person[email="' + this.email '"]').length == 0){
+		xml = $('<person><roles></roles><courses></courses></person>');
 
-	$(xml).attr('first', this.first).attr('last', this.last).attr('email', this.email).attr('highestrole', this.roles[0]).attr('new', this.isNew);
+		if (this.isNew != null){
+			$(xml).attr('new', this.isNew);
+		}
 
-	$(xml).find('roles').append('<role type="' + this.roles[0] + '"><surveys></surveys><stewarship></stewarship><leadership></leadership></role>');
+		$(xml).attr('first', this.first).attr('last', this.last).attr('email', this.email).attr('highestrole', this.role).attr('new', this.isNew);
 
+		$(xml).find('roles').append('<role type="' + this.role + '"><surveys></surveys><stewarship></stewarship><leadership></leadership></role>');
+	}
+	else{
+		xml = $(this.newMaster).find('semester > people > person[email="' + this.email '"]');
+
+		if ($(xml).attr('new') == ""){
+			$(xml).attr('new', this.isNew);
+		}
+
+		if (!isGreater($(xml).attr('highestrole'), this.role){
+			$(xml).attr('highestrole', this.role);
+		}
+
+		$(xml).find('roles').append('<role type="' + this.role + '"><surveys></surveys><stewarship></stewarship><leadership></leadership></role>');
+	}
+	
 	for (var c = 0; c < this.courses.length; c++){
-		$(xml).find('courses').append('<course credits="' + this.credits + '" id="' + (c + 1) + '" ocr="' + this.isOcr + '" pilot="' + this.pilot + '" section="' + this.section + '" pwsection="' + this.pwsection + '">' + this.name + '</course>');
+		$(xml).find('courses').append('<course credits="' + this.courses.credits + '" id="' + (c + 1) + '" ocr="' + this.courses.isOcr + '" pilot="' + this.courses.pilot + '" section="' + this.courses.section + '" pwsection="' + this.courses.pwsection + '">' + this.courses.name + '</course>');
 	}
 
 	return xml;
+}
+
+function isGreater(role1, role2){
+	if (role1 == 'im'){
+		return true;
+	}
+	else if (role1 == 'aim'){
+		if (role2 == 'im')
+			return false;
+		else
+			return true;
+	}
+	else if (role1 == 'tgl'){
+		if (role2 == 'aim' || role2 == 'im')
+			return false;
+		else
+			return true;
+	}
+	else if (role1 == 'ocrm'){
+		return true;
+	}
+	else if (role1 == 'ocr'){
+		if (role1 == 'ocrm')
+			return false;
+		else
+			return true;
+	}
+	else if (role1 == 'instructor'){
+		return false;
+	}
 }
 
 /**
@@ -116,13 +166,13 @@ SemesterSetup.prototype._createOrg = function(){
 			first: this._csv[rows][0].formalize(),
 			last: this._csv[rows][1].formalize(),
 			email: this._csv[rows][2].toLowerCase(),
-			isNew: this._csv[rows][16],
+			isNew: this._csv[rows][16].toLowerCase(),
 			role: 'instructor',
 			course: {
 				name: this._csv[rows][3],
 				credits: this._csv[rows][4],
-				isPilot: this._csv[rows][17],
-				isOcr: this._csv[rows][18]
+				isPilot: this._csv[rows][17].toLowerCase(),
+				isOcr: this._csv[rows][18].toLowerCase()
 			},
 			stewardship: null
 		};
@@ -281,16 +331,16 @@ SemesterSetup.prototype._createRollup = function(){
  */
 SemesterSetup.prototype._createMaster = function(){
 	console.log('master is being created');
-	var masterXml = $('<semester><people></people></semester>');
+	this.newMaster = $('<semester><people></people></semester>');
 
 	for (var i = 0; i < this._org.IM.length; i++){
-		$(masterXml).find('people').append(this._org.IM[i].toXml());
+		$(this.newMaster).find('people').append(this._org.IM[i].toXml());
 		for (var a = 0; a < this._org.IM[i].stewardship.length; a++){
-			$(masterXml).find('people').append(this._org.IM[i].stewardship[a].toXml());
+			$(this.newMaster).find('people').append(this._org.IM[i].stewardship[a].toXml());
 			for (var t = 0; t < this._org.IM[i].stewardship[a].stewardship.length; t++){
-				$(masterXml).find('people').append(this._org.IM[i].stewardship[a].stewardship[t].toXml());
+				$(this.newMaster).find('people').append(this._org.IM[i].stewardship[a].stewardship[t].toXml());
 				for (var inst = 0; inst < this._org.IM[i].stewardship[a].stewardship[t].stewardship.length; inst++){
-					$(masterXml).find('people').append(this._org.IM[i].stewardship[a].stewardship[t].stewardship[inst].toXml());
+					$(this.newMaster).find('people').append(this._org.IM[i].stewardship[a].stewardship[t].stewardship[inst].toXml());
 				}
 			}
 		}
