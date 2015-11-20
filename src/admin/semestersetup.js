@@ -74,7 +74,8 @@ OSMPerson.prototype.toXml = function(){
 		}
 	}
 	else{
-		xml = $(this.newMaster).find('semester > people > person[email="' + this.email + '"]');
+		xml = $(this.newMaster).find('semester > people > person[email="' + this.email + '"]').clone();
+		$(this.newMaster).find('semester > people > person[email="' + this.email + '"]').remove();
 
 		if (!isGreater($(xml).attr('highestrole'), this.role)){
 			$(xml).attr('highestrole', this.role);
@@ -88,7 +89,7 @@ OSMPerson.prototype.toXml = function(){
 	}
 	
 	for (var c = 0; c < this.courses.length; c++){
-		$(xml).find('courses').append('<course credits="' + this.courses.credits + '" id="' + (c + 1) + '" ocr="' + this.courses.isOcr + '" pilot="' + this.courses.pilot + '" section="' + this.courses.section + '" pwsection="' + this.courses.pwsection + '">' + this.courses.name + '</course>');
+		$(xml).find('courses').append('<course credits="' + this.courses[c].credits + '" id="' + (c + 1) + '" ocr="' + this.courses[c].isOcr + '" pilot="' + this.courses[c].pilot + '" section="' + this.courses[c].section + '" pwsection="' + this.courses[c].pwsection + '">' + this.courses[c].name + '</course>');
 	}
 
 	return xml;
