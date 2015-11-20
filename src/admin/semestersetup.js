@@ -15,6 +15,10 @@ function SemesterSetup(csv){
 	this._sem = null; 
 }
 
+/**
+ * [OSMPerson description]
+ * @param {[type]} obj [description]
+ */
 function OSMPerson(obj){
 	console.log(obj);
 	this.first = obj.first;
@@ -33,6 +37,10 @@ function OSMPerson(obj){
 	}
 }
 
+/**
+ * [addCourse description]
+ * @param {[type]} course [description]
+ */
 OSMPerson.prototype.addCourse = function(course){
 	for (var i = 0; i < this.courses.length; i++){
 		if (this.courses[i].name == course.name){
@@ -48,6 +56,10 @@ OSMPerson.prototype.addCourse = function(course){
 	this.courses.push(new Course(course));
 }
 
+/**
+ * [addRole description]
+ * @param {[type]} role [description]
+ */
 OSMPerson.prototype.addRole = function(role){
 	for (var i = 0; i < this.roles.length; i++){
 		if (this.roles[i] == role){
@@ -57,6 +69,10 @@ OSMPerson.prototype.addRole = function(role){
 	this.roles.push(role);
 }
 
+/**
+ * [Course description]
+ * @param {[type]} obj [description]
+ */
 function Course(obj){
 	this.name = obj.name; 
 	this.section = obj.section; 
@@ -176,6 +192,10 @@ SemesterSetup.prototype._createOrg = function(){
 	}
 }
 
+/**
+ * [addImToOrg description]
+ * @param {[type]} im [description]
+ */
 SemesterSetup.prototype.addImToOrg = function(im){
 	if (this._org.IM.length == 0){
 		this._org.IM.push(new OSMPerson(im));
@@ -209,6 +229,10 @@ SemesterSetup.prototype.addImToOrg = function(im){
 	}
 }
 
+/**
+ * [addOcrmToOrg description]
+ * @param {[type]} ocrm [description]
+ */
 SemesterSetup.prototype.addOcrmToOrg = function(ocrm){
 	if (this._org.OCRM.length == 0){
 		this._org.OCRM.push(new OSMPerson(ocrm));
