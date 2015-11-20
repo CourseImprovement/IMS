@@ -58,24 +58,27 @@ OSMPerson.prototype.addCourse = function(course){
 OSMPerson.prototype.addStewardship = function(){
 	var xml = $('<people></people>');
 	for (var i = 0; i < this.stewardship.length; i++){
-		$(xml).append('<person first="' + this.stewardship[i].first + 
-							'" last="' + this.stewardship[i].last + 
-							'" email="' + this.stewardship[i].email + 
-							'" type="' + this.stewardship[i].role + '" />')
-		if (this.stewardship[i].stewardship.length > 0){
-			$(xml).find('person[email="' + this.stewardship[i].email + '"]').append('<people></people>');
-			for (var j = 0; j < this.stewardship[i].stewardship.length; j++){
-				$(xml).find('person[email="' + this.stewardship[i].email + '"] people').append('<person first="' + this.stewardship[i].stewardship[j].first + 
-																									'" last="' + this.stewardship[i].stewardship[j].last + 
-																									'" email="' + this.stewardship[i].stewardship[j].email + 
-																									'" type="' + this.stewardship[i].stewardship[j].role + '" />');
-				if (this.stewardship[i].stewardship[j].stewardship.length > 0){
-					$(xml).find('person[email="' + this.stewardship[i].email + '"] people person[email="' + this.stewardship[i].stewardship[j].email + '"]').append('<people></people>');
-					for (var k = 0; k < this.stewardship[i].stewardship[j].stewardship.length; k++){
-						$(xml).find('person[email="' + this.stewardship[i].email + '"] people person[email="' + this.stewardship[i].stewardship[j].stewardship[k].email + '"] people').append('<person first="' + this.stewardship[i].stewardship[j].stewardship[k].first + 
-																																																	'" last="' + this.stewardship[i].stewardship[j].stewardship[k].last + 
-																																																	'" email="' + this.stewardship[i].stewardship[j].stewardship[k].email + 
-																																																	'" type="' + this.stewardship[i].stewardship[j].stewardship[k].role + '" />');
+		var one = this.stewardship[i];
+		$(xml).append('<person first="' + one.first + 
+							'" last="' + one.last + 
+							'" email="' + one.email + 
+							'" type="' + one.role + '"></person>')
+		if (one.stewardship.length > 0){
+			$(xml).find('person[email="' + one.email + '"]').append('<people></people>');
+			for (var j = 0; j < one.stewardship.length; j++){
+				var two = one.stewardship[j];
+				$(xml).find('person[email="' + one.email + '"] people').append('<person first="' + two.first + 
+																									'" last="' + two.last + 
+																									'" email="' + two.email + 
+																									'" type="' + two.role + '"></person>');
+				if (two.stewardship.length > 0){
+					$(xml).find('person[email="' + one.email + '"] people person[email="' + two.email + '"]').append('<people></people>');
+					for (var k = 0; k < two.stewardship.length; k++){
+						var three = two.stewardship[k];
+						$(xml).find('person[email="' + one.email + '"] people person[email="' + two.email + '"] people').append('<person first="' + three.first + 
+																																		'" last="' + three.last + 
+																																		'" email="' + three.email + 
+																																		'" type="' + three.role + '"></person>');
 					}
 				} 
 			}
