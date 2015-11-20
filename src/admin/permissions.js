@@ -14,6 +14,7 @@ function Permissions(){
 	this.map = new Master();
 	this.init();
 	this.changes = [];
+	this.status = {inProgress: 0, completed: 0};
 }
 
 /**
@@ -76,6 +77,17 @@ Permissions.prototype.update = function(){
 		for (var i = 0; i < this.people.length; i++){
 			this.people[i].change();
 		}
+	}
+}
+
+Permissions.prototype.checkForCompletion = function(){
+	var _this = this;
+	this.status.completed++;
+	if (--this.status.inProgress == 0){
+		Sharepoint.postFile(this._xml, 'config/', 'permissions.xml', function(){
+			console.log(_this.siteUsers);
+			alert('Completed');
+		});
 	}
 }
 // GROUP PERMISSIONS END
@@ -157,9 +169,9 @@ PermissionsPerson.prototype.removeUsers = function(){
 				var begin = $(listItemsXml).find('[title=RoleAssignments]').attr('href');
 				var raHref = '/removeroleassignment(principalid=' + id + ',roledefid=' + _this.roles.Edit + ')';
 							
-
+				_this.status.inProgress++;
 				ims.sharepoint.makePostRequest('_api/' + begin + raHref, function(){
-					
+					_this.checkForCompletion();
 				}, function(){
 					err.push(u);
 				});	
@@ -186,9 +198,9 @@ PermissionsPerson.prototype.addUsers = function(){
 				var begin = $(listItemsXml).find('[title=RoleAssignments]').attr('href');
 				var raHref = '/addroleassignment(principalid=' + id + ',roledefid=' + _this.roles.Edit + ')';
 							
-
+				_this.status.inProgress++;
 				ims.sharepoint.makePostRequest('_api/' + begin + raHref, function(){
-
+					_this.checkForCompletion();
 				}, function(){
 					err.push(u);
 				});	
