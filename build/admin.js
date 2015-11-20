@@ -2346,30 +2346,26 @@ OSMPerson.prototype.addCourse = function(course){
 }
 
 OSMPerson.prototype.addStewardship = function(){
-	console.log('start');
-	var xml = $('<people></people>');
+	var stewardship = $('<people></people>');
 	for (var i = 0; i < this.stewardship.length; i++){
-		console.log('a');
 		var one = this.stewardship[i];
-		$(xml).append('<person first="' + one.first + 
+		$(stewardship).append('<person first="' + one.first + 
 							'" last="' + one.last + 
 							'" email="' + one.email + 
 							'" type="' + one.role + '"></person>')
 		if (one.stewardship.length > 0){
-			$(xml).find('person[email="' + one.email + '"][type="' + one.role + '"]').append('<people></people>');
+			$(stewardship).find('person[email="' + one.email + '"][type="' + one.role + '"]').append('<people></people>');
 			for (var j = 0; j < one.stewardship.length; j++){
-				console.log('b');
 				var two = one.stewardship[j];
-				$(xml).find('person[email="' + one.email + '"][type="' + one.role + '"] people').append('<person first="' + two.first + 
+				$(stewardship).find('person[email="' + one.email + '"][type="' + one.role + '"] people').append('<person first="' + two.first + 
 																									'" last="' + two.last + 
 																									'" email="' + two.email + 
 																									'" type="' + two.role + '"></person>');
 				if (two.stewardship.length > 0){
-					$(xml).find('person[email="' + one.email + '"][type="' + one.role + '"] people person[email="' + two.email + '"][type="' + two.role + '"]').append('<people></people>');
+					$(stewardship).find('person[email="' + one.email + '"][type="' + one.role + '"] people person[email="' + two.email + '"][type="' + two.role + '"]').append('<people></people>');
 					for (var k = 0; k < two.stewardship.length; k++){
-						console.log('c');
 						var three = two.stewardship[k];
-						$(xml).find('person[email="' + one.email + '"][type="' + one.role + '"] people person[email="' + two.email + '"][type="' + two.role + '"] people').append('<person first="' + three.first + 
+						$(stewardship).find('person[email="' + one.email + '"][type="' + one.role + '"] people person[email="' + two.email + '"][type="' + two.role + '"] people').append('<person first="' + three.first + 
 																																		'" last="' + three.last + 
 																																		'" email="' + three.email + 
 																																		'" type="' + three.role + '"></person>');
@@ -2378,8 +2374,8 @@ OSMPerson.prototype.addStewardship = function(){
 			}
 		}
 	}
-	console.log('return');
-	return xml;
+
+	return stewardship;
 }
 
 /**
@@ -2387,6 +2383,7 @@ OSMPerson.prototype.addStewardship = function(){
  * @return {[type]} [description]
  */
 OSMPerson.prototype.toXml = function(){
+	console.log('a');
 	var xml = $('<person><roles></roles><courses></courses></person>');
 
 	$(xml).attr('first', this.first).attr('last', this.last).attr('email', this.email).attr('highestrole', this.role).attr('new', this.isNew);
@@ -2407,14 +2404,13 @@ OSMPerson.prototype.toXml = function(){
 
 	if (this.role != 'instructor'){
 		$(xml).find('roles role[type="' + this.role + '"] stewardship').append(this.addStewardship());
-		console.log('end');
-		console.log('another end');
 	}
 
 	return xml;
 }
 
 OSMPerson.prototype.addToXml = function(xml){
+	console.log('b');
 	if (!isGreater($(xml).attr('highestrole'), this.role)){
 		$(xml).attr('highestrole', this.role);
 	}
