@@ -64,18 +64,18 @@ OSMPerson.prototype.addStewardship = function(){
 							'" email="' + one.email + 
 							'" type="' + one.role + '"></person>')
 		if (one.stewardship.length > 0){
-			$(xml).find('person[email="' + one.email + '"]').append('<people></people>');
+			$(xml).find('person[email="' + one.email + '"][type="' + one.role + '"]').append('<people></people>');
 			for (var j = 0; j < one.stewardship.length; j++){
 				var two = one.stewardship[j];
-				$(xml).find('person[email="' + one.email + '"] people').append('<person first="' + two.first + 
+				$(xml).find('person[email="' + one.email + '"][type="' + one.role + '"] people').append('<person first="' + two.first + 
 																									'" last="' + two.last + 
 																									'" email="' + two.email + 
 																									'" type="' + two.role + '"></person>');
 				if (two.stewardship.length > 0){
-					$(xml).find('person[email="' + one.email + '"] people person[email="' + two.email + '"]').append('<people></people>');
+					$(xml).find('person[email="' + one.email + '"][type="' + one.role + '"] people person[email="' + two.email + '"][type="' + two.role + '"]').append('<people></people>');
 					for (var k = 0; k < two.stewardship.length; k++){
 						var three = two.stewardship[k];
-						$(xml).find('person[email="' + one.email + '"] people person[email="' + two.email + '"] people').append('<person first="' + three.first + 
+						$(xml).find('person[email="' + one.email + '"][type="' + one.role + '"] people person[email="' + two.email + '"][type="' + two.role + '"] people').append('<person first="' + three.first + 
 																																		'" last="' + three.last + 
 																																		'" email="' + three.email + 
 																																		'" type="' + three.role + '"></person>');
