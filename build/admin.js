@@ -2347,7 +2347,7 @@ OSMPerson.prototype.addCourse = function(course){
 
 OSMPerson.prototype.toXml = function(){
 	var xml = null;
-	if ($(this.newMaster).find('semester > people > person[email="' + this.email '"]').length == 0){
+	if ($(this.newMaster).find('semester > people > person[email="' + this.email '"]').length == 0)){
 		xml = $('<person><roles></roles><courses></courses></person>');
 
 		if (this.isNew != null){
