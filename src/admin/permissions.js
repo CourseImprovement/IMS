@@ -1,6 +1,11 @@
 // GROUP PERMISSIONS
 /**
  * Permissions Object
+ * NOTE:
+ * 	If the users are not found in the SharePoint site somewhere (anywhere),
+ * 	they will need to be added manually to the SharePoint site using some 
+ * 	sort of groups. An API was attempted to be made to automate this, 
+ * 	however, it has become difficult.
  */
 function Permissions(){
 	console.log('new Permissions object created');
@@ -24,9 +29,11 @@ Permissions.prototype.init = function(){
 		_this.people.push(p);
 		_this.graph[p.email] = p;
 	});
+	// get the site users
 	ims.sharepoint.getSiteUsers(function(users){
 		_this.siteUsers = {xml: users, add: [], remove: []};
 	})
+	// Get the sharepoint site roles
 	ims.sharepoint.getRoles(function(roles){
 		_this.roles = roles;
 	})
@@ -125,11 +132,19 @@ PermissionsPerson.prototype.check = function(mapPerson){
 	return null;
 }
 
+/**
+ * Change the permissions from the objects collected during check
+ * @return {[type]} [description]
+ */
 PermissionsPerson.prototype.change = function(){
 	if (this.results.add.length > 0) this.addUsers();
 	if (this.results.remove.length > 0) thos.removeUsers();
 }
 
+/**
+ * Remove the users from the files, SharePoint API calls are made here
+ * @return {[type]} [description]
+ */
 PermissionsPerson.prototype.removeUsers = function(){
 	var err = [];
 	var _this = this;
@@ -156,6 +171,9 @@ PermissionsPerson.prototype.removeUsers = function(){
 	});
 }
 
+/**
+ * Add users to the files, SharePoint calls are used here
+ */
 PermissionsPerson.prototype.addUsers = function(){
 	var err = [];
 	var _this = this;
