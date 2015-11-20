@@ -16,6 +16,7 @@ function SemesterSetup(csv){
 }
 
 function OSMPerson(obj){
+	console.log(obj);
 	this.first = obj.first;
 	this.last = obj.last;
 	this.email = obj.email;
