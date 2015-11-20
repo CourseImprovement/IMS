@@ -119,7 +119,10 @@ function isGreater(role1, role2){
 			return true;
 	}
 	else if (role1 == 'instructor'){
-		return false;
+		if (role2 == 'instructor')
+			return true;
+		else
+			return false;
 	}
 }
 
