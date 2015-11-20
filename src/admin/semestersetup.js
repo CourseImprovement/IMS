@@ -137,6 +137,7 @@ SemesterSetup.prototype._createOrg = function(){
 		};
 
 		// IM OBJECT
+		console.log('im aim tgl inst');
 		var im = new OSMPerson({
 			first: this._csv[rows][11].split(' ')[0],
 			last: this._csv[rows][11].split(' ')[1],
@@ -159,6 +160,7 @@ SemesterSetup.prototype._createOrg = function(){
 		};
 
 		// OCRM OBJECT
+		console.log('ocrm ocr inst');
 		var ocrm = new OSMPerson({
 			first: this._csv[rows][14].split(' ')[0],
 			last: this._csv[rows][14].split(' ')[1],
@@ -170,7 +172,9 @@ SemesterSetup.prototype._createOrg = function(){
 		});
 
 		this.addImToOrg(im);
-		this.addOcrmToOrg(ocrm);
+		if (ocrm.email != "" && ocr.email != ""){
+			this.addOcrmToOrg(ocrm);
+		}
 	}
 }
 
@@ -190,14 +194,17 @@ SemesterSetup.prototype.addImToOrg = function(im){
 										return;
 									}
 								}
+								console.log('i - inst');
 								this._org.IM[i].stewardship[a].stewardship[t].stewardship.push(new OSMPerson(im.stewardship[0].stewardship[0].stewardship[0])); // ADD INST
 								return;
 							}
 						}
+						console.log('tgl');
 						this._org.IM[i].stewardship[a].stewardship.push(new OSMPerson(im.stewardship[0].stewardship[0])); // ADD TGL
 						return;
 					}
 				}
+				console.log('aim');
 				this._org.IM[i].stewardship.push(new OSMPerson(im.stewardship[0])); // ADD AIM
 				return;
 			}
@@ -220,10 +227,12 @@ SemesterSetup.prototype.addOcrmToOrg = function(ocrm){
 								return;
 							}
 						}
+						console.log('o - inst');
 						this._org.OCRM[m].stewardship[o].stewardship.push(new OSMPerson(ocrm.stewardship[0].stewardship[0])); // ADD INST
 						return;
 					}
 				}
+				console.log('ocr');
 				this._org.OCRM[m].stewardship.push(new OSMPerson(ocrm.stewardship[0])); // ADD OCR
 				return;
 			}
