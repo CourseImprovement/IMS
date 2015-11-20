@@ -66,6 +66,10 @@ OSMPerson.prototype.toXml = function(){
 
 	$(xml).find('roles').append('<role type="' + this.role + '"><surveys></surveys><stewarship></stewarship><leadership></leadership></role>');
 
+	if (this.role == 'aim'){
+		$(xml).find('roles').append('<role type="tgl"><surveys></surveys><stewarship></stewarship><leadership></leadership></role>');
+	}
+
 	if (this.isNew != null){
 		$(xml).attr('new', this.isNew);
 	}
