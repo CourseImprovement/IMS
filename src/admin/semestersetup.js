@@ -189,25 +189,22 @@ SemesterSetup.prototype.addImToOrg = function(im){
 							if (this._org.IM[i].stewardship[a].stewardship[t].email == im.stewardship.stewardship.email){ // DOES THE TGL ALREADY EXIST
 								for (var l = 0; l < this._org.IM[i].stewardship[a].stewardship[t].stewardship.length; l++){ // INSTRUCTOR LEVEL
 									if (this._org.IM[i].stewardship[a].stewardship[t].stewardship[l].email == im.stewardship.stewardship.stewardship.email){ // DOES THE INSTRUCTOR ALREADY EXIST
+										this._org.IM[i].stewardship[a].stewardship[t].stewardship[l].addCourse(im.stewardship.stewardship.stewardship.course);
 										return;
 									}
 								}
-								console.log('i - inst');
 								this._org.IM[i].stewardship[a].stewardship[t].stewardship.push(new OSMPerson(im.stewardship.stewardship.stewardship)); // ADD INST
 								return;
 							}
 						}
-						console.log('tgl');
 						this._org.IM[i].stewardship[a].stewardship.push(new OSMPerson(im.stewardship.stewardship)); // ADD TGL
 						return;
 					}
 				}
-				console.log('aim');
 				this._org.IM[i].stewardship.push(new OSMPerson(im.stewardship[0])); // ADD AIM
 				return;
 			}
 		}
-		console.log('im');
 		this._org.IM.push(new OSMPerson(im)); // ADD IM
 	}
 }
@@ -226,17 +223,14 @@ SemesterSetup.prototype.addOcrmToOrg = function(ocrm){
 								return;
 							}
 						}
-						console.log('o - inst');
 						this._org.OCRM[m].stewardship[o].stewardship.push(new OSMPerson(ocrm.stewardship.stewardship)); // ADD INST
 						return;
 					}
 				}
-				console.log('ocr');
 				this._org.OCRM[m].stewardship.push(new OSMPerson(ocrm.stewardship)); // ADD OCR
 				return;
 			}
 		}
-		console.log('ocrm');
 		this._org.OCRM.push(new OSMPerson(ocrm)); // ADD OCRM
 	}
 }
