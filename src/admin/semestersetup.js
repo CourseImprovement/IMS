@@ -28,7 +28,7 @@ function OSMPerson(obj){
 		this.courses.push(new Course(obj.course));
 	}
 	this.stewardship = [];
-	if (obj.stewardship != null || obj.stewardship.length != 0){
+	if (obj.roles[0] != 'instructor'){
 		this.stewardship.push(new OSMPerson(obj.stewardship));
 	}
 }
