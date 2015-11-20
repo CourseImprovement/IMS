@@ -2355,26 +2355,26 @@ OSMPerson.prototype.toXml = function(){
 	if ($(this.newMaster).find('semester > people > person[email="' + this.email + '"]').length == 0){
 		xml = $('<person><roles></roles><courses></courses></person>');
 
-		if (this.isNew != null){
-			$(xml).attr('new', this.isNew);
-		}
-
 		$(xml).attr('first', this.first).attr('last', this.last).attr('email', this.email).attr('highestrole', this.role).attr('new', this.isNew);
 
 		$(xml).find('roles').append('<role type="' + this.role + '"><surveys></surveys><stewarship></stewarship><leadership></leadership></role>');
+
+		if (this.isNew != null){
+			$(xml).attr('new', this.isNew);
+		}
 	}
 	else{
 		xml = $(this.newMaster).find('semester > people > person[email="' + this.email + '"]');
-
-		if ($(xml).attr('new') == ""){
-			$(xml).attr('new', this.isNew);
-		}
 
 		if (!isGreater($(xml).attr('highestrole'), this.role)){
 			$(xml).attr('highestrole', this.role);
 		}
 
 		$(xml).find('roles').append('<role type="' + this.role + '"><surveys></surveys><stewarship></stewarship><leadership></leadership></role>');
+
+		if ($(xml).attr('new') == ""){
+			$(xml).attr('new', this.isNew);
+		}
 	}
 	
 	for (var c = 0; c < this.courses.length; c++){
