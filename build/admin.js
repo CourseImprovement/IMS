@@ -2346,6 +2346,7 @@ OSMPerson.prototype.addCourse = function(course){
 }
 
 OSMPerson.prototype.addStewardship = function(){
+	console.log('a 1/2');
 	var stewardship = $('<people></people>');
 	for (var i = 0; i < this.stewardship.length; i++){
 		var one = this.stewardship[i];
