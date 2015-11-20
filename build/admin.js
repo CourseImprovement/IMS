@@ -2429,8 +2429,7 @@ SemesterSetup.prototype._createOrg = function(){
 		};
 
 		// IM OBJECT
-		console.log('im aim tgl inst');
-		var im = new OSMPerson({
+		var im = {
 			first: this._csv[rows][11].split(' ')[0],
 			last: this._csv[rows][11].split(' ')[1],
 			email: this._csv[rows][10],
@@ -2438,7 +2437,7 @@ SemesterSetup.prototype._createOrg = function(){
 			role: 'im',
 			course: null,
 			stewardship: aim
-		});
+		};
 
 		// OCR OBJECT
 		var ocr = {
@@ -2452,8 +2451,7 @@ SemesterSetup.prototype._createOrg = function(){
 		};
 
 		// OCRM OBJECT
-		console.log('ocrm ocr inst');
-		var ocrm = new OSMPerson({
+		var ocrm = {
 			first: this._csv[rows][14].split(' ')[0],
 			last: this._csv[rows][14].split(' ')[1],
 			email: this._csv[rows][15],
@@ -2461,7 +2459,7 @@ SemesterSetup.prototype._createOrg = function(){
 			role: 'ocrm',
 			course: null,
 			stewardship: ocr
-		});
+		};
 
 		this.addImToOrg(im);
 		if (ocrm.email != "" && ocr.email != ""){
@@ -2472,7 +2470,7 @@ SemesterSetup.prototype._createOrg = function(){
 
 SemesterSetup.prototype.addImToOrg = function(im){
 	if (this._org.IM.length == 0){
-		this._org.IM.push(im);
+		this._org.IM.push(new OSMPerson(im));
 	}
 	else{
 		for (var i = 0; i < this._org.IM.length; i++){ // IM LEVEL
@@ -2501,13 +2499,14 @@ SemesterSetup.prototype.addImToOrg = function(im){
 				return;
 			}
 		}
-		this._org.IM.push(im); // ADD IM
+		console.log('im');
+		this._org.IM.push(new OSMPerson(im)); // ADD IM
 	}
 }
 
 SemesterSetup.prototype.addOcrmToOrg = function(ocrm){
 	if (this._org.OCRM.length == 0){
-		this._org.OCRM.push(ocrm);
+		this._org.OCRM.push(new OSMPerson(ocrm));
 	}
 	else{
 		for (var m = 0; m < this._org.OCRM.length; m++){ // OCRM LEVEL
@@ -2529,7 +2528,8 @@ SemesterSetup.prototype.addOcrmToOrg = function(ocrm){
 				return;
 			}
 		}
-		this._org.OCRM.push(ocrm); // ADD OCRM
+		console.log('ocrm');
+		this._org.OCRM.push(new OSMPerson(ocrm)); // ADD OCRM
 	}
 }
 
