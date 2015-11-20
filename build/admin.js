@@ -2306,8 +2306,8 @@ function SemesterSetup(csv){
 }
 
 /**
- * [OSMPerson description]
- * @param {[type]} obj [description]
+ * Person object for setup
+ * @param {Object} obj person object
  */
 function OSMPerson(obj){
 	console.log(obj);
@@ -2328,8 +2328,8 @@ function OSMPerson(obj){
 }
 
 /**
- * [addCourse description]
- * @param {[type]} course [description]
+ * Add a course or section to a person
+ * @param {Object} course course object
  */
 OSMPerson.prototype.addCourse = function(course){
 	for (var i = 0; i < this.courses.length; i++){
@@ -2360,8 +2360,8 @@ OSMPerson.prototype.addRole = function(role){
 }
 
 /**
- * [Course description]
- * @param {[type]} obj [description]
+ * Course Object
+ * @param {Object} obj course object
  */
 function Course(obj){
 	this.name = obj.name; 
@@ -2383,7 +2383,6 @@ SemesterSetup.prototype.semesterSetup = function(){
 
 /**
  * CREATES A NEW ORG FROM THE CSV
- * @return {[type]} [description]
  */
 SemesterSetup.prototype._createOrg = function(){
 	this._org['IM'] = [];
@@ -2483,8 +2482,8 @@ SemesterSetup.prototype._createOrg = function(){
 }
 
 /**
- * [addImToOrg description]
- * @param {[type]} im [description]
+ * Adds a person and their subordinates into the organization
+ * @param {Object} im person object that contains stewards
  */
 SemesterSetup.prototype.addImToOrg = function(im){
 	if (this._org.IM.length == 0){
@@ -2520,8 +2519,8 @@ SemesterSetup.prototype.addImToOrg = function(im){
 }
 
 /**
- * [addOcrmToOrg description]
- * @param {[type]} ocrm [description]
+ * Adds a person with their subordinates to the organization
+ * @param {Object} ocrm Person object with subordinates
  */
 SemesterSetup.prototype.addOcrmToOrg = function(ocrm){
 	if (this._org.OCRM.length == 0){
