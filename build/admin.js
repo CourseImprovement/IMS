@@ -2364,7 +2364,7 @@ OSMPerson.prototype.toXml = function(){
 		$(xml).find('roles').append('<role type="' + this.role + '"><surveys></surveys><stewarship></stewarship><leadership></leadership></role>');
 	}
 	else{
-		xml = $(this.newMaster).find('semester > people > person[email="' + this.email '"]');
+		xml = $(this.newMaster).find('semester > people > person[email="' + this.email + '"]');
 
 		if ($(xml).attr('new') == ""){
 			$(xml).attr('new', this.isNew);
