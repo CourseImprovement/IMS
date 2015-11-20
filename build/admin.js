@@ -2346,7 +2346,6 @@ OSMPerson.prototype.addCourse = function(course){
 }
 
 OSMPerson.prototype.addStewardship = function(){
-	console.log('step 1/2 start');
 	var stewardship = $('<people></people>');
 	for (var i = 0; i < this.stewardship.length; i++){
 		var one = this.stewardship[i];
@@ -2375,7 +2374,7 @@ OSMPerson.prototype.addStewardship = function(){
 			}
 		}
 	}
-	console.log('step 1/2 end');
+	
 	return stewardship;
 }
 
@@ -2384,7 +2383,6 @@ OSMPerson.prototype.addStewardship = function(){
  * @return {[type]} [description]
  */
 OSMPerson.prototype.toXml = function(){
-	console.log('step 1 start');
 	var xml = $('<person><roles></roles><courses></courses></person>');
 
 	$(xml).attr('first', this.first).attr('last', this.last).attr('email', this.email).attr('highestrole', this.role).attr('new', this.isNew);
@@ -2406,12 +2404,11 @@ OSMPerson.prototype.toXml = function(){
 	if (this.role != 'instructor'){
 		$(xml).find('roles role[type="' + this.role + '"] stewardship').append(this.addStewardship());
 	}
-	console.log('step 1 end');
+	
 	return xml;
 }
 
 OSMPerson.prototype.addToXml = function(xml){
-	console.log('step 2 start');
 	if (!isGreater($(xml).attr('highestrole'), this.role)){
 		$(xml).attr('highestrole', this.role);
 	}
@@ -2429,7 +2426,7 @@ OSMPerson.prototype.addToXml = function(xml){
 	if (this.role != 'instructor'){
 		//$(xml).find('roles role[type="' + this.role + '"] stewardship').append(this.addStewardship());
 	}
-	console.log('step 2 end');
+	
 	return xml;
 }
 
@@ -2682,59 +2679,43 @@ SemesterSetup.prototype._createMaster = function(){
 
 	for (var i = 0; i < this._org.IM.length; i++){
 		var email = this._org.IM[i].email;
-		if ($(this.newMaster).find('people > person[email="' + email + '"]').length == 0){
-			console.log('a start');
-			$(this.newMaster).find('people').append(this._org.IM[i].toXml());
-			console.log('a end');
+		if ($(this.newMaster).find('> people > person[email="' + email + '"]').length == 0){
+			$(this.newMaster).find('> people').append(this._org.IM[i].toXml());
 		}
 		else{
-			console.log('b start');
-			var xml = $(this.newMaster).find('people > person[email="' + email + '"]').clone();
-			$(this.newMaster).find('people > person[email="' + email + '"]').remove();
-			$(this.newMaster).find('people').append(this._org.IM[i].addToXml(xml));
-			console.log('b end');
+			var xml = $(this.newMaster).find('> people > person[email="' + email + '"]').clone();
+			$(this.newMaster).find('> people > person[email="' + email + '"]').remove();
+			$(this.newMaster).find('> people').append(this._org.IM[i].addToXml(xml));
 		}
 		for (var a = 0; a < this._org.IM[i].stewardship.length; a++){
 			var aEmail = this._org.IM[i].stewardship[a].email;
-			if ($(this.newMaster).find('people > person[email="' + aEmail + '"]').length == 0){
-				console.log('c start');
-				$(this.newMaster).find('people').append(this._org.IM[i].stewardship[a].toXml());
-				console.log('c end');
+			if ($(this.newMaster).find('> people > person[email="' + aEmail + '"]').length == 0){
+				$(this.newMaster).find('> people').append(this._org.IM[i].stewardship[a].toXml());
 			}
 			else{
-				console.log('d start');
-				var aXml = $(this.newMaster).find('people > person[email="' + aEmail + '"]').clone();
-				$(this.newMaster).find('people > person[email="' + aEmail + '"]').remove();
-				$(this.newMaster).find('people').append(this._org.IM[i].stewardship[a].addToXml(aXml));
-				console.log('d end');
+				var aXml = $(this.newMaster).find('> people > person[email="' + aEmail + '"]').clone();
+				$(this.newMaster).find('> people > person[email="' + aEmail + '"]').remove();
+				$(this.newMaster).find('> people').append(this._org.IM[i].stewardship[a].addToXml(aXml));
 			}
 			for (var t = 0; t < this._org.IM[i].stewardship[a].stewardship.length; t++){
 				var tEmail = this._org.IM[i].stewardship[a].stewardship[t].email;
-				if ($(this.newMaster).find('people > person[email="' + tEmail + '"]').length == 0){
-					console.log('e start');
-					$(this.newMaster).find('people').append(this._org.IM[i].stewardship[a].stewardship[t].toXml());
-					console.log('e end');
+				if ($(this.newMaster).find('> people > person[email="' + tEmail + '"]').length == 0){
+					$(this.newMaster).find('> people').append(this._org.IM[i].stewardship[a].stewardship[t].toXml());
 				}
 				else{
-					console.log('f start');
-					var tXml = $(this.newMaster).find('people > person[email="' + tEmail + '"]').clone();
-					$(this.newMaster).find('people > person[email="' + tEmail + '"]').remove();
-					$(this.newMaster).find('people').append(this._org.IM[i].stewardship[a].stewardship[t].addToXml(tXml));
-					console.log('f end');
+					var tXml = $(this.newMaster).find('> people > person[email="' + tEmail + '"]').clone();
+					$(this.newMaster).find('> people > person[email="' + tEmail + '"]').remove();
+					$(this.newMaster).find('> people').append(this._org.IM[i].stewardship[a].stewardship[t].addToXml(tXml));
 				}
 				for (var inst = 0; inst < this._org.IM[i].stewardship[a].stewardship[t].stewardship.length; inst++){
 					var iEmail = this._org.IM[i].stewardship[a].stewardship[t].stewardship[inst].email;
-					if ($(this.newMaster).find('people > person[email="' + iEmail + '"]').length == 0){
-						console.log('g start');
-						$(this.newMaster).find('people').append(this._org.IM[i].stewardship[a].stewardship[t].stewardship[inst].toXml());
-						console.log('g end');
+					if ($(this.newMaster).find('> people > person[email="' + iEmail + '"]').length == 0){
+						$(this.newMaster).find('> people').append(this._org.IM[i].stewardship[a].stewardship[t].stewardship[inst].toXml());
 					}
 					else{
-						console.log('h start');
-						var iXml = $(this.newMaster).find('people > person[email="' + iEmail + '"]').clone();
-						$(this.newMaster).find('people > person[email="' + iEmail + '"]').remove();
-						$(this.newMaster).find('people').append(this._org.IM[i].stewardship[a].stewardship[t].stewardship[inst].addToXml(iXml));
-						console.log('h end');
+						var iXml = $(this.newMaster).find('> people > person[email="' + iEmail + '"]').clone();
+						$(this.newMaster).find('> people > person[email="' + iEmail + '"]').remove();
+						$(this.newMaster).find('> people').append(this._org.IM[i].stewardship[a].stewardship[t].stewardship[inst].addToXml(iXml));
 					}
 				}
 			}
@@ -2743,31 +2724,23 @@ SemesterSetup.prototype._createMaster = function(){
 
 	for (var i = 0; i < this._org.OCRM.length; i++){
 		var email = this._org.OCRM[i].email;
-		if ($(this.newMaster).find('people > person[email="' + email + '"]').length == 0){
-			console.log('i start');
-			$(this.newMaster).find('people').append(this._org.OCRM[i].toXml());
-			console.log('i end');
+		if ($(this.newMaster).find('> people > person[email="' + email + '"]').length == 0){
+			$(this.newMaster).find('> people').append(this._org.OCRM[i].toXml());
 		}
 		else{
-			console.log('j start');
-			var xml = $(this.newMaster).find('people > person[email="' + email + '"]').clone();
-			$(this.newMaster).find('people > person[email="' + email + '"]').remove();
-			$(this.newMaster).find('people').append(this._org.OCRM[i].addToXml(xml));
-			console.log('j end');
+			var xml = $(this.newMaster).find('> people > person[email="' + email + '"]').clone();
+			$(this.newMaster).find('> people > person[email="' + email + '"]').remove();
+			$(this.newMaster).find('> people').append(this._org.OCRM[i].addToXml(xml));
 		}
 		for (var o = 0; o < this._org.OCRM[i].stewardship.length; o++){
 			var oEmail = this._org.OCRM[i].stewardship[o].email;
-			if ($(this.newMaster).find('people > person[email="' + oEmail + '"]').length == 0){
-				console.log('k start');
-				$(this.newMaster).find('people').append(this._org.OCRM[i].stewardship[o].toXml());
-				console.log('k end');
+			if ($(this.newMaster).find('> people > person[email="' + oEmail + '"]').length == 0){
+				$(this.newMaster).find('> people').append(this._org.OCRM[i].stewardship[o].toXml());
 			}
 			else{
-				console.log('l start');
-				var oXml = $(this.newMaster).find('people > person[email="' + oEmail + '"]').clone();
-				$(this.newMaster).find('people > person[email="' + aEmail + '"]').remove();
-				$(this.newMaster).find('people').append(this._org.OCRM[i].stewardship[o].addToXml(oXml));
-				console.log('l end');
+				var oXml = $(this.newMaster).find('> people > person[email="' + oEmail + '"]').clone();
+				$(this.newMaster).find('> people > person[email="' + aEmail + '"]').remove();
+				$(this.newMaster).find('> people').append(this._org.OCRM[i].stewardship[o].addToXml(oXml));
 			}
 		}
 	}
