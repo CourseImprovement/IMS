@@ -2380,6 +2380,11 @@ SemesterSetup.prototype.semesterSetup = function(){
 	this._createRollup();
 }
 
+String.prototype.formalize = function(){
+	if (this == null) return;
+	return this.charAt(0).toUpperCase() + this.slice(1).toLowerCase();
+}
+
 /**
  * CREATES A NEW ORG FROM THE CSV
  */
@@ -2396,9 +2401,9 @@ SemesterSetup.prototype._createOrg = function(){
 		if (this._csv[rows].length == 1) continue;
 		// INSTRUCTOR OBJECT
 		var inst = {
-			first: this._csv[rows][0],
-			last: this._csv[rows][1],
-			email: this._csv[rows][2],
+			first: this._csv[rows][0].formalize(),
+			last: this._csv[rows][1].formalize(),
+			email: this._csv[rows][2].toLowerCase(),
 			isNew: this._csv[rows][16],
 			role: 'instructor',
 			course: {
@@ -2420,9 +2425,9 @@ SemesterSetup.prototype._createOrg = function(){
 
 		// TGL OBJECT
 		var tgl = {
-			first: this._csv[rows][7].split(' ')[0],
-			last: this._csv[rows][7].split(' ')[1],
-			email: this._csv[rows][6],
+			first: this._csv[rows][7].split(' ')[0].formalize(),
+			last: this._csv[rows][7].split(' ')[1].formalize(),
+			email: this._csv[rows][6].toLowerCase(),
 			isNew: null,
 			role: 'tgl',
 			course: null,
@@ -2431,9 +2436,9 @@ SemesterSetup.prototype._createOrg = function(){
 		
 		// AIM OBJECT
 		var aim = {
-			first: this._csv[rows][9].split(' ')[0],
-			last: this._csv[rows][9].split(' ')[1],
-			email: this._csv[rows][8],
+			first: this._csv[rows][9].split(' ')[0].formalize(),
+			last: this._csv[rows][9].split(' ')[1].formalize(),
+			email: this._csv[rows][8].toLowerCase(),
 			isNew: null,
 			role: 'aim',
 			course: null,
@@ -2442,9 +2447,9 @@ SemesterSetup.prototype._createOrg = function(){
 
 		// IM OBJECT
 		var im = {
-			first: this._csv[rows][11].split(' ')[0],
-			last: this._csv[rows][11].split(' ')[1],
-			email: this._csv[rows][10],
+			first: this._csv[rows][11].split(' ')[0].formalize(),
+			last: this._csv[rows][11].split(' ')[1].formalize(),
+			email: this._csv[rows][10].toLowerCase(),
 			isNew: null,
 			role: 'im',
 			course: null,
@@ -2453,9 +2458,9 @@ SemesterSetup.prototype._createOrg = function(){
 
 		// OCR OBJECT
 		var ocr = {
-			first: this._csv[rows][13].split(' ')[0],
-			last: this._csv[rows][13].split(' ')[1],
-			email: this._csv[rows][12],
+			first: this._csv[rows][13].split(' ')[0].formalize(),
+			last: this._csv[rows][13].split(' ')[1].formalize(),
+			email: this._csv[rows][12].toLowerCase(),
 			isNew: null,
 			role: 'ocr',
 			course: null,
@@ -2464,9 +2469,9 @@ SemesterSetup.prototype._createOrg = function(){
 
 		// OCRM OBJECT
 		var ocrm = {
-			first: this._csv[rows][14].split(' ')[0],
-			last: this._csv[rows][14].split(' ')[1],
-			email: this._csv[rows][15],
+			first: this._csv[rows][14].split(' ')[0].formalize(),
+			last: this._csv[rows][14].split(' ')[1].formalize(),
+			email: this._csv[rows][15].toLowerCase(),
 			isNew: null,
 			role: 'ocrm',
 			course: null,
@@ -2501,22 +2506,18 @@ SemesterSetup.prototype.addImToOrg = function(im){
 										return;
 									}
 								}
-								console.log('inst');
 								this._org.IM[i].stewardship[a].stewardship[t].stewardship.push(new OSMPerson(im.stewardship.stewardship.stewardship)); // ADD INST
 								return;
 							}
 						}
-						console.log('tgl');
 						this._org.IM[i].stewardship[a].stewardship.push(new OSMPerson(im.stewardship.stewardship)); // ADD TGL
 						return;
 					}
 				}
-				console.log('aim');
 				this._org.IM[i].stewardship.push(new OSMPerson(im.stewardship)); // ADD AIM
 				return;
 			}
 		}
-		console.log('IM');
 		this._org.IM.push(new OSMPerson(im)); // ADD IM
 	}
 }
@@ -2540,17 +2541,14 @@ SemesterSetup.prototype.addOcrmToOrg = function(ocrm){
 								return;
 							}
 						}
-						console.log('o - inst');
 						this._org.OCRM[m].stewardship[o].stewardship.push(new OSMPerson(ocrm.stewardship.stewardship)); // ADD INST
 						return;
 					}
 				}
-				console.log('ocr');
 				this._org.OCRM[m].stewardship.push(new OSMPerson(ocrm.stewardship)); // ADD OCR
 				return;
 			}
 		}
-		console.log('ocrm');
 		this._org.OCRM.push(new OSMPerson(ocrm)); // ADD OCRM
 	}
 }
