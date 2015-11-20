@@ -2370,7 +2370,7 @@ OSMPerson.prototype.toXml = function(){
 			$(xml).attr('new', this.isNew);
 		}
 
-		if (!isGreater($(xml).attr('highestrole'), this.role){
+		if (!isGreater($(xml).attr('highestrole'), this.role)){
 			$(xml).attr('highestrole', this.role);
 		}
 
