@@ -2346,8 +2346,10 @@ OSMPerson.prototype.addCourse = function(course){
 }
 
 OSMPerson.prototype.addStewardship = function(){
+	console.log('start');
 	var xml = $('<people></people>');
 	for (var i = 0; i < this.stewardship.length; i++){
+		console.log('a');
 		var one = this.stewardship[i];
 		$(xml).append('<person first="' + one.first + 
 							'" last="' + one.last + 
@@ -2356,6 +2358,7 @@ OSMPerson.prototype.addStewardship = function(){
 		if (one.stewardship.length > 0){
 			$(xml).find('person[email="' + one.email + '"][type="' + one.role + '"]').append('<people></people>');
 			for (var j = 0; j < one.stewardship.length; j++){
+				console.log('b');
 				var two = one.stewardship[j];
 				$(xml).find('person[email="' + one.email + '"][type="' + one.role + '"] people').append('<person first="' + two.first + 
 																									'" last="' + two.last + 
@@ -2364,6 +2367,7 @@ OSMPerson.prototype.addStewardship = function(){
 				if (two.stewardship.length > 0){
 					$(xml).find('person[email="' + one.email + '"][type="' + one.role + '"] people person[email="' + two.email + '"][type="' + two.role + '"]').append('<people></people>');
 					for (var k = 0; k < two.stewardship.length; k++){
+						console.log('c');
 						var three = two.stewardship[k];
 						$(xml).find('person[email="' + one.email + '"][type="' + one.role + '"] people person[email="' + two.email + '"][type="' + two.role + '"] people').append('<person first="' + three.first + 
 																																		'" last="' + three.last + 
@@ -2374,7 +2378,7 @@ OSMPerson.prototype.addStewardship = function(){
 			}
 		}
 	}
-
+	console.log('return');
 	return xml;
 }
 
