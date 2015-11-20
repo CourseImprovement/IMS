@@ -55,6 +55,10 @@ OSMPerson.prototype.addCourse = function(course){
 	this.courses.push(new Course(course));
 }
 
+/**
+ * [toXml description]
+ * @return {[type]} [description]
+ */
 OSMPerson.prototype.toXml = function(){
 	var xml = null;
 	if ($(this.newMaster).find('semester > people > person[email="' + this.email '"]').length == 0)){
