@@ -487,14 +487,19 @@ SemesterSetup.prototype.addImToOrg2 = function(person){
 					}*/
 				}
 				// CHECK COURSE
-				if (this._org[i].person.courses.course == undefined && person.person.courses.course != undefined){
-					for (var c = 0; c < this._org[i].person.courses.course.length; c++){
-						if (this._org[i].person.courses.course[c].name == person.person.courses.course[0].name){
-							if (this._org[i].person.courses.course[c].section != person.person.courses.course[0].section){
-								this._org[i].person.courses.course[c].section += ' ' + person.person.courses.course[0].section;
-							}
-							if (this._org[i].person.courses.course[c].pwsection != person.person.courses.course[0].pwsection){
-								this._org[i].person.courses.course[c].pwsection += ' ' + person.person.courses.course[0].pwsection;
+				if (person.person.courses.course != undefined){
+					if (this._org[i].person.courses.course == undefined){
+						this._org[i].person.courses.course.push(person.person.courses.course[0]);
+					}
+					else{
+						for (var c = 0; c < this._org[i].person.courses.course.length; c++){
+							if (this._org[i].person.courses.course[c].name == person.person.courses.course[0].name){
+								if (this._org[i].person.courses.course[c].section != person.person.courses.course[0].section){
+									this._org[i].person.courses.course[c].section += ' ' + person.person.courses.course[0].section;
+								}
+								if (this._org[i].person.courses.course[c].pwsection != person.person.courses.course[0].pwsection){
+									this._org[i].person.courses.course[c].pwsection += ' ' + person.person.courses.course[0].pwsection;
+								}
 							}
 						}
 					}
