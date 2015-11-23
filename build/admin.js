@@ -2758,24 +2758,14 @@ SemesterSetup.prototype.addImToOrg2 = function(person){
 					this._org[i].person.roles.role.push(person.person.roles.role[0]);
 				}
 				else{
-					/*for (var r = 0; r < this._org[i].person.roles.role.length; r++){
+					for (var r = 0; r < this._org[i].person.roles.role.length; r++){
 						// FIND THE ROLE THAT IS SHARED
 						if (this._org[i].person.roles.role[r].type != 'instructor' && this._org[i].person.highestrole == this._org[i].person.roles.role[r].type){
-							// CHECK STEWARDSHIP
-							for (var s = 0; s < this._org[i].person.roles.role[r].stewardship.people.person.length; s++){
-								if (person.person.roles.role[0].stewardship.people.person[0].email != this._org[i].person.roles.role[r].stewardship.people.person[s].email){
-									this._org[i].person.roles.role[r].stewardship.people.person.push(person.person.roles.role[0].stewardship.people.person[0]);
-								}
-							}
-							// CHECK LEADERSHIP
-							for (var l = 0; l < this._org[i].person.roles.role[r].leadership.people.person.length; l++){
-								if (person.person.roles.role[0].leadership.people.person[0].email != this._org[i].person.roles.role[r].leadership.people.person[s].email){
-									this._org[i].person.roles.role[r].leadership.people.person.push(person.person.roles.role[0].leadership.people.person[0]);
-								}
-							}
+							this._org[i].person.roles.role[r].stewardship.people.person.push(person.person.roles.role[0].stewardship.people.person[0]);
+							this._org[i].person.roles.role[r].leadership.people.person.push(person.person.roles.role[0].leadership.people.person[0]);
 						}
-					}*/
-				}
+					}
+				
 				// CHECK COURSE
 				if (person.person.courses.course != undefined){
 					if (this._org[i].person.courses.course == undefined){
@@ -2791,11 +2781,14 @@ SemesterSetup.prototype.addImToOrg2 = function(person){
 								if (this._org[i].person.courses.course[c].pwsection != person.person.courses.course[0].pwsection){
 									this._org[i].person.courses.course[c].pwsection += ' ' + person.person.courses.course[0].pwsection;
 								}
+								return;
 							}
 						}
+
+						this._org[i].person.courses.course.push(person.person.courses.course[0]);
 					}
 				}
-				
+
 				return;
 			}
 		}
