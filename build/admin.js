@@ -2731,7 +2731,7 @@ SemesterSetup.prototype._createOrg = function(){
 
 
 SemesterSetup.prototype.addImToOrg2 = function(person){
-	if (this._org.length == 0){
+	if (this._org.person.length == 0){
 		this._org.person.push(person);
 	}
 	else {
