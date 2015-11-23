@@ -2358,7 +2358,7 @@ OSMPerson.prototype.addStewardship = function(){
 									'" email="' + one.email + 
 									'" type="' + one.role + '"></person>')
 		if (one.stewardship.length > 0){
-			$(stewardship).find('> person[email="' + one.e    mail + '"][type="' + one.role + '"]').append('<people></people>');
+			$(stewardship).find('> person[email="' + one.email + '"][type="' + one.role + '"]').append('<people></people>');
 			for (var j = 0; j < one.stewardship.length; j++){
 				var two = one.stewardship[j];
 				$(stewardship).find('> person[email="' + one.email + '"][type="' + one.role + '"] > people').append('<person first="' + two.first + 
