@@ -2758,11 +2758,28 @@ SemesterSetup.prototype.addImToOrg2 = function(person){
 					for (var r = 0; r < this._org[i].person.roles.role.length; r++){
 						// FIND THE ROLE THAT IS SHARED
 						if (this._org[i].person.highestrole == this._org[i].person.roles.role[r].type){
+							var setSteward = true;
+							var setLeader = true;
 							if (this._org[i].person.roles.role[r].stewardship.people != undefined){
-								this._org[i].person.roles.role[r].stewardship.people.person.push(person.person.roles.role[0].stewardship.people.person[0]);
+								for (var s = 0; s < this._org[i].person.roles.role[r].stewardship.people.person.length; s++){
+									if (this._org[i].person.roles.role[r].stewardship.people.person[s].email == person.person.email){
+										setSteward = false;
+									}
+								}
+								if (setSteward){
+									this._org[i].person.roles.role[r].stewardship.people.person.push(person.person.roles.role[0].stewardship.people.person[0]);
+								}
 							}
 							if (this._org[i].person.roles.role[r].leadership.people != undefined){
-								this._org[i].person.roles.role[r].leadership.people.person.push(person.person.roles.role[0].leadership.people.person[0]);
+								for (var l = 0; l < this._org[i].person.roles.role[r].leadership.people.person.length; l++){
+									if (this._org[i].person.roles.role[r].leadership.people.person[l].email == person.person.email){
+										setLeader = false;
+									}
+								}
+								
+								if (setLeader){
+									this._org[i].person.roles.role[r].leadership.people.person.push(person.person.roles.role[0].leadership.people.person[0]);
+								}
 							}
 						}
 					}
@@ -2785,7 +2802,7 @@ SemesterSetup.prototype.addImToOrg2 = function(person){
 								return;
 							}
 						}
-
+						person.person.courses.course[0].id++;
 						this._org[i].person.courses.course.push(person.person.courses.course[0]);
 					}
 				}
