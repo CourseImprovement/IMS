@@ -2732,7 +2732,7 @@ SemesterSetup.prototype._createOrg = function(){
 
 SemesterSetup.prototype.addImToOrg2 = function(person){
 	if (this._org.length == 0){
-		this._org.push(person);
+		this._org.person.push(person);
 	}
 	else {
 		for (var i = 0; i < this._org.length; i++){
@@ -2811,7 +2811,7 @@ SemesterSetup.prototype.addImToOrg2 = function(person){
 				return;
 			}
 		}
-		this._org.push(person);
+		this._org.person.push(person);
 	}
 }
 
