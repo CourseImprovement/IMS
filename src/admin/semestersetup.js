@@ -473,7 +473,7 @@ SemesterSetup.prototype.addImToOrg2 = function(person){
 							var setLeader = true;
 							if (this._org.person[i].roles.role[r].stewardship.people != undefined){
 								for (var s = 0; s < this._org.person[i].roles.role[r].stewardship.people.person.length; s++){
-									if (this._org.person[i].roles.role[r].stewardship.people.person[s].email == person.email){
+									if (this._org.person[i].roles.role[r].stewardship.people.person[s].email == person.roles.role[0].stewardship.people.person[0].email){
 										setSteward = false;
 									}
 								}
@@ -483,7 +483,7 @@ SemesterSetup.prototype.addImToOrg2 = function(person){
 							}
 							if (this._org.person[i].roles.role[r].leadership.people != undefined){
 								for (var l = 0; l < this._org.person[i].roles.role[r].leadership.people.person.length; l++){
-									if (this._org.person[i].roles.role[r].leadership.people.person[l].email == person.email){
+									if (this._org.person[i].roles.role[r].leadership.people.person[l].email == person.roles.role[0].leadership.people.person[0].email){
 										setLeader = false;
 									}
 								}
