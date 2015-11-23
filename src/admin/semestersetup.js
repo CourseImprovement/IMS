@@ -445,7 +445,7 @@ SemesterSetup.prototype.addImToOrg2 = function(person){
 		this._org.person.push(person);
 	}
 	else {
-		for (var i = 0; i < this._org.length; i++){
+		for (var i = 0; i < this._org.person.length; i++){
 			if (this._org.person[i].email == person.email){
 				// CHECK ROLE
 				if (this._org.person[i].highestrole != person.highestrole){
