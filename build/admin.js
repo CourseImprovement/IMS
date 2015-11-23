@@ -2746,7 +2746,7 @@ SemesterSetup.prototype.addImToOrg2 = function(person){
 	}
 	else {
 		for (var i = 0; i < this._org.length; i++){
-			if (this._org[i].person.email == person.email){
+			if (this._org[i].person.email == person.person.email){
 				return;
 			}
 		}
