@@ -467,9 +467,13 @@ SemesterSetup.prototype.addImToOrg2 = function(person){
 				else{
 					for (var r = 0; r < this._org[i].person.roles.role.length; r++){
 						// FIND THE ROLE THAT IS SHARED
-						if (this._org[i].person.roles.role[r].type != 'instructor' && this._org[i].person.highestrole == this._org[i].person.roles.role[r].type){
-							this._org[i].person.roles.role[r].stewardship.people.person.push(person.person.roles.role[0].stewardship.people.person[0]);
-							this._org[i].person.roles.role[r].leadership.people.person.push(person.person.roles.role[0].leadership.people.person[0]);
+						if (this._org[i].person.highestrole == this._org[i].person.roles.role[r].type){
+							if (this._org[i].person.roles.role[r].stewardship.people != undefined){
+								this._org[i].person.roles.role[r].stewardship.people.person.push(person.person.roles.role[0].stewardship.people.person[0]);
+							}
+							if (this._org[i].person.roles.role[r].leadership.people != undefined){
+								this._org[i].person.roles.role[r].leadership.people.person.push(person.person.roles.role[0].leadership.people.person[0]);
+							}
 						}
 					}
 				}
