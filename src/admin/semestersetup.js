@@ -272,6 +272,12 @@ SemesterSetup.prototype._createOrg = function(){
 			this.addOcrmToOrg(ocrm);
 		}*/
 	}
+
+	for (var i = 0; i < this._org.person.length; i++){
+		if (this._org.person[i].highestrole == 'aim' || this._org.person[i].highestrole == 'im'){
+			this._org.person[i].roles.role[0]['people'] = {};
+		}
+	}
 }
 
 
