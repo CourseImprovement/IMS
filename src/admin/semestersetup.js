@@ -206,7 +206,7 @@ String.prototype.formalize = function(){
  * CREATES A NEW ORG FROM THE CSV
  */
 SemesterSetup.prototype._createOrg = function(){
-	this._org = [];
+	this._org['person'] = [];
 
 	var start = 0;
 	while (this._csv[start][2] != 'email'){
@@ -217,166 +217,158 @@ SemesterSetup.prototype._createOrg = function(){
 		if (this._csv[rows].length == 1) continue;
 		// INSTRUCTOR OBJECT
 		var inst = {
-			person: {
-				first: this._csv[rows][0].formalize(),
-				last: this._csv[rows][1].formalize(),
-				email: this._csv[rows][2].toLowerCase().split('@')[0],
-				new: this._csv[rows][16].toLowerCase(),
-				highestrole: 'instructor',
-				roles: {
-					role: [{
-						type: 'instructor',
-						surveys: {},
-						stewardship: {},
-						leadership: {
-							people: {
-								person: []
-							}
-						}	
-					}]
-				},
-				courses: {
-					course: [{
-						id: 1,
-						name: this._csv[rows][3],
-						credits: this._csv[rows][4],
-						pilot: this._csv[rows][17].toLowerCase(),
-						ocr: this._csv[rows][18].toLowerCase()
-					}]
-				}
+			first: this._csv[rows][0].formalize(),
+			last: this._csv[rows][1].formalize(),
+			email: this._csv[rows][2].toLowerCase().split('@')[0],
+			new: this._csv[rows][16].toLowerCase(),
+			highestrole: 'instructor',
+			roles: {
+				role: [{
+					type: 'instructor',
+					surveys: {},
+					stewardship: {},
+					leadership: {
+						people: {
+							person: []
+						}
+					}	
+				}]
+			},
+			courses: {
+				course: [{
+					id: 1,
+					name: this._csv[rows][3],
+					credits: this._csv[rows][4],
+					pilot: this._csv[rows][17].toLowerCase(),
+					ocr: this._csv[rows][18].toLowerCase()
+				}]
 			}
 		};
 
 		if (this._csv[rows][19] == 'TRUE'){
-			inst.person.courses.course[0]['pwsection'] = this._csv[rows][5];
-			inst.person.courses.course[0]['section'] = '';
+			inst.courses.course[0]['pwsection'] = this._csv[rows][5];
+			inst.courses.course[0]['section'] = '';
 		}
 		else{
-			inst.person.courses.course[0]['section'] = this._csv[rows][5];
-			inst.person.courses.course[0]['pwsection'] = '';
+			inst.courses.course[0]['section'] = this._csv[rows][5];
+			inst.courses.course[0]['pwsection'] = '';
 		}
 
 		// TGL OBJECT
 		var tgl = {
-			person:{
-				first: this._csv[rows][7].split(' ')[0].formalize(),
-				last: this._csv[rows][7].split(' ')[1].formalize(),
-				email: this._csv[rows][6].toLowerCase().split('@')[0],
-				new: false,
-				highestrole: 'tgl',
-				roles: {
-					role: [{
-						type: 'tgl',
-						surveys: {},
-						stewardship: {
-							people: {
-								person: [{
-									first: this._csv[rows][0].formalize(),
-									last: this._csv[rows][1].formalize(),
-									email: this._csv[rows][2].toLowerCase().split('@')[0],
-									type: 'instructor'
-								}]
-							}
-						},
-						leadership: {
-							people: {
-								person: []
-							}  
+			first: this._csv[rows][7].split(' ')[0].formalize(),
+			last: this._csv[rows][7].split(' ')[1].formalize(),
+			email: this._csv[rows][6].toLowerCase().split('@')[0],
+			new: false,
+			highestrole: 'tgl',
+			roles: {
+				role: [{
+					type: 'tgl',
+					surveys: {},
+					stewardship: {
+						people: {
+							person: [{
+								first: this._csv[rows][0].formalize(),
+								last: this._csv[rows][1].formalize(),
+								email: this._csv[rows][2].toLowerCase().split('@')[0],
+								type: 'instructor'
+							}]
 						}
-					}]
-				},
-				courses: {}
-			}
+					},
+					leadership: {
+						people: {
+							person: []
+						}  
+					}
+				}]
+			},
+			courses: {}
 		};
 		
 		// AIM OBJECT
 		var aim = {
-			person:{
-				first: this._csv[rows][9].split(' ')[0].formalize(),
-				last: this._csv[rows][9].split(' ')[1].formalize(),
-				email: this._csv[rows][8].toLowerCase().split('@')[0],
-				highestrole: 'aim',
-				new: false,
-				roles: {
-					role: [{
-						type: 'aim',
-						surveys: {},
-						stewardship: {
-							people: {
-								person: [{
-									first: this._csv[rows][7].split(' ')[0].formalize(),
-									last: this._csv[rows][7].split(' ')[1].formalize(),
-									email: this._csv[rows][6].toLowerCase().split('@')[0],
-									type: 'tgl',
-									people: {
-										person: [{
-											first: this._csv[rows][0].formalize(),
-											last: this._csv[rows][1].formalize(),
-											email: this._csv[rows][2].toLowerCase().split('@')[0],
-											type: 'instructor'
-										}]
-									}
-								}]
-							}
-						},
-						leadership: {
-							people: {
-								person: []
-							}
+			first: this._csv[rows][9].split(' ')[0].formalize(),
+			last: this._csv[rows][9].split(' ')[1].formalize(),
+			email: this._csv[rows][8].toLowerCase().split('@')[0],
+			highestrole: 'aim',
+			new: false,
+			roles: {
+				role: [{
+					type: 'aim',
+					surveys: {},
+					stewardship: {
+						people: {
+							person: [{
+								first: this._csv[rows][7].split(' ')[0].formalize(),
+								last: this._csv[rows][7].split(' ')[1].formalize(),
+								email: this._csv[rows][6].toLowerCase().split('@')[0],
+								type: 'tgl',
+								people: {
+									person: [{
+										first: this._csv[rows][0].formalize(),
+										last: this._csv[rows][1].formalize(),
+										email: this._csv[rows][2].toLowerCase().split('@')[0],
+										type: 'instructor'
+									}]
+								}
+							}]
 						}
-					}]
-				},
-				courses: {}
-			}
+					},
+					leadership: {
+						people: {
+							person: []
+						}
+					}
+				}]
+			},
+			courses: {}
 		};
 
 		// IM OBJECT
 		var im = {
-			person: {
-				first: this._csv[rows][11].split(' ')[0].formalize(),
-				last: this._csv[rows][11].split(' ')[1].formalize(),
-				email: this._csv[rows][10].toLowerCase().split('@')[0],
-				highestrole: 'im',
-				new: false,
-				roles: {
-					role: [{
-						type: 'im',
-						surveys: {},
-						stewardship: {
-							people: {
-								person: [{
-									first: this._csv[rows][9].split(' ')[0].formalize(),
-									last: this._csv[rows][9].split(' ')[1].formalize(),
-									email: this._csv[rows][8].toLowerCase().split('@')[0],
-									type: 'aim',
-									people: {
-										person: [{
-											first: this._csv[rows][7].split(' ')[0].formalize(),
-											last: this._csv[rows][7].split(' ')[1].formalize(),
-											email: this._csv[rows][6].toLowerCase().split('@')[0],
-											type: 'tgl',
-											people: {
-												person: [{
-													first: this._csv[rows][0].formalize(),
-													last: this._csv[rows][1].formalize(),
-													email: this._csv[rows][2].toLowerCase().split('@')[0],
-													type: 'instructor'
-												}]
-											}
-										}]
-									}
-								}]
-							}
-						},
-						leadership: {}
-					}]
-				},
-				courses: {}
-			}
+			first: this._csv[rows][11].split(' ')[0].formalize(),
+			last: this._csv[rows][11].split(' ')[1].formalize(),
+			email: this._csv[rows][10].toLowerCase().split('@')[0],
+			highestrole: 'im',
+			new: false,
+			roles: {
+				role: [{
+					type: 'im',
+					surveys: {},
+					stewardship: {
+						people: {
+							person: [{
+								first: this._csv[rows][9].split(' ')[0].formalize(),
+								last: this._csv[rows][9].split(' ')[1].formalize(),
+								email: this._csv[rows][8].toLowerCase().split('@')[0],
+								type: 'aim',
+								people: {
+									person: [{
+										first: this._csv[rows][7].split(' ')[0].formalize(),
+										last: this._csv[rows][7].split(' ')[1].formalize(),
+										email: this._csv[rows][6].toLowerCase().split('@')[0],
+										type: 'tgl',
+										people: {
+											person: [{
+												first: this._csv[rows][0].formalize(),
+												last: this._csv[rows][1].formalize(),
+												email: this._csv[rows][2].toLowerCase().split('@')[0],
+												type: 'instructor'
+											}]
+										}
+									}]
+								}
+							}]
+						}
+					},
+					leadership: {}
+				}]
+			},
+			courses: {}
 		};
 
 		// INSTRUCTOR LEADERSHIP
-		inst.person.roles.role[0].leadership.people.person = [{
+		inst.roles.role[0].leadership.people.person = [{
 			first: this._csv[rows][11].split(' ')[0].formalize(),
 			last: this._csv[rows][11].split(' ')[1].formalize(),
 			email: this._csv[rows][10].toLowerCase().split('@')[0],
@@ -394,7 +386,7 @@ SemesterSetup.prototype._createOrg = function(){
 		}];
 
 		// TGL LEADERSHIP
-		tgl.person.roles.role[0].leadership.people.person = [{
+		tgl.roles.role[0].leadership.people.person = [{
 			first: this._csv[rows][11].split(' ')[0].formalize(),
 			last: this._csv[rows][11].split(' ')[1].formalize(),
 			email: this._csv[rows][10].toLowerCase().split('@')[0],
@@ -407,7 +399,7 @@ SemesterSetup.prototype._createOrg = function(){
 		}]
 
 		// AIM LEADERSHIP
-		aim.person.roles.role[0].leadership.people.person = [{
+		aim.roles.role[0].leadership.people.person = [{
 			first: this._csv[rows][11].split(' ')[0].formalize(),
 			last: this._csv[rows][11].split(' ')[1].formalize(),
 			email: this._csv[rows][10].toLowerCase().split('@')[0],
@@ -454,41 +446,50 @@ SemesterSetup.prototype.addImToOrg2 = function(person){
 	}
 	else {
 		for (var i = 0; i < this._org.length; i++){
-			if (this._org[i].person.email == person.person.email){
+			if (this._org.person[i].email == person.email){
 				// CHECK ROLE
-				if (this._org[i].person.highestrole != person.person.highestrole){
+				if (this._org.person[i].highestrole != person.highestrole){
 					// CHOOSE HIGHEST ROLE
-					if (!isGreater(this._org[i].person.highestrole, person.person.highestrole)){
-						this._org[i].person.highestrole = person.person.highestrole;
+					if (!isGreater(this._org.person[i].highestrole, person.highestrole)){
+						this._org.person[i].highestrole = person.highestrole;
 					}
 					// ADD ROLE
-					this._org[i].person.roles.role.push(person.person.roles.role[0]);
+					var uniqueRole = true; 
+					for (var r = 0; r < this._org.person[i].roles.role.length; r++){
+						if (this._org.person[i].roles.role[r].type == person.roles.role[0].type){
+							uniqueRole = false;
+						}
+					}
+
+					if (uniqueRole){
+						this._org.person[i].roles.role.push(person.roles.role[0]);
+					}
 				}
 				else{
-					for (var r = 0; r < this._org[i].person.roles.role.length; r++){
+					for (var r = 0; r < this._org.person[i].roles.role.length; r++){
 						// FIND THE ROLE THAT IS SHARED
-						if (this._org[i].person.highestrole == this._org[i].person.roles.role[r].type){
+						if (this._org.person[i].highestrole == this._org.person[i].roles.role[r].type){
 							var setSteward = true;
 							var setLeader = true;
-							if (this._org[i].person.roles.role[r].stewardship.people != undefined){
-								for (var s = 0; s < this._org[i].person.roles.role[r].stewardship.people.person.length; s++){
-									if (this._org[i].person.roles.role[r].stewardship.people.person[s].email == person.person.email){
+							if (this._org.person[i].roles.role[r].stewardship.people != undefined){
+								for (var s = 0; s < this._org.person[i].roles.role[r].stewardship.people.person.length; s++){
+									if (this._org.person[i].roles.role[r].stewardship.people.person[s].email == person.email){
 										setSteward = false;
 									}
 								}
 								if (setSteward){
-									this._org[i].person.roles.role[r].stewardship.people.person.push(person.person.roles.role[0].stewardship.people.person[0]);
+									this._org.person[i].roles.role[r].stewardship.people.person.push(person.roles.role[0].stewardship.people.person[0]);
 								}
 							}
-							if (this._org[i].person.roles.role[r].leadership.people != undefined){
-								for (var l = 0; l < this._org[i].person.roles.role[r].leadership.people.person.length; l++){
-									if (this._org[i].person.roles.role[r].leadership.people.person[l].email == person.person.email){
+							if (this._org.person[i].roles.role[r].leadership.people != undefined){
+								for (var l = 0; l < this._org.person[i].roles.role[r].leadership.people.person.length; l++){
+									if (this._org.person[i].roles.role[r].leadership.people.person[l].email == person.email){
 										setLeader = false;
 									}
 								}
 								
 								if (setLeader){
-									this._org[i].person.roles.role[r].leadership.people.person.push(person.person.roles.role[0].leadership.people.person[0]);
+									this._org.person[i].roles.role[r].leadership.people.person.push(person.roles.role[0].leadership.people.person[0]);
 								}
 							}
 						}
@@ -496,24 +497,24 @@ SemesterSetup.prototype.addImToOrg2 = function(person){
 				}
 				// CHECK COURSE
 				if (person.person.courses.course != undefined){
-					if (this._org[i].person.courses.course == undefined){
-						this._org[i].person.courses.course = [];
-						this._org[i].person.courses.course.push(person.person.courses.course[0]);
+					if (this._org.person[i].courses.course == undefined){
+						this._org.person[i].courses.course = [];
+						this._org.person[i].courses.course.push(person.courses.course[0]);
 					}
 					else{
-						for (var c = 0; c < this._org[i].person.courses.course.length; c++){
-							if (this._org[i].person.courses.course[c].name == person.person.courses.course[0].name){
-								if (this._org[i].person.courses.course[c].section != person.person.courses.course[0].section){
-									this._org[i].person.courses.course[c].section += ' ' + person.person.courses.course[0].section;
+						for (var c = 0; c < this._org.person[i].courses.course.length; c++){
+							if (this._org.person[i].courses.course[c].name == person.courses.course[0].name){
+								if (this._org.person[i].courses.course[c].section != person.courses.course[0].section){
+									this._org.person[i].courses.course[c].section += ' ' + person.courses.course[0].section;
 								}
-								if (this._org[i].person.courses.course[c].pwsection != person.person.courses.course[0].pwsection){
-									this._org[i].person.courses.course[c].pwsection += ' ' + person.person.courses.course[0].pwsection;
+								if (this._org.person[i].courses.course[c].pwsection != person.courses.course[0].pwsection){
+									this._org.person[i].courses.course[c].pwsection += ' ' + person.courses.course[0].pwsection;
 								}
 								return;
 							}
 						}
-						person.person.courses.course[0].id++;
-						this._org[i].person.courses.course.push(person.person.courses.course[0]);
+						person.courses.course[0].id++;
+						this._org.person[i].courses.course.push(person.courses.course[0]);
 					}
 				}
 
