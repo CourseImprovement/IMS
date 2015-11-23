@@ -2499,8 +2499,7 @@ String.prototype.formalize = function(){
  * CREATES A NEW ORG FROM THE CSV
  */
 SemesterSetup.prototype._createOrg = function(){
-	this._org['IM'] = [];
-	this._org['OCRM'] = [];
+	this._org = [];
 
 	var start = 0;
 	while (this._csv[start][2] != 'email'){
@@ -2578,9 +2577,7 @@ SemesterSetup.prototype._createOrg = function(){
 						}
 					}]
 				},
-				courses: {
-					course: [{}]
-				}
+				courses: {}
 			}
 		};
 		
@@ -2616,14 +2613,12 @@ SemesterSetup.prototype._createOrg = function(){
 						},
 						leadership: {
 							people: {
-								person: [{}]
+								person: []
 							}
 						}
 					}]
 				},
-				courses: {
-					course: [{}]
-				}
+				courses: {}
 			}
 		};
 
@@ -2668,9 +2663,7 @@ SemesterSetup.prototype._createOrg = function(){
 						leadership: {}
 					}]
 				},
-				courses: {
-					course: [{}]
-				}
+				courses: {}
 			}
 		};
 
@@ -2713,7 +2706,10 @@ SemesterSetup.prototype._createOrg = function(){
 			type: 'im'
 		}];
 
-		//this.addImToOrg(im);
+		this.addImToOrg2(inst);
+		this.addImToOrg2(tgl);
+		this.addImToOrg2(aim);
+		this.addImToOrg2(im);
 
 		/*if (this._csv[rows][13] != ""){
 			// OCR OBJECT
@@ -2742,6 +2738,25 @@ SemesterSetup.prototype._createOrg = function(){
 		}*/
 	}
 }
+
+
+SemesterSetup.prototype.addImToOrg2 = function(person){
+	if (this._org.length == 0){
+		this._org.push(person);
+	}
+	else {
+		for (var i = 0; i < this._org.length; i++){
+			if (this._org[i].person.email == person.email){
+				return;
+			}
+		}
+		this._org.push(person);
+	}
+}
+
+
+
+
 
 /**
  * Adds a person and their subordinates into the organization
