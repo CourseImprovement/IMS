@@ -238,7 +238,7 @@ SemesterSetup.prototype._createOrg = function(){
 							}
 						}	
 					}]
-				}
+				},
 				courses: {
 					course: [{
 						name: this._csv[rows][3],
