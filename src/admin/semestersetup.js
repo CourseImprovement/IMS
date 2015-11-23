@@ -468,7 +468,7 @@ SemesterSetup.prototype.addImToOrg2 = function(person){
 					this._org[i].person.roles.role.push(person.person.roles.role[0]);
 				}
 				else{
-					for (var r = 0; r < this._org[i].person.roles.role.length; r++){
+					/*for (var r = 0; r < this._org[i].person.roles.role.length; r++){
 						// FIND THE ROLE THAT IS SHARED
 						if (this._org[i].person.roles.role[r].type != 'instructor' && this._org[i].person.highestrole == this._org[i].person.roles.role[r].type){
 							// CHECK STEWARDSHIP
@@ -484,7 +484,7 @@ SemesterSetup.prototype.addImToOrg2 = function(person){
 								}
 							}
 						}
-					}
+					}*/
 				}
 				// CHECK COURSE
 				for (var c = 0; c < this._org[i].person.courses.course.length; c++){
