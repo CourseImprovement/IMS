@@ -2288,9 +2288,6 @@ Rollup.prototype.update = function(){
 	}
 }
 // GROUP ROLLUP END
-
-
-
 // GROUP SEMESTER SETUP
 /**
  * Semester Setup Object
@@ -2765,7 +2762,7 @@ SemesterSetup.prototype.addImToOrg2 = function(person){
 							this._org[i].person.roles.role[r].leadership.people.person.push(person.person.roles.role[0].leadership.people.person[0]);
 						}
 					}
-				
+				}
 				// CHECK COURSE
 				if (person.person.courses.course != undefined){
 					if (this._org[i].person.courses.course == undefined){
@@ -3014,7 +3011,7 @@ SemesterSetup.prototype._updateIndividualFiles = function(){
 	console.log('individual files are being updated');
 }
 // GROUP SEMESTER SETUP END
-// 
+//
 
 
 
