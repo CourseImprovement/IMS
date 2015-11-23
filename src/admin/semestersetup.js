@@ -55,30 +55,34 @@ OSMPerson.prototype.addCourse = function(course){
 	this.courses.push(new Course(course));
 }
 
+OSMPerson.prototype.addLeadership = function(){
+
+}
+
 OSMPerson.prototype.addStewardship = function(){
 	var stewardship = $('<people></people>');
 	for (var i = 0; i < this.stewardship.length; i++){
 		var one = this.stewardship[i];
 		$(stewardship).append('<person first="' + one.first + 
-							'" last="' + one.last + 
-							'" email="' + one.email + 
-							'" type="' + one.role + '"></person>')
+									'" last="' + one.last + 
+									'" email="' + one.email + 
+									'" type="' + one.role + '"></person>')
 		if (one.stewardship.length > 0){
 			$(stewardship).find('> person[email="' + one.email + '"][type="' + one.role + '"]').append('<people></people>');
 			for (var j = 0; j < one.stewardship.length; j++){
 				var two = one.stewardship[j];
 				$(stewardship).find('> person[email="' + one.email + '"][type="' + one.role + '"] > people').append('<person first="' + two.first + 
-																									'" last="' + two.last + 
-																									'" email="' + two.email + 
-																									'" type="' + two.role + '"></person>');
+																															'" last="' + two.last + 
+																															'" email="' + two.email + 
+																															'" type="' + two.role + '"></person>');
 				if (two.stewardship.length > 0){
 					$(stewardship).find('> person[email="' + one.email + '"][type="' + one.role + '"] > people person[email="' + two.email + '"][type="' + two.role + '"]').append('<people></people>');
 					for (var k = 0; k < two.stewardship.length; k++){
 						var three = two.stewardship[k];
 						$(stewardship).find('> person[email="' + one.email + '"][type="' + one.role + '"] > people person[email="' + two.email + '"][type="' + two.role + '"] > people').append('<person first="' + three.first + 
-																																		'" last="' + three.last + 
-																																		'" email="' + three.email + 
-																																		'" type="' + three.role + '"></person>');
+																																																		'" last="' + three.last + 
+																																																		'" email="' + three.email + 
+																																																		'" type="' + three.role + '"></person>');
 					}
 				} 
 			}
@@ -219,7 +223,7 @@ SemesterSetup.prototype._createOrg = function(){
 		var inst = {
 			first: this._csv[rows][0].formalize(),
 			last: this._csv[rows][1].formalize(),
-			email: this._csv[rows][2].toLowerCase(),
+			email: this._csv[rows][2].toLowerCase().split('@')[0],
 			isNew: this._csv[rows][16].toLowerCase(),
 			role: 'instructor',
 			course: {
@@ -244,7 +248,7 @@ SemesterSetup.prototype._createOrg = function(){
 		var tgl = {
 			first: this._csv[rows][7].split(' ')[0].formalize(),
 			last: this._csv[rows][7].split(' ')[1].formalize(),
-			email: this._csv[rows][6].toLowerCase(),
+			email: this._csv[rows][6].toLowerCase().split('@')[0],
 			isNew: null,
 			role: 'tgl',
 			course: null,
@@ -255,7 +259,7 @@ SemesterSetup.prototype._createOrg = function(){
 		var aim = {
 			first: this._csv[rows][9].split(' ')[0].formalize(),
 			last: this._csv[rows][9].split(' ')[1].formalize(),
-			email: this._csv[rows][8].toLowerCase(),
+			email: this._csv[rows][8].toLowerCase().split('@')[0],
 			isNew: null,
 			role: 'aim',
 			course: null,
@@ -266,7 +270,7 @@ SemesterSetup.prototype._createOrg = function(){
 		var im = {
 			first: this._csv[rows][11].split(' ')[0].formalize(),
 			last: this._csv[rows][11].split(' ')[1].formalize(),
-			email: this._csv[rows][10].toLowerCase(),
+			email: this._csv[rows][10].toLowerCase().split('@')[0],
 			isNew: null,
 			role: 'im',
 			course: null,
@@ -280,7 +284,7 @@ SemesterSetup.prototype._createOrg = function(){
 			var ocr = {
 				first: this._csv[rows][13].split(' ')[0].formalize(),
 				last: this._csv[rows][13].split(' ')[1].formalize(),
-				email: this._csv[rows][12].toLowerCase(),
+				email: this._csv[rows][12].toLowerCase().split('@')[0],
 				isNew: null,
 				role: 'ocr',
 				course: null,
@@ -291,7 +295,7 @@ SemesterSetup.prototype._createOrg = function(){
 			var ocrm = {
 				first: this._csv[rows][14].split(' ')[0].formalize(),
 				last: this._csv[rows][14].split(' ')[1].formalize(),
-				email: this._csv[rows][15].toLowerCase(),
+				email: this._csv[rows][15].toLowerCase().split('@')[0],
 				isNew: null,
 				role: 'ocrm',
 				course: null,
@@ -387,8 +391,10 @@ SemesterSetup.prototype._createMaster = function(){
 	console.log('master is being created');
 	this.newMaster = $('<semester><people></people></semester>');
 
-	for (var i = 0; i < this._org.IM.length; i++){
+	for (var i = 0; i < this._org.IM.length; i++){ // IM LEVEL
 		var email = this._org.IM[i].email;
+
+		// STEWARDSHIP
 		if ($(this.newMaster).find('> people > person[email="' + email + '"]').length == 0){
 			$(this.newMaster).find('> people').append(this._org.IM[i].toXml());
 		}
@@ -397,8 +403,14 @@ SemesterSetup.prototype._createMaster = function(){
 			$(this.newMaster).find('> people > person[email="' + email + '"]').remove();
 			$(this.newMaster).find('> people').append(this._org.IM[i].addToXml(xml));
 		}
-		for (var a = 0; a < this._org.IM[i].stewardship.length; a++){
+
+		// LEADERSHIP
+		var leadership = $('<people><person first="' + this._org.IM[i].first + '" last="' + this._org.IM[i].last + '" email="' + email + '" type="' + this._org.IM[i].role + '"></person></people>');
+
+		for (var a = 0; a < this._org.IM[i].stewardship.length; a++){ // AIM LEVEL
 			var aEmail = this._org.IM[i].stewardship[a].email;
+
+			// STEWARDSHIP
 			if ($(this.newMaster).find('> people > person[email="' + aEmail + '"]').length == 0){
 				$(this.newMaster).find('> people').append(this._org.IM[i].stewardship[a].toXml());
 			}
@@ -407,8 +419,15 @@ SemesterSetup.prototype._createMaster = function(){
 				$(this.newMaster).find('> people > person[email="' + aEmail + '"]').remove();
 				$(this.newMaster).find('> people').append(this._org.IM[i].stewardship[a].addToXml(aXml));
 			}
-			for (var t = 0; t < this._org.IM[i].stewardship[a].stewardship.length; t++){
+
+			//LEADERSHIP
+			$(this.newMaster).find('> people > person[email="' + aEmail + '"] > roles > role[type=aim] > leadership').append(leadership);
+			$(leadership).append('<person></person>')
+
+			for (var t = 0; t < this._org.IM[i].stewardship[a].stewardship.length; t++){ // TGL LEVEL
 				var tEmail = this._org.IM[i].stewardship[a].stewardship[t].email;
+
+				// STEWARDSHIP
 				if ($(this.newMaster).find('> people > person[email="' + tEmail + '"]').length == 0){
 					$(this.newMaster).find('> people').append(this._org.IM[i].stewardship[a].stewardship[t].toXml());
 				}
@@ -417,8 +436,11 @@ SemesterSetup.prototype._createMaster = function(){
 					$(this.newMaster).find('> people > person[email="' + tEmail + '"]').remove();
 					$(this.newMaster).find('> people').append(this._org.IM[i].stewardship[a].stewardship[t].addToXml(tXml));
 				}
-				for (var inst = 0; inst < this._org.IM[i].stewardship[a].stewardship[t].stewardship.length; inst++){
+
+				for (var inst = 0; inst < this._org.IM[i].stewardship[a].stewardship[t].stewardship.length; inst++){ // INSTRUCTOR LEVEL
 					var iEmail = this._org.IM[i].stewardship[a].stewardship[t].stewardship[inst].email;
+
+					// STEWARDSHIP
 					if ($(this.newMaster).find('> people > person[email="' + iEmail + '"]').length == 0){
 						$(this.newMaster).find('> people').append(this._org.IM[i].stewardship[a].stewardship[t].stewardship[inst].toXml());
 					}
@@ -434,6 +456,7 @@ SemesterSetup.prototype._createMaster = function(){
 
 	for (var i = 0; i < this._org.OCRM.length; i++){
 		var email = this._org.OCRM[i].email;
+
 		if ($(this.newMaster).find('> people > person[email="' + email + '"]').length == 0){
 			$(this.newMaster).find('> people').append(this._org.OCRM[i].toXml());
 		}
@@ -442,8 +465,10 @@ SemesterSetup.prototype._createMaster = function(){
 			$(this.newMaster).find('> people > person[email="' + email + '"]').remove();
 			$(this.newMaster).find('> people').append(this._org.OCRM[i].addToXml(xml));
 		}
+
 		for (var o = 0; o < this._org.OCRM[i].stewardship.length; o++){
 			var oEmail = this._org.OCRM[i].stewardship[o].email;
+
 			if ($(this.newMaster).find('> people > person[email="' + oEmail + '"]').length == 0){
 				$(this.newMaster).find('> people').append(this._org.OCRM[i].stewardship[o].toXml());
 			}
