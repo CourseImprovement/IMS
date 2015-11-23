@@ -2530,10 +2530,11 @@ SemesterSetup.prototype._createOrg = function(){
 				},
 				courses: {
 					course: [{
+						id: 1,
 						name: this._csv[rows][3],
 						credits: this._csv[rows][4],
-						isPilot: this._csv[rows][17].toLowerCase(),
-						isOcr: this._csv[rows][18].toLowerCase()
+						pilot: this._csv[rows][17].toLowerCase(),
+						ocr: this._csv[rows][18].toLowerCase()
 					}]
 				}
 			}
@@ -2747,6 +2748,45 @@ SemesterSetup.prototype.addImToOrg2 = function(person){
 	else {
 		for (var i = 0; i < this._org.length; i++){
 			if (this._org[i].person.email == person.person.email){
+				// CHECK ROLE
+				if (this._org[i].person.highestrole != person.person.highestrole){
+					// CHOOSE HIGHEST ROLE
+					if (!isGreater(this._org[i].person.highestrole, person.person.highestrole)){
+						this._org[i].person.highestrole = person.person.highestrole;
+					}
+					// ADD ROLE
+					this._org[i].person.roles.role.push(person.person.roles.role[0]);
+				}
+				else{
+					for (var r = 0; r < this._org[i].person.roles.role.length; r++){
+						// FIND THE ROLE THAT IS SHARED
+						if (this._org[i].person.roles.role[r].type != 'instructor' && this._org[i].person.highestrole == this._org[i].person.roles.role[r].type){
+							// CHECK STEWARDSHIP
+							for (var s = 0; s < this._org[i].person.roles.roler[r].stewardship.people.person.length; s++){
+								if (person.person.roles.role[0].stewardship.people.person[0].email != this._org[i].person.roles.roler[r].stewardship.people.person[s].email){
+									this._org[i].person.roles.roler[r].stewardship.people.person.push(person.person.roles.role[0].stewardship.people.person[0]);
+								}
+							}
+							// CHECK LEADERSHIP
+							for (var l = 0; l < this._org[i].person.roles.role[r].leadership.people.person.length; l++){
+								if (person.person.roles.role[0].leadership.people.person[0].email != this._org[i].person.roles.roler[r].leadership.people.person[s].email){
+									this._org[i].person.roles.role[r].leadership.people.person.push(person.person.roles.role[0].leadership.people.person[0]);
+								}
+							}
+						}
+					}
+				}
+				// CHECK COURSE
+				for (var c = 0; c < this._org[i].person.courses.course.length; c++){
+					if (this._org[i].person.courses.course[c].name == person.person.courses.course[0].name){
+						if (this._org[i].person.courses.course[c].section != person.person.courses.course[0].section){
+							this._org[i].person.courses.course[c].section += ' ' + person.person.courses.course[0].section;
+						}
+						if (this._org[i].person.courses.course[c].pwsection != person.person.courses.course[0].pwsection){
+							this._org[i].person.courses.course[c].pwsection += ' ' + person.person.courses.course[0].pwsection;
+						}
+					}
+				}
 				return;
 			}
 		}
