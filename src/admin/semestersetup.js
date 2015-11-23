@@ -489,6 +489,7 @@ SemesterSetup.prototype.addImToOrg2 = function(person){
 				// CHECK COURSE
 				if (person.person.courses.course != undefined){
 					if (this._org[i].person.courses.course == undefined){
+						this._org[i].person.courses.course = [];
 						this._org[i].person.courses.course.push(person.person.courses.course[0]);
 					}
 					else{
