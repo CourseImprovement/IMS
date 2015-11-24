@@ -767,31 +767,9 @@ Config.prototype.surveyModify = function(name, emailCol, weekCol, typeCol, place
  * @param  {[type]} questions [description]
  * @return {[type]}           [description]
  */
-Config.prototype.surveyRegister = function(name, emailCol, weekCol, typeCol, placement, courseCol, questions){
-	var questionSet = [];
-
-	for (var i = 0; i < questions.length; i++){
-		questions[i]['id'] = i + 1;
-		console.log(questions[i].col);
-		questions[i].col = Config.columnNumberToLetter(questions[i].col); 
-		questionSet.push(new Question(questions[i], false));
-	}
-
-	var survey = {
-		id: this.getHighestSurveyId() + 1,
-		placement: placement,
-		type: typeCol,
-		email: emailCol,
-		name: name,
-		questions: questionSet
-	}
-
-	if (weekCol) survey['week'] = weekCol;
-	if (courseCol) survey['course'] = courseCol;
-
-	var newSurvey = new Survey(survey, false);
-	newSurvey.save();
-	this.surveys.push(newSurvey);
+Config.prototype.surveyRegister = function(survey){
+	survey.save();
+	this.surveys.push(survey);
 }
 
 /**
@@ -1255,15 +1233,8 @@ app.controller('adminCtrl', ["$scope", function($scope){
 
 		var survey = window.config.getSurveyById(id);
 		window.config.selectedSurvey = survey;
-
-		$scope.Placement = survey.placement
-		$scope.surveyWeek = survey.getWeekNumber();
-		$scope.surveyName = survey.getName();
+		$scope.selectedSurvey = survey;
 		$scope.questions = survey.questions;
-		$scope.surveyEmailCol = survey.email;
-		$scope.surveyTypeCol = survey.type;
-		$scope.surveyWeekCol = survey.week;
-		$scope.surveyCourseCol = survey.course;
 	}
 	/**
 	 * Submits a newly created survey and saves it to the config file
@@ -1276,44 +1247,29 @@ app.controller('adminCtrl', ["$scope", function($scope){
 	 * @function
 	 * @memberOf angular
 	 */
-	$scope.submitSurvey = function(name, week, placement, e, t, w, c){
-		if (!name && !week && !placement){
-			name = $('#surveyName').val();
-			week = $('#surveyWeek').val();
-			placement = $('#Placement').val();
-		}
-		name += ': Week ' + week;
-		if (placement.toLowerCase() == 'aim'){
-			placement = 'AIM';
-		}
-		else if (placement.toLowerCase() == 'tgl'){
-			placement = 'TGL';
-		}
-		else if (placement.toLowerCase() == 'instructor'){
-			placement = 'Instructor';
-		}
-		else{
-			alert('Invalid Placement');
-			return;
-		}
-
-		var emailCol = null;
-		var typeCol = null;
-		var weekCol = null;
-		var courseCol = null;
+	$scope.submitSurvey = function(){
+		$scope.selectedSurvey.questions = $scope.questions;
 		if ($scope.file == null){
-			emailCol = e;
-			typeCol = t;
-			weekCol = w;
-			courseCol = c;
-			window.config.surveyModify(name, emailCol, weekCol, typeCol, placement, courseCol, $scope.questions, surveyId);
+			$scope.selectedSurvey.save();
 		}
 		else{
-			emailCol = $('#eCol').val();
-			typeCol = $('#tCol').val();
-			weekCol = $('#wCol').val();
-			courseCol = $('#cCol').val();
-			window.config.surveyRegister(name, emailCol, weekCol, typeCol, placement, courseCol, $scope.questions);
+			var emailCol = $('#eCol').val();
+			var typeCol = $('#tCol').val();
+			var weekCol = $('#wCol').val();
+			var courseCol = $('#cCol').val();
+			var placement = $('#Placement').val();
+			var id = window.config.getHighestSurveyId()++;
+			var survey = new Survey({
+					email: emailCol, 
+					type: typeCol, 
+					week: weekCol, 
+					course: courseCol, 
+					placement: placement, 
+					id: id, 
+					questions: $scope.questions
+				}, 
+				false);
+			window.config.surveyRegister(survey);
 		}
 
 		$scope.mode = 'home';
@@ -1340,24 +1296,8 @@ app.controller('adminCtrl', ["$scope", function($scope){
 	 * @function
 	 * @memberOf angular
 	 */
-	$scope.addQuestion = function(row, text, what, awith){
-		setTimeout(function(){
-			$scope.$apply(function(){
-				if ($scope.file == null){
-					row = $('#arow2').val();
-				}
-				else{
-					row = $('#arow').val();
-				}
-
-				if (isNaN(row)){
-					row = Config.columnLetterToNumber(row);
-				}
-
-				$scope.questions.push({col: parseInt(row), text: text, replaceWhat: what, replaceWith: awith});
-				$scope.showDialog = false;
-			});
-		}, 10);
+	$scope.addQuestion = function(){
+		$scope.showDialog = false;
 	}
 	/**
 	 * Edit the question
@@ -1366,21 +1306,16 @@ app.controller('adminCtrl', ["$scope", function($scope){
 	 * @memberOf angular
 	 */
 	$scope.editQuestion = function(q){
-		if ($scope.file != null){
-			$scope.arow = Config.columnNumberToLetter(q.col);
-			$('#arow').val($scope.arow);
-		}
-		else{
-			$scope.arow2 = Config.columnNumberToLetter(q.col);
-			$('#arow2').val($scope.arow);
-		}
-		$scope.atext = q.text;
-		$scope.awhat = q.replaceWhat;
-		$scope.awith = q.replaceWith;
+		$scope.selectedQuestion = q;
 		$scope.showDialog = true;
-		editingQuestion.idx = $scope.questions.indexOf(q);
-		editingQuestion.q = q;
-		$scope.questions.splice($scope.questions.indexOf(q), 1);
+	}
+
+	$scope.columnNumberToLetter = function(col){
+		return Config.columnNumberToLetter(col);	
+	}
+
+	$scope.columnLetterToNumber = function(col){
+		return Config.columnLetterToNumber(col);
 	}
 	/**
 	 * Remove a question
@@ -1398,15 +1333,6 @@ app.controller('adminCtrl', ["$scope", function($scope){
 	 */
 	$scope.closeDialog = function(){
 		$scope.showDialog = false;
-		$scope.arow = "";
-		$scope.arow2 = "";
-		$scope.atext = "";
-		$scope.awhat = "";
-		$scope.awith = "";
-		if (editingQuestion.idx > -1){
-			$scope.questions.splice(editingQuestion.idx, 0, editingQuestion.q);
-			editingQuestion = {};
-		}
 	}
 	/**
 	 * Column Letter will always be upper case
@@ -2040,16 +1966,10 @@ Person.prototype.toXml = function(){
 function Question(question, isXml){
 	if (isXml){
 		this.id = parseInt($(question).attr('id'));
-		this.text = $(question).find('text').text();
-		this.col = Config.columnLetterToNumber($(question).attr('col'));
-		this.replaceWhat = $(question).find('replace').attr('what');
-		this.replaceWith = $(question).find('replace').attr('with');
-		if (this.replaceWith && this.replaceWith.indexOf(';') > -1){
-			this.replaceWith = this.replaceWith.split(';');
-		}
-		if (this.replaceWhat && this.replaceWhat.indexOf(';') > -1){
-			this.replaceWhat = this.replaceWhat.split(';');
-		}
+		this.text = $(question).text();
+		this.col = $(question).attr('col');
+		this.replaceWhat = $(question).attr('replacewhat');
+		this.replaceWith = $(question).attr('replacewith');
 		this._xml = question;
 	}
 	else{
@@ -2058,12 +1978,6 @@ function Question(question, isXml){
 		this.col = Config.columnNumberToLetter(question.col);
 		this.replaceWhat = question.replaceWhat;
 		this.replaceWith = question.replaceWith;
-		if (this.replaceWith && this.replaceWith.indexOf(';') > -1){
-			this.replaceWith = this.replaceWith.split(';');
-		}
-		if (this.replaceWhat && this.replaceWhat.indexOf(';') > -1){
-			this.replaceWhat = this.replaceWhat.split(';');
-		}
 		this._xml = this.toXml();
 	}
 }
@@ -2100,14 +2014,10 @@ Question.prototype.modify = function(prop, val){
  * @return {Object} Question in xml form
  */
 Question.prototype.toXml = function(){
-	var xml = $('<question><text></text><replace /></question>');
+	var xml = $('<question></question>');
 	$(xml).attr('id', this.id).attr('col', this.col);
-	$(xml).find('text').text(this.text);
-	if (this.replaceWith && this.replaceWhat && this.replaceWith.indexOf(';') > -1 && this.replaceWhat.indexOf(';') > -1){
-		this.replaceWith = this.replaceWith.join(';');
-		this.replaceWhat = this.replaceWhat.join(';');
-	}
-	$(xml).find('replace').attr('with', this.replaceWith).attr('what', this.replaceWhat);
+	$(xml).text(this.text);
+	$(xml).attr('replacewith', this.replaceWith).attr('replacewhat', this.replaceWhat);
 	return xml;
 }
 // GROUP QUESTION END
@@ -2841,7 +2751,6 @@ function Survey(survey, isXml){
 			this.week = $(survey).attr('week');
 		}
 		this.placement = $(survey).attr('placement');
-		this.type = $(survey).attr('type');
 		this.email = $(survey).attr('email');
 		this.name = $(survey).attr('name');
 		if ($(survey).attr('course')){
@@ -2858,7 +2767,6 @@ function Survey(survey, isXml){
 			this.week = survey.week;
 		}
 		this.placement = survey.placement;
-		this.type = survey.type;
 		this.email = survey.email;
 		this.name = survey.name;
 		if (survey.course){
@@ -2902,10 +2810,7 @@ Survey.prototype._setXmlQuestions = function(){
 }
 
 Survey.prototype.getName = function(){
-	if (this.name.indexOf(':') > -1){
-		return this.name.split(':')[0];
-	}
-	return this.name;
+	return this.name + ': Week ' + this.week;
 }
 
 /**
@@ -3170,5 +3075,15 @@ Survey.prototype.getWeekNumber = function(){
 		}
 	}	
 	return null;
+}
+
+Survey.prototype.getHighestQuestionId = function(){
+	var id = 0;
+	$(this.questions).each(function(){
+		if (id < this.id){
+			id = this.id;
+		}
+	});
+	return parseInt(id);
 }
 // GROUP SURVEY END

@@ -8,7 +8,7 @@
 	<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.3.15/angular.min.js"></script>
 	<script type="text/javascript" src='https://courseimprovement.github.io/IMS/lib/papaparse.min.js'></script>
 	<script type="text/javascript" src='../_layouts/15/SP.RequestExecutor.js'></script>
-	<script type="text/javascript" src='https://courseimprovement.github.io/IMS/build/admin.js'></script>
+	<script type="text/javascript" src='build/admin.js'></script>
 </head>
 <body ng-controller='adminCtrl'>
 	<div class="loading">
@@ -47,7 +47,7 @@
 		<div class="row">
 			Delete a Survey
 			<select class="big-btn" ng-model='selectSurvey'>
-				<option ng-repeat='s in surveys | orderBy:"name"' value='{{s.id}}'>{{s.name}}: week {{s.week}}</option>
+				<option ng-repeat='s in surveys | orderBy:["name", "week"]' value='{{s.id}}'>{{s.name}}: week {{s.week}}</option>
 			</select>
 			<button class="big-btn" ng-click='surveyModifications("delete", selectSurvey)'>Delete</button>
 		</div>
@@ -55,7 +55,7 @@
 		<div class="row">
 			Modify a Survey
 			<select class="big-btn" ng-model='selectSurvey2'>
-				<option ng-repeat='s in surveys | orderBy:"name"' value='{{s.id}}'>{{s.name}}: week {{s.week}}</option>
+				<option ng-repeat='s in surveys | orderBy:["name", "week"]' value='{{s.id}}'>{{s.name}}: week {{s.week}}</option>
 			</select>
 			<button class="big-btn" ng-click='surveyModifications("modify", selectSurvey2)'>Modify</button>
 		</div>
@@ -63,7 +63,7 @@
 		<div class="row">
 			Copy a Survey
 			<select class="big-btn" ng-model='selectSurvey3'>
-				<option ng-repeat='s in surveys | orderBy:"name"' value='{{s.id}}'>{{s.name}}</option>
+				<option ng-repeat='s in surveys | orderBy:["name", "week"]' value='{{s.id}}'>{{s.name}}</option>
 			</select>
 			<button class="big-btn" ng-click='surveyModifications("copy", selectSurvey3)'>Copy</button>
 		</div>
@@ -73,10 +73,10 @@
 	<div class="container" ng-if='mode == "RegisterStart"'>
 		<div class="box">
 			<div class="row">
-				Survey Name: <input type="text" ng-model='selectedSurvey.getName()' id="surveyName">
+				Survey Name: <input type="text" ng-model='selectedSurvey.name' id="surveyName">
 			</div>
 			<div class="row">
-				Week: <input type="text" ng-model='selectedSurvey.getWeekNumber()' id="surveyWeek">
+				Week: <input type="text" ng-model='selectedSurvey.week' id="surveyWeek">
 			</div>
 			<div class="row">
 				Which View: <select name="placement" ng-model='selectedSurvey.placement' id="Placement">
@@ -86,16 +86,10 @@
 				</select>
 			</div>
 			<div class="row">
-				Email Col <input type="text" ng-model='columnNumberToLetter(selectedSurvey.email)' ng-keyup='selectedSurvey.email = columnNumberToLetter(upper($event))' id='eCol'>
+				Email Col <input type="text" ng-model='selectedSurvey.email' ng-keyup='selectedSurvey.email = upper($event)' id='eCol'>
 			</div>
 			<div class="row">
-				Type Col <input type="text" ng-model='columnNumberToLetter(selectedSurvey.type)' ng-keyup='selectedSurvey.type = columnNumberToLetter(upper($event))' id='tCol'>
-			</div>
-			<div class="row">
-				Week Col <input type="text" ng-model='columnNumberToLetter(selectedSurvey.week)' ng-keyup='selectedSurvey.week = columnNumberToLetter(upper($event))' id='wCol'>
-			</div>
-			<div class="row">
-				Course Col <input type="text" ng-model='columnNumberToLetter(selectedSurvey.course)' ng-keyup='selectedSurvey.course = columnNumberToLetter(upper($event))' id='cCol'>
+				Course Col <input type="text" ng-model='selectedSurvey.course' ng-keyup='selectedSurvey.course = upper($event)' id='cCol'>
 			</div>
 			<div class="row">
 				 <div class="link" ng-click='addBlankQuestion()'>
@@ -107,7 +101,7 @@
 			 				<select ng-model='selectedQuestion.col' ng-if='file != null' id="arow">
 			 					<option value="{{$index}}" ng-repeat='d in csv track by $index'>{{d}}</option>
 			 				</select>
-			 				<input type="text" ng-model='columnNumberToLetter(selectedQuestion.col)' ng-if='file == null' placeholder='Column Letter' id="arow2" ng-keyup='selectedQuestion.col = upper($event)'>
+			 				<input type="text" ng-model='selectedQuestion.col' ng-if='file == null' placeholder='Column Letter' id="arow2" ng-keyup='selectedQuestion.col = upper($event)'>
 			 			</div>
 			 			<div class="row">
 			 				<input type="text" ng-model='selectedQuestion.text' placeholder='Question Text'>
@@ -203,7 +197,7 @@
 	<!-- PROCESS -->
 	<div class="container" ng-if='mode == "Process"' id="process">
 		<select class="big-btn" ng-model='selectSurvey'>
-			<option ng-repeat='s in surveys | orderBy:"name"' value='{{s.id}}'>{{s.name}}: week {{s.week}}</option>
+			<option ng-repeat='s in surveys | orderBy:["name", "week"]' value='{{s.id}}'>{{s.name}}: week {{s.week}}</option>
 		</select>
 		<div class="big-btn" ng-click='chooseFile()'>
 			Choose File

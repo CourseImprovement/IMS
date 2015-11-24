@@ -375,7 +375,7 @@ app.controller('adminCtrl', ["$scope", function($scope){
 	$scope.submitSurvey = function(){
 		$scope.selectedSurvey.questions = $scope.questions;
 		if ($scope.file == null){
-			window.config.surveyModify($scope.selectedSurvey);
+			$scope.selectedSurvey.save();
 		}
 		else{
 			var emailCol = $('#eCol').val();

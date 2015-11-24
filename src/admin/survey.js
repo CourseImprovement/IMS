@@ -14,7 +14,6 @@ function Survey(survey, isXml){
 			this.week = $(survey).attr('week');
 		}
 		this.placement = $(survey).attr('placement');
-		this.type = $(survey).attr('type');
 		this.email = $(survey).attr('email');
 		this.name = $(survey).attr('name');
 		if ($(survey).attr('course')){
@@ -31,7 +30,6 @@ function Survey(survey, isXml){
 			this.week = survey.week;
 		}
 		this.placement = survey.placement;
-		this.type = survey.type;
 		this.email = survey.email;
 		this.name = survey.name;
 		if (survey.course){
@@ -75,10 +73,7 @@ Survey.prototype._setXmlQuestions = function(){
 }
 
 Survey.prototype.getName = function(){
-	if (this.name.indexOf(':') > -1){
-		return this.name.split(':')[0];
-	}
-	return this.name;
+	return this.name + ': Week ' + this.week;
 }
 
 /**
