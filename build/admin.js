@@ -2519,7 +2519,7 @@ SemesterSetup.prototype._createOrg = function(){
 						},
 						leadership: {}
 					}]
-				}
+				},
 				courses: {}
 			};
 
