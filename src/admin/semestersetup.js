@@ -66,8 +66,7 @@ String.prototype.formalize = function(){
  */
 SemesterSetup.prototype._createOrg = function(){
 	this._org['semester'] = {
-		code: '',
-		current: 'true'
+		code: ''
 	}
 	this._org.semester['person'] = [];
 
@@ -75,8 +74,10 @@ SemesterSetup.prototype._createOrg = function(){
 	while (this._csv[start][2] != 'email'){
 		start++;
 	}
+
 	var sem = this._csv[++start][20].toUpperCase();
 	this._org.semester.code = sem[0] + sem[1] + sem[sem.length - 2] + sem[sem.length - 1];
+
 	for (var rows = start; rows < this._csv.length; rows++){
 		if (this._csv[rows].length == 1) continue;
 		// INSTRUCTOR OBJECT
@@ -144,6 +145,15 @@ SemesterSetup.prototype._createOrg = function(){
 							person: []
 						}  
 					}
+				},{
+					type: 'instructor',
+					surveys: {},
+					stewardship: {},
+					leadership: {
+						people: {
+							person: []
+						}  
+					}
 				}]
 			},
 			courses: {}
@@ -167,6 +177,24 @@ SemesterSetup.prototype._createOrg = function(){
 								last: this._csv[rows][7].split(' ')[1].formalize(),
 								email: this._csv[rows][6].toLowerCase().split('@')[0],
 								type: 'tgl'
+							}]
+						}
+					},
+					leadership: {
+						people: {
+							person: []
+						}
+					}
+				},{
+					type: 'tgl',
+					surveys: {},
+					stewardship: {
+						people: {
+							person: [{
+								first: this._csv[rows][7].split(' ')[0].formalize(),
+								last: this._csv[rows][7].split(' ')[1].formalize(),
+								email: this._csv[rows][6].toLowerCase().split('@')[0],
+								type: 'instructor'
 							}]
 						}
 					},
@@ -311,6 +339,7 @@ SemesterSetup.prototype._createOrg = function(){
 		}
 
 		// TGL LEADERSHIP
+		// AS TGL
 		tgl.roles.role[0].leadership.people.person = [{
 			first: this._csv[rows][11].split(' ')[0].formalize(),
 			last: this._csv[rows][11].split(' ')[1].formalize(),
@@ -321,6 +350,13 @@ SemesterSetup.prototype._createOrg = function(){
 			last: this._csv[rows][9].split(' ')[1].formalize(),
 			email: this._csv[rows][8].toLowerCase().split('@')[0],
 			type: 'aim'
+		}]
+		// AS INSTRUCTOR
+		tgl.roles.role[1].leadership.people.person = [{
+			first: this._csv[rows][9].split(' ')[0].formalize(),
+			last: this._csv[rows][9].split(' ')[1].formalize(),
+			email: this._csv[rows][8].toLowerCase().split('@')[0],
+			type: 'tgl'
 		}]
 
 		// AIM LEADERSHIP

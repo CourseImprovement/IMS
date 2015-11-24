@@ -10,16 +10,10 @@
 function Question(question, isXml){
 	if (isXml){
 		this.id = parseInt($(question).attr('id'));
-		this.text = $(question).find('text').text();
-		this.col = Config.columnLetterToNumber($(question).attr('col'));
-		this.replaceWhat = $(question).find('replace').attr('what');
-		this.replaceWith = $(question).find('replace').attr('with');
-		if (this.replaceWith && this.replaceWith.indexOf(';') > -1){
-			this.replaceWith = this.replaceWith.split(';');
-		}
-		if (this.replaceWhat && this.replaceWhat.indexOf(';') > -1){
-			this.replaceWhat = this.replaceWhat.split(';');
-		}
+		this.text = $(question).text();
+		this.col = $(question).attr('col');
+		this.replaceWhat = $(question).attr('replacewhat');
+		this.replaceWith = $(question).attr('replacewith');
 		this._xml = question;
 	}
 	else{
@@ -28,12 +22,6 @@ function Question(question, isXml){
 		this.col = Config.columnNumberToLetter(question.col);
 		this.replaceWhat = question.replaceWhat;
 		this.replaceWith = question.replaceWith;
-		if (this.replaceWith && this.replaceWith.indexOf(';') > -1){
-			this.replaceWith = this.replaceWith.split(';');
-		}
-		if (this.replaceWhat && this.replaceWhat.indexOf(';') > -1){
-			this.replaceWhat = this.replaceWhat.split(';');
-		}
 		this._xml = this.toXml();
 	}
 }
@@ -70,14 +58,10 @@ Question.prototype.modify = function(prop, val){
  * @return {Object} Question in xml form
  */
 Question.prototype.toXml = function(){
-	var xml = $('<question><text></text><replace /></question>');
+	var xml = $('<question></question>');
 	$(xml).attr('id', this.id).attr('col', this.col);
-	$(xml).find('text').text(this.text);
-	if (this.replaceWith && this.replaceWhat && this.replaceWith.indexOf(';') > -1 && this.replaceWhat.indexOf(';') > -1){
-		this.replaceWith = this.replaceWith.join(';');
-		this.replaceWhat = this.replaceWhat.join(';');
-	}
-	$(xml).find('replace').attr('with', this.replaceWith).attr('what', this.replaceWhat);
+	$(xml).text(this.text);
+	$(xml).attr('replacewith', this.replaceWith).attr('replacewhat', this.replaceWhat);
 	return xml;
 }
 // GROUP QUESTION END

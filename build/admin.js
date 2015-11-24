@@ -1250,7 +1250,7 @@ app.controller('adminCtrl', ["$scope", function($scope){
 	$scope.submitSurvey = function(){
 		$scope.selectedSurvey.questions = $scope.questions;
 		if ($scope.file == null){
-			window.config.surveyModify($scope.selectedSurvey);
+			$scope.selectedSurvey.save();
 		}
 		else{
 			var emailCol = $('#eCol').val();
@@ -1966,16 +1966,10 @@ Person.prototype.toXml = function(){
 function Question(question, isXml){
 	if (isXml){
 		this.id = parseInt($(question).attr('id'));
-		this.text = $(question).find('text').text();
-		this.col = Config.columnLetterToNumber($(question).attr('col'));
-		this.replaceWhat = $(question).find('replace').attr('what');
-		this.replaceWith = $(question).find('replace').attr('with');
-		if (this.replaceWith && this.replaceWith.indexOf(';') > -1){
-			this.replaceWith = this.replaceWith.split(';');
-		}
-		if (this.replaceWhat && this.replaceWhat.indexOf(';') > -1){
-			this.replaceWhat = this.replaceWhat.split(';');
-		}
+		this.text = $(question).text();
+		this.col = $(question).attr('col');
+		this.replaceWhat = $(question).attr('replacewhat');
+		this.replaceWith = $(question).attr('replacewith');
 		this._xml = question;
 	}
 	else{
@@ -1984,12 +1978,6 @@ function Question(question, isXml){
 		this.col = Config.columnNumberToLetter(question.col);
 		this.replaceWhat = question.replaceWhat;
 		this.replaceWith = question.replaceWith;
-		if (this.replaceWith && this.replaceWith.indexOf(';') > -1){
-			this.replaceWith = this.replaceWith.split(';');
-		}
-		if (this.replaceWhat && this.replaceWhat.indexOf(';') > -1){
-			this.replaceWhat = this.replaceWhat.split(';');
-		}
 		this._xml = this.toXml();
 	}
 }
@@ -2026,14 +2014,10 @@ Question.prototype.modify = function(prop, val){
  * @return {Object} Question in xml form
  */
 Question.prototype.toXml = function(){
-	var xml = $('<question><text></text><replace /></question>');
+	var xml = $('<question></question>');
 	$(xml).attr('id', this.id).attr('col', this.col);
-	$(xml).find('text').text(this.text);
-	if (this.replaceWith && this.replaceWhat && this.replaceWith.indexOf(';') > -1 && this.replaceWhat.indexOf(';') > -1){
-		this.replaceWith = this.replaceWith.join(';');
-		this.replaceWhat = this.replaceWhat.join(';');
-	}
-	$(xml).find('replace').attr('with', this.replaceWith).attr('what', this.replaceWhat);
+	$(xml).text(this.text);
+	$(xml).attr('replacewith', this.replaceWith).attr('replacewhat', this.replaceWhat);
 	return xml;
 }
 // GROUP QUESTION END
@@ -2282,8 +2266,7 @@ String.prototype.formalize = function(){
  */
 SemesterSetup.prototype._createOrg = function(){
 	this._org['semester'] = {
-		code: '',
-		current: 'true'
+		code: ''
 	}
 	this._org.semester['person'] = [];
 
@@ -2291,8 +2274,10 @@ SemesterSetup.prototype._createOrg = function(){
 	while (this._csv[start][2] != 'email'){
 		start++;
 	}
+
 	var sem = this._csv[++start][20].toUpperCase();
 	this._org.semester.code = sem[0] + sem[1] + sem[sem.length - 2] + sem[sem.length - 1];
+
 	for (var rows = start; rows < this._csv.length; rows++){
 		if (this._csv[rows].length == 1) continue;
 		// INSTRUCTOR OBJECT
@@ -2360,6 +2345,15 @@ SemesterSetup.prototype._createOrg = function(){
 							person: []
 						}  
 					}
+				},{
+					type: 'instructor',
+					surveys: {},
+					stewardship: {},
+					leadership: {
+						people: {
+							person: []
+						}  
+					}
 				}]
 			},
 			courses: {}
@@ -2383,6 +2377,24 @@ SemesterSetup.prototype._createOrg = function(){
 								last: this._csv[rows][7].split(' ')[1].formalize(),
 								email: this._csv[rows][6].toLowerCase().split('@')[0],
 								type: 'tgl'
+							}]
+						}
+					},
+					leadership: {
+						people: {
+							person: []
+						}
+					}
+				},{
+					type: 'tgl',
+					surveys: {},
+					stewardship: {
+						people: {
+							person: [{
+								first: this._csv[rows][7].split(' ')[0].formalize(),
+								last: this._csv[rows][7].split(' ')[1].formalize(),
+								email: this._csv[rows][6].toLowerCase().split('@')[0],
+								type: 'instructor'
 							}]
 						}
 					},
@@ -2527,6 +2539,7 @@ SemesterSetup.prototype._createOrg = function(){
 		}
 
 		// TGL LEADERSHIP
+		// AS TGL
 		tgl.roles.role[0].leadership.people.person = [{
 			first: this._csv[rows][11].split(' ')[0].formalize(),
 			last: this._csv[rows][11].split(' ')[1].formalize(),
@@ -2537,6 +2550,13 @@ SemesterSetup.prototype._createOrg = function(){
 			last: this._csv[rows][9].split(' ')[1].formalize(),
 			email: this._csv[rows][8].toLowerCase().split('@')[0],
 			type: 'aim'
+		}]
+		// AS INSTRUCTOR
+		tgl.roles.role[1].leadership.people.person = [{
+			first: this._csv[rows][9].split(' ')[0].formalize(),
+			last: this._csv[rows][9].split(' ')[1].formalize(),
+			email: this._csv[rows][8].toLowerCase().split('@')[0],
+			type: 'tgl'
 		}]
 
 		// AIM LEADERSHIP
@@ -2772,7 +2792,6 @@ function Survey(survey, isXml){
 			this.week = $(survey).attr('week');
 		}
 		this.placement = $(survey).attr('placement');
-		this.type = $(survey).attr('type');
 		this.email = $(survey).attr('email');
 		this.name = $(survey).attr('name');
 		if ($(survey).attr('course')){
@@ -2789,7 +2808,6 @@ function Survey(survey, isXml){
 			this.week = survey.week;
 		}
 		this.placement = survey.placement;
-		this.type = survey.type;
 		this.email = survey.email;
 		this.name = survey.name;
 		if (survey.course){
@@ -2833,10 +2851,7 @@ Survey.prototype._setXmlQuestions = function(){
 }
 
 Survey.prototype.getName = function(){
-	if (this.name.indexOf(':') > -1){
-		return this.name.split(':')[0];
-	}
-	return this.name;
+	return this.name + ': Week ' + this.week;
 }
 
 /**
