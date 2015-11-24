@@ -153,6 +153,9 @@ User.prototype._setPersonalInfo = function(isBase, userXml){
 	this._email = $(spot).attr('email');
 	this._new = $(spot).attr('new') != 'false';
 	this._xml = $(spot).find('> roles > role[type=' + this._baseRole + ']');
+	if (this._xml.length == 0){
+		this._xml = spot;
+	}
 	this._personXml = spot;
 }
 

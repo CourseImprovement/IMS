@@ -21,6 +21,7 @@ function Config(){
 Config.prototype.addSurvey = function(survey){
 	this.surveys.push(survey);
 	$(this._xml).find('semester[code=' + this.getCurrentSemester() + '] surveys').append(survey._xml);
+	this.save();
 }
 
 /**
@@ -62,6 +63,7 @@ Config.prototype.remove = function(id){
 		}
 	}
 	this.surveys = newSurveys;
+	this.save();
 }
 
 /** 
@@ -245,6 +247,13 @@ Config.prototype.surveyModify = function(name, emailCol, weekCol, typeCol, place
 Config.prototype.surveyRegister = function(survey){
 	survey.save();
 	this.surveys.push(survey);
+}
+
+Config.prototype.save = function(){
+	Sharepoint.postFile(this._xml, 'config/', 'config.xml', function(){
+		alert('Survey change was successful!');
+		window.location.reload();
+	});
 }
 
 /**

@@ -123,6 +123,7 @@ Survey.prototype.save = function(){
 
 	Sharepoint.postFile(window.config._xml, 'config/', 'config.xml', function(){
 		alert('Survey change was successful!');
+		window.location.reload();
 	});
 }
 
@@ -131,6 +132,7 @@ Survey.prototype.save = function(){
  */
 Survey.prototype.remove = function(){
 	$(this._xml).remove();
+	this._xml = null;
 }
 
 /**

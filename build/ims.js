@@ -2237,13 +2237,13 @@ Tile.getAll = function(role) {
           data: role.getRoster(),
           hidden: ''
         }),
-        new Tile({
-          title: 'Evaluations',
-          helpText: 'This tile displays evaluations others have completed about you in your name as an ' + (name.toLowerCase() == 'aim' ? 'Assistant Instructor Manager' : 'Instructor Manager') + '.',
-          type: 'survey-list',
-          data: [],
-          hidden: ''
-        })
+        // new Tile({
+        //   title: 'Evaluations',
+        //   helpText: 'This tile displays evaluations others have completed about you in your name as an ' + (name.toLowerCase() == 'aim' ? 'Assistant Instructor Manager' : 'Instructor Manager') + '.',
+        //   type: 'survey-list',
+        //   data: [],
+        //   hidden: ''
+        // })
       ],
       [
         new Tile({
@@ -2273,13 +2273,13 @@ Tile.getAll = function(role) {
           data: role.getIncompleteTasks(),
           hidden: ''
         }),
-        new Tile({
-          title: 'Evaluations',
-          helpText: 'This tile displays evaluations on you as a ' + name.toUpperCase() + '.',
-          type: 'survey-list',
-          data: [],
-          hidden: ''
-        }),
+        // new Tile({
+        //   title: 'Evaluations',
+        //   helpText: 'This tile displays evaluations on you as a ' + name.toUpperCase() + '.',
+        //   type: 'survey-list',
+        //   data: [],
+        //   hidden: ''
+        // }),
         new Tile({
           title: 'Roster',
           helpText: 'This tile displays your instructors.',
@@ -2553,6 +2553,9 @@ User.prototype._setPersonalInfo = function(isBase, userXml){
 	this._email = $(spot).attr('email');
 	this._new = $(spot).attr('new') != 'false';
 	this._xml = $(spot).find('> roles > role[type=' + this._baseRole + ']');
+	if (this._xml.length == 0){
+		this._xml = spot;
+	}
 	this._personXml = spot;
 }
 

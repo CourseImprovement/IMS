@@ -253,6 +253,7 @@ app.controller('adminCtrl', ["$scope", function($scope){
 	$scope.processSurvey = function(id){
 		var survey = window.config.getSurveyById(id);
 		window.config.selectedSurvey = survey;
+		$scope.selectedSurvey = survey;
 		if (!survey){
 			alert('Invalid Survey');
 			return;

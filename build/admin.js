@@ -546,6 +546,7 @@ function Config(){
 Config.prototype.addSurvey = function(survey){
 	this.surveys.push(survey);
 	$(this._xml).find('semester[code=' + this.getCurrentSemester() + '] surveys').append(survey._xml);
+	this.save();
 }
 
 /**
@@ -587,6 +588,7 @@ Config.prototype.remove = function(id){
 		}
 	}
 	this.surveys = newSurveys;
+	this.save();
 }
 
 /** 
@@ -770,6 +772,13 @@ Config.prototype.surveyModify = function(name, emailCol, weekCol, typeCol, place
 Config.prototype.surveyRegister = function(survey){
 	survey.save();
 	this.surveys.push(survey);
+}
+
+Config.prototype.save = function(){
+	Sharepoint.postFile(this._xml, 'config/', 'config.xml', function(){
+		alert('Survey change was successful!');
+		window.location.reload();
+	});
 }
 
 /**
@@ -1128,6 +1137,7 @@ app.controller('adminCtrl', ["$scope", function($scope){
 	$scope.processSurvey = function(id){
 		var survey = window.config.getSurveyById(id);
 		window.config.selectedSurvey = survey;
+		$scope.selectedSurvey = survey;
 		if (!survey){
 			alert('Invalid Survey');
 			return;
@@ -1858,7 +1868,7 @@ Person.prototype.cleanEmailInternal = function(){
  * Save this person's xml to their sharepoint file
  */
 Person.prototype.save = function(){
-	Sharepoint.postFile(this._xml, 'master/', this._email + '.xml', function(){});
+	Sharepoint.postFile($(this._xml)[0], 'master/', this._email + '.xml', function(){});
 }
 
 /**
@@ -2865,6 +2875,7 @@ Survey.prototype.save = function(){
 
 	Sharepoint.postFile(window.config._xml, 'config/', 'config.xml', function(){
 		alert('Survey change was successful!');
+		window.location.reload();
 	});
 }
 
@@ -2873,6 +2884,7 @@ Survey.prototype.save = function(){
  */
 Survey.prototype.remove = function(){
 	$(this._xml).remove();
+	this._xml = null;
 }
 
 /**
