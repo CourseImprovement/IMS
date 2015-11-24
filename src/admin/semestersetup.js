@@ -276,7 +276,7 @@ SemesterSetup.prototype._createOrg = function(){
 	for (var i = 0; i < this._org.person.length; i++){
 		if (this._org.person[i].highestrole == 'aim'){
 			for (var r = 0; r < this._org.person[i].roles.role.length; r++){
-				if (this._org.person[i].roles.role[r].role == 'aim'){
+				if (this._org.person[i].roles.role[r].type == 'aim'){
 					for (var t = 0; t < this._org.person[i].roles.role[r].stewardship.people.person.length; t++){
 						var role = this._org.person[i].roles.role[r].stewardship.people.person[t].type;
 						var email = this._org.person[i].roles.role[r].stewardship.people.person[t].email;
