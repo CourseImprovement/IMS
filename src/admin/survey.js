@@ -344,4 +344,14 @@ Survey.prototype.getWeekNumber = function(){
 	}	
 	return null;
 }
+
+Survey.prototype.getHighestQuestionId = function(){
+	var id = 0;
+	$(this.questions).each(function(){
+		if (id < this.id){
+			id = this.id;
+		}
+	});
+	return parseInt(id);
+}
 // GROUP SURVEY END

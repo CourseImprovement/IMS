@@ -73,29 +73,29 @@
 	<div class="container" ng-if='mode == "RegisterStart"'>
 		<div class="box">
 			<div class="row">
-				Survey Name: <input type="text" ng-model='surveyName' id="surveyName">
+				Survey Name: <input type="text" ng-model='selectedSurvey.getName()' id="surveyName">
 			</div>
 			<div class="row">
-				Week: <input type="text" ng-model='surveyWeek' id="surveyWeek">
+				Week: <input type="text" ng-model='selectedSurvey.getWeekNumber()' id="surveyWeek">
 			</div>
 			<div class="row">
-				Which View: <select name="placement" ng-model='Placement' id="Placement">
+				Which View: <select name="placement" ng-model='selectedSurvey.placement' id="Placement">
 					<option value="Instructor">Instructor</option>
 					<option value="TGL">TGL</option>
 					<option value="AIM">AIM</option>
 				</select>
 			</div>
 			<div class="row">
-				Email Col <input type="text" ng-model='surveyEmailCol' ng-keyup='surveyEmailCol = upper($event)' id='eCol'>
+				Email Col <input type="text" ng-model='columnNumberToLetter(selectedSurvey.email)' ng-keyup='selectedSurvey.email = columnNumberToLetter(upper($event))' id='eCol'>
 			</div>
 			<div class="row">
-				Type Col <input type="text" ng-model='surveyTypeCol' ng-keyup='surveyTypeCol = upper($event)' id='tCol'>
+				Type Col <input type="text" ng-model='columnNumberToLetter(selectedSurvey.type)' ng-keyup='selectedSurvey.type = columnNumberToLetter(upper($event))' id='tCol'>
 			</div>
 			<div class="row">
-				Week Col <input type="text" ng-model='surveyWeekCol' ng-keyup='surveyWeekCol = upper($event)' id='wCol'>
+				Week Col <input type="text" ng-model='columnNumberToLetter(selectedSurvey.week)' ng-keyup='selectedSurvey.week = columnNumberToLetter(upper($event))' id='wCol'>
 			</div>
 			<div class="row">
-				Course Col <input type="text" ng-model='surveyCourseCol' ng-keyup='surveyCourseCol = upper($event)' id='cCol'>
+				Course Col <input type="text" ng-model='columnNumberToLetter(selectedSurvey.course)' ng-keyup='selectedSurvey.course = columnNumberToLetter(upper($event))' id='cCol'>
 			</div>
 			<div class="row">
 				 <div class="link" ng-click='addBlankQuestion()'>
@@ -104,23 +104,22 @@
 				 <div class="add-dialog" ng-if='showDialog'>
 				 	<div class="close" ng-click='closeDialog()'>X</div>
 			 			<div class="row">
-			 				<select ng-model='arow' ng-if='file != null' id="arow">
+			 				<select ng-model='selectedQuestion.col' ng-if='file != null' id="arow">
 			 					<option value="{{$index}}" ng-repeat='d in csv track by $index'>{{d}}</option>
 			 				</select>
-			 				<input type="text" ng-model='arow2' ng-if='file == null' placeholder='Column Letter' id="arow2" ng-keyup='arow2 = upper($event)'>
+			 				<input type="text" ng-model='columnNumberToLetter(selectedQuestion.col)' ng-if='file == null' placeholder='Column Letter' id="arow2" ng-keyup='selectedQuestion.col = upper($event)'>
 			 			</div>
 			 			<div class="row">
-			 				<input type="text" ng-model='atext' placeholder='Question Text'>
+			 				<input type="text" ng-model='selectedQuestion.text' placeholder='Question Text'>
 			 			</div>
 			 			<div class="row">
-			 				<input type="text" ng-model='awhat' placeholder='Replace ; Replace2'>	
+			 				<input type="text" ng-model='selectedQuestion.replaceWhat' placeholder='Replace ; Replace2'>	
 			 			</div>
 			 			<div class="row">
-			 				<input type="text" ng-model='awith' placeholder='With ; With2'>
+			 				<input type="text" ng-model='selectedQuestion.replaceWith' placeholder='With ; With2'>
 			 			</div>
 			 			<div class="row">
-			 				<button ng-click='addQuestion(arow2, atext, awhat, awith)' ng-if='file == null'>Add</button>
-			 				<button ng-click='addQuestion(arow, atext, awhat, awith)' ng-if='file != null'>Add</button>
+			 				<button ng-click='addQuestion()'>Add</button>
 			 			</div>
 			 		</div>
 			</div>
@@ -130,7 +129,7 @@
 				</ul>
 			</div>
 			<div class="row">
-				<button ng-click='submitSurvey(surveyName, surveyWeek, Placement, surveyEmailCol, surveyTypeCol, surveyWeekCol, surveyCourseCol)' class="submit">Submit</button>
+				<button ng-click='submitSurvey()' class="submit">Submit</button>
 				<button ng-click='changeMode("Register")' class="submit">Back</button>
 			</div>
 		</div>
