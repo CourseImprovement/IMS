@@ -259,8 +259,6 @@ SemesterSetup.prototype._createOrg = function(){
 				},
 				courses: {}
 			};
-
-			this.addOcrmToOrg(ocrm);
 		}
 
 		// INSTRUCTOR LEADERSHIP
