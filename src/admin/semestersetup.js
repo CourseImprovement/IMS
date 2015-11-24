@@ -75,7 +75,7 @@ SemesterSetup.prototype._createOrg = function(){
 	while (this._csv[start][2] != 'email'){
 		start++;
 	}
-	var sem = this._csv[rows][20].toUpperCase();
+	var sem = this._csv[++start][20].toUpperCase();
 	this._org.semester.code = sem[0] + sem[1] + sem[sem.length - 2] + sem[sem.length - 1];
 	for (var rows = start; rows < this._csv.length; rows++){
 		if (this._csv[rows].length == 1) continue;
