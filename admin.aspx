@@ -47,7 +47,7 @@
 		<div class="row">
 			Delete a Survey
 			<select class="big-btn" ng-model='selectSurvey'>
-				<option ng-repeat='s in surveys | orderBy:"name"' value='{{s.id}}'>{{s.name}}</option>
+				<option ng-repeat='s in surveys | orderBy:"name"' value='{{s.id}}'>{{s.name}}: week {{s.week}}</option>
 			</select>
 			<button class="big-btn" ng-click='surveyModifications("delete", selectSurvey)'>Delete</button>
 		</div>
@@ -55,7 +55,7 @@
 		<div class="row">
 			Modify a Survey
 			<select class="big-btn" ng-model='selectSurvey2'>
-				<option ng-repeat='s in surveys | orderBy:"name"' value='{{s.id}}'>{{s.name}}</option>
+				<option ng-repeat='s in surveys | orderBy:"name"' value='{{s.id}}'>{{s.name}}: week {{s.week}}</option>
 			</select>
 			<button class="big-btn" ng-click='surveyModifications("modify", selectSurvey2)'>Modify</button>
 		</div>
@@ -204,7 +204,7 @@
 	<!-- PROCESS -->
 	<div class="container" ng-if='mode == "Process"' id="process">
 		<select class="big-btn" ng-model='selectSurvey'>
-			<option ng-repeat='s in surveys | orderBy:"name"' value='{{s.id}}'>{{s.name}}</option>
+			<option ng-repeat='s in surveys | orderBy:"name"' value='{{s.id}}'>{{s.name}}: week {{s.week}}</option>
 		</select>
 		<div class="big-btn" ng-click='chooseFile()'>
 			Choose File
