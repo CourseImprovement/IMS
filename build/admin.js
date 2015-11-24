@@ -2564,12 +2564,30 @@ SemesterSetup.prototype._createOrg = function(){
 	}
 
 	for (var i = 0; i < this._org.person.length; i++){
-		if (this._org.person[i].highestrole == 'aim' || this._org.person[i].highestrole == 'im'){
-			this._org.person[i].roles.role[0]['people'] = {};
+		if (this._org.person[i].highestrole == 'aim'){
+			for (var r = 0; r < this._org.person[i].roles.role.length; r++){
+				if (this._org.person[i].roles.role[r].role == 'aim'){
+					for (var t = 0; t < this._org.person[i].roles.role[r].stewardship.people.person.length; t++){
+						var role = this._org.person[i].roles.role[r].stewardship.people.person[t].type;
+						var email = this._org.person[i].roles.role[r].stewardship.people.person[t].email;
+						this._org.person[i].roles.role[r].stewardship.people.person[t]['people'] = {};
+						this._org.person[i].roles.role[r].stewardship.people.person[t].people['person'] = this.addStewardship(email, role);
+					}
+				}
+			}
 		}
 	}
 }
 
+SemesterSetup.prototype.addStewardship = function(email, role){
+	for (var i = 0; i < this._org.person.length; i++){
+		if (this._org.person[i].email == email){
+			for (var r = 0; r < this._org.person[i].roles.role[r].type == role){
+				return this._org.person[i].roles.role[r].stewardship.people.person;
+			}
+		}
+	}
+}
 
 SemesterSetup.prototype.addToOrg = function(person){
 	if (this._org.person.length == 0){
