@@ -281,25 +281,29 @@ SemesterSetup.prototype._createOrg = function(){
 			last: this._csv[rows][7].split(' ')[1].formalize(),
 			email: this._csv[rows][6].toLowerCase().split('@')[0],
 			type: 'tgl'
-		},{
-			first: this._csv[rows][14].split(' ')[0].formalize(),
-			last: this._csv[rows][14].split(' ')[1].formalize(),
-			email: this._csv[rows][15].toLowerCase().split('@')[0],
-			type: 'ocrm'
-		},{
-			first: this._csv[rows][13].split(' ')[0].formalize(),
-			last: this._csv[rows][13].split(' ')[1].formalize(),
-			email: this._csv[rows][12].toLowerCase().split('@')[0],
-			type: 'ocr'
 		}];
 
-		// OCR LEADERSHIP
-		ocr.roles.role[0].leadership.people.person = [{
-			first: this._csv[rows][14].split(' ')[0].formalize(),
-			last: this._csv[rows][14].split(' ')[1].formalize(),
-			email: this._csv[rows][15].toLowerCase().split('@')[0],
-			type: 'ocrm'
-		}]
+		if (ocr != null){
+			inst.roles.role[0].leadership.people.person.push({
+				first: this._csv[rows][14].split(' ')[0].formalize(),
+				last: this._csv[rows][14].split(' ')[1].formalize(),
+				email: this._csv[rows][15].toLowerCase().split('@')[0],
+				type: 'ocrm'
+			},{
+				first: this._csv[rows][13].split(' ')[0].formalize(),
+				last: this._csv[rows][13].split(' ')[1].formalize(),
+				email: this._csv[rows][12].toLowerCase().split('@')[0],
+				type: 'ocr'
+			});
+
+			// OCR LEADERSHIP
+			ocr.roles.role[0].leadership.people.person = [{
+				first: this._csv[rows][14].split(' ')[0].formalize(),
+				last: this._csv[rows][14].split(' ')[1].formalize(),
+				email: this._csv[rows][15].toLowerCase().split('@')[0],
+				type: 'ocrm'
+			}]
+		}
 
 		// TGL LEADERSHIP
 		tgl.roles.role[0].leadership.people.person = [{
