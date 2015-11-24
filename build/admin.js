@@ -2068,7 +2068,7 @@ Rollup.prototype.update = function(){
 	// GETS THE SURVEY CURRENTLY TAKEN AND FINDS THE IDS FOR EACH INSTRUCTOR STANDARD
 	$(window.config._xml).find('semester[code=' + window.config.getCurrentSemester() + '] survey[id=' + this._surveyId + '] question').each(function(){
 		for (var i = 0; i < questions.length; i++){
-			if ($(this).find('text:contains("' + questions[i] + '")').length > 0){
+			if ($(this).text().indexOf(questions[i]) > -1){
 				_this._questions.push({
 					id: $(this).attr('id'),
 					spot: i
