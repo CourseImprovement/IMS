@@ -2408,11 +2408,7 @@ SemesterSetup.prototype._createOrg = function(){
 							}]
 						}
 					},
-					leadership: {
-						people: {
-							person: []
-						}
-					}
+					leadership: {}
 				}]
 			},
 			courses: {}
