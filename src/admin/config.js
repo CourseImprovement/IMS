@@ -242,31 +242,9 @@ Config.prototype.surveyModify = function(name, emailCol, weekCol, typeCol, place
  * @param  {[type]} questions [description]
  * @return {[type]}           [description]
  */
-Config.prototype.surveyRegister = function(name, emailCol, weekCol, typeCol, placement, courseCol, questions){
-	var questionSet = [];
-
-	for (var i = 0; i < questions.length; i++){
-		questions[i]['id'] = i + 1;
-		console.log(questions[i].col);
-		questions[i].col = Config.columnNumberToLetter(questions[i].col); 
-		questionSet.push(new Question(questions[i], false));
-	}
-
-	var survey = {
-		id: this.getHighestSurveyId() + 1,
-		placement: placement,
-		type: typeCol,
-		email: emailCol,
-		name: name,
-		questions: questionSet
-	}
-
-	if (weekCol) survey['week'] = weekCol;
-	if (courseCol) survey['course'] = courseCol;
-
-	var newSurvey = new Survey(survey, false);
-	newSurvey.save();
-	this.surveys.push(newSurvey);
+Config.prototype.surveyRegister = function(survey){
+	survey.save();
+	this.surveys.push(survey);
 }
 
 /**
