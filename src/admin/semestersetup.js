@@ -292,8 +292,10 @@ SemesterSetup.prototype._createOrg = function(){
 SemesterSetup.prototype.addStewardship = function(email, role){
 	for (var i = 0; i < this._org.person.length; i++){
 		if (this._org.person[i].email == email){
-			for (var r = 0; r < this._org.person[i].roles.role[r].type == role){
-				return this._org.person[i].roles.role[r].stewardship.people.person;
+			for (var r = 0; r < this._org.person[i].roles.role.length; r++){
+				if (this._org.person[i].roles.role[r].type == role){
+					return this._org.person[i].roles.role[r].stewardship.people.person;
+				}
 			}
 		}
 	}
