@@ -2990,7 +2990,7 @@ Survey.prototype.process = function(rows){
 			
 			ims.loading.reset();
 			alert('Complete');
-			return;
+			window.location.reload();
 		} 
 		// clean answers  and then add them to their respective individual
 		if (rows[i][eCol] != undefined){
