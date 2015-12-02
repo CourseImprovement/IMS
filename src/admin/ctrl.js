@@ -330,6 +330,7 @@ app.controller('adminCtrl', ["$scope", function($scope){
 				$scope.csv = file.data[1];
 			});
 			$scope.mode = 'RegisterStart';
+			$scope.modifySurvey();
 		}
 		else if (type == 'delete'){ // DELETE SURVEY
 			window.config.remove(id);
@@ -355,9 +356,13 @@ app.controller('adminCtrl', ["$scope", function($scope){
 	 * @memberOf angular
 	 */
 	$scope.modifySurvey = function(id){
-		if (!id || id.length < 1) return;
-
-		var survey = window.config.getSurveyById(id);
+		var survey = null;
+		if (!id || id.length < 1) {
+			survey = window.config.newSurvey();
+		}
+		else{
+			survey = window.config.getSurveyById(id);
+		}
 		window.config.selectedSurvey = survey;
 		$scope.selectedSurvey = survey;
 		$scope.questions = survey.questions;
@@ -379,23 +384,7 @@ app.controller('adminCtrl', ["$scope", function($scope){
 			$scope.selectedSurvey.save();
 		}
 		else{
-			var emailCol = $('#eCol').val();
-			var typeCol = $('#tCol').val();
-			var weekCol = $('#wCol').val();
-			var courseCol = $('#cCol').val();
-			var placement = $('#Placement').val();
-			var id = window.config.getHighestSurveyId()++;
-			var survey = new Survey({
-					email: emailCol, 
-					type: typeCol, 
-					week: weekCol, 
-					course: courseCol, 
-					placement: placement, 
-					id: id, 
-					questions: $scope.questions
-				}, 
-				false);
-			window.config.surveyRegister(survey);
+			$scope.selectedSurvey.save();
 		}
 
 		$scope.mode = 'home';
@@ -407,11 +396,11 @@ app.controller('adminCtrl', ["$scope", function($scope){
 	 */
 	$scope.addBlankQuestion = function(){
 		$scope.showDialog = true;
-		$scope.arow = "";
-		$scope.atext = "";
-		$scope.awhat = "";
-		$scope.awith = "";
-		$scope.arow2 = "";
+		var q = new Question({
+			id: $scope.selectedSurvey.getHighestQuestionId() + 1
+		}, false);
+
+		$scope.selectedQuestion = q;
 	}
 	/**
 	 * Add aquestion to a survey
@@ -424,6 +413,7 @@ app.controller('adminCtrl', ["$scope", function($scope){
 	 */
 	$scope.addQuestion = function(){
 		$scope.showDialog = false;
+		$scope.selectedSurvey.addQuestion($scope.selectedQuestion);
 	}
 	/**
 	 * Edit the question

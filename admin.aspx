@@ -107,10 +107,10 @@
 			 				<input type="text" ng-model='selectedQuestion.text' placeholder='Question Text'>
 			 			</div>
 			 			<div class="row">
-			 				<input type="text" ng-model='selectedQuestion.replaceWhat' placeholder='Replace ; Replace2'>	
+			 				<input type="text" ng-model='selectedQuestion.replaceWhat' placeholder='Replace;Replace2'>	
 			 			</div>
 			 			<div class="row">
-			 				<input type="text" ng-model='selectedQuestion.replaceWith' placeholder='With ; With2'>
+			 				<input type="text" ng-model='selectedQuestion.replaceWith' placeholder='With;With2'>
 			 			</div>
 			 			<div class="row">
 			 				<button ng-click='addQuestion()'>Add</button>

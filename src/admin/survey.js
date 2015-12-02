@@ -204,12 +204,13 @@ Survey.prototype.process = function(rows){
 			Sharepoint.postFile(window.rollup._xml, 'master/', 'rollup.xml', function(){});
 			Sharepoint.postFile(window.config.getMaster(), 'master/', 'master.xml', function(){});
 			
-			ims.loading.reset();
-			alert('Complete');
-			window.location.reload();
+			setTimeout(function(){
+				ims.loading.reset();
+				alert('Completed | Please reload the page');
+			}, 1200);
 		} 
 		// clean answers  and then add them to their respective individual
-		if (rows[i][eCol] != undefined){
+		if (i < rows.length && rows[i][eCol] != undefined){
 			var person = null;
 			try{
 				person = window.config.getPerson(rows[i][eCol]);
@@ -250,12 +251,12 @@ Survey.prototype.process = function(rows){
 			else{
 				console.log('(Survey.prototype.process) Invalid person: ' + rows[i][eCol]);
 			}
+			i++;
+			setTimeout(function(){
+				ims.loading.set((i / rows.length) * 100);
+				processItems();
+			}, 10);
 		}
-		i++;
-		setTimeout(function(){
-			ims.loading.set((i / rows.length) * 100);
-			processItems();
-		}, 10);
 	}
 
 	processItems();
@@ -340,6 +341,19 @@ Survey.prototype.getWeekNumber = function(){
 		}
 	}	
 	return null;
+}
+
+Survey.prototype.addQuestion = function(q){
+	var found = false;
+	for (var i = 0; i < this.questions.length; i++){
+		if (q.id == this.questions[i].id){
+			found = true;
+			break;
+		}
+	}
+	if (!found){
+		this.questions.push(q);
+	}
 }
 
 Survey.prototype.getHighestQuestionId = function(){

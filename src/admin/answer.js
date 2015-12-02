@@ -14,12 +14,13 @@ function Answer(obj){
  */
 Answer.prototype.clean = function(){
 	if (this._answer == undefined) return;
+	var ans = byui(this._answer);
 	for (var i = 0; i < this._question.replaceWhat.length; i++){
-		var replaceWhat = new RegExp(this._question.replaceWhat[i], 'g');
-		var replaceWith = new RegExp(this._question.replaceWith[i], 'g');
-		this._answer = this._answer.replace(replaceWhat, replaceWith);
+		if (this._question.replaceWhat[i] == '') continue;
+		ans.replace(this._question.replaceWhat[i], this._question.replaceWith[i]);
 	}
-	this._answer.encodeXML();
+	ans.encodeXml();
+	this._answer = ans.val();
 }
 
 /**
@@ -42,7 +43,7 @@ Answer.prototype.toXml = function(){
 Answer.collect = function(survey, row){
 	var result = [];
 	for (var i = 0; i < survey.questions.length; i++){
-		var answer = row[survey.questions[i].col];
+		var answer = row[Config.columnLetterToNumber(survey.questions[i].col)];
 		result.push(new Answer({
 			question: survey.questions[i], 
 			answer: answer

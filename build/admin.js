@@ -4,8 +4,8 @@
  */
 window.ims = {};
 ims.url = {};
-ims.url._base = window.location.protocol + '//' + window.location.hostname + '/sites/onlineinstructionreporting/onlineinstructionreportingdev/';
-ims.url.relativeBase = '/sites/onlineinstructionreporting/onlineinstructionreportingdev/';
+ims.url._base = window.location.protocol + '//' + window.location.hostname + '/sites/onlineinstructionreporting/';
+ims.url.relativeBase = '/sites/onlineinstructionreporting/';
 ims.url.base = ims.url._base + 'instructor%20Reporting/';
 ims.url.api = ims.url._base + '_api/';
 ims.url.site = ims.url._base; 
@@ -486,12 +486,13 @@ function Answer(obj){
  */
 Answer.prototype.clean = function(){
 	if (this._answer == undefined) return;
+	var ans = byui(this._answer);
 	for (var i = 0; i < this._question.replaceWhat.length; i++){
-		var replaceWhat = new RegExp(this._question.replaceWhat[i], 'g');
-		var replaceWith = new RegExp(this._question.replaceWith[i], 'g');
-		this._answer = this._answer.replace(replaceWhat, replaceWith);
+		if (this._question.replaceWhat[i] == '') continue;
+		ans.replace(this._question.replaceWhat[i], this._question.replaceWith[i]);
 	}
-	this._answer.encodeXML();
+	ans.encodeXml();
+	this._answer = ans.val();
 }
 
 /**
@@ -514,7 +515,7 @@ Answer.prototype.toXml = function(){
 Answer.collect = function(survey, row){
 	var result = [];
 	for (var i = 0; i < survey.questions.length; i++){
-		var answer = row[survey.questions[i].col];
+		var answer = row[Config.columnLetterToNumber(survey.questions[i].col)];
 		result.push(new Answer({
 			question: survey.questions[i], 
 			answer: answer
@@ -547,6 +548,15 @@ Config.prototype.addSurvey = function(survey){
 	this.surveys.push(survey);
 	$(this._xml).find('semester[code=' + this.getCurrentSemester() + '] surveys').append(survey._xml);
 	this.save();
+}
+
+Config.prototype.newSurvey = function(){
+	var survey = new Survey({
+		id: this.getHighestSurveyId() + 1,
+		questions: []
+	}, false);
+	this.surveys.push(survey);
+	return survey;
 }
 
 /**
@@ -1214,6 +1224,7 @@ app.controller('adminCtrl', ["$scope", function($scope){
 				$scope.csv = file.data[1];
 			});
 			$scope.mode = 'RegisterStart';
+			$scope.modifySurvey();
 		}
 		else if (type == 'delete'){ // DELETE SURVEY
 			window.config.remove(id);
@@ -1239,9 +1250,13 @@ app.controller('adminCtrl', ["$scope", function($scope){
 	 * @memberOf angular
 	 */
 	$scope.modifySurvey = function(id){
-		if (!id || id.length < 1) return;
-
-		var survey = window.config.getSurveyById(id);
+		var survey = null;
+		if (!id || id.length < 1) {
+			survey = window.config.newSurvey();
+		}
+		else{
+			survey = window.config.getSurveyById(id);
+		}
 		window.config.selectedSurvey = survey;
 		$scope.selectedSurvey = survey;
 		$scope.questions = survey.questions;
@@ -1263,23 +1278,7 @@ app.controller('adminCtrl', ["$scope", function($scope){
 			$scope.selectedSurvey.save();
 		}
 		else{
-			var emailCol = $('#eCol').val();
-			var typeCol = $('#tCol').val();
-			var weekCol = $('#wCol').val();
-			var courseCol = $('#cCol').val();
-			var placement = $('#Placement').val();
-			var id = window.config.getHighestSurveyId()++;
-			var survey = new Survey({
-					email: emailCol, 
-					type: typeCol, 
-					week: weekCol, 
-					course: courseCol, 
-					placement: placement, 
-					id: id, 
-					questions: $scope.questions
-				}, 
-				false);
-			window.config.surveyRegister(survey);
+			$scope.selectedSurvey.save();
 		}
 
 		$scope.mode = 'home';
@@ -1291,11 +1290,11 @@ app.controller('adminCtrl', ["$scope", function($scope){
 	 */
 	$scope.addBlankQuestion = function(){
 		$scope.showDialog = true;
-		$scope.arow = "";
-		$scope.atext = "";
-		$scope.awhat = "";
-		$scope.awith = "";
-		$scope.arow2 = "";
+		var q = new Question({
+			id: $scope.selectedSurvey.getHighestQuestionId() + 1
+		}, false);
+
+		$scope.selectedQuestion = q;
 	}
 	/**
 	 * Add aquestion to a survey
@@ -1308,6 +1307,7 @@ app.controller('adminCtrl', ["$scope", function($scope){
 	 */
 	$scope.addQuestion = function(){
 		$scope.showDialog = false;
+		$scope.selectedSurvey.addQuestion($scope.selectedQuestion);
 	}
 	/**
 	 * Edit the question
@@ -1868,7 +1868,9 @@ Person.prototype.cleanEmailInternal = function(){
  * Save this person's xml to their sharepoint file
  */
 Person.prototype.save = function(){
-	Sharepoint.postFile($(this._xml)[0], 'master/', this._email + '.xml', function(){});
+	if ($(this._xml)[0] && this._email){
+		Sharepoint.postFile($(this._xml)[0], 'master/', this._email + '.xml', function(){});
+	}
 }
 
 /**
@@ -2988,12 +2990,13 @@ Survey.prototype.process = function(rows){
 			Sharepoint.postFile(window.rollup._xml, 'master/', 'rollup.xml', function(){});
 			Sharepoint.postFile(window.config.getMaster(), 'master/', 'master.xml', function(){});
 			
-			ims.loading.reset();
-			alert('Complete');
-			window.location.reload();
+			setTimeout(function(){
+				ims.loading.reset();
+				alert('Completed | Please reload the page');
+			}, 1200);
 		} 
 		// clean answers  and then add them to their respective individual
-		if (rows[i][eCol] != undefined){
+		if (i < rows.length && rows[i][eCol] != undefined){
 			var person = null;
 			try{
 				person = window.config.getPerson(rows[i][eCol]);
@@ -3034,12 +3037,12 @@ Survey.prototype.process = function(rows){
 			else{
 				console.log('(Survey.prototype.process) Invalid person: ' + rows[i][eCol]);
 			}
+			i++;
+			setTimeout(function(){
+				ims.loading.set((i / rows.length) * 100);
+				processItems();
+			}, 10);
 		}
-		i++;
-		setTimeout(function(){
-			ims.loading.set((i / rows.length) * 100);
-			processItems();
-		}, 10);
 	}
 
 	processItems();
@@ -3124,6 +3127,19 @@ Survey.prototype.getWeekNumber = function(){
 		}
 	}	
 	return null;
+}
+
+Survey.prototype.addQuestion = function(q){
+	var found = false;
+	for (var i = 0; i < this.questions.length; i++){
+		if (q.id == this.questions[i].id){
+			found = true;
+			break;
+		}
+	}
+	if (!found){
+		this.questions.push(q);
+	}
 }
 
 Survey.prototype.getHighestQuestionId = function(){

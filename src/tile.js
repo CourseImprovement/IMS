@@ -27,14 +27,14 @@ Tile.getAll = function(role) {
           data: role.getCompletedTasks(),
           hidden: ''
         }),
-        new Tile({
-          title: 'Instructor Standards',
-          helpText: 'This tile displays the average score for each instructor standard. Click on a standard\'s line in the graph to view individual instructor scores for that standard',
-          type: 'graph',
-          data: role.getInstructorStandards(),
-          hidden: '',
-          config: 'TGLInstructorStandards'
-        })
+        // new Tile({
+        //   title: 'Instructor Standards',
+        //   helpText: 'This tile displays the average score for each instructor standard. Click on a standard\'s line in the graph to view individual instructor scores for that standard',
+        //   type: 'graph',
+        //   data: role.getInstructorStandards(),
+        //   hidden: '',
+        //   config: 'TGLInstructorStandards'
+        // })
       ],
       [
         new Tile({

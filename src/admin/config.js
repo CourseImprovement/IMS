@@ -24,6 +24,15 @@ Config.prototype.addSurvey = function(survey){
 	this.save();
 }
 
+Config.prototype.newSurvey = function(){
+	var survey = new Survey({
+		id: this.getHighestSurveyId() + 1,
+		questions: []
+	}, false);
+	this.surveys.push(survey);
+	return survey;
+}
+
 /**
  * Gets the current semester from the semester xml file
  * @return {String} The semester name. e.g. FA15, WI16
