@@ -178,7 +178,7 @@ app.controller('adminCtrl', ["$scope", function($scope){
 	 */
 	$scope.CreateEvaluationCSV = function(){
 		var e = new Evaluations($scope.evaluations, $scope.file);
-		e.parseCSV();
+		e.parse();
 		$scope.mode = 'home';
 	}
 	// GROUP - LEADERSHIP EVALUATION END
