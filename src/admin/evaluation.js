@@ -1,7 +1,13 @@
-// GROUP EVALUATIONS
 /**
- * Evaluations
- * @param {Array} array all data necessary for evaluations
+ * @start evaluations
+ */
+/**
+ * @name  Evaluations
+ * @assign Grant
+ * @description object used to assign data from the evaluator to the evaluatee
+ * @todo
+ *  + set the evaluations object
+ *  + set the csv file location
  */
 function Evaluations(obj, file){
 	this._evaluations = obj;
@@ -10,18 +16,21 @@ function Evaluations(obj, file){
 }
 
 /**
- * Finds the location of answer, question, and display logic
- * @param  {Array} array contains the instructions for an evaluations data series
- * @return {Array}       new array containing the proper column locations (in nmeric form)
+ * @name  Evaluations.getColumnLocations
+ * @assign Grant
+ * @description Finds the location of answer, question, and display logic
+ * @todo
+ *  + loop through the different data series
+ *   + convert the col letter to a number
  */
-Evaluations.prototype.getColumnLocations = function(array){
+Evaluations.prototype.getColumnLocations = function(){
 	var newArray = [];
 
-	for (var i = 0; i < array.length; i++){
+	for (var i = 0; i < this._evaluations.dataSeries.length; i++){
 		newArray.push({
-			col: Config.columnLetterToNumber(array[i].col),
-			question: array[i].question,
-			logic: array[i].logic
+			col: Config.columnLetterToNumber(this._evaluations.dataSeries[i].col),
+			question: this._evaluations.dataSeries[i].question,
+			logic: this._evaluations.dataSeries[i].logic
 		});
 	}
 
@@ -29,9 +38,13 @@ Evaluations.prototype.getColumnLocations = function(array){
 }
 
 /**
- * Removes html form a string 
- * @param  {String} str a string
- * @return {String}     new clean string
+ * @name  Evaluations.cleanseString
+ * @assign Grant
+ * @description
+ * @todo
+ *  + check that the string is not null or empty
+ *  + replace unwanted html
+ *  + error handling
  */
 Evaluations.prototype.cleanseString = function(str){
 	if(str == undefined || str.length == 0) return str;
@@ -62,6 +75,7 @@ Evaluations.prototype.cleanseString = function(str){
 /**
  * @name Evaluations.setAnswers
  * @assign Grant
+ * @description
  * @todo
  *  + add evaluatee to Evaluations' people
  *   + add one to number of evaluators
@@ -70,6 +84,7 @@ Evaluations.prototype.cleanseString = function(str){
  *    + logic for value
  *    + logic for percentage
  *   + add response data for evaluatee
+ *  - error handling
  */
 Evaluations.prototype.setAnswers = function(evaluatee, row, locations){
 	if (this.people[evaluatee] == undefined){
@@ -102,12 +117,14 @@ Evaluations.prototype.setAnswers = function(evaluatee, row, locations){
 /**
  * @name Evaluations.calculatePercentages
  * @assign Grant
+ * @description
  * @todo
  *  + go through each person
  *   + go through each evaluation
  *    + check if the logic type is percentage (p)
  *    + perform percentage math
  *    + replace answer with new percentage 
+ *  - error handling
  */
 Evaluations.prototype.calculatePercentages = function(){
 	for (var person in this.people){
@@ -123,6 +140,7 @@ Evaluations.prototype.calculatePercentages = function(){
 /**
  * @name Evaluations.sendToCSV
  * @assign Grant
+ * @description
  * @todo
  *  + add questions to the top of csv
  *  + go through each person
@@ -130,6 +148,7 @@ Evaluations.prototype.calculatePercentages = function(){
  *    + add answer to string
  *    + encode all spaces, commas, new lines, and slashes
  *  + download string as csv
+ *  - error handling
  */
 Evaluations.prototype.sendToCSV = function(){
 	var csv = "email,";
@@ -160,14 +179,16 @@ Evaluations.prototype.sendToCSV = function(){
 	var a         = document.createElement('a');
 	a.href        = 'data:attachment/csv,' + csv;
 	a.target      = '_blank';
-	a.download    = 'myFile.csv';
+	a.download    = 'Evaluation.csv';
 
 	document.body.appendChild(a);
 	a.click();
 }
 
 /**
+ * @name  Evaluations.parse
  * @assign Grant
+ * @description Collect the evaluation information from a CSV.
  * @todo 
  *  + get the master
  *  + convert csv to array
@@ -176,7 +197,7 @@ Evaluations.prototype.sendToCSV = function(){
  *   + get evaluatee
  *   + collect evaluation results for evaluatee
  *  + calculate the percentage
- *  @description Collect the evaluation information from a CSV.
+ *  + error handling
  */
 Evaluations.prototype.parse = function(){
 	_this = this;
@@ -185,17 +206,29 @@ Evaluations.prototype.parse = function(){
 		csv.readFile(_this._file, function(csv){
 			var rows = csv.data;
 			var emailCol = Config.columnLetterToNumber(_this._evaluations.emailCol);
-			var locations = _this.getColumnLocations(_this._evaluations.dataSeries);
+			var locations = _this.getColumnLocations();
 			var questions = [];
 
+			if (rows.length < 3) throw 'CSV does not have the right number of rows';
+
 			for (var i = 3; i < rows.length; i++){
-				if (rows[i][emailCol] != undefined){
+				if (rows[i][emailCol] != undefined) {
 					var xPath = 'semester[code=FA15] > people > person > roles > role[type="' + _this._evaluations.eFor.toLowerCase() + '"]';
 					var evaluator = rows[i][emailCol].split('@')[0];
 					var evaluatee = null;
-					if ($(master).find(xPath).has('stewardship > people > person[email="' + evaluator + '"][type="' + _this._evaluations.eBy.toLowerCase() + '"]').length > 0){
-						evaluatee = $(master).find(xPath).has('stewardship > people > person[email="' + evaluator + '"][type="' + _this._evaluations.eBy.toLowerCase() + '"]').parents('person').attr('email');
-						_this.setAnswers(evaluatee, rows[i], locations);
+					if ($(master).find(xPath).has('stewardship > people > person[email="' + evaluator + '"][type="' + _this._evaluations.eBy.toLowerCase() + '"]').length > 0) {
+						if ($(master).find(xPath).has('stewardship > people > person[email="' + evaluator + '"][type="' + _this._evaluations.eBy.toLowerCase() + '"]').length > 1) {
+							if (evaluator == $($(master).find(xPath).has('stewardship > people > person[email="' + evaluator + '"][type="' + _this._evaluations.eBy.toLowerCase() + '"]')[0]).parents('person').attr('email')) {
+								evaluatee = $($(master).find(xPath).has('stewardship > people > person[email="' + evaluator + '"][type="' + _this._evaluations.eBy.toLowerCase() + '"]')[1]).parents('person').attr('email');
+							} else {
+								evaluatee = $($(master).find(xPath).has('stewardship > people > person[email="' + evaluator + '"][type="' + _this._evaluations.eBy.toLowerCase() + '"]')[0]).parents('person').attr('email');
+							}
+						} else {
+							evaluatee = $(master).find(xPath).has('stewardship > people > person[email="' + evaluator + '"][type="' + _this._evaluations.eBy.toLowerCase() + '"]').parents('person').attr('email');
+						}
+						if (evaluatee != null){
+							_this.setAnswers(evaluatee, rows[i], locations);
+						}
 					}
 				}
 			}
@@ -205,4 +238,6 @@ Evaluations.prototype.parse = function(){
 		});
 	});
 };
-// GROUP EVALUATIONS END
+/**
+ * @end
+ */

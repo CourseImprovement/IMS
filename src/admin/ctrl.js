@@ -2,23 +2,32 @@
 
 
 /**
- * @namespace angular
- * @typedef {Object} Xml_Document An xml document which contians organizational data and personnel data 
+ * angular
  */
 var app = angular.module('admin', []);
 app.controller('adminCtrl', ["$scope", function($scope){
-
+	/**
+	 * Current semester
+	 */
 	var sem = window.config.getCurrentSemester();
 
-	// GROUP - MENU TOGGLE
 	/**
-	 * Reset all variables
+	 * @start menu toggle
+	 */
+	/**
+	 * @name reset
+	 * @description Reset all variables
+	 * @assign Chase and Grant
+	 * @todo 
+	 *  + surveyName, surveyWeek, and Placement to empty strings
+	 *  + file and surveyId to null
+	 *  + evalustions and editingQuestion to an empty object
+	 *  + isFile to false
 	 */
 	function reset(){
 		$scope.surveyName = '';
 		$scope.surveyWeek = '';
 		$scope.Placement = '';
-		//$scope.questions = [];
 		$scope.csv = [];
 		$scope.file = null;
 		$scope.evaluations = {};
@@ -26,18 +35,18 @@ app.controller('adminCtrl', ["$scope", function($scope){
 		surveyId = null;
 		editingQuestion = {};
 	}
-	
 	/**
-	 * Toggle page views. Default is the 'home' page
-	 * @memberOf angular
-	 * @type {String}
+	 * Used to toggle page views. Default is the 'home' page
 	 */
 	$scope.mode = 'home';
 	/**
-	 * Changes $scope.mode
-	 * @param  {string} mode Type of view
-	 * @memberOf angular
-	 * @function
+	 * @name changeMode
+	 * @description Changes the webpages
+	 * @assign Chase and Grant
+	 * @todo 
+	 *  + Assign the mode a value to change the web page
+	 *   + if Register or Process reset the surveys
+	 *   + if home reset all variables
 	 */
 	$scope.changeMode = function(mode){
 		if (mode == 'Register' || mode == 'Process'){
@@ -50,16 +59,19 @@ app.controller('adminCtrl', ["$scope", function($scope){
 		
 		$scope.mode = mode;
 	}
-	// GROUP - MENU TOGGLE END
+	/**
+	 * @end
+	 */
 	
 
 
-	// GROUP - PERMISSIONS
 	/**
-	 * Check permissions 
-	 * @see {@link ims.permissions#needsChanges}
-	 * @memberOf angular
-	 * @function
+	 * @start permissions
+	 */
+	/**
+	 * @name  checkPermissions
+	 * @description Check permissions
+	 * @assign Chase and Grant
 	 */
 	var permissionsGlobal;
 	$scope.checkPermissions = function(){
@@ -73,32 +85,39 @@ app.controller('adminCtrl', ["$scope", function($scope){
 		}
 	}
 	/**
-	 * Alerts the user to the percentage completed
-	 * @function
-	 * @memberOf angular
+	 * @name permissions
+	 * @description Alerts the user to the percentage completed
+	 * @assign Chase and Grant
 	 */
 	$scope.permissions = function(){
 		if (!permissionsGlobal) permissionsGlobal = new Permissions();
 	}
-	// GROUP - PERMISSIONS END
-
-
-
-	// GROUP - LEADERSHIP EVALUATION
 	/**
-	 * [evalAdded description]
-	 * @type {Boolean}
+	 * @end
+	 */
+
+
+
+	/**
+	 * @start Leadership Evaluation
+	 */
+	/**
+	 * Has an evaluation been added yet
 	 */
 	$scope.evalAdded = false;
 	/**
-	 * [evaluations description]
-	 * @type {Object}
+	 * Holds all the evaluations
 	 */
 	$scope.evaluations = {};
 	/**
-	 * [arrayOfColumns description]
-	 * @param  {[type]} columns [description]
-	 * @return {[type]}         [description]
+	 * @name arrayOfColumns
+	 * @description Gets the columns in forms A;B;C;D or A-D or A-D;E
+	 * @assign Grant
+	 * @todo 
+	 *  + Check if there is more than one column
+	 *  + Split the string on the ';'
+	 *  + Start adding letters to new array
+	 *   + if the letter contains a '-' then get and add all letters in between 
 	 */
 	function arrayOfColumns(columns){
 		if (columns.indexOf('-') > -1){
@@ -108,7 +127,7 @@ app.controller('adminCtrl', ["$scope", function($scope){
 					var start = Config.columnLetterToNumber(sets[i].split('-')[0]);
 					var end = Config.columnLetterToNumber(sets[i].split('-')[1]);
 					sets.splice(i, 1);
-					if (start > end) throw "columns need to be read from left to right";
+					if (start > end) throw "columns need to be read from left to right (A-Z)";
 					for (var j = start; j <= end; j++){
 						sets.splice(i, 0, Config.columnNumberToLetter(j));
 					}
@@ -121,21 +140,27 @@ app.controller('adminCtrl', ["$scope", function($scope){
 		}
 	}
 	/**
-	 * Adds the evaluation to the evaluations array
-	 * @param {String} role      The role of the ones being evaluated
-	 * @param {String} email     Column that contains the email
-	 * @param {String} columns   Column where the data is located
-	 * @param {String} questions The Text for the data column
-	 * @param {String} logics    How to display the data (Percentage or Value)
-	 * @memberOf angular
-	 * @function
+	 * @name  addEvaluation
+	 * @description Adds the evaluation to the evaluations array
+	 * @assign Grant
+	 * @todo
+	 *  + check that the variables are strings and arrays
+	 *  + create evals by questions
+	 *  + add evaluations to evals 
+	 *  + error handling
 	 */
 	$scope.addEvaluation = function(bRole, fRole, email, columns, questions, logics){
 		if (bRole == fRole){
 			alert("The evaluations can not be done at the same level. e.g. by: INSTRUCTOR for: INSTRUCTOR");
 			return;
 		}
+
 		if (bRole == null || fRole == null || email == null || columns == null || questions == null || logics == null){
+			alert("Some information was left out!");
+			return;
+		}
+
+		if (bRole == '' || fRole == '' || email == '' || columns == '' || questions == '' || logics == ''){
 			alert("Some information was left out!");
 			return;
 		}
@@ -144,9 +169,34 @@ app.controller('adminCtrl', ["$scope", function($scope){
 		var qs = questions.split(';');
 		var ls = logics.split(';');
 
+		if (cs.length != qs.length || qs.length != ls.length){
+			alert('The number of columns, questions, and logic selections do not match.\n' + 
+				'Be sure they are all the same.');
+			return;
+		}
+
+		for (var i = 0; i < cs.length; i++){
+			if (cs[i] == ""){
+				alert('One of the columns is blank.');
+				return;
+			} else if (qs[i] == ""){
+				alert('One of the question texts is blank.');
+				return;
+			} else if (ls[i] == ""){
+				alert('One of the logic options is blank.');
+				return;
+			}
+		}
+
 		var eval = [];
 
 		for (var i = 0; i < cs.length; i++){
+
+			if (ls[i] != 'p' && ls[i] != 'v'){
+				alert("Use either a single 'p' (percentage) or 'v' (value) for specifying logic");
+				return;
+			}
+
 			eval.push({
 				col: cs[i],
 				question: qs[i],
@@ -164,7 +214,13 @@ app.controller('adminCtrl', ["$scope", function($scope){
 		$scope.evalAdded = true;
 	}
 	/**
-	 * Resets the current evaluation
+	 * @name clearEvaluation
+	 * @description Resets the current evaluation
+	 * @assign Grant
+	 * @todo 
+	 *  + Clear the evaluations
+	 *  + Change evalAdded to false
+	 *  + Change isFile to false 
 	 */
 	$scope.clearEvaluation = function(){
 		$scope.evaluations = {};
@@ -172,25 +228,43 @@ app.controller('adminCtrl', ["$scope", function($scope){
 		$scope.isFile = false;
 	}
 	/**
-	 * Create a new evaluation and parses the evaluations previously gathered
-	 * @memberOf angular
-	 * @function
+	 * @name CreateEvaluationCSV
+	 * @description Create a new evaluation and parses the evaluations previously gathered
+	 * @assign Grant
+	 * @todo 
+	 *  + Make sure their are evaluations to do
+	 *  + Create an Evaluations object
+	 *  + Begin the parsing process
+	 *  + Return to the home page
 	 */
 	$scope.CreateEvaluationCSV = function(){
+		if ($scope.evaluations == {}){
+			alert('Add an evaluation before you start the process.');
+			return;
+		}
+
 		var e = new Evaluations($scope.evaluations, $scope.file);
 		e.parse();
 		$scope.mode = 'home';
 	}
-	// GROUP - LEADERSHIP EVALUATION END
-
-
-
-	// GROUP - SEMESTER SETUP
 	/**
-	 * Creates all semester files based on provided org file 
-	 * @see {@link ims.surveys#readAsCsv2}
-	 * @memberOf angular
-	 * @function
+	 * @end
+	 */
+
+
+
+	/**
+	 * @start Semester Setup
+	 */
+	/**
+	 * @name  semesterSetup
+	 * @description Creates all semester files based on provided org file 
+	 * @assign Chase and Grant
+	 * @todo
+	 *  + Create a new CSV object
+	 *  + Read the file
+	 *  + Create a SemesterSetup object
+	 *  + Start the semesterSetup 
 	 */
 	$scope.semesterSetup = function(){
 		var csv = new CSV();
@@ -202,30 +276,40 @@ app.controller('adminCtrl', ["$scope", function($scope){
 		});
 	}
 	/**
-	 * Updates all semester files based on provided org file 
-	 * @see {@link ims.surveys#readAsCsv2}
-	 * @memberOf angular
-	 * @function
+	 * @name semesterUpdate
+	 * @description Updates all semester files based on provided org file 
+	 * @assign Chase and Grant
 	 */
 	$scope.semesterUpdate = function(){
 		var s = new SemesterSetup();
 		s.semesterUpdate();
 	}
-	// GROUP - SEMESTER SETUP END
+	/**
+	 * @end
+	 */
 	
 
 
-	// GROUP - SELECT FILE
+	/**
+	 * @start Select File
+	 */
 	/**
 	 * Contains the current file
-	 * @type {[type]}
 	 */
 	$scope.file = null;
+	/**
+	 * Has a file been chosen
+	 */
 	$scope.isFile = false;
 	/**
-	 * Select a file
-	 * @function
-	 * @memberOf angular
+	 * @name  chooseFile
+	 * @description Select a file
+	 * @assign Chase and Grant
+	 * @todo
+	 *  + Create a file input in the html using jquery
+	 *  + Click to add file
+	 *  + isFile is true
+	 *  + file is now the selected file 
 	 */
 	$scope.chooseFile = function(){
 		setTimeout(function(){
@@ -239,16 +323,26 @@ app.controller('adminCtrl', ["$scope", function($scope){
 			}).click();
 		}, 100);
 	}
-	// GROUP - SELECT FILE END
+	/**
+	 * @end
+	 */
 	
 
 
-	// GROUP - PROCESS SURVEY
 	/**
-	 * Begin processing the survey
-	 * @param  {string} survey Current survey being processed
-	 * @function
-	 * @memberOf angular
+	 * @start Process Survey
+	 */
+	/**
+	 * @name processSurvey
+	 * @description Begin processing the survey
+	 * @assign Chase
+	 * @todo 
+	 *  + Find the survey settings from the config
+	 *  + This survey is now the selected survey
+	 *  + Error handling
+	 *  + Create a new CSV object
+	 *  + Read the file
+	 *  + Start the survey processing 
 	 */
 	$scope.processSurvey = function(id){
 		var survey = window.config.getSurveyById(id);
@@ -265,60 +359,66 @@ app.controller('adminCtrl', ["$scope", function($scope){
 			}, 10);
 		});
 	}
-	// GROUP - PROCESS SURVEY END
+	/**
+	 * @end
+	 */
 	
 
 
-	// GROUP - SURVEY SETUP
+	/**
+	 * @start Survey Setup
+	 */
 	/**
 	 * List of all surveys
-	 * @memberOf angular
-	 * @type {Array}
 	 */
 	$scope.surveys = [];
 	/**
 	 * The name of the survey
-	 * @type {String}
-	 * @memberOf angular
 	 */
 	$scope.surveyName = '';
 	/**
 	 * Week of the survey
-	 * @type {String}
-	 * @memberOf angular
 	 */
 	$scope.surveyWeek = '';
 	/**
 	 * Placement of survey
-	 * @type {String}
-	 * @memberOf angular
 	 */
 	$scope.Placement = '';
 	/**
 	 * Holds the questions for a specific survey
-	 * @type {Array}
-	 * @memberOf angular
 	 */
 	$scope.questions = [];
 	/**
-	 * [csv description]
-	 * @type {Array}
+	 * CSV Data
 	 */
 	$scope.csv = [];
 	/**
 	 * Identifier for the survey
-	 * @type {null}
 	 */
 	var surveyId = null;
 	/**
 	 * Contains all the questions to change
-	 * @type {Object}
-	 * @memberOf angular
 	 */
 	var editingQuestion = {};
 	/**
-	 * [surveyModifications description]
-	 * @return {[type]} [description]
+	 * @name surveyModifications
+	 * @description All survey modification go through here
+	 * @assign Chase and Grant
+	 * @todo
+	 *  + Get the survey settings from the config
+	 *  + This survey is now the selected survey
+	 *  + if register a survey
+	 *   + Create a new CSv object
+	 *   + Read file
+	 *   + Change webpages
+	 *   + Start to modify a new survey
+	 *  + if delete a survey
+	 *   + Remove the survey from the config
+	 *  + if copy a survey
+	 *   + Copy the survey and increment its id 
+	 *  + if modify a survey
+	 *   + Change to modify a survey webpage  
+	 *  + Error handling
 	 */
 	$scope.surveyModifications = function(type, id){
 		surveyId = id;
@@ -350,10 +450,13 @@ app.controller('adminCtrl', ["$scope", function($scope){
 		}
 	}
 	/**
-	 * Updates a surveys data comlumns
-	 * @param  {String} id Id of the survey to be modified
-	 * @function
-	 * @memberOf angular
+	 * @name modifySurvey
+	 * @description Updates a surveys data comlumns
+	 * @assign Chase
+	 * @todo
+	 *  + Get the survey to be modified
+	 *  + Set the selectedSurvey
+	 *  + Set the questions
 	 */
 	$scope.modifySurvey = function(id){
 		var survey = null;
@@ -368,31 +471,27 @@ app.controller('adminCtrl', ["$scope", function($scope){
 		$scope.questions = survey.questions;
 	}
 	/**
-	 * Submits a newly created survey and saves it to the config file
-	 * @param  {String} name      Name of the survey
-	 * @param  {String} week      When the survey was taken
-	 * @param  {String} placement Who the survey is for
-	 * @param  {String} e         Email column
-	 * @param  {String} t         Type column
-	 * @param  {String} w         Week column
-	 * @function
-	 * @memberOf angular
+	 * @name  submitSurvey
+	 * @description Submits a newly created survey and saves it to the config file
+	 * @assign Chase
+	 * @todo 
+	 *  + Assign the questions to the selected survey's questions
+	 *  + Save the selected survey
+	 *  + Change the view to the home page
 	 */
 	$scope.submitSurvey = function(){
 		$scope.selectedSurvey.questions = $scope.questions;
-		if ($scope.file == null){
-			$scope.selectedSurvey.save();
-		}
-		else{
-			$scope.selectedSurvey.save();
-		}
-
+		$scope.selectedSurvey.save();
 		$scope.mode = 'home';
 	}
 	/**
-	 * Add a question to a survey
-	 * @function
-	 * @memberOf angular
+	 * @name addBlankQuestion
+	 * @description Add a question to a survey
+	 * @assign Chase
+	 * @todo
+	 *  + Show the add question dialog
+	 *  + Create a new question with the id incremented
+	 *  + Assign the new question to the selected question
 	 */
 	$scope.addBlankQuestion = function(){
 		$scope.showDialog = true;
@@ -403,61 +502,83 @@ app.controller('adminCtrl', ["$scope", function($scope){
 		$scope.selectedQuestion = q;
 	}
 	/**
-	 * Add aquestion to a survey
-	 * @param {String} row   Data row in CSV file
-	 * @param {String} text  Question text
-	 * @param {String} what  What to change in text
-	 * @param {String} awith Change the text with this
-	 * @function
-	 * @memberOf angular
+	 * @name  addQuestion
+	 * @description Add aquestion to a survey
+	 * @assign Chase
+	 * @todo 
+	 *  + Remove question dialog 
+	 *  + Assign the selected question to the selected survey
 	 */
 	$scope.addQuestion = function(){
 		$scope.showDialog = false;
 		$scope.selectedSurvey.addQuestion($scope.selectedQuestion);
 	}
 	/**
-	 * Edit the question
-	 * @param  {Object} q Data to change
-	 * @function
-	 * @memberOf angular
+	 * @name  editQuestion
+	 * @description Edit the question
+	 * @assign Chase
+	 * @todo 
+	 *  + Assign the question as the selected question
+	 *  + Show the edit question dialog
 	 */
 	$scope.editQuestion = function(q){
 		$scope.selectedQuestion = q;
 		$scope.showDialog = true;
 	}
-
+	/**
+	 * @name columnNumberToLetter
+	 * @description Convert a number to a letter(excel column)
+	 * @assign Chase
+	 * @todo
+	 *  + Call the column number to letter function in config
+	 *  + return value
+	 */
 	$scope.columnNumberToLetter = function(col){
 		return Config.columnNumberToLetter(col);	
 	}
-
+	/**
+	 * @name columnLetterToNumber
+	 * @description Convert a letter(excel column) to a number 
+	 * @assign Chase
+	 * @todo
+	 *  + Call the column letter to number function in config
+	 *  + return value
+	 */
 	$scope.columnLetterToNumber = function(col){
 		return Config.columnLetterToNumber(col);
 	}
 	/**
-	 * Remove a question
-	 * @param  {Object} q Question to be removed
-	 * @function
-	 * @memberOf angular
+	 * @name removeQuestion
+	 * @description Remove a question
+	 * @assign Chase
+	 * @todo 
+	 *  + Remove the question from questions
 	 */
 	$scope.removeQuestion = function(q){
 		$scope.questions.splice($scope.questions.indexOf(q), 1);
 	}
 	/**
-	 * Close the dialog
-	 * @function
-	 * @memberOf angular
+	 * @name closeDialog
+	 * @description Close the dialog
+	 * @assign Chase
+	 * @todo 
+	 *  + Change showDialog to false 
 	 */
 	$scope.closeDialog = function(){
 		$scope.showDialog = false;
 	}
 	/**
-	 * Column Letter will always be upper case
-	 * @param  {Event} e Event
-	 * @function
-	 * @memberOf angular
+	 * @name upper
+	 * @description Column Letter will always be upper case
+	 * @assign Chase
+	 * @todo 
+	 *  + Convert the string to uppercase
+	 *  + Return string
 	 */
 	$scope.upper = function(e){
 		return $(e.target).val().toUpperCase();
 	}
-	// GROUP - SURVEY SETUP END
+	/**
+	 * @end
+	 */
 }]);
