@@ -1,7 +1,8 @@
-// GROUP SEMESTER SETUP
+/**
+ * @start Semester Setup
+ */
 /**
  * Semester Setup Object
- * @param {Array} csv Contains the rows from the csv file
  */
 function SemesterSetup(csv){
 	this._csv = csv;
@@ -12,7 +13,14 @@ function SemesterSetup(csv){
 	this._individualFiles = null;
 	this._sem = null; 
 }
-
+/**
+ * @name isGreater 
+ * @description determines which of the two roles is greater
+ * @assign Grant
+ * @todo 
+ *  + Compare the first role with im, aim, tgl, ocrm, ocr, and instructor
+ *  + Return a bool  
+ */
 function isGreater(role1, role2){
 	if (role1 == 'im'){
 		return true;
@@ -45,9 +53,15 @@ function isGreater(role1, role2){
 			return false;
 	}
 }
-
 /**
- * PERFORMS A COMPLETE SEMESTER SETUP
+ * @name semestersetup
+ * @description Performs a complete semester setup
+ * @assign Grant
+ * @todo 
+ *  + Call function to create org
+ *  + Call function to create master
+ *  + Call function to create individual files
+ *  + Call function to create rollup
  */
 SemesterSetup.prototype.semesterSetup = function(){
 	this._createOrg();
@@ -55,14 +69,42 @@ SemesterSetup.prototype.semesterSetup = function(){
 	this._createIndividualFiles();
 	this._createRollup();
 }
-
+/**
+ * @name formalize 
+ * @description capitalizes the first letter and lowercases the rest
+ * @assign Grant
+ * @todo 
+ *  + Make sure the string is not undefined, null, or empty
+ *  + Return the string where the first letter is capitalized and the rest are lowercased
+ */
 String.prototype.formalize = function(){
 	if (this == undefined || this == null || this.length == 0) return;
 	return this.charAt(0).toUpperCase() + this.slice(1).toLowerCase();
 }
 
 /**
- * CREATES A NEW ORG FROM THE CSV
+ * @name _createOrg
+ * @description Creates a new org from the csv
+ * @assign Grant
+ * @todo 
+ *  + Get the new semester code
+ *  + Go through each row of OSM report
+ *   + Create instructor object
+ *    + Add course
+ *   + Create tgl object
+ *    + Add stewardship: instructor object
+ *    + Add leadership: aim object
+ *   + Create aim object
+ *    + Add stewardship: tgl object
+ *    + Add leadership: im object
+ *   + Create im object
+ *    + Add stewardship: aim object
+ *   + Create ocr object
+ *    + Add stewardship: instructor object
+ *    + Add leadership: ocrm object
+ *   + create ocrm object 
+ *    + Add stewardship: ocr object
+ *  + Add aim, im, and ocrm full stewardship
  */
 SemesterSetup.prototype._createOrg = function(){
 	this._org['semester'] = {
@@ -418,7 +460,14 @@ SemesterSetup.prototype._createOrg = function(){
 		}
 	}
 }
-
+/**
+ * @name addStewardship 
+ * @description
+ * @assign Grant
+ * @todo 
+ *  + Loop through each person in org
+ *   + Add stewardship to the person
+ */
 SemesterSetup.prototype.addStewardship = function(email, role){
 	for (var i = 0; i < this._org.semester.person.length; i++){
 		if (this._org.semester.person[i].email == email){
@@ -430,7 +479,14 @@ SemesterSetup.prototype.addStewardship = function(email, role){
 		}
 	}
 }
-
+/**
+ * @name addToOrg 
+ * @description
+ * @assign Grant
+ * @todo
+ *  + Check if the person is already in org
+ *   + If in org already check role, course, and section
+ */
 SemesterSetup.prototype.addToOrg = function(person){
 	if (this._org.semester.person.length == 0){
 		this._org.semester.person.push(person);
@@ -514,61 +570,62 @@ SemesterSetup.prototype.addToOrg = function(person){
 		this._org.semester.person.push(person);
 	}
 }
-
 /**
- * CREATES A NEW SEMESTER ROLLUP SECTION IN THE ROLLUP FILE
- * @return {[type]} [description]
+ * @name _createRollup
+ * @description Creates a new semester rollup section in the rollup file
+ * @assign Grant
  */
 SemesterSetup.prototype._createRollup = function(){
 	console.log('rollup is being created');
 }
-
 /**
- * CREATES A NEW SEMESTER MASTER SECTION IN THE MASTER FILE
- * @return {[type]} [description]
+ * @name _createMaster
+ * @description Creates a new semester master section in the master file
+ * @assign Grant
  */
 SemesterSetup.prototype._createMaster = function(){
 	console.log('master is being created');
 }
-
 /**
- * CREATES A NEW SEMESTER SECTIONS IN ALL OF THE PEOPLES FILES FROM THE MAP FILE
- * @return {[type]} [description]
+ * @name _createIndividualFiles
+ * @description Creates a new semester sections in all of the peoples files from the map file
+ * @assign Grant
  */
 SemesterSetup.prototype._createIndividualFiles = function(){
 	console.log('individual files are being created');
 }
-
 /**
- * CHECKS IF THE MAP HAS CHANGED
- * @return {Boolean} [description]
+ * @name _isDifferent
+ * @description Checks if the map has changed
+ * @assign Grant
  */
 SemesterSetup.prototype._isDifferent = function(){
 	console.log('are the semesters already the same');
 }
-
 /**
- * CHECKS FOR ROLLUP CHANGES AND CHANGES TO BE THE MOST CURRENT
- * @return {[type]} [description]
+ * @name _updateRollup
+ * @description Checks for rollup changes and changes to be the most current
+ * @assign Grant
  */
 SemesterSetup.prototype._updateRollup = function(){
 console.log('rollup is being updated');
 }
-
 /**
- * CHECKS FOR MASTER CHANGES AND CHANGES TO BE THE MOST CURRENT
- * @return {[type]} [description]
+ * @name _updateMaster
+ * @description Checks for master changes and changes to be the most current
+ * @assign Grant
  */
 SemesterSetup.prototype._updateMaster = function(){
 	console.log('master is being updated');
 }
-
 /**
- * CHECKS FOR INDIVIDUAL FILE CHANGES AND CHANGES TO BE THE MOST CURRENT
- * @return {[type]} [description]
+ * @name _updateIndividualFiles
+ * @description Checks for individual file changes and changes to be the most current
+ * @assign Grant
  */
 SemesterSetup.prototype._updateIndividualFiles = function(){
 	console.log('individual files are being updated');
 }
-// GROUP SEMESTER SETUP END
-//
+/**
+ * @end
+ */

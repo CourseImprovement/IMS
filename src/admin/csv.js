@@ -1,26 +1,35 @@
 
 
 
-// GROUP CSV
 /**
- * CSV Object
+ * @start CSV
+ */
+/**
+ * @name  CSV
+ * @description CSV Object
  */
 function CSV(){
 	console.log('new CSV object created');
 	this._data = null;
 }
-
 /**
- * GET THE CSV'S DATA IN ARRAY FORM
+ * @name getData
+ * @description Get the CSV's data in array form
+ * @assign Grant
+ * @todo 
+ *  - Return the data
  */
 CSV.prototype.getData = function(){
 	console.log('return CSV data');
 }
-
 /**
- * READ THE CSV INTO _DATA
- * @param  {Object}   file     Contains the selected file
- * @param  {Function} callback callbacks the csv data
+ * @name readFile
+ * @description Read the CSV into _data
+ * @assign Grant
+ * @todo
+ *  + Create a new fileReader
+ *  + Convert the file into an object
+ *  + Callback the csv object
  */
 CSV.prototype.readFile = function(file, callback){
 	console.log('retrieving data form csv');
@@ -34,12 +43,17 @@ CSV.prototype.readFile = function(file, callback){
 	}
 	reader.readAsText(file, 'utf8');
 }
-
 /**
- * DOWNLOAD A STRING AS A CSV
- * @param  {String} csvString CSV in string form
+ * @name downloadCSV
+ * @description Download a string as a CSV
+ * @assign Grant
+ * @todo
+ *  - Check that the proper characters have been encoded
+ *  - Save the file
  */
 CSV.downloadCSV = function(csvString){
 	console.log('CSV downloaded')
 }
-// GROUP CSV END
+/**
+ * @end
+ */

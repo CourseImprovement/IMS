@@ -84,7 +84,7 @@ Evaluations.prototype.cleanseString = function(str){
  *    + logic for value
  *    + logic for percentage
  *   + add response data for evaluatee
- *  - error handling
+ *  + error handling
  */
 Evaluations.prototype.setAnswers = function(evaluatee, row, locations){
 	if (this.people[evaluatee] == undefined){
@@ -124,7 +124,7 @@ Evaluations.prototype.setAnswers = function(evaluatee, row, locations){
  *    + check if the logic type is percentage (p)
  *    + perform percentage math
  *    + replace answer with new percentage 
- *  - error handling
+ *  + error handling
  */
 Evaluations.prototype.calculatePercentages = function(){
 	for (var person in this.people){
@@ -148,7 +148,7 @@ Evaluations.prototype.calculatePercentages = function(){
  *    + add answer to string
  *    + encode all spaces, commas, new lines, and slashes
  *  + download string as csv
- *  - error handling
+ *  + error handling
  */
 Evaluations.prototype.sendToCSV = function(){
 	var csv = "email,";

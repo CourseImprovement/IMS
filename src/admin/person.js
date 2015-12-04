@@ -1,11 +1,12 @@
 
 
 
-// GROUP PERSON
 /**
- * Person Object
- * @param {[type]}  obj   obj containing a persons data
- * @param {Boolean} isXml Is the obj param actually xml
+ * @start Person
+ */
+/**
+ * @name Person
+ * @description Person Object
  */
 function Person(obj, isXml, downloadXml){
 	if (isXml){
@@ -37,7 +38,15 @@ function Person(obj, isXml, downloadXml){
 	}
 	this._valid = true;
 }
-
+/**
+ * @name cleanEmail 
+ * @description Remove the '@' symbol and everything after
+ * @assign Chase
+ * @todo 
+ *  + Check that the email is not undefined
+ *  + Search for the '@' character
+ *  + Remove everything from the '@' to the end
+ */
 Person.cleanEmail = function(email){
 	if (!email) throw 'Invalid Email';
 	if (email.indexOf('@') > -1){
@@ -45,7 +54,13 @@ Person.cleanEmail = function(email){
 	}
 	return email;
 }
-
+/**
+ * @name cleanEmailInternal 
+ * @description Clean the person object's email
+ * @assign Chase
+ * @todo
+ *  + Try to clean a person's email
+ */
 Person.prototype.cleanEmailInternal = function(){
 	try{
 		this._email = Person.cleanEmail(this._email);
@@ -54,35 +69,49 @@ Person.prototype.cleanEmailInternal = function(){
 		this._valid = false;
 	}
 }
-
 /**
- * Save this person's xml to their sharepoint file
+ * @name save
+ * @description Save this person's xml to their sharepoint file
+ * @assign Chase
+ * @todo 
+ *  + Post the person's xml file
  */
 Person.prototype.save = function(){
 	if ($(this._xml)[0] && this._email){
 		Sharepoint.postFile($(this._xml)[0], 'master/', this._email + '.xml', function(){});
 	}
 }
-
 /**
- * Checks to see if the person object is valid
- * @return {Boolean} Is the person's information valid
+ * @name isValid
+ * @description Checks to see if the person object is valid
+ * @assign Chase
+ * @todo
+ *  + Return if the email, row, placement, and answers and not undefined
  */
 Person.prototype.isValid = function(){
 	return !!(this._email && this._row && this._placement && this._answers.length > 0) && this._valid;
 }
-
 /**
- * [getXml description]
+ * @name getXml 
+ * @description Get the person's xml from sharepoint
+ * @assign Chase
+ * @todo 
+ *  + If the person's xml has not been retrieved yet, get it.
  */
 Person.prototype.getXml = function(){
 	if (!this._xml){
 		this._xml = ims.sharepoint.getXmlByEmail(this._email);
 	}
 }
-
 /**
- * Retrieves a person's leader
+ * @name getLeader
+ * @description Retrieves a person's leader
+ * @assign Chase
+ * @todo
+ *  + Get the email of the person's leader
+ *  + Get the person from config
+ *  + Create a new person
+ *  + Add the person to the leader of person
  */
 Person.prototype.getLeader = function(){
 	var email = $(this._xml).find('semester[code=' + window.config.getCurrentSemester() + '] > people > person > roles > role[type=' + this._placement + '] > leadership > people > person[type=' + Config.getLeader(this._placement) + ']').attr('email');
@@ -101,9 +130,14 @@ Person.prototype.getLeader = function(){
 	}
 	this._leader = person;
 }
-
 /**
- * Process a person's survey data
+ * @name process
+ * @description Process a person's survey data
+ * @assign Chase
+ * @todo 
+ *  + Get the person's xml
+ *  + Get the person's leaders
+ *  + Add data to xml in the: master, leaders, person's files
  */
 Person.prototype.process = function(){
 	this.getXml();
@@ -126,11 +160,14 @@ Person.prototype.process = function(){
 	$(this._leader._xml).find('semester[code=' + window.config.getCurrentSemester() + '] > people > person > roles > role[type=' + this._leader._placement + '] > stewardship > people > person[email=' + this._email + '] surveys').append(xml.clone());
 	$(this._xml).find('semester[code=' + window.config.getCurrentSemester() + '] > people > person > roles > role[type=' + this._placement + '] > surveys').append(xml.clone());
 }
-
 /**
- * End of semester fix: remove if statement
- * @param  {String} name Name of the course the survey was taken for
- * @return {String}      The id of 'name'
+ * @name getCourseIdByName
+ * @description End of semester fix: remove if statement
+ * @assign Chase
+ * @todo 
+ *  + Check if course is pathway
+ *  + Find the course in the person's xml
+ *  + return the id
  */
 Person.prototype.getCourseIdByName = function(name){
 	if (name.indexOf('PATH') > -1){
@@ -138,10 +175,16 @@ Person.prototype.getCourseIdByName = function(name){
 	}
 	return $(this._xml).find('semester[code=' + window.config.getCurrentSemester() + '] > people > person > courses course:contains(' + name + ')').attr('id');
 }
-
 /**
- * Puts all the survey components into xml form 
- * @return {Object} Survey in xml form
+ * @name toXml
+ * @description Puts all the survey components into xml form 
+ * @assign Chase
+ * @todo 
+ *  + Create the base survey xml
+ *  + Add the id
+ *  + Add course id if there is one
+ *  + Add the answers
+ *  + return the xml
  */
 Person.prototype.toXml = function(){
 	var xml = $('<survey reviewed="false"></survey>');
@@ -156,4 +199,6 @@ Person.prototype.toXml = function(){
 	}
 	return xml;
 }
-// GROUP PERSON END
+/**
+ * @end
+ */

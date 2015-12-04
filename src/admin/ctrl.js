@@ -2,7 +2,7 @@
 
 
 /**
- * angular
+ * @start angular
  */
 var app = angular.module('admin', []);
 app.controller('adminCtrl', ["$scope", function($scope){
@@ -582,3 +582,6 @@ app.controller('adminCtrl', ["$scope", function($scope){
 	 * @end
 	 */
 }]);
+/**
+ * @end
+ */

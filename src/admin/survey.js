@@ -1,11 +1,12 @@
 
 
 
-// GROUP SURVEY
 /**
- * Survey Object
- * @param {Object}  survey A surveys information
- * @param {Boolean} isXml  Is the survey in xml form
+ * @start SURVEY
+ */
+/**
+ * @name Survey
+ * @description Survey Object
  */
 function Survey(survey, isXml){
 	if (isXml){
@@ -41,11 +42,13 @@ function Survey(survey, isXml){
 	}
 	this.processed = 0;
 }
-
 /**
- * [getPerson description]
- * @param  {String} email A person's email
- * @return {Object}       Person with the email of 'email'
+ * @name getPerson 
+ * @description
+ * @assign Chase
+ * @todo 
+ *  + Try the email to be sure its someones
+ *  + Go through all the people and and return the one based on their email
  */
 Survey.prototype.getPerson = function(email){
 	try{
@@ -60,10 +63,12 @@ Survey.prototype.getPerson = function(email){
 	}
 	return false;
 }
-
 /**
- * Set the questions questions by passing in the question node from
- * the XML
+ * @name _setXmlQuestions
+ * @description Set the questions questions by passing in the question node from the XML
+ * @assign Chase
+ * @todo 
+ *  + Go through each question in xml and add to the survey questions
  */
 Survey.prototype._setXmlQuestions = function(){
 	var _this = this;
@@ -71,14 +76,25 @@ Survey.prototype._setXmlQuestions = function(){
 		_this.questions.push(new Question(this, true));
 	})
 }
-
+/**
+ * @name getName 
+ * @description
+ * @assign Chase
+ * @todo 
+ *  + Return the name of the survey
+ */
 Survey.prototype.getName = function(){
 	return this.name + ': Week ' + this.week;
 }
-
 /**
- * Use the objects member variables to create the survey node
- * @return {Object} Survey in xml form
+ * @name toXml
+ * @description Use the objects member variables to create the survey node
+ * @assign Chase
+ * @todo 
+ *  + Create the base survey xml
+ *  + Add the id, placement, type, name, email
+ *  + Add week and course if necessary
+ *  + Return the xml survey
  */
 Survey.prototype.toXml = function(){
 	var survey = $('<survey><questions></questions></survey>');
@@ -97,10 +113,16 @@ Survey.prototype.toXml = function(){
 
 	return survey;
 }
-
 /**
- * Create the xml from the given objects. Remove the survey from the
- * config file. Add the newly created xml to the config file. 
+ * @name save
+ * @description Create the xml from the given objects. Remove the survey from the config file. Add the newly created xml to the config file.
+ * @assign Chase 
+ * @todo
+ *  + Convert the current survey to xml
+ *  + Convert the questions to xml
+ *  + Add questions to survey
+ *  + Add survey to Config
+ *  + Post config
  */
 Survey.prototype.save = function(){
 	var survey = this.toXml();
@@ -126,20 +148,25 @@ Survey.prototype.save = function(){
 		window.location.reload();
 	});
 }
-
 /**
- * Remove the survey from the xml of the config
+ * @name remove
+ * @description Remove the survey from the xml of the config
+ * @assign Chase
+ * @todo 
+ *  + Remove the survey from the xml
+ *  + Set the xml to null
  */
 Survey.prototype.remove = function(){
 	$(this._xml).remove();
 	this._xml = null;
 }
-
 /**
- * Modifiy a certain aspect of object, if save is necessary, its there.
- * @param  {String} prop   [description]
- * @param  {String} value  [description]
- * @param  {Boolean} save  [description]
+ * @name modify
+ * @description Modifiy a certain aspect of object, if save is necessary, its there.
+ * @assign Chase
+ * @todo 
+ *  + Check that the value is not undefined
+ *  + If the current property does not equal the value, reset the value with the new one
  */
 Survey.prototype.modify = function(prop, value){
 	if (value == undefined) return;
@@ -148,10 +175,15 @@ Survey.prototype.modify = function(prop, value){
 		this[prop] = value;
 	}
 }
-
 /**
- * Clone and rename survey to append (Copy) and increment the id
- * @return {Object} New survey object
+ * @name copy
+ * @description Clone and rename survey to append (Copy) and increment the id
+ * @assign Chase
+ * @todo
+ *  + Copy the survey
+ *  + Include copy in the name
+ *  + Change the id to the highest id plus 1
+ *  + Return new survey
  */
 Survey.prototype.copy = function(){
 	var cloned = $(this._xml).clone();
@@ -159,10 +191,12 @@ Survey.prototype.copy = function(){
 	$(cloned).attr('id', window.config.getHighestSurveyId() + 1);
 	return new Survey(cloned, true);
 }
-
 /**
- * Collects the questions, people, and the peoples answers
- * @param  {Array]} rows Rows from the csv
+ * @name process
+ * @description Collects the questions, people, and the peoples answers
+ * @assign Chase
+ * @todo 
+ *  + Go through each row and add people
  */
 Survey.prototype.process = function(rows){
 	// go through each row and add people
@@ -180,7 +214,13 @@ Survey.prototype.process = function(rows){
 	}
 	var i = spot;
 	var _this = this;
-
+	/**
+	 * @name processItems 
+	 * @description process all the survey data collected
+	 * @assign Chase
+	 * @todo 
+	 *  + Clean answers and then add them to their respective individual
+	 */
 	function processItems(){
 		if (i >= rows.length){
 			window.rollup = new Rollup();
@@ -261,7 +301,15 @@ Survey.prototype.process = function(rows){
 
 	processItems();
 }
-
+/**
+ * @name cleanCourse 
+ * @description
+ * @assign Chase
+ * @todo
+ *  + Check if the string matches the course name form
+ *   + If so, split and rejoin to ensure the proper spacing
+ *  + Return trimmed string 
+ */
 Survey.cleanCourse = function(str){
 	var found = str.match(/([a-zA-Z]{1,}[0-9]{3})/g);
 	if (found && found.length > 0){
@@ -269,11 +317,15 @@ Survey.cleanCourse = function(str){
 	}
 	return str.trim().toUpperCase();
 }
-
 /**
- * Get the question by Id
- * @param  {Integer} id The id of a question within the survey
- * @return {Object}     A question with id of 'id'
+ * @name getQuestionById
+ * @description Get the question by Id
+ * @assign Chase
+ * @todo
+ *  + Go through each question
+ *   + Check if the id matches the question id passed in 
+ *    + return question
+ *  + Not found, return false
  */
 Survey.prototype.getQuestionById = function(id){
 	for (var i = 0; i < this.questions.length; i++){
@@ -281,11 +333,14 @@ Survey.prototype.getQuestionById = function(id){
 	}
 	return false;
 }
-
 /**
- * If the survey has the attributes of the parameter object
- * @param  {Object}  obj Survey information
- * @return {Boolean}     Has the same attributes
+ * @name hasAttrs
+ * @description If the survey has the attributes of the parameter object
+ * @assign Chase
+ * @todo 
+ *  + Get the passed in objects keys
+ *  + Go through and check if the keys are the same as surveys attributes
+ *  + Return a bool
  */
 Survey.prototype.hasAttrs = function(obj){
 	var keys = Object.keys(obj);
@@ -294,13 +349,22 @@ Survey.prototype.hasAttrs = function(obj){
 	}
 	return true;
 }
-
+/**
+ * @name updateQuestions 
+ * @description
+ * @assign Chase
+ * @todo
+ *  + Go through each question
+ *   + As you go through the passed in questions check if they are the same
+ *    + Assign the id of the old to the new
+ *  + Re-id all the questions that dont have an id
+ *  + Add these questions to the survey object
+ */
 Survey.prototype.updateQuestions = function(qs){
 	for (var j = 0; j < this.questions.length; j++){
 		for (var i = 0; i < qs.length; i++){
 			if (Question.areSame(qs[i], this.questions[j])){
 				qs[i]['id'] = this.questions[j].id;
-				theSame = true
 			}
 		}	
 	}
@@ -312,7 +376,15 @@ Survey.prototype.updateQuestions = function(qs){
 		this.questions.push(new Question(questions[i], false));
 	}
 }
-
+/**
+ * @name idQuestions 
+ * @description
+ * @assign Chase
+ * @todo 
+ *  + Go through each question and keep track of the ids
+ *  + Add question ids for questions without id
+ *  + Return the list of questions
+ */
 Survey.prototype.idQuestions = function(questions){
 	var topId = 0;
 	for (var i = 0; i < questions.length; i++){
@@ -329,7 +401,15 @@ Survey.prototype.idQuestions = function(questions){
 
 	return questions;
 }
-
+/**
+ * @name getWeekNumber 
+ * @description
+ * @assign Chase
+ * @todo 
+ *  + All names have a colon, check the indexof ':'
+ *  + It should be a number unless it is intro
+ *  + Return intro or the number
+ */
 Survey.prototype.getWeekNumber = function(){
 	if (this.name.indexOf(':') > -1){
 		if (this.name.indexOf('Intro') > -1){
@@ -342,7 +422,14 @@ Survey.prototype.getWeekNumber = function(){
 	}	
 	return null;
 }
-
+/**
+ * @name addQuestion 
+ * @description
+ * @assign Chase
+ * @todo 
+ *  + Make sure that the question is not already in the survey
+ *  + If the question is not in the survey, add it
+ */
 Survey.prototype.addQuestion = function(q){
 	var found = false;
 	for (var i = 0; i < this.questions.length; i++){
@@ -355,7 +442,14 @@ Survey.prototype.addQuestion = function(q){
 		this.questions.push(q);
 	}
 }
-
+/**
+ * @name getHighestQuestionId 
+ * @description Get the highest question id in the survey
+ * @assign Chase
+ * @todo 
+ *  + Go through each question and retain the highest id
+ *  + Return the highest id
+ */
 Survey.prototype.getHighestQuestionId = function(){
 	var id = 0;
 	$(this.questions).each(function(){
@@ -365,4 +459,6 @@ Survey.prototype.getHighestQuestionId = function(){
 	});
 	return parseInt(id);
 }
-// GROUP SURVEY END
+/**
+ * @end
+ */

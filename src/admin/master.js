@@ -1,15 +1,23 @@
 /**
- * Get the master file
- * @param {Boolean} isMap [description]
+ * @start master
+ */
+/**
+ * @name Master
+ * @description Get the master file
  */
 function Master(isMap){
 	this._xml = ims.sharepoint.getXmlByEmail('master');
 	this.init();
 }
-
 /**
- * Initialize the master file by creating all of the people and organization
- * @return {[type]} [description]
+ * @name init
+ * @description Initialize the master file by creating all of the people and organization
+ * @assign Chase
+ * @todo 
+ *  + Get the current semester
+ *  + Get each person
+ *   + Add them to the graph
+ *  + Add the persons uppers and lowers
  */
 Master.prototype.init = function(){
 	var sem = window.config.getCurrentSemester();
@@ -25,11 +33,9 @@ Master.prototype.init = function(){
 		this.people[i].addUpperAndLowers();
 	}
 }
-
 /**
- * Master person, person was too polluted
- * @param {[type]} xml    [description]
- * @param {[type]} master [description]
+ * @name masterPerson
+ * @description Master person, person was too polluted
  */
 function MasterPerson(xml, master){
 	this.email = $(xml).attr('email');
@@ -48,9 +54,14 @@ function MasterPerson(xml, master){
 	this.lowers = []; // unorganized
 	this.master = master;
 }
-
 /**
- * Provide the uppers and the lowers
+ * @name addUpperAndLowers
+ * @description Provide the uppers and the lowers
+ * @assign Chase
+ * @todo
+ *  + Go through each person in the master
+ *   + Get their stewardship and add to graph
+ *   + Get their leadership and add to graph
  */
 MasterPerson.prototype.addUpperAndLowers = function(){
 	var _this = this;
@@ -70,3 +81,6 @@ MasterPerson.prototype.addUpperAndLowers = function(){
 		});
 	});
 }
+/**
+ * @end
+ */

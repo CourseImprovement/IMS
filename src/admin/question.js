@@ -1,11 +1,11 @@
 
 
 
-// GROUP QUESTION
+/**
+ * @start Question
+ */
 /**
  * Question Object
- * @param {Object}  question Information for a question
- * @param {Boolean} isXml    Is the question param xml
  */
 function Question(question, isXml){
 	if (isXml){
@@ -25,7 +25,14 @@ function Question(question, isXml){
 		this._xml = this.toXml();
 	}
 }
-
+/**
+ * @name areSame 
+ * @description Checks to see if the two questions passed in are the same
+ * @assign Chase
+ * @todo 
+ *  + Are the texts, cols, replacewiths, and replacewhats the same
+ *  + return a bool
+ */
 Question.areSame = function(newQ, oldQ){
 	if (newQ.text != oldQ.text || 
 		newQ.col != oldQ.col ||
@@ -37,25 +44,30 @@ Question.areSame = function(newQ, oldQ){
 		return true;
 	}
 }
-
 /**
- * Modify a variable in the object. This does not, however, 
- * save the object, that can only be done at the survey level.
- * @param  {[type]} prop [description]
- * @param  {[type]} val  [description]
- * @return {[type]}      [description]
+ * @name modify
+ * @description Modify a variable in the object. This does not, however, save the object, that can only be done at the survey level.
+ * @assign Chase
+ * @todo 
+ *  + Assign a new property and value to the question object
  */
 Question.prototype.modify = function(prop, val){
 	this[prop] = val;
 }
-
 /**
- * Create the question XML node and append the other nodes
- * <question id name>
- * 	<text></text>
- * 	<replace with what/>
- * </question>
- * @return {Object} Question in xml form
+ * @name toXml
+ * @description Create the question XML node and append the other nodes
+ *              <question id name>
+ * 	             <text></text>
+ * 	             <replace with what/>
+ *              </question>
+ * @assign Chase
+ * @todo 
+ *  + Create the base question xml
+ *  + Update the id
+ *  + Add the text to the question
+ *  + Add the replacewhats and the replacewiths
+ *  + Return the new xml
  */
 Question.prototype.toXml = function(){
 	var xml = $('<question></question>');
@@ -64,4 +76,6 @@ Question.prototype.toXml = function(){
 	$(xml).attr('replacewith', this.replaceWith).attr('replacewhat', this.replaceWhat);
 	return xml;
 }
-// GROUP QUESTION END
+/**
+ * @end
+ */

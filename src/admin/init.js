@@ -1,4 +1,6 @@
-//  GROUP IMS
+/**
+ * @start IMS
+ */
 /**
  * IMS Object
  */
@@ -11,44 +13,48 @@ ims.url.api = ims.url._base + '_api/';
 ims.url.site = ims.url._base; 
 /**
  * UI loading class
- * @type {Object}
- * @namespace ims.loading
- * @memberOf ims
  */
 ims.loading = {
 	/**
-	 * Set the percentage of loading bar
-	 * @param {integer} percent A number between 0 and 100
-	 * @function
-	 * @memberOf ims.loading
+	 * @name set
+	 * @description Set the percentage of loading bar
+	 * @assign Chase
+	 * @todo
+	 *  + Change the width of the progress bar
 	 */
 	set: function(percent){
 		$('.bar').css({width: percent + '%'});
 	},
 	/**
-	 * Resets the loading bar
-	 * @function
-	 * @memberOf ims.loading
+	 * @name reset
+	 * @description Resets the loading bar
+	 * @assign Chase
+	 * @todo
+	 *  + Change the width of the progress bar to 0
 	 */
 	reset: function(){
 		$('.bar').css({width: 0});
 	}
 }
-// GROUP IMS END
+/**
+ * @end
+ */
 
 
 
-// GROUP SHAREPOINT 
+/**
+ * @start Sharepoint
+ */
 /**
  * Sharepoint rest api calls
- * @type {Object}
  */
 var Sharepoint = {
 	/**
-	 * Retrieves file from sharepoint
-	 * @param  {String}   url      Location of the file in sharepoint
-	 * @param  {Function} callback Callback the file
-	 * @param  {Object}   err      Notifies of an error
+	 * @name getFile
+	 * @description Retrieves file from sharepoint
+	 * @assign Chase
+	 * @todo
+	 *  + Callback a file from sharepoint
 	 */
 	getFile: function(url, callback, err){
 		$.get(url, function(map){
@@ -58,12 +64,12 @@ var Sharepoint = {
 		})
 	},
 	/**
-	 * Posts a file to sharepoint
-	 * @param  {String}   str      The file in string form
-	 * @param  {String}   path     Destination of the file
-	 * @param  {String}   fileName Name of the file
-	 * @param  {Function} callback Successful or unsuccessful post
-	 */
+	 * @name postFile
+	 * @description Posts a file to sharepoint
+	 * @assign Chase
+	 * @todo 
+	 *  + Take a file and post it to sharepoint
+	 */ 
 	postFile: function(str, path, fileName, callback){
 		var buffer = (new XMLSerializer()).serializeToString(str);
 		$.ajax({
@@ -99,6 +105,14 @@ var Sharepoint = {
 	},
 	total: 0,
 	current: 0,
+	/**
+	 * @name query 
+	 * @description
+	 * @assign Chase
+	 * @todo 
+	 *  - add description
+	 *  - add todos
+	 */
 	query: function(txt){
 		$.ajax({
 		    url: ims.url.api + "contextinfo",
@@ -133,36 +147,26 @@ var Sharepoint = {
 		});
 	}
 }
-
 /**
  * Sharepoint items
- * @namespace ims.sharepoint
- * @memberOf ims
- * @type {Object}
  */
 ims.sharepoint = {
 	/**
 	 * The base url for the api calls
-	 * @type {String}
-	 * @memberOf ims.sharepoint
 	 */
 	base: '../',
 	/**
 	 * The relative base for the api calls
-	 * @type {String}
-	 * @memberOf ims.sharepoint
 	 */
 	relativeBase: window.location.pathname.split('Shared%20Documents/index.aspx')[0],
 	/**
-	 * Make a Sharepoint post request. This is most commly used when a file is being posted 
-	 * to the sharepoint server.
-	 * @param  {string}   hostUrl     base url of post request
-	 * @param  {string}   restCommand rest command
-	 * @param  {Object}   data        JSON object
-	 * @param  {Function} callback    callback function
-	 * @return {string}               In the callback, the first arg is a string
-	 * @memberOf ims.sharepoint
-	 * @function
+	 * @name makePostRequest
+	 * @description Make a Sharepoint post request. This is most commly used when a file is being posted to the sharepoint server.
+	 * @assign Chase
+	 * @todo 
+	 *  + Create new sharepoint request executer
+	 *  + Set the information for the call
+	 *  + Execute async
 	 */
 	makePostRequest: function(hostUrl, restCommand, data, callback) {
 	    var executor = new SP.RequestExecutor(hostUrl);
@@ -175,27 +179,32 @@ ims.sharepoint = {
 	    executor.executeAsync(info);
 	},
 	/**
-	 * Get the file items, used in permissions
-	 * @param  {[type]}   fileName [description]
-	 * @param  {Function} callback [description]
-	 * @return {[type]}            [description]
+	 * @name getFileItems
+	 * @description Get the file items, used in permissions
+	 * @assign Chase
+	 * @todo 
+	 *  + Get the items relative to a file
 	 */
 	getFileItems: function(fileName, callback){
 		var allItemFiles = ims.url._base + 	"_api/Web/GetFileByServerRelativeUrl('" + ims.url.relativeBase + "Instructor%20Reporting/Master/" + fileName + ".xml')/ListItemAllFields";
 		$.get(allItemFiles, callback);
 	},
 	/**
-	 * Get the site users, used in permissions
-	 * @param  {Function} callback [description]
-	 * @return {[type]}            [description]
+	 * @name getSiteUsers
+	 * @description Get the site users, used in permissions
+	 * @assign Chase
+	 * @todo 
+	 *  + Get all the site users
 	 */
 	getSiteUsers: function(callback){
 		$.get(ims.url._base + '_api/Web/siteUsers', callback);
 	},
 	/**
-	 * Get the role ids
-	 * @param  {Function} callback [description]
-	 * @return {[type]}            [description]
+	 * @name getRoles
+	 * @description Get the role ids
+	 * @assign Chase
+	 * @todo 
+	 *  + Return the current roles for people
 	 */
 	getRoles: function(callback){
 		$.get(ims.url._base + '_api/Web/roledefinitions', function(xml){
@@ -208,10 +217,12 @@ ims.sharepoint = {
 		});
 	},
 	/**
-	 * Posts the current user xml file.
-	 * @return {null} Nothing is returned
-	 * @function
-	 * @memberOf ims.sharepoint
+	 * @name postFile
+	 * @description Posts the current user xml file.
+	 * @assign Chase
+	 * @todo 
+	 *  + Stringify the doc
+	 *  + Post file to Sharepoint 
 	 */
 	postFile: function(u){
 		function str2ab(str) {
@@ -248,16 +259,14 @@ ims.sharepoint = {
 		});
 	},
 	/**
-	 * Get the semester configuration file. This file allows for us to see which semester is the current semester.
-	 *
-	 * <pre><code>
-	 *  var currentSemester = $(ims.sharepoint.getSemesterConfiguration()).find('[current=true]').attr('name');
-	 * </code></pre>
-	 *
-	 * 
-	 * @return {XMLDocument} Use JQuery to find the current semester
-	 * @function
-	 * @memberOf ims.sharepoint
+	 * @name getSemesterConfig
+	 * @description Get the semester configuration file. This file allows for us to see which semester is the current semester.
+	 *              <pre><code>
+	 *               var currentSemester = $(ims.sharepoint.getSemesterConfiguration()).find('[current=true]').attr('name');
+	 *              </code></pre>
+	 * @assign Chase
+	 * @todo 
+	 *  - possibly remove this function
 	 */
 	getSemesterConfig: function(){
 		var url = ims.sharepoint.base + 'Instructor%20Reporting/config/semesters.xml';
@@ -271,6 +280,16 @@ ims.sharepoint = {
 	    });
 	  	return doc;
 	},
+	/**
+	 * @name getPermissionsXml 
+	 * @description
+	 * @assign Chase
+	 * @todo
+	 *  - Add a description
+	 *  + Get the permissions file sharepoint url
+	 *  + Get the permissions file
+	 *  + Return the file
+	 */
 	getPermissionsXml: function(){
 		var url = ims.sharepoint.base + 'Instructor%20Reporting/config/permissions.xml';
 		var doc = null;
@@ -284,11 +303,13 @@ ims.sharepoint = {
 	  	return doc;
 	},	
 	/**
-	 * Get a XML file for a given user by email address.
-	 * @param  {string} email The first part of the users given email address
-	 * @return {XMLDocument}       Use JQuery to find the current users document
-	 * @function
-	 * @memberOf ims.sharepoint
+	 * @name getXmlByEmail
+	 * @description Get a XML file for a given user by email address.
+	 * @assign Chase
+	 * @todo 
+	 *  + Get the sharepoint url
+	 *  + Get the file
+	 *  + Return the file
 	 */
 	getXmlByEmail: function(email){
 		var url = ims.sharepoint.base + 'Instructor%20Reporting/Master/' + email + '.xml';
@@ -317,12 +338,18 @@ ims.sharepoint = {
 	  	return doc;
 	}
 };
-// GROUP SHAREPOINT END
+/**
+ * @end
+ */
 
 
 /**
- * Replace xml characters with encoded xml characters
- * @return {[type]} [description]
+ * @name encodeXML
+ * @description Replace xml characters with encoded xml characters
+ * @assign Chase
+ * @todo
+ *  + Check that the strin gis not undefined
+ *  + Return the newly encoded string
  */
 String.prototype.encodeXML = function(){
 	if (this == undefined) return "";
@@ -330,7 +357,13 @@ String.prototype.encodeXML = function(){
        		   .replace(/</g, '&lt;')
                .replace(/>/g, '&gt;');
 }
-
+/**
+ * @name sum 
+ * @description Adds all the values in an array
+ * @assign Chase
+ * @todo 
+ *  + Add all the values in the array
+ */
 Array.prototype.sum = function(){
 	if (this == undefined) return false;
 	var sum = 0;
@@ -341,17 +374,36 @@ Array.prototype.sum = function(){
 	}
 	return sum;
 }
-
+/**
+ * @name isInt 
+ * @description Checks if value is an integer 
+ * @assign Chase
+ * @todo 
+ *  + Check that the value is a number
+ *  + return a bool
+ */
 Number.isInt = function(n){
     return Number(n) === n && n % 1 === 0;
 }
-
+/**
+ * @name isFloat 
+ * @description Checks if the value is a float 
+ * @assign Chase
+ * @todo 
+ *  + Check that the value is a float
+ *  + return a bool
+ */
 Number.isFloat = function(n){
     return n === Number(n) && n % 1 !== 0;
 }
-
-
-
+/**
+ * @name changeAll 
+ * @description
+ * @assign Chase
+ * @todo 
+ *  - Add description
+ *  - Add todos
+ */
 function changeAll(){
 	var master = ims.sharepoint.getXmlByEmail('master');
 

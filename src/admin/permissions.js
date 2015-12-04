@@ -1,4 +1,6 @@
-// GROUP PERMISSIONS
+/**
+ * @start Permissions
+ */
 /**
  * Permissions Object
  * NOTE:
@@ -16,10 +18,10 @@ function Permissions(){
 	this.changes = [];
 	this.status = {inProgress: 0, completed: 0};
 }
-
 /**
- * Initalize and create all the necessary items to setup for permission
- * @return {[type]} [description]
+ * @name init
+ * @description Initalize and create all the necessary items to setup for permission
+ * @assign Chase
  */
 Permissions.prototype.init = function(){
 	this.graph = {};
@@ -39,13 +41,14 @@ Permissions.prototype.init = function(){
 		_this.roles = roles;
 	})
 }
-
-Permissions._xml = null;
-
 /**
- * Get the permissions xml file. If it was already pulled, it will grab the 
- * global version
- * @return {[type]} [description]
+ * The xml file for permissions
+ */
+Permissions._xml = null;
+/**
+ * @name getPermissionsXml
+ * @description Get the permissions xml file. If it was already pulled, it will grab the 
+ * @assign Chase
  */
 Permissions.prototype.getPermissionsXml = function(){
 	if (!Permissions._xml){
@@ -53,9 +56,10 @@ Permissions.prototype.getPermissionsXml = function(){
 	}
 	return Permissions._xml;
 }
-
 /**
- * CHECK IF THERE ARE ANY CHANGES TO DO
+ * @name check
+ * @description Check if there are any changes to do
+ * @assign Chase
  */
 Permissions.prototype.check = function(){
 	console.log('Checking if permissions need changing');
@@ -67,9 +71,10 @@ Permissions.prototype.check = function(){
 	this.changes = actions;
 	return actions.length > 0;
 }
-
 /**
- * UPDATE THE PERMISSIONS ON VARIOUS FILES
+ * @name update
+ * @description Update the permissions on various files
+ * @assign Chase
  */
 Permissions.prototype.update = function(){
 	console.log('updating the permissions');
@@ -79,7 +84,11 @@ Permissions.prototype.update = function(){
 		}
 	}
 }
-
+/**
+ * @name checkForCompletion 
+ * @description
+ * @assign Chase
+ */
 Permissions.prototype.checkForCompletion = function(){
 	var _this = this;
 	this.status.completed++;
@@ -98,12 +107,18 @@ Permissions.prototype.checkForCompletion = function(){
 		});
 	}
 }
-// GROUP PERMISSIONS END
-// GROUP PermissionsPerson
 /**
- * create a new permissions file person
- * @param {[type]} xml         [description]
- * @param {[type]} permissions [description]
+ * @end
+ */
+
+
+
+/**
+ * @start PermissionsPerson
+ */
+/**
+ * @name permissionPerson
+ * @description create a new permissions file person
  */
 function PermissionsPerson(xml, permissions){
 	this.email = $(xml).attr('email');
@@ -120,11 +135,10 @@ function PermissionsPerson(xml, permissions){
 		})
 	}
 }
-
 /**
- * Check the permsisions based on the current master file
- * @param  {Map} mapPerson [description]
- * @return {[type]}           [description]
+ * @name check
+ * @description Check the permsisions based on the current master file
+ * @assign Chase
  */
 PermissionsPerson.prototype.check = function(mapPerson){
 	if (!mapPerson) return null;
@@ -151,33 +165,35 @@ PermissionsPerson.prototype.check = function(mapPerson){
 	if (results.add.length > 0 || results.remove.length > 0) return results;
 	return null;
 }
-
 /**
- * Change the permissions from the objects collected during check
- * @return {[type]} [description]
+ * @name change
+ * @description Change the permissions from the objects collected during check
+ * @assign Chase
  */
 PermissionsPerson.prototype.change = function(){
 	if (this.results.add.length > 0) this.addUsers();
 	if (this.results.remove.length > 0) thos.removeUsers();
 }
-
 /**
- * Remove the users from the files, SharePoint API calls are made here
- * @return {[type]} [description]
+ * @name removeUsers
+ * @description Remove the users from the files, SharePoint API calls are made here
+ * @assign Chase
  */
 PermissionsPerson.prototype.removeUsers = function(){
 	this.api(this.results.remove, false);
 }
-
 /**
- * Add users to the files, SharePoint calls are used here
+ * @name addUsers
+ * @description Add users to the files, SharePoint calls are used here
+ * @assign Chase
  */
 PermissionsPerson.prototype.addUsers = function(){
 	this.api(this.results.add, true);
 }
-
 /** 
- * The API call for the permissions api
+ * @name api
+ * @description The API call for the permissions api
+ * @assign Chase
  */
 PermissionsPerson.prototype.api = function(ary, isAdd){
 	var err = [];
@@ -209,4 +225,6 @@ PermissionsPerson.prototype.api = function(ary, isAdd){
 		}
 	});
 }
-// GROUP PermissionsPerson END
+/**
+ * @end
+ */

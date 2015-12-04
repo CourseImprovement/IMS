@@ -1,4 +1,6 @@
-//  GROUP IMS
+/**
+ * @start IMS
+ */
 /**
  * IMS Object
  */
@@ -11,44 +13,48 @@ ims.url.api = ims.url._base + '_api/';
 ims.url.site = ims.url._base; 
 /**
  * UI loading class
- * @type {Object}
- * @namespace ims.loading
- * @memberOf ims
  */
 ims.loading = {
 	/**
-	 * Set the percentage of loading bar
-	 * @param {integer} percent A number between 0 and 100
-	 * @function
-	 * @memberOf ims.loading
+	 * @name set
+	 * @description Set the percentage of loading bar
+	 * @assign Chase
+	 * @todo
+	 *  + Change the width of the progress bar
 	 */
 	set: function(percent){
 		$('.bar').css({width: percent + '%'});
 	},
 	/**
-	 * Resets the loading bar
-	 * @function
-	 * @memberOf ims.loading
+	 * @name reset
+	 * @description Resets the loading bar
+	 * @assign Chase
+	 * @todo
+	 *  + Change the width of the progress bar to 0
 	 */
 	reset: function(){
 		$('.bar').css({width: 0});
 	}
 }
-// GROUP IMS END
+/**
+ * @end
+ */
 
 
 
-// GROUP SHAREPOINT 
+/**
+ * @start Sharepoint
+ */
 /**
  * Sharepoint rest api calls
- * @type {Object}
  */
 var Sharepoint = {
 	/**
-	 * Retrieves file from sharepoint
-	 * @param  {String}   url      Location of the file in sharepoint
-	 * @param  {Function} callback Callback the file
-	 * @param  {Object}   err      Notifies of an error
+	 * @name getFile
+	 * @description Retrieves file from sharepoint
+	 * @assign Chase
+	 * @todo
+	 *  + Callback a file from sharepoint
 	 */
 	getFile: function(url, callback, err){
 		$.get(url, function(map){
@@ -58,12 +64,12 @@ var Sharepoint = {
 		})
 	},
 	/**
-	 * Posts a file to sharepoint
-	 * @param  {String}   str      The file in string form
-	 * @param  {String}   path     Destination of the file
-	 * @param  {String}   fileName Name of the file
-	 * @param  {Function} callback Successful or unsuccessful post
-	 */
+	 * @name postFile
+	 * @description Posts a file to sharepoint
+	 * @assign Chase
+	 * @todo 
+	 *  + Take a file and post it to sharepoint
+	 */ 
 	postFile: function(str, path, fileName, callback){
 		var buffer = (new XMLSerializer()).serializeToString(str);
 		$.ajax({
@@ -99,6 +105,14 @@ var Sharepoint = {
 	},
 	total: 0,
 	current: 0,
+	/**
+	 * @name query 
+	 * @description
+	 * @assign Chase
+	 * @todo 
+	 *  - add description
+	 *  - add todos
+	 */
 	query: function(txt){
 		$.ajax({
 		    url: ims.url.api + "contextinfo",
@@ -133,36 +147,26 @@ var Sharepoint = {
 		});
 	}
 }
-
 /**
  * Sharepoint items
- * @namespace ims.sharepoint
- * @memberOf ims
- * @type {Object}
  */
 ims.sharepoint = {
 	/**
 	 * The base url for the api calls
-	 * @type {String}
-	 * @memberOf ims.sharepoint
 	 */
 	base: '../',
 	/**
 	 * The relative base for the api calls
-	 * @type {String}
-	 * @memberOf ims.sharepoint
 	 */
 	relativeBase: window.location.pathname.split('Shared%20Documents/index.aspx')[0],
 	/**
-	 * Make a Sharepoint post request. This is most commly used when a file is being posted 
-	 * to the sharepoint server.
-	 * @param  {string}   hostUrl     base url of post request
-	 * @param  {string}   restCommand rest command
-	 * @param  {Object}   data        JSON object
-	 * @param  {Function} callback    callback function
-	 * @return {string}               In the callback, the first arg is a string
-	 * @memberOf ims.sharepoint
-	 * @function
+	 * @name makePostRequest
+	 * @description Make a Sharepoint post request. This is most commly used when a file is being posted to the sharepoint server.
+	 * @assign Chase
+	 * @todo 
+	 *  + Create new sharepoint request executer
+	 *  + Set the information for the call
+	 *  + Execute async
 	 */
 	makePostRequest: function(hostUrl, restCommand, data, callback) {
 	    var executor = new SP.RequestExecutor(hostUrl);
@@ -175,27 +179,32 @@ ims.sharepoint = {
 	    executor.executeAsync(info);
 	},
 	/**
-	 * Get the file items, used in permissions
-	 * @param  {[type]}   fileName [description]
-	 * @param  {Function} callback [description]
-	 * @return {[type]}            [description]
+	 * @name getFileItems
+	 * @description Get the file items, used in permissions
+	 * @assign Chase
+	 * @todo 
+	 *  + Get the items relative to a file
 	 */
 	getFileItems: function(fileName, callback){
 		var allItemFiles = ims.url._base + 	"_api/Web/GetFileByServerRelativeUrl('" + ims.url.relativeBase + "Instructor%20Reporting/Master/" + fileName + ".xml')/ListItemAllFields";
 		$.get(allItemFiles, callback);
 	},
 	/**
-	 * Get the site users, used in permissions
-	 * @param  {Function} callback [description]
-	 * @return {[type]}            [description]
+	 * @name getSiteUsers
+	 * @description Get the site users, used in permissions
+	 * @assign Chase
+	 * @todo 
+	 *  + Get all the site users
 	 */
 	getSiteUsers: function(callback){
 		$.get(ims.url._base + '_api/Web/siteUsers', callback);
 	},
 	/**
-	 * Get the role ids
-	 * @param  {Function} callback [description]
-	 * @return {[type]}            [description]
+	 * @name getRoles
+	 * @description Get the role ids
+	 * @assign Chase
+	 * @todo 
+	 *  + Return the current roles for people
 	 */
 	getRoles: function(callback){
 		$.get(ims.url._base + '_api/Web/roledefinitions', function(xml){
@@ -208,10 +217,12 @@ ims.sharepoint = {
 		});
 	},
 	/**
-	 * Posts the current user xml file.
-	 * @return {null} Nothing is returned
-	 * @function
-	 * @memberOf ims.sharepoint
+	 * @name postFile
+	 * @description Posts the current user xml file.
+	 * @assign Chase
+	 * @todo 
+	 *  + Stringify the doc
+	 *  + Post file to Sharepoint 
 	 */
 	postFile: function(u){
 		function str2ab(str) {
@@ -248,16 +259,14 @@ ims.sharepoint = {
 		});
 	},
 	/**
-	 * Get the semester configuration file. This file allows for us to see which semester is the current semester.
-	 *
-	 * <pre><code>
-	 *  var currentSemester = $(ims.sharepoint.getSemesterConfiguration()).find('[current=true]').attr('name');
-	 * </code></pre>
-	 *
-	 * 
-	 * @return {XMLDocument} Use JQuery to find the current semester
-	 * @function
-	 * @memberOf ims.sharepoint
+	 * @name getSemesterConfig
+	 * @description Get the semester configuration file. This file allows for us to see which semester is the current semester.
+	 *              <pre><code>
+	 *               var currentSemester = $(ims.sharepoint.getSemesterConfiguration()).find('[current=true]').attr('name');
+	 *              </code></pre>
+	 * @assign Chase
+	 * @todo 
+	 *  - possibly remove this function
 	 */
 	getSemesterConfig: function(){
 		var url = ims.sharepoint.base + 'Instructor%20Reporting/config/semesters.xml';
@@ -271,6 +280,16 @@ ims.sharepoint = {
 	    });
 	  	return doc;
 	},
+	/**
+	 * @name getPermissionsXml 
+	 * @description
+	 * @assign Chase
+	 * @todo
+	 *  - Add a description
+	 *  + Get the permissions file sharepoint url
+	 *  + Get the permissions file
+	 *  + Return the file
+	 */
 	getPermissionsXml: function(){
 		var url = ims.sharepoint.base + 'Instructor%20Reporting/config/permissions.xml';
 		var doc = null;
@@ -284,11 +303,13 @@ ims.sharepoint = {
 	  	return doc;
 	},	
 	/**
-	 * Get a XML file for a given user by email address.
-	 * @param  {string} email The first part of the users given email address
-	 * @return {XMLDocument}       Use JQuery to find the current users document
-	 * @function
-	 * @memberOf ims.sharepoint
+	 * @name getXmlByEmail
+	 * @description Get a XML file for a given user by email address.
+	 * @assign Chase
+	 * @todo 
+	 *  + Get the sharepoint url
+	 *  + Get the file
+	 *  + Return the file
 	 */
 	getXmlByEmail: function(email){
 		var url = ims.sharepoint.base + 'Instructor%20Reporting/Master/' + email + '.xml';
@@ -317,12 +338,18 @@ ims.sharepoint = {
 	  	return doc;
 	}
 };
-// GROUP SHAREPOINT END
+/**
+ * @end
+ */
 
 
 /**
- * Replace xml characters with encoded xml characters
- * @return {[type]} [description]
+ * @name encodeXML
+ * @description Replace xml characters with encoded xml characters
+ * @assign Chase
+ * @todo
+ *  + Check that the strin gis not undefined
+ *  + Return the newly encoded string
  */
 String.prototype.encodeXML = function(){
 	if (this == undefined) return "";
@@ -330,7 +357,13 @@ String.prototype.encodeXML = function(){
        		   .replace(/</g, '&lt;')
                .replace(/>/g, '&gt;');
 }
-
+/**
+ * @name sum 
+ * @description Adds all the values in an array
+ * @assign Chase
+ * @todo 
+ *  + Add all the values in the array
+ */
 Array.prototype.sum = function(){
 	if (this == undefined) return false;
 	var sum = 0;
@@ -341,17 +374,36 @@ Array.prototype.sum = function(){
 	}
 	return sum;
 }
-
+/**
+ * @name isInt 
+ * @description Checks if value is an integer 
+ * @assign Chase
+ * @todo 
+ *  + Check that the value is a number
+ *  + return a bool
+ */
 Number.isInt = function(n){
     return Number(n) === n && n % 1 === 0;
 }
-
+/**
+ * @name isFloat 
+ * @description Checks if the value is a float 
+ * @assign Chase
+ * @todo 
+ *  + Check that the value is a float
+ *  + return a bool
+ */
 Number.isFloat = function(n){
     return n === Number(n) && n % 1 !== 0;
 }
-
-
-
+/**
+ * @name changeAll 
+ * @description
+ * @assign Chase
+ * @todo 
+ *  - Add description
+ *  - Add todos
+ */
 function changeAll(){
 	var master = ims.sharepoint.getXmlByEmail('master');
 
@@ -397,19 +449,26 @@ function changeAll(){
 	})
 	Sharepoint.postFile($(master)[0], 'Master/', 'master.xml', function(){});
 }
-
 /**
- * Get the master file
- * @param {Boolean} isMap [description]
+ * @start master
+ */
+/**
+ * @name Master
+ * @description Get the master file
  */
 function Master(isMap){
 	this._xml = ims.sharepoint.getXmlByEmail('master');
 	this.init();
 }
-
 /**
- * Initialize the master file by creating all of the people and organization
- * @return {[type]} [description]
+ * @name init
+ * @description Initialize the master file by creating all of the people and organization
+ * @assign Chase
+ * @todo 
+ *  + Get the current semester
+ *  + Get each person
+ *   + Add them to the graph
+ *  + Add the persons uppers and lowers
  */
 Master.prototype.init = function(){
 	var sem = window.config.getCurrentSemester();
@@ -425,11 +484,9 @@ Master.prototype.init = function(){
 		this.people[i].addUpperAndLowers();
 	}
 }
-
 /**
- * Master person, person was too polluted
- * @param {[type]} xml    [description]
- * @param {[type]} master [description]
+ * @name masterPerson
+ * @description Master person, person was too polluted
  */
 function MasterPerson(xml, master){
 	this.email = $(xml).attr('email');
@@ -448,9 +505,14 @@ function MasterPerson(xml, master){
 	this.lowers = []; // unorganized
 	this.master = master;
 }
-
 /**
- * Provide the uppers and the lowers
+ * @name addUpperAndLowers
+ * @description Provide the uppers and the lowers
+ * @assign Chase
+ * @todo
+ *  + Go through each person in the master
+ *   + Get their stewardship and add to graph
+ *   + Get their leadership and add to graph
  */
 MasterPerson.prototype.addUpperAndLowers = function(){
 	var _this = this;
@@ -470,19 +532,30 @@ MasterPerson.prototype.addUpperAndLowers = function(){
 		});
 	});
 }
-// GROUP ANSWER
 /**
- * Answer object
- * @param {Object} obj Contains a question and answer.
+ * @end
+ */
+/**
+ * @start Group Answer
+ */
+/**
+ * @name  Answer
+ * @description Answer object
+ * @assign Chase
  */
 function Answer(obj){
 	this._question = obj.question;
 	this._answer = obj.answer;
 	this.clean();
 }
-
 /**
- * Replaces text in answers and encodes certain characters to xml
+ * @name clean
+ * @description Replaces text in answers and encodes certain characters to xml
+ * @assign Chase
+ * @todo 
+ *  + Make sure the answer is not undefined
+ *  + Remove unnecessary characters
+ *  + Replace the Whats with the Withs
  */
 Answer.prototype.clean = function(){
 	if (this._answer == undefined) return;
@@ -494,10 +567,15 @@ Answer.prototype.clean = function(){
 	ans.encodeXml();
 	this._answer = ans.val();
 }
-
 /**
- * Converts the components of the answer into xml
- * @return {Object} Answer in xml form
+ * @name toXml
+ * @description Converts the components of the answer into xml
+ * @assign Chase
+ * @todo 
+ *  + Create the start of the answer xml
+ *  + Create the id attribute for the answer
+ *  + Add the answer text
+ *  + return the xml
  */
 Answer.prototype.toXml = function(){
 	var xml = $('<answer></answer>');
@@ -505,12 +583,15 @@ Answer.prototype.toXml = function(){
 	xml.text(this._answer);
 	return xml; 
 }
-
 /**
- * Collects survey data from a csv row
- * @param  {Object} survey Contains information on the survey
- * @param  {Array}  row    A person's row from the csv file, which contains their information and answers
- * @return {Array}         The person's answers with the questions
+ * @name collect
+ * @description Collects survey data from a csv row
+ * @assign Chase
+ * @todo 
+ *  + Go through each survey question
+ *   + Get the answer for each question from the rows
+ *   + Append the answer to the result array
+ *  + Return result  
  */
 Answer.collect = function(survey, row){
 	var result = [];
@@ -523,13 +604,19 @@ Answer.collect = function(survey, row){
 	}
 	return result;
 }
-// GROUP ANSWER END
-
-
-
-// GROUP CONFIG
 /**
- * Config Object
+ * @end
+ */
+
+
+
+/**
+ * @start Config
+ */
+/**
+ * @name Config
+ * @description Config Object
+ * @assign Chase and Grant
  */
 function Config(){
 	this.surveys = [];
@@ -539,17 +626,28 @@ function Config(){
 	this.selectedSurvey = null;
 	this.otherPeople = {};
 }
-
 /**
- * Add a survey to the list of surveys
- * @param  {Object} survey Survey to be copied
+ * @name addSurvey
+ * @description Add a survey to the list of surveys
+ * @assign Chase and Grant
+ * @todo 
+ *  + Add the survey to config object surveys
+ *  + Add the survey xml to the config file
  */
 Config.prototype.addSurvey = function(survey){
 	this.surveys.push(survey);
 	$(this._xml).find('semester[code=' + this.getCurrentSemester() + '] surveys').append(survey._xml);
 	this.save();
 }
-
+/**
+ * @name newSurvey
+ * @description Creates a new survey and returns it
+ * @assign Chase and Grant
+ * @todo 
+ *  + Create a new survey
+ *  + Add new survey to config object's surveys
+ *  + Return new survey
+ */
 Config.prototype.newSurvey = function(){
 	var survey = new Survey({
 		id: this.getHighestSurveyId() + 1,
@@ -558,28 +656,37 @@ Config.prototype.newSurvey = function(){
 	this.surveys.push(survey);
 	return survey;
 }
-
 /**
- * Gets the current semester from the semester xml file
- * @return {String} The semester name. e.g. FA15, WI16
+ * @name getCurrentSemester
+ * @description Gets the current semester from the semester xml file
+ * @assign Chase and Grant
+ * @todo 
+ *  + If the current semester is unkown 
+ *   + Get the current semester
+ *  + return the current semester 
  */
 Config.prototype.getCurrentSemester = function(){
 	if (!this._currentSemester) this._currentSemester = $(this.semesters).find('[current=true]').attr('name');
 	return this._currentSemester;
 }
-
 /**
- * Get all the serveys
- * @return {[type]} [description]
+ * @name getSurveys
+ * @description Get all the serveys
+ * @assign Chase and Grant
+ * @todo 
+ *  + return the config objects surveys
  */
 Config.prototype.getSurveys = function(){
 	return this.surveys;
 }
-
 /**
- * Returns the survey using the id
- * @param  {Integer} id Numerical id for the survey
- * @return {Object}    Xml of the survey with id of 'id'
+ * @name getSurveyById
+ * @description Returns the survey using the id
+ * @assign Chase and Grant
+ * @todo 
+ *  + Loop through all the config objects surveys
+ *   + If the current survey equals the id passed in return the survey
+ *  + If not found return null
  */
 Config.prototype.getSurveyById = function(id){
 	for (var i = 0; i < this.surveys.length; i++){
@@ -587,7 +694,16 @@ Config.prototype.getSurveyById = function(id){
 	}
 	return null;
 }
-
+/**
+ * @name remove
+ * @description Remove a survey from the config by id
+ * @assign Chase and Grant
+ * @todo 
+ *  + Loop through all the config objects surveys
+ *   + If the survey's id equals the id passed in remove it
+ *  + Reset the surveys with the new list
+ *  + Save the config file
+ */
 Config.prototype.remove = function(id){
 	var newSurveys = [];
 	for (var i = 0; i < this.surveys.length; i++){
@@ -600,9 +716,14 @@ Config.prototype.remove = function(id){
 	this.surveys = newSurveys;
 	this.save();
 }
-
 /** 
- * Inital setup. Create the survey objects
+ * @name _initSetup
+ * @description Create the survey objects
+ * @assign Chase and Grant
+ * @todo 
+ *  + Get the config file from sharepoint
+ *  + Set this config object's xml with the data callbacked
+ *  + Collect the different surveys from the config file to add to the config object
  */
 Config.prototype._initSetup = function(){
 	var _this = this;
@@ -614,11 +735,13 @@ Config.prototype._initSetup = function(){
 		});
 	});
 }
-
 /**
- * Find a survey based on the criteria in an object
- * @param  {Object} obj Contains information for a survey
- * @return {Object}     Survey that contains information of param obj
+ * @name findSurvey
+ * @description Find a survey based on the criteria in an object
+ * @assign Chase and Grant
+ * @todo
+ *  + Go through each survey in the config object
+ *  + Return the survey or null if not there
  */
 Config.prototype.findSurvey = function(obj){
 	var found = null;
@@ -627,23 +750,28 @@ Config.prototype.findSurvey = function(obj){
 	});
 	return found;
 }
-
 /**
- * Create a survey based on a passed through object.
- * TODO:
- * 	figure out what the object is and add it to the survey object.
- * @param  {Object} obj Contains all information for a survey
- * @return {Object}     The new survey object that was just created
+ * @name createSurvey
+ * @description Create a survey based on a passed through object.
+ * @assign Chase and Grant
+ * @todo
+ *  + Add the survey object passed in to the config's surveys.
+ *  + Return the created survey
  */
 Config.prototype.createSurvey = function(obj){
 	var spot = this.surveys.length;
 	this.surveys.push(new Survey(obj, false));	
 	return this.surveys[spot];
 }
-
 /**
- * Get the next highest survey id
- * @return {Integer} Highest id for a survey
+ * @name getHighestSurveyId
+ * @description Get the next highest survey id
+ * @assign Chase and Grant
+ * @todo 
+ *  + Loop through the config object's surveys
+ *   + Check for the highest id
+ *    - Well done Chase, you found it!
+ *  + return the highest id
  */
 Config.prototype.getHighestSurveyId = function(){
 	var id = 0;
@@ -654,11 +782,14 @@ Config.prototype.getHighestSurveyId = function(){
 	});
 	return parseInt(id);
 }
-
 /**
- * Get a person from first the survey, then from global
- * @param  {String} email Email of a person to find
- * @return {Object}       The object of a person with attribute 'email'
+ * @name getPerson
+ * @description Get a person from first the survey, then from global
+ * @assign Chase and Grant
+ * @todo 
+ *  + Remove the @ and everything right of it
+ *  + Get the person
+ *  + Return the person
  */
 Config.prototype.getPerson = function(email){
 	try{
@@ -674,18 +805,23 @@ Config.prototype.getPerson = function(email){
 	}
 	return person;
 }
-
 /**
- * Add person to global list
- * @param {Object} person Contains all information regarding a person
+ * @name addPerson
+ * @description Add person to global list
+ * @assign Chase and Grant
+ * @todo 
+ *  + Add a person to the other people list
  */
 Config.prototype.addPerson = function(email, person){
 	this.otherPeople[email] = person;
 }
-
 /**
- * Get the master file
- * @return {Object} Master xml file from sharepoint
+ * @name getMaster
+ * @description Get the master file
+ * @assign Chase and Grant
+ * @todo 
+ *  + If the master is not there get the master from Sharepoint
+ *  + Return the master
  */
 Config.prototype.getMaster = function(){
 	if (!this._master){
@@ -693,10 +829,14 @@ Config.prototype.getMaster = function(){
 	}
 	return this._master;
 }
-
 /**
- * get the map file
- * @return {Object} The map xml
+ * @name getMap
+ * @description get the map file
+ * @assign Chase and Grant
+ * @todo 
+ *  + If the map is not there get the map from Sharepoint
+ *  + Return the map
+ *  - Possibly remove this function
  */
 Config.prototype.getMap = function(){
 	if (!this._map){
@@ -704,11 +844,18 @@ Config.prototype.getMap = function(){
 	}
 	return this._map;
 }
-
 /**
- * Get the next up leader as string
- * @param  {String} p  A role
- * @return {String}    That role's immediate leader
+ * @name _getSurveyColumns
+ * @description Get the next up leader as string
+ * @assign Chase and Grant
+ * @todo 
+ *  + Get the survey by the id
+ *  + Add all the survey column data to the columns object
+ *  + possibly add week
+ *  + possibly add course
+ *  + Go through the questions
+ *   + Add them to the columns object
+ *  + return columns
  */
 Config.prototype._getSurveyColumns = function(surveyId){
 	var survey = $(this._xml).find('semester[code=FA15] > surveys > survey[id="' + surveyId + '"]');
@@ -743,18 +890,15 @@ Config.prototype._getSurveyColumns = function(surveyId){
 
 	return columns;
 }
-
 /**
- * [surveyModify description]
- * @param  {[type]} name      [description]
- * @param  {[type]} emailCol  [description]
- * @param  {[type]} weekCol   [description]
- * @param  {[type]} typeCol   [description]
- * @param  {[type]} placement [description]
- * @param  {[type]} courseCol [description]
- * @param  {[type]} questions [description]
- * @param  {[type]} surveyId  [description]
- * @return {[type]}           [description]
+ * @name surveyModify
+ * @description
+ * @assign Chase and Grant
+ * @todo 
+ *  + Get a survey by its id
+ *  + Change its week, placement, type, email, name, and course
+ *  + Update the questions
+ *  + Save the survey
  */
 Config.prototype.surveyModify = function(name, emailCol, weekCol, typeCol, placement, courseCol, questions, surveyId){
 	var survey = window.config.getSurveyById(surveyId);
@@ -767,34 +911,37 @@ Config.prototype.surveyModify = function(name, emailCol, weekCol, typeCol, place
 	survey.updateQuestions(questions);
 	survey.save();
 }
-
 /**
- * [surveyRegister description]
- * @param  {[type]} name      [description]
- * @param  {[type]} emailCol  [description]
- * @param  {[type]} weekCol   [description]
- * @param  {[type]} typeCol   [description]
- * @param  {[type]} placement [description]
- * @param  {[type]} courseCol [description]
- * @param  {[type]} questions [description]
- * @return {[type]}           [description]
+ * @name surveyRegister 
+ * @description
+ * @assign Chase and Grant
+ * @todo
+ *  + Save the survey
+ *  + Add the survey to the config objects surveys
  */
 Config.prototype.surveyRegister = function(survey){
 	survey.save();
 	this.surveys.push(survey);
 }
-
+/**
+ * @name save 
+ * @description
+ * @assign Chase and Grant
+ * @todo 
+ *  + Save the config xml to sharepoint
+ */
 Config.prototype.save = function(){
 	Sharepoint.postFile(this._xml, 'config/', 'config.xml', function(){
 		alert('Survey change was successful!');
 		window.location.reload();
 	});
 }
-
 /**
- * [getLeader description]
- * @param  {[type]} p [description]
- * @return {[type]}   [description]
+ * @name getLeader 
+ * @description
+ * @assign Chase and Grant
+ * @todo 
+ *  + return the leader of the passed in placement
  */
 Config.getLeader = function(p){
 	switch (p){
@@ -804,11 +951,13 @@ Config.getLeader = function(p){
 		default: throw 'Invalid ' + p;
 	}
 }
-
 /**
- * Convert a column letter to number
- * @param  {String} letter  Letter combination referencing an excel column
- * @return {Integer}        Numerical value of the excel column
+ * @name columnLetterToNumber
+ * @description Convert a column letter to number
+ * @assign Chase and Grant
+ * @todo 
+ *  + Check if the letter is already a number
+ *  + Return the numeric value of the letters
  */
 Config.columnLetterToNumber = function(letter){
 	if(!isNaN(letter)) return letter;
@@ -821,12 +970,14 @@ Config.columnLetterToNumber = function(letter){
 		return (letter.charCodeAt(1) - 65) + 26;
 	}
 }
-
 /**
- * TODO:
- * 		- Change AZ as the highest to BZ
- * @param  {Integer} num Numerical value that is associated with an excel column
- * @return {String}         Column as a string
+ * @name columnNumberToLetter
+ * @description
+ * @assign Chase and Grant
+ * @todo
+ *  - Change AZ as the highest to BZ
+ *  + Check if the num is already a letter
+ *  + Return letter combination
  */
 Config.columnNumberToLetter = function(num){
 	if(isNaN(num)) return num;
@@ -838,38 +989,48 @@ Config.columnNumberToLetter = function(num){
 		return String.fromCharCode(Math.floor(num / 26) + 64) + String.fromCharCode(num % 26 + 65);
 	}
 }
-// GROUP CONFIG END
+/**
+ * @end
+ */
 
 
 
 /**
  * Only one survey instance can be initalized at one time
- * @type {Config}
  */
 window.config = new Config();
 
 
 
-// GROUP CSV
 /**
- * CSV Object
+ * @start CSV
+ */
+/**
+ * @name  CSV
+ * @description CSV Object
  */
 function CSV(){
 	console.log('new CSV object created');
 	this._data = null;
 }
-
 /**
- * GET THE CSV'S DATA IN ARRAY FORM
+ * @name getData
+ * @description Get the CSV's data in array form
+ * @assign Grant
+ * @todo 
+ *  - Return the data
  */
 CSV.prototype.getData = function(){
 	console.log('return CSV data');
 }
-
 /**
- * READ THE CSV INTO _DATA
- * @param  {Object}   file     Contains the selected file
- * @param  {Function} callback callbacks the csv data
+ * @name readFile
+ * @description Read the CSV into _data
+ * @assign Grant
+ * @todo
+ *  + Create a new fileReader
+ *  + Convert the file into an object
+ *  + Callback the csv object
  */
 CSV.prototype.readFile = function(file, callback){
 	console.log('retrieving data form csv');
@@ -883,20 +1044,25 @@ CSV.prototype.readFile = function(file, callback){
 	}
 	reader.readAsText(file, 'utf8');
 }
-
 /**
- * DOWNLOAD A STRING AS A CSV
- * @param  {String} csvString CSV in string form
+ * @name downloadCSV
+ * @description Download a string as a CSV
+ * @assign Grant
+ * @todo
+ *  - Check that the proper characters have been encoded
+ *  - Save the file
  */
 CSV.downloadCSV = function(csvString){
 	console.log('CSV downloaded')
 }
-// GROUP CSV END
+/**
+ * @end
+ */
 
 
 
 /**
- * angular
+ * @start angular
  */
 var app = angular.module('admin', []);
 app.controller('adminCtrl', ["$scope", function($scope){
@@ -1477,6 +1643,9 @@ app.controller('adminCtrl', ["$scope", function($scope){
 	 */
 }]);
 /**
+ * @end
+ */
+/**
  * @start evaluations
  */
 /**
@@ -1562,7 +1731,7 @@ Evaluations.prototype.cleanseString = function(str){
  *    + logic for value
  *    + logic for percentage
  *   + add response data for evaluatee
- *  - error handling
+ *  + error handling
  */
 Evaluations.prototype.setAnswers = function(evaluatee, row, locations){
 	if (this.people[evaluatee] == undefined){
@@ -1602,7 +1771,7 @@ Evaluations.prototype.setAnswers = function(evaluatee, row, locations){
  *    + check if the logic type is percentage (p)
  *    + perform percentage math
  *    + replace answer with new percentage 
- *  - error handling
+ *  + error handling
  */
 Evaluations.prototype.calculatePercentages = function(){
 	for (var person in this.people){
@@ -1626,7 +1795,7 @@ Evaluations.prototype.calculatePercentages = function(){
  *    + add answer to string
  *    + encode all spaces, commas, new lines, and slashes
  *  + download string as csv
- *  - error handling
+ *  + error handling
  */
 Evaluations.prototype.sendToCSV = function(){
 	var csv = "email,";
@@ -1719,7 +1888,9 @@ Evaluations.prototype.parse = function(){
 /**
  * @end
  */
-// GROUP PERMISSIONS
+/**
+ * @start Permissions
+ */
 /**
  * Permissions Object
  * NOTE:
@@ -1737,10 +1908,10 @@ function Permissions(){
 	this.changes = [];
 	this.status = {inProgress: 0, completed: 0};
 }
-
 /**
- * Initalize and create all the necessary items to setup for permission
- * @return {[type]} [description]
+ * @name init
+ * @description Initalize and create all the necessary items to setup for permission
+ * @assign Chase
  */
 Permissions.prototype.init = function(){
 	this.graph = {};
@@ -1760,13 +1931,14 @@ Permissions.prototype.init = function(){
 		_this.roles = roles;
 	})
 }
-
-Permissions._xml = null;
-
 /**
- * Get the permissions xml file. If it was already pulled, it will grab the 
- * global version
- * @return {[type]} [description]
+ * The xml file for permissions
+ */
+Permissions._xml = null;
+/**
+ * @name getPermissionsXml
+ * @description Get the permissions xml file. If it was already pulled, it will grab the 
+ * @assign Chase
  */
 Permissions.prototype.getPermissionsXml = function(){
 	if (!Permissions._xml){
@@ -1774,9 +1946,10 @@ Permissions.prototype.getPermissionsXml = function(){
 	}
 	return Permissions._xml;
 }
-
 /**
- * CHECK IF THERE ARE ANY CHANGES TO DO
+ * @name check
+ * @description Check if there are any changes to do
+ * @assign Chase
  */
 Permissions.prototype.check = function(){
 	console.log('Checking if permissions need changing');
@@ -1788,9 +1961,10 @@ Permissions.prototype.check = function(){
 	this.changes = actions;
 	return actions.length > 0;
 }
-
 /**
- * UPDATE THE PERMISSIONS ON VARIOUS FILES
+ * @name update
+ * @description Update the permissions on various files
+ * @assign Chase
  */
 Permissions.prototype.update = function(){
 	console.log('updating the permissions');
@@ -1800,7 +1974,11 @@ Permissions.prototype.update = function(){
 		}
 	}
 }
-
+/**
+ * @name checkForCompletion 
+ * @description
+ * @assign Chase
+ */
 Permissions.prototype.checkForCompletion = function(){
 	var _this = this;
 	this.status.completed++;
@@ -1819,12 +1997,18 @@ Permissions.prototype.checkForCompletion = function(){
 		});
 	}
 }
-// GROUP PERMISSIONS END
-// GROUP PermissionsPerson
 /**
- * create a new permissions file person
- * @param {[type]} xml         [description]
- * @param {[type]} permissions [description]
+ * @end
+ */
+
+
+
+/**
+ * @start PermissionsPerson
+ */
+/**
+ * @name permissionPerson
+ * @description create a new permissions file person
  */
 function PermissionsPerson(xml, permissions){
 	this.email = $(xml).attr('email');
@@ -1841,11 +2025,10 @@ function PermissionsPerson(xml, permissions){
 		})
 	}
 }
-
 /**
- * Check the permsisions based on the current master file
- * @param  {Map} mapPerson [description]
- * @return {[type]}           [description]
+ * @name check
+ * @description Check the permsisions based on the current master file
+ * @assign Chase
  */
 PermissionsPerson.prototype.check = function(mapPerson){
 	if (!mapPerson) return null;
@@ -1872,33 +2055,35 @@ PermissionsPerson.prototype.check = function(mapPerson){
 	if (results.add.length > 0 || results.remove.length > 0) return results;
 	return null;
 }
-
 /**
- * Change the permissions from the objects collected during check
- * @return {[type]} [description]
+ * @name change
+ * @description Change the permissions from the objects collected during check
+ * @assign Chase
  */
 PermissionsPerson.prototype.change = function(){
 	if (this.results.add.length > 0) this.addUsers();
 	if (this.results.remove.length > 0) thos.removeUsers();
 }
-
 /**
- * Remove the users from the files, SharePoint API calls are made here
- * @return {[type]} [description]
+ * @name removeUsers
+ * @description Remove the users from the files, SharePoint API calls are made here
+ * @assign Chase
  */
 PermissionsPerson.prototype.removeUsers = function(){
 	this.api(this.results.remove, false);
 }
-
 /**
- * Add users to the files, SharePoint calls are used here
+ * @name addUsers
+ * @description Add users to the files, SharePoint calls are used here
+ * @assign Chase
  */
 PermissionsPerson.prototype.addUsers = function(){
 	this.api(this.results.add, true);
 }
-
 /** 
- * The API call for the permissions api
+ * @name api
+ * @description The API call for the permissions api
+ * @assign Chase
  */
 PermissionsPerson.prototype.api = function(ary, isAdd){
 	var err = [];
@@ -1930,15 +2115,18 @@ PermissionsPerson.prototype.api = function(ary, isAdd){
 		}
 	});
 }
-// GROUP PermissionsPerson END
-
-
-
-// GROUP PERSON
 /**
- * Person Object
- * @param {[type]}  obj   obj containing a persons data
- * @param {Boolean} isXml Is the obj param actually xml
+ * @end
+ */
+
+
+
+/**
+ * @start Person
+ */
+/**
+ * @name Person
+ * @description Person Object
  */
 function Person(obj, isXml, downloadXml){
 	if (isXml){
@@ -1970,7 +2158,15 @@ function Person(obj, isXml, downloadXml){
 	}
 	this._valid = true;
 }
-
+/**
+ * @name cleanEmail 
+ * @description Remove the '@' symbol and everything after
+ * @assign Chase
+ * @todo 
+ *  + Check that the email is not undefined
+ *  + Search for the '@' character
+ *  + Remove everything from the '@' to the end
+ */
 Person.cleanEmail = function(email){
 	if (!email) throw 'Invalid Email';
 	if (email.indexOf('@') > -1){
@@ -1978,7 +2174,13 @@ Person.cleanEmail = function(email){
 	}
 	return email;
 }
-
+/**
+ * @name cleanEmailInternal 
+ * @description Clean the person object's email
+ * @assign Chase
+ * @todo
+ *  + Try to clean a person's email
+ */
 Person.prototype.cleanEmailInternal = function(){
 	try{
 		this._email = Person.cleanEmail(this._email);
@@ -1987,35 +2189,49 @@ Person.prototype.cleanEmailInternal = function(){
 		this._valid = false;
 	}
 }
-
 /**
- * Save this person's xml to their sharepoint file
+ * @name save
+ * @description Save this person's xml to their sharepoint file
+ * @assign Chase
+ * @todo 
+ *  + Post the person's xml file
  */
 Person.prototype.save = function(){
 	if ($(this._xml)[0] && this._email){
 		Sharepoint.postFile($(this._xml)[0], 'master/', this._email + '.xml', function(){});
 	}
 }
-
 /**
- * Checks to see if the person object is valid
- * @return {Boolean} Is the person's information valid
+ * @name isValid
+ * @description Checks to see if the person object is valid
+ * @assign Chase
+ * @todo
+ *  + Return if the email, row, placement, and answers and not undefined
  */
 Person.prototype.isValid = function(){
 	return !!(this._email && this._row && this._placement && this._answers.length > 0) && this._valid;
 }
-
 /**
- * [getXml description]
+ * @name getXml 
+ * @description Get the person's xml from sharepoint
+ * @assign Chase
+ * @todo 
+ *  + If the person's xml has not been retrieved yet, get it.
  */
 Person.prototype.getXml = function(){
 	if (!this._xml){
 		this._xml = ims.sharepoint.getXmlByEmail(this._email);
 	}
 }
-
 /**
- * Retrieves a person's leader
+ * @name getLeader
+ * @description Retrieves a person's leader
+ * @assign Chase
+ * @todo
+ *  + Get the email of the person's leader
+ *  + Get the person from config
+ *  + Create a new person
+ *  + Add the person to the leader of person
  */
 Person.prototype.getLeader = function(){
 	var email = $(this._xml).find('semester[code=' + window.config.getCurrentSemester() + '] > people > person > roles > role[type=' + this._placement + '] > leadership > people > person[type=' + Config.getLeader(this._placement) + ']').attr('email');
@@ -2034,9 +2250,14 @@ Person.prototype.getLeader = function(){
 	}
 	this._leader = person;
 }
-
 /**
- * Process a person's survey data
+ * @name process
+ * @description Process a person's survey data
+ * @assign Chase
+ * @todo 
+ *  + Get the person's xml
+ *  + Get the person's leaders
+ *  + Add data to xml in the: master, leaders, person's files
  */
 Person.prototype.process = function(){
 	this.getXml();
@@ -2059,11 +2280,14 @@ Person.prototype.process = function(){
 	$(this._leader._xml).find('semester[code=' + window.config.getCurrentSemester() + '] > people > person > roles > role[type=' + this._leader._placement + '] > stewardship > people > person[email=' + this._email + '] surveys').append(xml.clone());
 	$(this._xml).find('semester[code=' + window.config.getCurrentSemester() + '] > people > person > roles > role[type=' + this._placement + '] > surveys').append(xml.clone());
 }
-
 /**
- * End of semester fix: remove if statement
- * @param  {String} name Name of the course the survey was taken for
- * @return {String}      The id of 'name'
+ * @name getCourseIdByName
+ * @description End of semester fix: remove if statement
+ * @assign Chase
+ * @todo 
+ *  + Check if course is pathway
+ *  + Find the course in the person's xml
+ *  + return the id
  */
 Person.prototype.getCourseIdByName = function(name){
 	if (name.indexOf('PATH') > -1){
@@ -2071,10 +2295,16 @@ Person.prototype.getCourseIdByName = function(name){
 	}
 	return $(this._xml).find('semester[code=' + window.config.getCurrentSemester() + '] > people > person > courses course:contains(' + name + ')').attr('id');
 }
-
 /**
- * Puts all the survey components into xml form 
- * @return {Object} Survey in xml form
+ * @name toXml
+ * @description Puts all the survey components into xml form 
+ * @assign Chase
+ * @todo 
+ *  + Create the base survey xml
+ *  + Add the id
+ *  + Add course id if there is one
+ *  + Add the answers
+ *  + return the xml
  */
 Person.prototype.toXml = function(){
 	var xml = $('<survey reviewed="false"></survey>');
@@ -2089,15 +2319,17 @@ Person.prototype.toXml = function(){
 	}
 	return xml;
 }
-// GROUP PERSON END
+/**
+ * @end
+ */
 
 
 
-// GROUP QUESTION
+/**
+ * @start Question
+ */
 /**
  * Question Object
- * @param {Object}  question Information for a question
- * @param {Boolean} isXml    Is the question param xml
  */
 function Question(question, isXml){
 	if (isXml){
@@ -2117,7 +2349,14 @@ function Question(question, isXml){
 		this._xml = this.toXml();
 	}
 }
-
+/**
+ * @name areSame 
+ * @description Checks to see if the two questions passed in are the same
+ * @assign Chase
+ * @todo 
+ *  + Are the texts, cols, replacewiths, and replacewhats the same
+ *  + return a bool
+ */
 Question.areSame = function(newQ, oldQ){
 	if (newQ.text != oldQ.text || 
 		newQ.col != oldQ.col ||
@@ -2129,25 +2368,30 @@ Question.areSame = function(newQ, oldQ){
 		return true;
 	}
 }
-
 /**
- * Modify a variable in the object. This does not, however, 
- * save the object, that can only be done at the survey level.
- * @param  {[type]} prop [description]
- * @param  {[type]} val  [description]
- * @return {[type]}      [description]
+ * @name modify
+ * @description Modify a variable in the object. This does not, however, save the object, that can only be done at the survey level.
+ * @assign Chase
+ * @todo 
+ *  + Assign a new property and value to the question object
  */
 Question.prototype.modify = function(prop, val){
 	this[prop] = val;
 }
-
 /**
- * Create the question XML node and append the other nodes
- * <question id name>
- * 	<text></text>
- * 	<replace with what/>
- * </question>
- * @return {Object} Question in xml form
+ * @name toXml
+ * @description Create the question XML node and append the other nodes
+ *              <question id name>
+ * 	             <text></text>
+ * 	             <replace with what/>
+ *              </question>
+ * @assign Chase
+ * @todo 
+ *  + Create the base question xml
+ *  + Update the id
+ *  + Add the text to the question
+ *  + Add the replacewhats and the replacewiths
+ *  + Return the new xml
  */
 Question.prototype.toXml = function(){
 	var xml = $('<question></question>');
@@ -2156,11 +2400,15 @@ Question.prototype.toXml = function(){
 	$(xml).attr('replacewith', this.replaceWith).attr('replacewhat', this.replaceWhat);
 	return xml;
 }
-// GROUP QUESTION END
+/**
+ * @end
+ */
 
 window._rollup;
 
-// GROUP ROLLUP
+/**
+ * @start ROLLUP
+ */
 /**
  * Rollup Object
  */
@@ -2171,14 +2419,37 @@ function Rollup(){
 	this._questions = [];
 	this._master = window.config.getMaster();
 }
-
+/**
+ * @name avg 
+ * @description Given the sum and number of items summed it calculates the average
+ * @assign Chase
+ * @todo 
+ *  + Divide the sum by the count
+ *  + Multiply answer by 10
+ *  + Floor that value and divide by 10
+ *  + Return average
+ */
 Rollup.avg = function(sum, count){
 	return Math.floor((sum / count) * 10) / 10;
 }
-
 /**
- * [update description]
- * @return {[type]} [description]
+ * @name update 
+ * @description Updates the rollup with the totals for each leaders stewardship
+ * @assign Chase
+ * @todo 
+ *  + Get the current master
+ *  + Create a map to find questions based on ids and their index in an array
+ *  + Add each question to an object
+ *  + Go through each person in the master
+ *   + Go through all instructors
+ *    + Weekly hours are averaged by credit
+ *   + Go through all tgls
+ *    + Weekly hours are averaged by credit
+ *   + Go through all aims
+ *    + Weekly hours are averaged by credit
+ *   + Go through all ims 
+ *    + Weekly hours are averaged by credit
+ *  + Add all the data collected to the rollup file
  */
 Rollup.prototype.update = function(){
 	var master = window.config.getMaster();
@@ -2333,11 +2604,14 @@ Rollup.prototype.update = function(){
 		$(this._xml).find('semester[code=' + window.config.getCurrentSemester() + '] > questions > question[name="' + questions[q] + '"]').append('<survey id="' + this._surveyId + '" value="' + rollupValue + '" />');
 	}
 }
-// GROUP ROLLUP END
-// GROUP SEMESTER SETUP
+/**
+ * @end
+ */
+/**
+ * @start Semester Setup
+ */
 /**
  * Semester Setup Object
- * @param {Array} csv Contains the rows from the csv file
  */
 function SemesterSetup(csv){
 	this._csv = csv;
@@ -2348,7 +2622,14 @@ function SemesterSetup(csv){
 	this._individualFiles = null;
 	this._sem = null; 
 }
-
+/**
+ * @name isGreater 
+ * @description determines which of the two roles is greater
+ * @assign Grant
+ * @todo 
+ *  + Compare the first role with im, aim, tgl, ocrm, ocr, and instructor
+ *  + Return a bool  
+ */
 function isGreater(role1, role2){
 	if (role1 == 'im'){
 		return true;
@@ -2381,9 +2662,15 @@ function isGreater(role1, role2){
 			return false;
 	}
 }
-
 /**
- * PERFORMS A COMPLETE SEMESTER SETUP
+ * @name semestersetup
+ * @description Performs a complete semester setup
+ * @assign Grant
+ * @todo 
+ *  + Call function to create org
+ *  + Call function to create master
+ *  + Call function to create individual files
+ *  + Call function to create rollup
  */
 SemesterSetup.prototype.semesterSetup = function(){
 	this._createOrg();
@@ -2391,14 +2678,42 @@ SemesterSetup.prototype.semesterSetup = function(){
 	this._createIndividualFiles();
 	this._createRollup();
 }
-
+/**
+ * @name formalize 
+ * @description capitalizes the first letter and lowercases the rest
+ * @assign Grant
+ * @todo 
+ *  + Make sure the string is not undefined, null, or empty
+ *  + Return the string where the first letter is capitalized and the rest are lowercased
+ */
 String.prototype.formalize = function(){
 	if (this == undefined || this == null || this.length == 0) return;
 	return this.charAt(0).toUpperCase() + this.slice(1).toLowerCase();
 }
 
 /**
- * CREATES A NEW ORG FROM THE CSV
+ * @name _createOrg
+ * @description Creates a new org from the csv
+ * @assign Grant
+ * @todo 
+ *  + Get the new semester code
+ *  + Go through each row of OSM report
+ *   + Create instructor object
+ *    + Add course
+ *   + Create tgl object
+ *    + Add stewardship: instructor object
+ *    + Add leadership: aim object
+ *   + Create aim object
+ *    + Add stewardship: tgl object
+ *    + Add leadership: im object
+ *   + Create im object
+ *    + Add stewardship: aim object
+ *   + Create ocr object
+ *    + Add stewardship: instructor object
+ *    + Add leadership: ocrm object
+ *   + create ocrm object 
+ *    + Add stewardship: ocr object
+ *  + Add aim, im, and ocrm full stewardship
  */
 SemesterSetup.prototype._createOrg = function(){
 	this._org['semester'] = {
@@ -2754,7 +3069,14 @@ SemesterSetup.prototype._createOrg = function(){
 		}
 	}
 }
-
+/**
+ * @name addStewardship 
+ * @description
+ * @assign Grant
+ * @todo 
+ *  + Loop through each person in org
+ *   + Add stewardship to the person
+ */
 SemesterSetup.prototype.addStewardship = function(email, role){
 	for (var i = 0; i < this._org.semester.person.length; i++){
 		if (this._org.semester.person[i].email == email){
@@ -2766,7 +3088,14 @@ SemesterSetup.prototype.addStewardship = function(email, role){
 		}
 	}
 }
-
+/**
+ * @name addToOrg 
+ * @description
+ * @assign Grant
+ * @todo
+ *  + Check if the person is already in org
+ *   + If in org already check role, course, and section
+ */
 SemesterSetup.prototype.addToOrg = function(person){
 	if (this._org.semester.person.length == 0){
 		this._org.semester.person.push(person);
@@ -2850,72 +3179,74 @@ SemesterSetup.prototype.addToOrg = function(person){
 		this._org.semester.person.push(person);
 	}
 }
-
 /**
- * CREATES A NEW SEMESTER ROLLUP SECTION IN THE ROLLUP FILE
- * @return {[type]} [description]
+ * @name _createRollup
+ * @description Creates a new semester rollup section in the rollup file
+ * @assign Grant
  */
 SemesterSetup.prototype._createRollup = function(){
 	console.log('rollup is being created');
 }
-
 /**
- * CREATES A NEW SEMESTER MASTER SECTION IN THE MASTER FILE
- * @return {[type]} [description]
+ * @name _createMaster
+ * @description Creates a new semester master section in the master file
+ * @assign Grant
  */
 SemesterSetup.prototype._createMaster = function(){
 	console.log('master is being created');
 }
-
 /**
- * CREATES A NEW SEMESTER SECTIONS IN ALL OF THE PEOPLES FILES FROM THE MAP FILE
- * @return {[type]} [description]
+ * @name _createIndividualFiles
+ * @description Creates a new semester sections in all of the peoples files from the map file
+ * @assign Grant
  */
 SemesterSetup.prototype._createIndividualFiles = function(){
 	console.log('individual files are being created');
 }
-
 /**
- * CHECKS IF THE MAP HAS CHANGED
- * @return {Boolean} [description]
+ * @name _isDifferent
+ * @description Checks if the map has changed
+ * @assign Grant
  */
 SemesterSetup.prototype._isDifferent = function(){
 	console.log('are the semesters already the same');
 }
-
 /**
- * CHECKS FOR ROLLUP CHANGES AND CHANGES TO BE THE MOST CURRENT
- * @return {[type]} [description]
+ * @name _updateRollup
+ * @description Checks for rollup changes and changes to be the most current
+ * @assign Grant
  */
 SemesterSetup.prototype._updateRollup = function(){
 console.log('rollup is being updated');
 }
-
 /**
- * CHECKS FOR MASTER CHANGES AND CHANGES TO BE THE MOST CURRENT
- * @return {[type]} [description]
+ * @name _updateMaster
+ * @description Checks for master changes and changes to be the most current
+ * @assign Grant
  */
 SemesterSetup.prototype._updateMaster = function(){
 	console.log('master is being updated');
 }
-
 /**
- * CHECKS FOR INDIVIDUAL FILE CHANGES AND CHANGES TO BE THE MOST CURRENT
- * @return {[type]} [description]
+ * @name _updateIndividualFiles
+ * @description Checks for individual file changes and changes to be the most current
+ * @assign Grant
  */
 SemesterSetup.prototype._updateIndividualFiles = function(){
 	console.log('individual files are being updated');
 }
-// GROUP SEMESTER SETUP END
-//
-
-
-
-// GROUP SURVEY
 /**
- * Survey Object
- * @param {Object}  survey A surveys information
- * @param {Boolean} isXml  Is the survey in xml form
+ * @end
+ */
+
+
+
+/**
+ * @start SURVEY
+ */
+/**
+ * @name Survey
+ * @description Survey Object
  */
 function Survey(survey, isXml){
 	if (isXml){
@@ -2951,11 +3282,13 @@ function Survey(survey, isXml){
 	}
 	this.processed = 0;
 }
-
 /**
- * [getPerson description]
- * @param  {String} email A person's email
- * @return {Object}       Person with the email of 'email'
+ * @name getPerson 
+ * @description
+ * @assign Chase
+ * @todo 
+ *  + Try the email to be sure its someones
+ *  + Go through all the people and and return the one based on their email
  */
 Survey.prototype.getPerson = function(email){
 	try{
@@ -2970,10 +3303,12 @@ Survey.prototype.getPerson = function(email){
 	}
 	return false;
 }
-
 /**
- * Set the questions questions by passing in the question node from
- * the XML
+ * @name _setXmlQuestions
+ * @description Set the questions questions by passing in the question node from the XML
+ * @assign Chase
+ * @todo 
+ *  + Go through each question in xml and add to the survey questions
  */
 Survey.prototype._setXmlQuestions = function(){
 	var _this = this;
@@ -2981,14 +3316,25 @@ Survey.prototype._setXmlQuestions = function(){
 		_this.questions.push(new Question(this, true));
 	})
 }
-
+/**
+ * @name getName 
+ * @description
+ * @assign Chase
+ * @todo 
+ *  + Return the name of the survey
+ */
 Survey.prototype.getName = function(){
 	return this.name + ': Week ' + this.week;
 }
-
 /**
- * Use the objects member variables to create the survey node
- * @return {Object} Survey in xml form
+ * @name toXml
+ * @description Use the objects member variables to create the survey node
+ * @assign Chase
+ * @todo 
+ *  + Create the base survey xml
+ *  + Add the id, placement, type, name, email
+ *  + Add week and course if necessary
+ *  + Return the xml survey
  */
 Survey.prototype.toXml = function(){
 	var survey = $('<survey><questions></questions></survey>');
@@ -3007,10 +3353,16 @@ Survey.prototype.toXml = function(){
 
 	return survey;
 }
-
 /**
- * Create the xml from the given objects. Remove the survey from the
- * config file. Add the newly created xml to the config file. 
+ * @name save
+ * @description Create the xml from the given objects. Remove the survey from the config file. Add the newly created xml to the config file.
+ * @assign Chase 
+ * @todo
+ *  + Convert the current survey to xml
+ *  + Convert the questions to xml
+ *  + Add questions to survey
+ *  + Add survey to Config
+ *  + Post config
  */
 Survey.prototype.save = function(){
 	var survey = this.toXml();
@@ -3036,20 +3388,25 @@ Survey.prototype.save = function(){
 		window.location.reload();
 	});
 }
-
 /**
- * Remove the survey from the xml of the config
+ * @name remove
+ * @description Remove the survey from the xml of the config
+ * @assign Chase
+ * @todo 
+ *  + Remove the survey from the xml
+ *  + Set the xml to null
  */
 Survey.prototype.remove = function(){
 	$(this._xml).remove();
 	this._xml = null;
 }
-
 /**
- * Modifiy a certain aspect of object, if save is necessary, its there.
- * @param  {String} prop   [description]
- * @param  {String} value  [description]
- * @param  {Boolean} save  [description]
+ * @name modify
+ * @description Modifiy a certain aspect of object, if save is necessary, its there.
+ * @assign Chase
+ * @todo 
+ *  + Check that the value is not undefined
+ *  + If the current property does not equal the value, reset the value with the new one
  */
 Survey.prototype.modify = function(prop, value){
 	if (value == undefined) return;
@@ -3058,10 +3415,15 @@ Survey.prototype.modify = function(prop, value){
 		this[prop] = value;
 	}
 }
-
 /**
- * Clone and rename survey to append (Copy) and increment the id
- * @return {Object} New survey object
+ * @name copy
+ * @description Clone and rename survey to append (Copy) and increment the id
+ * @assign Chase
+ * @todo
+ *  + Copy the survey
+ *  + Include copy in the name
+ *  + Change the id to the highest id plus 1
+ *  + Return new survey
  */
 Survey.prototype.copy = function(){
 	var cloned = $(this._xml).clone();
@@ -3069,10 +3431,12 @@ Survey.prototype.copy = function(){
 	$(cloned).attr('id', window.config.getHighestSurveyId() + 1);
 	return new Survey(cloned, true);
 }
-
 /**
- * Collects the questions, people, and the peoples answers
- * @param  {Array]} rows Rows from the csv
+ * @name process
+ * @description Collects the questions, people, and the peoples answers
+ * @assign Chase
+ * @todo 
+ *  + Go through each row and add people
  */
 Survey.prototype.process = function(rows){
 	// go through each row and add people
@@ -3090,7 +3454,13 @@ Survey.prototype.process = function(rows){
 	}
 	var i = spot;
 	var _this = this;
-
+	/**
+	 * @name processItems 
+	 * @description process all the survey data collected
+	 * @assign Chase
+	 * @todo 
+	 *  + Clean answers and then add them to their respective individual
+	 */
 	function processItems(){
 		if (i >= rows.length){
 			window.rollup = new Rollup();
@@ -3171,7 +3541,15 @@ Survey.prototype.process = function(rows){
 
 	processItems();
 }
-
+/**
+ * @name cleanCourse 
+ * @description
+ * @assign Chase
+ * @todo
+ *  + Check if the string matches the course name form
+ *   + If so, split and rejoin to ensure the proper spacing
+ *  + Return trimmed string 
+ */
 Survey.cleanCourse = function(str){
 	var found = str.match(/([a-zA-Z]{1,}[0-9]{3})/g);
 	if (found && found.length > 0){
@@ -3179,11 +3557,15 @@ Survey.cleanCourse = function(str){
 	}
 	return str.trim().toUpperCase();
 }
-
 /**
- * Get the question by Id
- * @param  {Integer} id The id of a question within the survey
- * @return {Object}     A question with id of 'id'
+ * @name getQuestionById
+ * @description Get the question by Id
+ * @assign Chase
+ * @todo
+ *  + Go through each question
+ *   + Check if the id matches the question id passed in 
+ *    + return question
+ *  + Not found, return false
  */
 Survey.prototype.getQuestionById = function(id){
 	for (var i = 0; i < this.questions.length; i++){
@@ -3191,11 +3573,14 @@ Survey.prototype.getQuestionById = function(id){
 	}
 	return false;
 }
-
 /**
- * If the survey has the attributes of the parameter object
- * @param  {Object}  obj Survey information
- * @return {Boolean}     Has the same attributes
+ * @name hasAttrs
+ * @description If the survey has the attributes of the parameter object
+ * @assign Chase
+ * @todo 
+ *  + Get the passed in objects keys
+ *  + Go through and check if the keys are the same as surveys attributes
+ *  + Return a bool
  */
 Survey.prototype.hasAttrs = function(obj){
 	var keys = Object.keys(obj);
@@ -3204,13 +3589,22 @@ Survey.prototype.hasAttrs = function(obj){
 	}
 	return true;
 }
-
+/**
+ * @name updateQuestions 
+ * @description
+ * @assign Chase
+ * @todo
+ *  + Go through each question
+ *   + As you go through the passed in questions check if they are the same
+ *    + Assign the id of the old to the new
+ *  + Re-id all the questions that dont have an id
+ *  + Add these questions to the survey object
+ */
 Survey.prototype.updateQuestions = function(qs){
 	for (var j = 0; j < this.questions.length; j++){
 		for (var i = 0; i < qs.length; i++){
 			if (Question.areSame(qs[i], this.questions[j])){
 				qs[i]['id'] = this.questions[j].id;
-				theSame = true
 			}
 		}	
 	}
@@ -3222,7 +3616,15 @@ Survey.prototype.updateQuestions = function(qs){
 		this.questions.push(new Question(questions[i], false));
 	}
 }
-
+/**
+ * @name idQuestions 
+ * @description
+ * @assign Chase
+ * @todo 
+ *  + Go through each question and keep track of the ids
+ *  + Add question ids for questions without id
+ *  + Return the list of questions
+ */
 Survey.prototype.idQuestions = function(questions){
 	var topId = 0;
 	for (var i = 0; i < questions.length; i++){
@@ -3239,7 +3641,15 @@ Survey.prototype.idQuestions = function(questions){
 
 	return questions;
 }
-
+/**
+ * @name getWeekNumber 
+ * @description
+ * @assign Chase
+ * @todo 
+ *  + All names have a colon, check the indexof ':'
+ *  + It should be a number unless it is intro
+ *  + Return intro or the number
+ */
 Survey.prototype.getWeekNumber = function(){
 	if (this.name.indexOf(':') > -1){
 		if (this.name.indexOf('Intro') > -1){
@@ -3252,7 +3662,14 @@ Survey.prototype.getWeekNumber = function(){
 	}	
 	return null;
 }
-
+/**
+ * @name addQuestion 
+ * @description
+ * @assign Chase
+ * @todo 
+ *  + Make sure that the question is not already in the survey
+ *  + If the question is not in the survey, add it
+ */
 Survey.prototype.addQuestion = function(q){
 	var found = false;
 	for (var i = 0; i < this.questions.length; i++){
@@ -3265,7 +3682,14 @@ Survey.prototype.addQuestion = function(q){
 		this.questions.push(q);
 	}
 }
-
+/**
+ * @name getHighestQuestionId 
+ * @description Get the highest question id in the survey
+ * @assign Chase
+ * @todo 
+ *  + Go through each question and retain the highest id
+ *  + Return the highest id
+ */
 Survey.prototype.getHighestQuestionId = function(){
 	var id = 0;
 	$(this.questions).each(function(){
@@ -3275,4 +3699,6 @@ Survey.prototype.getHighestQuestionId = function(){
 	});
 	return parseInt(id);
 }
-// GROUP SURVEY END
+/**
+ * @end
+ */

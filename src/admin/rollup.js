@@ -1,7 +1,9 @@
 
 window._rollup;
 
-// GROUP ROLLUP
+/**
+ * @start ROLLUP
+ */
 /**
  * Rollup Object
  */
@@ -12,14 +14,37 @@ function Rollup(){
 	this._questions = [];
 	this._master = window.config.getMaster();
 }
-
+/**
+ * @name avg 
+ * @description Given the sum and number of items summed it calculates the average
+ * @assign Chase
+ * @todo 
+ *  + Divide the sum by the count
+ *  + Multiply answer by 10
+ *  + Floor that value and divide by 10
+ *  + Return average
+ */
 Rollup.avg = function(sum, count){
 	return Math.floor((sum / count) * 10) / 10;
 }
-
 /**
- * [update description]
- * @return {[type]} [description]
+ * @name update 
+ * @description Updates the rollup with the totals for each leaders stewardship
+ * @assign Chase
+ * @todo 
+ *  + Get the current master
+ *  + Create a map to find questions based on ids and their index in an array
+ *  + Add each question to an object
+ *  + Go through each person in the master
+ *   + Go through all instructors
+ *    + Weekly hours are averaged by credit
+ *   + Go through all tgls
+ *    + Weekly hours are averaged by credit
+ *   + Go through all aims
+ *    + Weekly hours are averaged by credit
+ *   + Go through all ims 
+ *    + Weekly hours are averaged by credit
+ *  + Add all the data collected to the rollup file
  */
 Rollup.prototype.update = function(){
 	var master = window.config.getMaster();
@@ -174,4 +199,6 @@ Rollup.prototype.update = function(){
 		$(this._xml).find('semester[code=' + window.config.getCurrentSemester() + '] > questions > question[name="' + questions[q] + '"]').append('<survey id="' + this._surveyId + '" value="' + rollupValue + '" />');
 	}
 }
-// GROUP ROLLUP END
+/**
+ * @end
+ */

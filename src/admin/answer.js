@@ -1,16 +1,24 @@
-// GROUP ANSWER
 /**
- * Answer object
- * @param {Object} obj Contains a question and answer.
+ * @start Group Answer
+ */
+/**
+ * @name  Answer
+ * @description Answer object
+ * @assign Chase
  */
 function Answer(obj){
 	this._question = obj.question;
 	this._answer = obj.answer;
 	this.clean();
 }
-
 /**
- * Replaces text in answers and encodes certain characters to xml
+ * @name clean
+ * @description Replaces text in answers and encodes certain characters to xml
+ * @assign Chase
+ * @todo 
+ *  + Make sure the answer is not undefined
+ *  + Remove unnecessary characters
+ *  + Replace the Whats with the Withs
  */
 Answer.prototype.clean = function(){
 	if (this._answer == undefined) return;
@@ -22,10 +30,15 @@ Answer.prototype.clean = function(){
 	ans.encodeXml();
 	this._answer = ans.val();
 }
-
 /**
- * Converts the components of the answer into xml
- * @return {Object} Answer in xml form
+ * @name toXml
+ * @description Converts the components of the answer into xml
+ * @assign Chase
+ * @todo 
+ *  + Create the start of the answer xml
+ *  + Create the id attribute for the answer
+ *  + Add the answer text
+ *  + return the xml
  */
 Answer.prototype.toXml = function(){
 	var xml = $('<answer></answer>');
@@ -33,12 +46,15 @@ Answer.prototype.toXml = function(){
 	xml.text(this._answer);
 	return xml; 
 }
-
 /**
- * Collects survey data from a csv row
- * @param  {Object} survey Contains information on the survey
- * @param  {Array}  row    A person's row from the csv file, which contains their information and answers
- * @return {Array}         The person's answers with the questions
+ * @name collect
+ * @description Collects survey data from a csv row
+ * @assign Chase
+ * @todo 
+ *  + Go through each survey question
+ *   + Get the answer for each question from the rows
+ *   + Append the answer to the result array
+ *  + Return result  
  */
 Answer.collect = function(survey, row){
 	var result = [];
@@ -51,4 +67,6 @@ Answer.collect = function(survey, row){
 	}
 	return result;
 }
-// GROUP ANSWER END
+/**
+ * @end
+ */
