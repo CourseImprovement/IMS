@@ -3217,7 +3217,7 @@ SemesterSetup.prototype._createRollup = function(){
 		}
 	}
 	console.log('rollup');
-	console.log(semester);
+	console.log(semester[0]);
 }
 /**
  * @name _createMaster
@@ -3243,7 +3243,7 @@ SemesterSetup.prototype._createIndividualFiles = function(){
 		var semester = $('<semester code="' + code + '"></semester>');
 		var person = byui.createNode('person', people[p]);
 		semester.append(person);
-		console.log(semester);
+		console.log(semester[0]);
 	}
 }
 /**
