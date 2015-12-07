@@ -9,6 +9,7 @@
  * @description Config Object
  * @assign Chase and Grant
  * @todo
+ *  - Create update script for the dev and live config.xml file to add isEval='false' to all survey nodes.
  *  - Add isEval to Survey object
  *  - Add isEval to admin.aspx
  *  - Add isEval to ctrl.js
