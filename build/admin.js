@@ -3186,6 +3186,38 @@ SemesterSetup.prototype.addToOrg = function(person){
  */
 SemesterSetup.prototype._createRollup = function(){
 	console.log('rollup is being created');
+	var code = this._org.semester.code;
+	var people = this._org.semester.person;
+	var semester = $('<semester code="' + code + '"><people></people></semester>');
+	for (var p = 0; p < people.length; p++){
+		for (var r = 0; r < people[p].roles.role.length; r++){
+			var role = people[p].roles.role[r].type;
+			if (role != 'instructor' && role != 'ocr' && role != 'ocrm'){
+				var person = {
+					email: people[p].email,
+					type: role,
+					questions: {
+						question: [{
+							name: 'Seek Development Opportunities'
+						},{
+							name: 'Inspire a Love for Learning'
+						},{
+							name: 'Develop Relationships with and among Students'
+						},{
+							name: 'Embrace University Citizenship'
+						},{
+							name: 'Building Faith in Jesus Christ'
+						},{
+							name: 'Weekly Hours'
+						}]
+					}
+				}
+				semester.find('people').append(byui.createNode('person', person));
+			}
+		}
+	}
+	console.log('rollup');
+	console.log(semester);
 }
 /**
  * @name _createMaster
@@ -3194,6 +3226,9 @@ SemesterSetup.prototype._createRollup = function(){
  */
 SemesterSetup.prototype._createMaster = function(){
 	console.log('master is being created');
+	var newMaster = byui.createNode('semesters', this._org);
+	console.log('master');
+	console.log(newMaster);
 }
 /**
  * @name _createIndividualFiles
@@ -3202,6 +3237,14 @@ SemesterSetup.prototype._createMaster = function(){
  */
 SemesterSetup.prototype._createIndividualFiles = function(){
 	console.log('individual files are being created');
+	var code = this._org.semester.code;
+	var people = this._org.semester.person;
+	for (var p = 0; p < people.length; p++){
+		var semester = $('<semester code="' + code + '"></semester>');
+		var person = byui.createNode('person', people[p]);
+		semester.append(person);
+		console.log(semester);
+	}
 }
 /**
  * @name _isDifferent
