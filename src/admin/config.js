@@ -8,6 +8,11 @@
  * @name Config
  * @description Config Object
  * @assign Chase and Grant
+ * @todo
+ *  - Add isEval to Survey object
+ *  - Add isEval to admin.aspx
+ *  - Add isEval to ctrl.js
+ *  - Update the dashboard to filter the evaluations from the completed tasks tiles
  */
 function Config(){
 	this.surveys = [];
