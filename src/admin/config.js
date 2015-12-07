@@ -9,11 +9,11 @@
  * @description Config Object
  * @assign Chase and Grant
  * @todo
- *  - Create update script for the dev and live config.xml file to add isEval='false' to all survey nodes. (Grant)
- *  - Add isEval to Survey object (Grant)
- *  - Add isEval to admin.aspx (Grant)
- *  - Add isEval to ctrl.js (Grant)
- *  - Update the dashboard to filter the evaluations from the completed tasks tiles (Chase)
+ *  + Create update script for the dev and live config.xml file to add isEval='false' to all survey nodes. (Grant)
+ *  + Add isEval to Survey object (Grant)
+ *  + Add isEval to admin.aspx (Grant)
+ *  + Add isEval to ctrl.js (Grant)
+ *  + Update the dashboard to filter the evaluations from the completed tasks tiles (Chase)
  */
 function Config(){
 	this.surveys = [];
