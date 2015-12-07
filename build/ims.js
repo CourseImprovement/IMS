@@ -1505,7 +1505,7 @@ Role.prototype.getTasksToReview = function(withCourse){
 		}
 		for (var j = 0; j < u._surveys.length; j++){
 			var s = u._surveys[j];
-			if (s.getPlacement().toLowerCase() == lowerRole){
+			if (s.isEval == 'false' && s.getPlacement().toLowerCase() == lowerRole){
 				s.withCourse = withCourse;
 				o.surveys.push(s);
 			}
@@ -1767,11 +1767,26 @@ Role.prototype.getCompletedTasks = function(){
 	var result = [];
 	var surveys = this._user.getSurveys();
 	for (var i = 0; i < surveys.length; i++){
-		if (surveys[i].getPlacement().toLowerCase() == this.getRoleName().toLowerCase() || this.getRoleName().toLowerCase() == 'atgl' && surveys[i].getPlacement().toLowerCase() == 'tgl'){
+		if (surveys[i].isEval == 'false' && surveys[i].getPlacement().toLowerCase() == this.getRoleName().toLowerCase() || this.getRoleName().toLowerCase() == 'atgl' && surveys[i].getPlacement().toLowerCase() == 'tgl'){
 			result.push(surveys[i]);
 		}
 	}
 	return result;
+}
+
+/**
+ * return collection of evaluations for current user
+ * @return {[type]} [description]
+ */
+Role.prototype.getEvaluations = function(){
+    var result = [];
+    var surveys = this._user.getSurveys();
+    for (var i = 0; i < surveys.length; i++){
+        if (surveys[i].isEval == 'true' && surveys[i].getPlacement().toLowerCase() == this.getRoleName().toLowerCase() || this.getRoleName().toLowerCase() == 'atgl' && surveys[i].getPlacement().toLowerCase() == 'tgl'){
+            result.push(surveys[i]);
+        }
+    }
+    return result;
 }
 
 /**
@@ -1782,7 +1797,7 @@ Role.prototype.getCompletedTasksByCourse = function(){
     var surveyList = {};
     var surveys = this._user.getSurveys();
     for (var i = 0; i < surveys.length; i++){
-        if (surveys[i].getPlacement().toLowerCase() == this.getRoleName().toLowerCase() || this.getRoleName().toLowerCase() == 'atgl' && surveys[i].getPlacement().toLowerCase() == 'tgl'){
+        if (surveys[i].isEval == 'false' && surveys[i].getPlacement().toLowerCase() == this.getRoleName().toLowerCase() || this.getRoleName().toLowerCase() == 'atgl' && surveys[i].getPlacement().toLowerCase() == 'tgl'){
             if (!surveyList[surveys[i].getCourse().getName()]){
                 surveyList[surveys[i].getCourse().getName()] = [];
             }
@@ -2213,14 +2228,14 @@ Tile.getAll = function(role) {
           data: role.getCompletedTasks(),
           hidden: ''
         }),
-        // new Tile({
-        //   title: 'Instructor Standards',
-        //   helpText: 'This tile displays the average score for each instructor standard. Click on a standard\'s line in the graph to view individual instructor scores for that standard',
-        //   type: 'graph',
-        //   data: role.getInstructorStandards(),
-        //   hidden: '',
-        //   config: 'TGLInstructorStandards'
-        // })
+        new Tile({
+          title: 'Instructor Standards',
+          helpText: 'This tile displays the average score for each instructor standard. Click on a standard\'s line in the graph to view individual instructor scores for that standard',
+          type: 'graph',
+          data: role.getInstructorStandards(),
+          hidden: '',
+          config: 'TGLInstructorStandards'
+        })
       ],
       [
         new Tile({
@@ -2237,13 +2252,13 @@ Tile.getAll = function(role) {
           data: role.getRoster(),
           hidden: ''
         }),
-        // new Tile({
-        //   title: 'Evaluations',
-        //   helpText: 'This tile displays evaluations others have completed about you in your name as an ' + (name.toLowerCase() == 'aim' ? 'Assistant Instructor Manager' : 'Instructor Manager') + '.',
-        //   type: 'survey-list',
-        //   data: [],
-        //   hidden: ''
-        // })
+        new Tile({
+          title: 'Evaluations',
+          helpText: 'This tile displays evaluations others have completed about you in your name as an ' + (name.toLowerCase() == 'aim' ? 'Assistant Instructor Manager' : 'Instructor Manager') + '.',
+          type: 'survey-list',
+          data: role.getEvaluations(),
+          hidden: ''
+        })
       ],
       [
         new Tile({
@@ -2273,13 +2288,13 @@ Tile.getAll = function(role) {
           data: role.getIncompleteTasks(),
           hidden: ''
         }),
-        // new Tile({
-        //   title: 'Evaluations',
-        //   helpText: 'This tile displays evaluations on you as a ' + name.toUpperCase() + '.',
-        //   type: 'survey-list',
-        //   data: [],
-        //   hidden: ''
-        // }),
+        new Tile({
+          title: 'Evaluations',
+          helpText: 'This tile displays evaluations on you as a ' + name.toUpperCase() + '.',
+          type: 'survey-list',
+          data: role.getEvaluations(),
+          hidden: ''
+        }),
         new Tile({
           title: 'Roster',
           helpText: 'This tile displays your instructors.',

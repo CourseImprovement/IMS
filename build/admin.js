@@ -6,8 +6,8 @@
  */
 window.ims = {};
 ims.url = {};
-ims.url._base = window.location.protocol + '//' + window.location.hostname + '/sites/onlineinstructionreporting/';
-ims.url.relativeBase = '/sites/onlineinstructionreporting/';
+ims.url._base = window.location.protocol + '//' + window.location.hostname + '/sites/onlineinstructionreporting/onlineinstructionreportingdev/';
+ims.url.relativeBase = '/sites/onlineinstructionreporting/onlineinstructionreportingdev/';
 ims.url.base = ims.url._base + 'instructor%20Reporting/';
 ims.url.api = ims.url._base + '_api/';
 ims.url.site = ims.url._base; 
@@ -617,6 +617,12 @@ Answer.collect = function(survey, row){
  * @name Config
  * @description Config Object
  * @assign Chase and Grant
+ * @todo
+ *  - Create update script for the dev and live config.xml file to add isEval='false' to all survey nodes. (Grant)
+ *  - Add isEval to Survey object (Grant)
+ *  - Add isEval to admin.aspx (Grant)
+ *  - Add isEval to ctrl.js (Grant)
+ *  - Update the dashboard to filter the evaluations from the completed tasks tiles (Chase)
  */
 function Config(){
 	this.surveys = [];
@@ -860,6 +866,7 @@ Config.prototype.getMap = function(){
 Config.prototype._getSurveyColumns = function(surveyId){
 	var survey = $(this._xml).find('semester[code=FA15] > surveys > survey[id="' + surveyId + '"]');
 	var columns = {
+		isEval: survey.attr('isEval'),
 		id: surveyId,
 		email: Config.getCol(survey.attr('email')),
 		placement: survey.attr('placement'),
@@ -900,7 +907,7 @@ Config.prototype._getSurveyColumns = function(surveyId){
  *  + Update the questions
  *  + Save the survey
  */
-Config.prototype.surveyModify = function(name, emailCol, weekCol, typeCol, placement, courseCol, questions, surveyId){
+Config.prototype.surveyModify = function(name, emailCol, weekCol, typeCol, placement, courseCol, questions, surveyId, isEval){
 	var survey = window.config.getSurveyById(surveyId);
 	survey.modify('week', weekCol);
 	survey.modify('placement', placement);
@@ -908,6 +915,7 @@ Config.prototype.surveyModify = function(name, emailCol, weekCol, typeCol, place
 	survey.modify('email', emailCol);
 	survey.modify('name', name);
 	survey.modify('course', courseCol);
+	survey.modify('isEval', isEval);
 	survey.updateQuestions(questions);
 	survey.save();
 }
@@ -3296,9 +3304,6 @@ SemesterSetup.prototype._updateIndividualFiles = function(){
 /**
  * @end
  */
-
-
-
 /**
  * @start SURVEY
  */
@@ -3308,6 +3313,7 @@ SemesterSetup.prototype._updateIndividualFiles = function(){
  */
 function Survey(survey, isXml){
 	if (isXml){
+		this.isEval = $(survey).attr('isEval');
 		this.id = parseInt($(survey).attr('id'));
 		if ($(survey).attr('week')){
 			this.week = $(survey).attr('week');
@@ -3324,6 +3330,7 @@ function Survey(survey, isXml){
 		this.people = [];
 	}
 	else{
+		this.isEval = survey.isEval;
 		this.id = parseInt(survey.id);
 		if (survey.week != undefined){
 			this.week = survey.week;

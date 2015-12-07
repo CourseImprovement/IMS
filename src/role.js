@@ -533,7 +533,7 @@ Role.prototype.getTasksToReview = function(withCourse){
 		}
 		for (var j = 0; j < u._surveys.length; j++){
 			var s = u._surveys[j];
-			if (s.getPlacement().toLowerCase() == lowerRole){
+			if (s.isEval == 'false' && s.getPlacement().toLowerCase() == lowerRole){
 				s.withCourse = withCourse;
 				o.surveys.push(s);
 			}
@@ -795,11 +795,26 @@ Role.prototype.getCompletedTasks = function(){
 	var result = [];
 	var surveys = this._user.getSurveys();
 	for (var i = 0; i < surveys.length; i++){
-		if (surveys[i].getPlacement().toLowerCase() == this.getRoleName().toLowerCase() || this.getRoleName().toLowerCase() == 'atgl' && surveys[i].getPlacement().toLowerCase() == 'tgl'){
+		if (surveys[i].isEval == 'false' && surveys[i].getPlacement().toLowerCase() == this.getRoleName().toLowerCase() || this.getRoleName().toLowerCase() == 'atgl' && surveys[i].getPlacement().toLowerCase() == 'tgl'){
 			result.push(surveys[i]);
 		}
 	}
 	return result;
+}
+
+/**
+ * return collection of evaluations for current user
+ * @return {[type]} [description]
+ */
+Role.prototype.getEvaluations = function(){
+    var result = [];
+    var surveys = this._user.getSurveys();
+    for (var i = 0; i < surveys.length; i++){
+        if (surveys[i].isEval == 'true' && surveys[i].getPlacement().toLowerCase() == this.getRoleName().toLowerCase() || this.getRoleName().toLowerCase() == 'atgl' && surveys[i].getPlacement().toLowerCase() == 'tgl'){
+            result.push(surveys[i]);
+        }
+    }
+    return result;
 }
 
 /**
@@ -810,7 +825,7 @@ Role.prototype.getCompletedTasksByCourse = function(){
     var surveyList = {};
     var surveys = this._user.getSurveys();
     for (var i = 0; i < surveys.length; i++){
-        if (surveys[i].getPlacement().toLowerCase() == this.getRoleName().toLowerCase() || this.getRoleName().toLowerCase() == 'atgl' && surveys[i].getPlacement().toLowerCase() == 'tgl'){
+        if (surveys[i].isEval == 'false' && surveys[i].getPlacement().toLowerCase() == this.getRoleName().toLowerCase() || this.getRoleName().toLowerCase() == 'atgl' && surveys[i].getPlacement().toLowerCase() == 'tgl'){
             if (!surveyList[surveys[i].getCourse().getName()]){
                 surveyList[surveys[i].getCourse().getName()] = [];
             }

@@ -7,6 +7,7 @@
  */
 function Survey(survey, isXml){
 	if (isXml){
+		this.isEval = $(survey).attr('isEval');
 		this.id = parseInt($(survey).attr('id'));
 		if ($(survey).attr('week')){
 			this.week = $(survey).attr('week');
@@ -23,6 +24,7 @@ function Survey(survey, isXml){
 		this.people = [];
 	}
 	else{
+		this.isEval = survey.isEval;
 		this.id = parseInt(survey.id);
 		if (survey.week != undefined){
 			this.week = survey.week;

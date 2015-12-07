@@ -257,6 +257,7 @@ Config.prototype.getMap = function(){
 Config.prototype._getSurveyColumns = function(surveyId){
 	var survey = $(this._xml).find('semester[code=FA15] > surveys > survey[id="' + surveyId + '"]');
 	var columns = {
+		isEval: survey.attr('isEval'),
 		id: surveyId,
 		email: Config.getCol(survey.attr('email')),
 		placement: survey.attr('placement'),
@@ -297,7 +298,7 @@ Config.prototype._getSurveyColumns = function(surveyId){
  *  + Update the questions
  *  + Save the survey
  */
-Config.prototype.surveyModify = function(name, emailCol, weekCol, typeCol, placement, courseCol, questions, surveyId){
+Config.prototype.surveyModify = function(name, emailCol, weekCol, typeCol, placement, courseCol, questions, surveyId, isEval){
 	var survey = window.config.getSurveyById(surveyId);
 	survey.modify('week', weekCol);
 	survey.modify('placement', placement);
@@ -305,6 +306,7 @@ Config.prototype.surveyModify = function(name, emailCol, weekCol, typeCol, place
 	survey.modify('email', emailCol);
 	survey.modify('name', name);
 	survey.modify('course', courseCol);
+	survey.modify('isEval', isEval);
 	survey.updateQuestions(questions);
 	survey.save();
 }
