@@ -423,6 +423,7 @@ app.controller('adminCtrl', ["$scope", function($scope){
 	$scope.surveyModifications = function(type, id){
 		surveyId = id;
 		var survey = window.config.getSurveyById(id);
+		$scope.selectedSurvey = survey;
 		window.config.selectedSurvey = survey;
 		if (type == 'register'){ // REGISTER NEW SURVEY - PERFORM IN CTRL
 			var csv = new CSV();

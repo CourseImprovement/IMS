@@ -1,3 +1,11 @@
+/**
+ * @name Tile 
+ * @description
+ * @todo 
+ *  - Rename roster to resources
+ *  - Link to performance report under resources
+ *  - Course vists
+ */
 function Tile(config) {
   if (!config) throw "Invalid config of tile";
   this.title = config.title;

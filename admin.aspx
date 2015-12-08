@@ -8,6 +8,7 @@
 	<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.3.15/angular.min.js"></script>
 	<script type="text/javascript" src='https://courseimprovement.github.io/IMS/lib/papaparse.min.js'></script>
 	<script type="text/javascript" src='../_layouts/15/SP.RequestExecutor.js'></script>
+	<script type="text/javascript" src='build/byui.js'></script>
 	<script type="text/javascript" src='build/admin.js'></script>
 </head>
 <body ng-controller='adminCtrl'>
@@ -63,7 +64,7 @@
 		<div class="row">
 			Copy a Survey
 			<select class="big-btn" ng-model='selectSurvey3'>
-				<option ng-repeat='s in surveys | orderBy:["name", "week"]' value='{{s.id}}'>{{s.name}}</option>
+				<option ng-repeat='s in surveys | orderBy:["name", "week"]' value='{{s.id}}'>{{s.name}}: week {{s.week}}</option>
 			</select>
 			<button class="big-btn" ng-click='surveyModifications("copy", selectSurvey3)'>Copy</button>
 		</div>
@@ -86,10 +87,16 @@
 				</select>
 			</div>
 			<div class="row">
-				Email Col <input type="text" ng-model='selectedSurvey.email' ng-keyup='selectedSurvey.email = upper($event)' id='eCol'>
+				Evaluation: <select name="eval" ng-model='selectedSurvey.iseval' id="iseval">
+					<option value="true">True</option>
+					<option value="false">False</option>
+				</select>
 			</div>
 			<div class="row">
-				Course Col <input type="text" ng-model='selectedSurvey.course' ng-keyup='selectedSurvey.course = upper($event)' id='cCol'>
+				Email Col: <input type="text" ng-model='selectedSurvey.email' ng-keyup='selectedSurvey.email = upper($event)' id='eCol'>
+			</div>
+			<div class="row">
+				Course Col: <input type="text" ng-model='selectedSurvey.course' ng-keyup='selectedSurvey.course = upper($event)' id='cCol'>
 			</div>
 			<div class="row">
 				 <div class="link" ng-click='addBlankQuestion()'>

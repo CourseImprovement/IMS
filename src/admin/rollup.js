@@ -5,7 +5,9 @@ window._rollup;
  * @start ROLLUP
  */
 /**
- * Rollup Object
+ * @name Rollup
+ * @todo 
+ *  - Fix rollup on im and aim
  */
 function Rollup(){
 	this._xml = ims.sharepoint.getXmlByEmail('rollup');

@@ -4,10 +4,12 @@
 /**
  * @name Survey
  * @description Survey Object
+ * @todo 
+ *  + Remove iseval from all surveys
  */
 function Survey(survey, isXml){
 	if (isXml){
-		this.isEval = $(survey).attr('isEval');
+		this.iseval = $(survey).attr('iseval') && $(survey).attr('iseval') == 'true';
 		this.id = parseInt($(survey).attr('id'));
 		if ($(survey).attr('week')){
 			this.week = $(survey).attr('week');
@@ -22,9 +24,8 @@ function Survey(survey, isXml){
 		this.questions = [];
 		this._setXmlQuestions();
 		this.people = [];
-	}
-	else{
-		this.isEval = survey.isEval;
+	} else {
+		this.iseval = survey.iseval && survey.iseval == 'true';
 		this.id = parseInt(survey.id);
 		if (survey.week != undefined){
 			this.week = survey.week;
@@ -101,7 +102,8 @@ Survey.prototype.toXml = function(){
 		.attr('placement', this.placement)
 		.attr('type', this.type)
 		.attr('name', this.name)
-		.attr('email', this.email);
+		.attr('email', this.email)
+		.attr('iseval', this.iseval);
 
 	if (this.week){
 		survey.attr('week', this.week);
@@ -295,6 +297,13 @@ Survey.prototype.process = function(rows){
 				ims.loading.set((i / rows.length) * 100);
 				processItems();
 			}, 10);
+		}
+		else if (rows[i][eCol] == undefined){
+			i++;
+			if (i == rows.length){
+				ims.loading.set((i / rows.length) * 100);
+				processItems();
+			}
 		}
 	}
 

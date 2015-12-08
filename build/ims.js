@@ -1505,7 +1505,7 @@ Role.prototype.getTasksToReview = function(withCourse){
 		}
 		for (var j = 0; j < u._surveys.length; j++){
 			var s = u._surveys[j];
-			if (s.isEval == 'false' && s.getPlacement().toLowerCase() == lowerRole){
+			if (s.isEvaluation() == false && s.getPlacement().toLowerCase() == lowerRole){
 				s.withCourse = withCourse;
 				o.surveys.push(s);
 			}
@@ -1767,7 +1767,7 @@ Role.prototype.getCompletedTasks = function(){
 	var result = [];
 	var surveys = this._user.getSurveys();
 	for (var i = 0; i < surveys.length; i++){
-		if (surveys[i].isEval == 'false' && surveys[i].getPlacement().toLowerCase() == this.getRoleName().toLowerCase() || this.getRoleName().toLowerCase() == 'atgl' && surveys[i].getPlacement().toLowerCase() == 'tgl'){
+		if (surveys[i].isEvaluation() == false && surveys[i].getPlacement().toLowerCase() == this.getRoleName().toLowerCase() || this.getRoleName().toLowerCase() == 'atgl' && surveys[i].getPlacement().toLowerCase() == 'tgl'){
 			result.push(surveys[i]);
 		}
 	}
@@ -1782,7 +1782,7 @@ Role.prototype.getEvaluations = function(){
     var result = [];
     var surveys = this._user.getSurveys();
     for (var i = 0; i < surveys.length; i++){
-        if (surveys[i].isEval == 'true' && surveys[i].getPlacement().toLowerCase() == this.getRoleName().toLowerCase() || this.getRoleName().toLowerCase() == 'atgl' && surveys[i].getPlacement().toLowerCase() == 'tgl'){
+        if (surveys[i].isEvaluation() == true && surveys[i].getPlacement().toLowerCase() == this.getRoleName().toLowerCase() || this.getRoleName().toLowerCase() == 'atgl' && surveys[i].getPlacement().toLowerCase() == 'tgl'){
             result.push(surveys[i]);
         }
     }
@@ -1797,7 +1797,7 @@ Role.prototype.getCompletedTasksByCourse = function(){
     var surveyList = {};
     var surveys = this._user.getSurveys();
     for (var i = 0; i < surveys.length; i++){
-        if (surveys[i].isEval == 'false' && surveys[i].getPlacement().toLowerCase() == this.getRoleName().toLowerCase() || this.getRoleName().toLowerCase() == 'atgl' && surveys[i].getPlacement().toLowerCase() == 'tgl'){
+        if (surveys[i].isEvaluation() == false && surveys[i].getPlacement().toLowerCase() == this.getRoleName().toLowerCase() || this.getRoleName().toLowerCase() == 'atgl' && surveys[i].getPlacement().toLowerCase() == 'tgl'){
             if (!surveyList[surveys[i].getCourse().getName()]){
                 surveyList[surveys[i].getCourse().getName()] = [];
             }
@@ -1906,8 +1906,9 @@ Role.prototype.getSuggested = function(q){
 }
 
 /**
- * Gets the roles menu, if instructor return null
- * @return {[type]} [description]
+ * @description Gets the roles menu, if instructor return null
+ * @todo 
+ *  - Rename 'INSTRUCTOR' to 'Instructor'
  */
 Role.prototype.getRolesMenu = function(){
 	if (this._role.toLowerCase() == 'instructor') return new Menu();
@@ -1916,7 +1917,7 @@ Role.prototype.getRolesMenu = function(){
 	var lowerRole = this._nextLowerForMenu(this.getRoleName().toLowerCase());
 	if (this._user.isCurrent()){
 		people.push({
-			value: 'My ' + lowerRole.toUpperCase() + "'s",
+			value: 'My ' + lowerRole.toUpperCase()/*if instructor change to Instructor*/ + "'s",
 			href: '#',
 			type: 'title',
 			selected: false
@@ -2128,6 +2129,10 @@ Survey.prototype.getWeek = function(){
 	return this._week;
 }
 
+Survey.prototype.isEvaluation = function(){
+	return $(this._config).attr('iseval') == 'true';
+}
+
 /**
  * Get the answers of the survey
  * @return {[type]} [description]
@@ -2199,6 +2204,14 @@ Survey.prototype.getCourse = function(){
 Survey.prototype.getQuestions = function(){
 	return this.getAnswers();
 }
+/**
+ * @name Tile 
+ * @description
+ * @todo 
+ *  - Rename roster to resources
+ *  - Link to performance report under resources
+ *  - Course vists
+ */
 function Tile(config) {
   if (!config) throw "Invalid config of tile";
   this.title = config.title;

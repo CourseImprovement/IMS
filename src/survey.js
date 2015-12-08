@@ -57,6 +57,10 @@ Survey.prototype.getWeek = function(){
 	return this._week;
 }
 
+Survey.prototype.isEvaluation = function(){
+	return $(this._config).attr('iseval') == 'true';
+}
+
 /**
  * Get the answers of the survey
  * @return {[type]} [description]

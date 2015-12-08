@@ -656,6 +656,7 @@ Config.prototype.addSurvey = function(survey){
  */
 Config.prototype.newSurvey = function(){
 	var survey = new Survey({
+		iseval: false,
 		id: this.getHighestSurveyId() + 1,
 		questions: []
 	}, false);
@@ -866,7 +867,7 @@ Config.prototype.getMap = function(){
 Config.prototype._getSurveyColumns = function(surveyId){
 	var survey = $(this._xml).find('semester[code=FA15] > surveys > survey[id="' + surveyId + '"]');
 	var columns = {
-		isEval: survey.attr('isEval'),
+		iseval: survey.attr('iseval'),
 		id: surveyId,
 		email: Config.getCol(survey.attr('email')),
 		placement: survey.attr('placement'),
@@ -907,7 +908,7 @@ Config.prototype._getSurveyColumns = function(surveyId){
  *  + Update the questions
  *  + Save the survey
  */
-Config.prototype.surveyModify = function(name, emailCol, weekCol, typeCol, placement, courseCol, questions, surveyId, isEval){
+Config.prototype.surveyModify = function(name, emailCol, weekCol, typeCol, placement, courseCol, questions, surveyId, iseval){
 	var survey = window.config.getSurveyById(surveyId);
 	survey.modify('week', weekCol);
 	survey.modify('placement', placement);
@@ -915,7 +916,7 @@ Config.prototype.surveyModify = function(name, emailCol, weekCol, typeCol, place
 	survey.modify('email', emailCol);
 	survey.modify('name', name);
 	survey.modify('course', courseCol);
-	survey.modify('isEval', isEval);
+	survey.modify('iseval', iseval);
 	survey.updateQuestions(questions);
 	survey.save();
 }
@@ -1491,6 +1492,7 @@ app.controller('adminCtrl', ["$scope", function($scope){
 	$scope.surveyModifications = function(type, id){
 		surveyId = id;
 		var survey = window.config.getSurveyById(id);
+		$scope.selectedSurvey = survey;
 		window.config.selectedSurvey = survey;
 		if (type == 'register'){ // REGISTER NEW SURVEY - PERFORM IN CTRL
 			var csv = new CSV();
@@ -1806,7 +1808,7 @@ Evaluations.prototype.calculatePercentages = function(){
  *  + error handling
  */
 Evaluations.prototype.sendToCSV = function(){
-	var csv = "email,";
+	var csv = "###,###,###,email,";
 
 	/*ADD THE TITLES TO THE CSV*/
 	for (var j = 0; j < this._evaluations.dataSeries.length; j++){
@@ -1817,7 +1819,7 @@ Evaluations.prototype.sendToCSV = function(){
 
 	/*ADD THE PEOPLE AND THEIR DATA TO THE CSV*/
 	for (var person in this.people){
-		csv += person + ",";
+		csv += "###,###,100.100.100," + person + ",";
 		for (var q in this.people[person]){
 			if (q != 'count'){
 				if (isNaN(this.people[person][q])){
@@ -2269,23 +2271,31 @@ Person.prototype.getLeader = function(){
  */
 Person.prototype.process = function(){
 	this.getXml();
-	this.getLeader();
-	this._leader._placement = Config.getLeader(this._placement);
+	if (!window.config.selectedSurvey.iseval){
+		this.getLeader();
+		this._leader._placement = Config.getLeader(this._placement);
+	}
 	this._master = window.config.getMaster();
 	var xml = this.toXml();
 	var id = window.config.selectedSurvey.id;
 	if (!!this.course){
 		$(this._master).find('semester[code=' + window.config.getCurrentSemester() + '] > people > person[email=' + this._email + '] > roles > role[type=' + this._placement + '] > surveys survey[id=' + id + '][courseid='+ this.course + ']').remove();
-		$(this._leader._xml).find('semester[code=' + window.config.getCurrentSemester() + '] > people > person > roles > role[type=' + this._leader._placement + '] > stewardship > people > person[email=' + this._email + '] surveys survey[id=' + id + '][courseid='+ this.course + ']').remove();
+		if (!window.config.selectedSurvey.iseval){
+			$(this._leader._xml).find('semester[code=' + window.config.getCurrentSemester() + '] > people > person > roles > role[type=' + this._leader._placement + '] > stewardship > people > person[email=' + this._email + '] surveys survey[id=' + id + '][courseid='+ this.course + ']').remove();
+		}
 		$(this._xml).find('semester[code=' + window.config.getCurrentSemester() + '] > people > person > roles > role[type=' + this._placement + '] > surveys survey[id=' + id + '][courseid='+ this.course + ']').remove();
 	}
 	else{
 		$(this._master).find('semester[code=' + window.config.getCurrentSemester() + '] > people > person[email=' + this._email + '] > roles > role[type=' + this._placement + '] > surveys survey[id=' + id + ']').remove();
-		$(this._leader._xml).find('semester[code=' + window.config.getCurrentSemester() + '] > people > person > roles > role[type=' + this._leader._placement + '] > stewardship > people > person[email=' + this._email + '] surveys survey[id=' + id + ']').remove();
+		if (!window.config.selectedSurvey.iseval){
+			$(this._leader._xml).find('semester[code=' + window.config.getCurrentSemester() + '] > people > person > roles > role[type=' + this._leader._placement + '] > stewardship > people > person[email=' + this._email + '] surveys survey[id=' + id + ']').remove();
+		}
 		$(this._xml).find('semester[code=' + window.config.getCurrentSemester() + '] > people > person > roles > role[type=' + this._placement + '] > surveys survey[id=' + id + ']').remove();
 	}
 	$(this._master).find('semester[code=' + window.config.getCurrentSemester() + '] > people > person[email=' + this._email + '] > roles > role[type=' + this._placement + '] > surveys').append(xml.clone());
-	$(this._leader._xml).find('semester[code=' + window.config.getCurrentSemester() + '] > people > person > roles > role[type=' + this._leader._placement + '] > stewardship > people > person[email=' + this._email + '] surveys').append(xml.clone());
+	if (!window.config.selectedSurvey.iseval){
+		$(this._leader._xml).find('semester[code=' + window.config.getCurrentSemester() + '] > people > person > roles > role[type=' + this._leader._placement + '] > stewardship > people > person[email=' + this._email + '] surveys').append(xml.clone());
+	}
 	$(this._xml).find('semester[code=' + window.config.getCurrentSemester() + '] > people > person > roles > role[type=' + this._placement + '] > surveys').append(xml.clone());
 }
 /**
@@ -2418,7 +2428,9 @@ window._rollup;
  * @start ROLLUP
  */
 /**
- * Rollup Object
+ * @name Rollup
+ * @todo 
+ *  - Fix rollup on im and aim
  */
 function Rollup(){
 	this._xml = ims.sharepoint.getXmlByEmail('rollup');
@@ -3310,10 +3322,12 @@ SemesterSetup.prototype._updateIndividualFiles = function(){
 /**
  * @name Survey
  * @description Survey Object
+ * @todo 
+ *  + Remove iseval from all surveys
  */
 function Survey(survey, isXml){
 	if (isXml){
-		this.isEval = $(survey).attr('isEval');
+		this.iseval = $(survey).attr('iseval') && $(survey).attr('iseval') == 'true';
 		this.id = parseInt($(survey).attr('id'));
 		if ($(survey).attr('week')){
 			this.week = $(survey).attr('week');
@@ -3328,9 +3342,8 @@ function Survey(survey, isXml){
 		this.questions = [];
 		this._setXmlQuestions();
 		this.people = [];
-	}
-	else{
-		this.isEval = survey.isEval;
+	} else {
+		this.iseval = survey.iseval && survey.iseval == 'true';
 		this.id = parseInt(survey.id);
 		if (survey.week != undefined){
 			this.week = survey.week;
@@ -3407,7 +3420,8 @@ Survey.prototype.toXml = function(){
 		.attr('placement', this.placement)
 		.attr('type', this.type)
 		.attr('name', this.name)
-		.attr('email', this.email);
+		.attr('email', this.email)
+		.attr('iseval', this.iseval);
 
 	if (this.week){
 		survey.attr('week', this.week);
@@ -3601,6 +3615,13 @@ Survey.prototype.process = function(rows){
 				ims.loading.set((i / rows.length) * 100);
 				processItems();
 			}, 10);
+		}
+		else if (rows[i][eCol] == undefined){
+			i++;
+			if (i == rows.length){
+				ims.loading.set((i / rows.length) * 100);
+				processItems();
+			}
 		}
 	}
 

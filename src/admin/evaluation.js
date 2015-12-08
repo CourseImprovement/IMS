@@ -151,7 +151,7 @@ Evaluations.prototype.calculatePercentages = function(){
  *  + error handling
  */
 Evaluations.prototype.sendToCSV = function(){
-	var csv = "email,";
+	var csv = "###,###,###,email,";
 
 	/*ADD THE TITLES TO THE CSV*/
 	for (var j = 0; j < this._evaluations.dataSeries.length; j++){
@@ -162,7 +162,7 @@ Evaluations.prototype.sendToCSV = function(){
 
 	/*ADD THE PEOPLE AND THEIR DATA TO THE CSV*/
 	for (var person in this.people){
-		csv += person + ",";
+		csv += "###,###,100.100.100," + person + ",";
 		for (var q in this.people[person]){
 			if (q != 'count'){
 				if (isNaN(this.people[person][q])){
