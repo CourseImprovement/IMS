@@ -1037,6 +1037,7 @@ a, .link{
 
 #fade{
 	position: relative;
+	padding: 5px;
 }
 
 .semester{

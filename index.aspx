@@ -3,31 +3,25 @@
 <html lang="en" ng-app='ims' ng-controller='view' ng-click='toggleMenu()' xmlns:mso="urn:schemas-microsoft-com:office:office" xmlns:msdt="uuid:C2F41010-65B3-11d1-A29F-00AA00C14882">
 <head>
 	<meta charset="UTF-8">
-	<link type="image/x-icon" href="//www.byui.edu/prebuilt/stylenew/images/ico/favicon.ico" rel="shortcut icon">
+	<link type="image/x-icon" href="//webmailbyui.sharepoint.com///www.byui.edu/prebuilt/stylenew/images/ico/favicon.ico" rel="shortcut icon">
 	<link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.4.0/css/font-awesome.min.css">
-	<link rel="stylesheet" type="text/css" href="https://courseimprovement.github.io/IMS/css/style.css">
-	<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.3.15/angular.min.js"></script>
+	<link rel="stylesheet" type="text/css" href="css/style.css">
+	<script async="" src="//www.google-analytics.com/analytics.js"></script><script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.3.15/angular.min.js"></script>
 	<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
-	<script type="text/javascript" src='https://courseimprovement.github.io/IMS/lib/crypto.js'></script>
+	<script type="text/javascript" src="build/crypto.js"></script>
 	<script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.11.4/jquery-ui.min.js"></script>
-	<script type="text/javascript" src='https://cdnjs.cloudflare.com/ajax/libs/highcharts/4.1.8/highcharts.js'></script>
-	<script type="text/javascript" src='https://cdnjs.cloudflare.com/ajax/libs/highcharts/4.1.8/highcharts-more.js'></script>
-	<script type="text/javascript" src='https://cdnjs.cloudflare.com/ajax/libs/highcharts/4.1.8/modules/exporting.js'></script>
-	<script type="text/javascript" src='https://courseimprovement.github.io/IMS/lib/angular.highcharts.js'></script>
-	<script type="text/javascript" src='../_layouts/15/SP.RequestExecutor.js'></script>
+	<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/highcharts/4.1.8/highcharts.js"></script>
+	<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/highcharts/4.1.8/highcharts-more.js"></script>
+	<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/highcharts/4.1.8/modules/exporting.js"></script>
+	<script type="text/javascript" src="build/angular.highcharts.js"></script>
+	<script type="text/javascript" src="../_layouts/15/SP.RequestExecutor.js"></script>
 
-	<script type="text/javascript" src='https://courseimprovement.github.io/IMS/build/ims.js'></script>
+	<script type="text/javascript" src="build/ims.js"></script>
 	<title>IMS | Dashboard</title>
 	
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<!--[if gte mso 9]><SharePoint:CTFieldRefs runat=server Prefix="mso:" FieldList="FileLeafRef,_dlc_DocId,_dlc_DocIdUrl,_dlc_DocIdPersistId"><xml>
-<mso:CustomDocumentProperties>
-<mso:_dlc_DocId msdt:dt="string">SYSTEMS-1372707001-1810</mso:_dlc_DocId>
-<mso:_dlc_DocIdItemGuid msdt:dt="string">899d6e89-a697-4634-9472-f70bfd96c5de</mso:_dlc_DocIdItemGuid>
-<mso:_dlc_DocIdUrl msdt:dt="string">https://webmailbyui-my.sharepoint.com/personal/willdech_byui_edu/chase/OnlineInstructionReporting/_layouts/15/DocIdRedir.aspx?ID=SYSTEMS-1372707001-1810, SYSTEMS-1372707001-1810</mso:_dlc_DocIdUrl>
-</mso:CustomDocumentProperties>
-</xml></SharePoint:CTFieldRefs><![endif]-->
+<!--[if gte mso 9]><![endif]-->
 </head>
 <body>
 	
@@ -167,9 +161,10 @@
 					 <table class="table selection" ng-if='tile.type == "roster"'>
 						<tr ng-repeat='user in tile.data | orderBy:"name"'>
 							<td><div class='newInst' ng-if='user.isNew()'>New</div></td>
-							<td><div ng-click='redirect(user.getHref())' class='link'>{{user.getFullName()}}</div></td>
+							<td ng-if='$index != 0'><div ng-click='redirect(user.getHref())' class='link'>{{user.getFullName()}}</div></td>
+							<td ng-if='$index == 0'><a class='link' target='_blank' href="{{user.getHref()}}">{{user.getFullName()}}</a></td>
 							<td><a href='mailto:{{user.getFullEmail()}}'>{{user.getFullEmail()}}</a></td>
-							<td><a href="https://outlook.office365.com/owa/#viewmodel=IMailComposeViewModelFactory" target='_blank'><i class='fa fa-envelope'></i></a></td>
+							<td ng-if='$index != 0'><a href="https://outlook.office365.com/owa/#viewmodel=IMailComposeViewModelFactory" target='_blank'><i class='fa fa-envelope'></i></a></td>
 						</tr>
 					</table>
 					 <!-- END ROSTER -->

@@ -23,6 +23,6 @@ module.exports = function(grunt) {
   grunt.loadNpmTasks('grunt-contrib-concat');
   grunt.loadNpmTasks('grunt-contrib-watch');
 
-  grunt.registerTask('default', ['w', 'watch']);
+  grunt.registerTask('default', ['w']);
   grunt.registerTask('w', ['concat:norm', 'concat:admin']);
 };

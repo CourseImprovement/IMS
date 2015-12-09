@@ -751,12 +751,14 @@ Role.prototype.getQuestionForAll = function(name){
 }
 
 /**
- * returns a list of the various people in the users group
- * @return {Object} object contains all underlings
+ * @name  Role.getRoster
+ * @description returns a list of the various people in the users group
+ * @todo
+ *  - Include performance report link
  */
 Role.prototype.getRoster = function(){
 	if (this._role == 'instructor') return null;
-	var roster = [];
+	var roster = [new Performance()];
 	for (var i = 0; i < this._org.length; i++){
 		roster.push(this._org[i].user);
 	}

@@ -906,6 +906,14 @@ function MenuItem(obj){
 	this.type = obj.type;
 	this.selected = obj.selected;
 }
+function Performance(){
+	this.link = 'https://docs.google.com/forms/d/1zM5mc8LTNeKKmpjUuzSUI6myvL6dz_aSNh3sIsqaNaY/viewform?formkey=dG01Ykt2UXlBMmo3UEh0VlNtZXZLWlE6MQ#gid=0';
+	this.name = 'Performance Report';
+}
+
+Performance.prototype.isNew = function(){return false;}
+Performance.prototype.getHref = function(){return this.link;}
+Performance.prototype.getFullName = function(){return this.name;}
 function Question(xml, survey){
 	this._answer = $(xml).text();
 	this._survey = survey;
@@ -1723,12 +1731,14 @@ Role.prototype.getQuestionForAll = function(name){
 }
 
 /**
- * returns a list of the various people in the users group
- * @return {Object} object contains all underlings
+ * @name  Role.getRoster
+ * @description returns a list of the various people in the users group
+ * @todo
+ *  - Include performance report link
  */
 Role.prototype.getRoster = function(){
 	if (this._role == 'instructor') return null;
-	var roster = [];
+	var roster = [new Performance()];
 	for (var i = 0; i < this._org.length; i++){
 		roster.push(this._org[i].user);
 	}
