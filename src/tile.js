@@ -3,7 +3,7 @@
  * @description
  * @todo 
  *  + Rename roster to resources
- *  - Link to performance report under resources
+ *  + Link to performance report under resources
  *  - Course vists
  */
 function Tile(config) {
