@@ -2,7 +2,7 @@
  * @name Tile 
  * @description
  * @todo 
- *  - Rename roster to resources
+ *  + Rename roster to resources
  *  - Link to performance report under resources
  *  - Course vists
  */
@@ -53,7 +53,7 @@ Tile.getAll = function(role) {
           hidden: ''
         }),
         new Tile({
-          title: 'Roster',
+          title: 'Resources',
           helpText: 'This tile displays your ' + role._nextLower(name).toUpperCase() + 's.',
           type: 'roster',
           data: role.getRoster(),
@@ -103,7 +103,7 @@ Tile.getAll = function(role) {
           hidden: ''
         }),
         new Tile({
-          title: 'Roster',
+          title: 'Resources',
           helpText: 'This tile displays your instructors.',
           type: 'roster',
           data: role.getRoster(),
@@ -215,6 +215,13 @@ Tile.getAll = function(role) {
           data: role.getSingleInstructorStandard('Embrace University'),
           hidden: '',
           config: 'InstructorInstructorStandard5'
+        }),
+        new Tile({
+          title: 'Evaluations',
+          helpText: 'This tile displays evaluations on you as an Instructor.',
+          type: 'survey-list',
+          data: role.getEvaluations(),
+          hidden: ''
         })
       ]
     ];

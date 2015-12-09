@@ -620,6 +620,7 @@ Role.prototype._recursiveChildren = function(xml){
     var org = [];
     var _this = this;
     var people = $(xml).find('> stewardship > people > person');
+    if (people.length == 0) people = $(xml).find('person');
     if (people.length == 0) return [];
     for (var i = 0; i < people.length; i++){
         var person = people[i];
@@ -633,7 +634,10 @@ Role.prototype._recursiveChildren = function(xml){
         org.push({
             user: user,
             lower: _this._recursiveChildren($(person).find('> roles > role[type=' + $(person).attr('type') + ']'))
-        })
+        });
+        if (user._role._org != null && user._role._org.length != org[org.length - 1].lower.length){
+            org[org.length - 1].lower = user._role._org; 
+        }
     }
     return org;
 }
@@ -927,6 +931,13 @@ Role.prototype.getSuggested = function(q){
             if (lower.user.getEmail().toLowerCase().indexOf(q) > -1 ||
                 lower.user.getFullName().toLowerCase().indexOf(q) > -1){
                 result.push(lower);
+            }
+            for (var k = 0; k < lower.lower.length; k++){
+                var lowest = this._org[i].lower[j].lower[k];
+                if (lowest.user.getEmail().toLowerCase().indexOf(q) > -1 ||
+                    lowest.user.getFullName().toLowerCase().indexOf(q) > -1){
+                    result.push(lowest);
+                }
             }
         }
     }

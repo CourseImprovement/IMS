@@ -2430,7 +2430,8 @@ window._rollup;
 /**
  * @name Rollup
  * @todo 
- *  - Fix rollup on im and aim
+ *  + Fix rollup on im and aim
+ *  - bogos
  */
 function Rollup(){
 	this._xml = ims.sharepoint.getXmlByEmail('rollup');
@@ -2622,6 +2623,69 @@ Rollup.prototype.update = function(){
 		}
 		$(this._xml).find('semester[code=' + window.config.getCurrentSemester() + '] > questions > question[name="' + questions[q] + '"] > survey[id=' + this._surveyId + ']').remove();
 		$(this._xml).find('semester[code=' + window.config.getCurrentSemester() + '] > questions > question[name="' + questions[q] + '"]').append('<survey id="' + this._surveyId + '" value="' + rollupValue + '" />');
+	
+		var org = {};
+
+		$(master).find('semester[code=' + window.config.getCurrentSemester() + '] > people > person > roles > role[type=im]').each(function(){
+			var imEmail = $(this).parents('person').attr('email');
+			org[imEmail] = {
+				list: [],
+				aims: {}
+			};
+			$(this).find('stewardship people person[type=aim]').each(function(){
+				var aimEmail = $(this).attr('email');
+				org[imEmail].aims[aimEmail] = {
+					list: []
+				}
+				$(this).find('people person[type=tgl]').each(function(){
+					var tglEmail = $(this).attr('email');
+					var info = result[q][tglEmail];
+					org[imEmail].list = org[imEmail].list.concat(info);
+					org[imEmail].aims[aimEmail].list = org[imEmail].aims[aimEmail].list.concat(info);
+				});
+			});
+		});
+
+		for (var _im in org){
+			var iValue = 0;
+			var list = org[_im].list;
+			var sum = 0;
+			var count = 0;
+			if (questions[q] == 'Weekly Hours'){
+				for (var i = 0; i < list.length; i++){
+					sum += list[i].sum;
+					count += list[i].credits;
+				}
+			} else {
+				count = list.length;
+				for (var i = 0; i < list.length; i++){
+					sum += list[i];
+				}
+			}
+			iValue = Rollup.avg(sum, count);
+			$(this._xml).find('semester[code=' + window.config.getCurrentSemester() + '] person[email=' + _im + '][type=im] question[name="' + questions[q] + '"] survey[id=' + this._surveyId + ']').remove();
+			$(this._xml).find('semester[code=' + window.config.getCurrentSemester() + '] person[email=' + _im + '][type=im] question[name="' + questions[q] + '"]').append('<survey id="' + this._surveyId + '" value="' + iValue + '" />');
+			for (var _aim in org[_im].aims){
+				var aValue = 0;
+				var aList = org[_im].aims[_aim].list;
+				var aSum = 0;
+				var aCount = 0;
+				if (questions[q] == 'Weekly Hours'){
+					for (var i = 0; i < aList.length; i++){
+						aSum += aList[i].sum;
+						aCount += aList[i].credits;
+					}
+				} else {
+					aCount = aList.length;
+					for (var i = 0; i < aList.length; i++){
+						aSum += aList[i];
+					}
+				}
+				aValue = Rollup.avg(aSum, aCount);
+				$(this._xml).find('semester[code=' + window.config.getCurrentSemester() + '] person[email=' + _aim + '][type=aim] question[name="' + questions[q] + '"] survey[id=' + this._surveyId + ']').remove();
+				$(this._xml).find('semester[code=' + window.config.getCurrentSemester() + '] person[email=' + _aim + '][type=aim] question[name="' + questions[q] + '"]').append('<survey id="' + this._surveyId + '" value="' + aValue + '" />');
+			}
+		}
 	}
 }
 /**
