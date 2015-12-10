@@ -1946,7 +1946,7 @@ Role.prototype.getRolesMenu = function(){
 	}
 	else{
 		people.push({
-			value: this._user._first + ' ' + lowerRole.toUpperCase() + "'s",
+			value: this._user._first + ' ' + (lowerRole != 'instructor' ? lowerRole.toUpperCase() : 'Instructor') + "'s",
 			href: '#',
 			type: 'title',
 			selected: false
