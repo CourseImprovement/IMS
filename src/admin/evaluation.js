@@ -188,9 +188,25 @@ Evaluations.prototype.parse = function(){
 			var locations = _this.getColumnLocations();
 			var questions = [];
 
-			if (rows.length < 3) throw 'CSV does not have the right number of rows';
+			if (rows.length < 3) {
+				alert('CSV does not have the right number of rows');
+				throw 'CSV does not have the right number of rows';
+			}
 
-			for (var i = 3; i < rows.length; i++){
+			var start = 0;
+			for (var i = 0; i < rows.length; i++){
+				if (rows[i][2].match(/\./g) && rows[i][2].match(/\./g).length >= 2){
+					start = i;
+					break;
+				}
+			}
+
+			if (start == 0) {
+				alert('CSV must be wrong or in an unfamiliar format');
+				throw 'CSV must be wrong or in an unfamiliar format';
+			}
+
+			for (var i = start; i < rows.length; i++){
 				if (rows[i][emailCol] != undefined) {
 					var xPath = 'semester[code=FA15] > people > person > roles > role[type="' + _this._evaluations.eFor.toLowerCase() + '"]';
 					var evaluator = rows[i][emailCol].split('@')[0];

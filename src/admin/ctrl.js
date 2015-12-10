@@ -127,9 +127,17 @@ app.controller('adminCtrl', ["$scope", function($scope){
 					var start = Config.columnLetterToNumber(sets[i].split('-')[0]);
 					var end = Config.columnLetterToNumber(sets[i].split('-')[1]);
 					sets.splice(i, 1);
-					if (start > end) throw "columns need to be read from left to right (A-Z)";
+					if (start > end) {
+						alert("columns need to be read from left to right (A-Z)");
+						throw "columns need to be read from left to right (A-Z)";
+					}
 					for (var j = start; j <= end; j++){
 						sets.splice(i, 0, Config.columnNumberToLetter(j));
+					}
+				} else {
+					if (sets[i].length > 2) {
+						alert("The columns that can be reached are A-ZZ");
+						throw "The columns that can be reached are A-ZZ";
 					}
 				}
 			}
@@ -164,6 +172,11 @@ app.controller('adminCtrl', ["$scope", function($scope){
 			alert("Some information was left out!");
 			return;
 		}
+
+		if (columns.indexOf(';') != -1 && columns.length > 2){
+			alert("Please seperate each column with a ';' (no spaces needed)");
+			return;
+		}
 		
 		var cs = arrayOfColumns(columns);
 		var qs = questions.split(';');
@@ -171,7 +184,8 @@ app.controller('adminCtrl', ["$scope", function($scope){
 
 		if (cs.length != qs.length || qs.length != ls.length){
 			alert('The number of columns, questions, and logic selections do not match.\n' + 
-				'Be sure they are all the same.');
+				'Be sure they are all the same length and check that you have seperated\n' + 
+				'them with semicolons');
 			return;
 		}
 
@@ -246,6 +260,7 @@ app.controller('adminCtrl', ["$scope", function($scope){
 		var e = new Evaluations($scope.evaluations, $scope.file);
 		e.parse();
 		$scope.mode = 'home';
+		$scope.clearEvaluation();
 	}
 	/**
 	 * @end
