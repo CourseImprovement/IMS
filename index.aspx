@@ -161,10 +161,10 @@
 					 <table class="table selection" ng-if='tile.type == "roster"'>
 						<tr ng-repeat='user in tile.data | orderBy:"name"'>
 							<td><div class='newInst' ng-if='user.isNew()'>New</div></td>
-							<td ng-if='$index != 0'><div ng-click='redirect(user.getHref())' class='link'>{{user.getFullName()}}</div></td>
-							<td ng-if='$index == 0'><a class='link' target='_blank' href="{{user.getHref()}}">{{user.getFullName()}}</a></td>
+							<td ng-if='$index != 0 && $index != 1'><div ng-click='redirect(user.getHref())' class='link'>{{user.getFullName()}}</div></td>
+							<td ng-if='$index == 0 || $index == 1'><a class='link' target='_blank' href="{{user.getHref()}}">{{user.getFullName()}}</a></td>
 							<td><a href='mailto:{{user.getFullEmail()}}'>{{user.getFullEmail()}}</a></td>
-							<td ng-if='$index != 0'><a href="https://outlook.office365.com/owa/#viewmodel=IMailComposeViewModelFactory" target='_blank'><i class='fa fa-envelope'></i></a></td>
+							<td ng-if='$index != 0 && $index != 1'><a href="https://outlook.office365.com/owa/#viewmodel=IMailComposeViewModelFactory" target='_blank'><i class='fa fa-envelope'></i></a></td>
 						</tr>
 					</table>
 					 <!-- END ROSTER -->
