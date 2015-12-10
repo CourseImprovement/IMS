@@ -984,7 +984,7 @@ Config.columnLetterToNumber = function(letter){
  * @description
  * @assign Chase and Grant
  * @todo
- *  - Change AZ as the highest to BZ
+ *  + Change AZ as the highest to BZ
  *  + Check if the num is already a letter
  *  + Return letter combination
  */
@@ -1705,28 +1705,7 @@ Evaluations.prototype.getColumnLocations = function(){
  */
 Evaluations.prototype.cleanseString = function(str){
 	if(str == undefined || str.length == 0) return str;
-
-	if (str.indexOf('<span style="font-size:16px;">') != -1){
-		str = str.replace('<span style="font-size:16px;">', '');
-	}
-
-	if (str.indexOf('<span style="font-family:arial,helvetica,sans-serif;">') != -1){
-		str = str.replace('<span style="font-family:arial,helvetica,sans-serif;">', '');
-	}
-
-	if (str.indexOf('</span></span>') != -1){
-		str = str.replace('</span></span>', '');
-	}
-
-	if (str.indexOf('<span style="color:#B22222;">') != -1){
-		str = str.replace('<span style="color:#B22222;">', '');
-	}
-
-	if (str.indexOf('</span>') != -1){
-		str = str.replace('</span>', '');
-	}
-
-	return str;
+	return str.replace(/<[^>]*>/g, '');
 }
 
 /**

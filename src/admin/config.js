@@ -375,7 +375,7 @@ Config.columnLetterToNumber = function(letter){
  * @description
  * @assign Chase and Grant
  * @todo
- *  - Change AZ as the highest to BZ
+ *  + Change AZ as the highest to BZ
  *  + Check if the num is already a letter
  *  + Return letter combination
  */
