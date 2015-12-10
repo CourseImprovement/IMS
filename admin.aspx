@@ -175,7 +175,7 @@
 			</div>
 			<div class="row">
 				<ul class="no-bullet">
-					<li ng-show="evalAdded">
+					<li ng-show="evalAdded && evaluations != null">
 						Evaluation by: {{evaluations.eBy}}      for: {{evaluations.eFor}}
 						<br>
 						Email Column: {{evaluations.emailCol}}
