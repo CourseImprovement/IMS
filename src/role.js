@@ -758,7 +758,13 @@ Role.prototype.getQuestionForAll = function(name){
  */
 Role.prototype.getRoster = function(){
 	if (this._role == 'instructor') return null;
-	var roster = [new Performance()];
+	var roster = [new Performance({
+        link: 'https://docs.google.com/forms/d/1zM5mc8LTNeKKmpjUuzSUI6myvL6dz_aSNh3sIsqaNaY/viewform?formkey=dG01Ykt2UXlBMmo3UEh0VlNtZXZLWlE6MQ#gid=0',
+        name: 'Performance Report'
+    }), new Performance({
+        link: 'https://docs.google.com/spreadsheets/d/11POvOguG7ltFYb92XeLmdLX8ZbIfy7n9q9r6pspQ_ac/edit#gid=0&vpid=A2',
+        name: 'Performace Results'
+    })];
 	for (var i = 0; i < this._org.length; i++){
 		roster.push(this._org[i].user);
 	}
