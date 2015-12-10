@@ -1734,7 +1734,7 @@ Role.prototype.getQuestionForAll = function(name){
  * @name  Role.getRoster
  * @description returns a list of the various people in the users group
  * @todo
- *  - Include performance report link
+ *  + Include performance report link
  */
 Role.prototype.getRoster = function(){
 	if (this._role == 'instructor') return null;
@@ -1929,7 +1929,7 @@ Role.prototype.getSuggested = function(q){
 /**
  * @description Gets the roles menu, if instructor return null
  * @todo 
- *  - Rename 'INSTRUCTOR' to 'Instructor'
+ *  + Rename 'INSTRUCTOR' to 'Instructor'
  */
 Role.prototype.getRolesMenu = function(){
 	if (this._role.toLowerCase() == 'instructor') return new Menu();
@@ -1938,7 +1938,7 @@ Role.prototype.getRolesMenu = function(){
 	var lowerRole = this._nextLowerForMenu(this.getRoleName().toLowerCase());
 	if (this._user.isCurrent()){
 		people.push({
-			value: 'My ' + lowerRole.toUpperCase()/*if instructor change to Instructor*/ + "'s",
+			value: 'My ' + (lowerRole != 'instructor' ? lowerRole.toUpperCase() : 'Instructor') + "'s",
 			href: '#',
 			type: 'title',
 			selected: false
@@ -2230,7 +2230,7 @@ Survey.prototype.getQuestions = function(){
  * @description
  * @todo 
  *  + Rename roster to resources
- *  - Link to performance report under resources
+ *  + Link to performance report under resources
  *  - Course vists
  */
 function Tile(config) {
