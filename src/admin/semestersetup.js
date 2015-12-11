@@ -410,6 +410,12 @@ SemesterSetup.prototype._createOrg = function(){
 			email: this._csv[rows][10].toLowerCase().split('@')[0],
 			type: 'im'
 		}];
+		aim.roles.role[1].leadership.people.person = [{
+			first: this._csv[rows][11].split(' ')[0].formalize(),
+			last: this._csv[rows][11].split(' ')[1].formalize(),
+			email: this._csv[rows][10].toLowerCase().split('@')[0],
+			type: 'aim'
+		}];
 
 		this.addToOrg(inst);
 		this.addToOrg(tgl);
