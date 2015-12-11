@@ -2943,7 +2943,11 @@ SemesterSetup.prototype._createOrg = function(){
 							}]
 						}
 					},
-					leadership: {}
+					leadership: {
+						people: {
+							person: []
+						}
+					}
 				}]
 			},
 			courses: {}
