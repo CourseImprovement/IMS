@@ -90,14 +90,15 @@ Survey.prototype.getPlacement = function(){
  * @return {[type]} [description]
  */
 Survey.prototype.toggleReviewed = function(){
+	var _this = this;
 	User.getLoggedInUserEmail(function(email){
 		if (!email || ims.aes.value.ce.toLowerCase() != email.toLowerCase()) return;
-		var reviewed = this.isReviewed();
-		this._reviewed = !reviewed;
-		reviewed = this._reviewed ? 'true' : 'false';
-		var id = this.id;
-		$(this._user._xml).find('> surveys survey[id=' + id + ']').attr('reviewed', reviewed);
-		this._user.save();
+		var reviewed = _this.isReviewed();
+		_this._reviewed = !reviewed;
+		reviewed = _this._reviewed ? 'true' : 'false';
+		var id = _this.id;
+		$(_this._user._xml).find('> surveys survey[id=' + id + ']').attr('reviewed', reviewed);
+		_this._user.save();
 	})
 }
 
