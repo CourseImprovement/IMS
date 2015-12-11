@@ -396,6 +396,11 @@ SemesterSetup.prototype._createOrg = function(){
 			last: this._csv[rows][9].split(' ')[1].formalize(),
 			email: this._csv[rows][8].toLowerCase().split('@')[0],
 			type: 'tgl'
+		},{
+			first: this._csv[rows][11].split(' ')[0].formalize(),
+			last: this._csv[rows][11].split(' ')[1].formalize(),
+			email: this._csv[rows][10].toLowerCase().split('@')[0],
+			type: 'im'
 		}]
 
 		// AIM LEADERSHIP
