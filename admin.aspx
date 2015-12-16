@@ -141,15 +141,15 @@
 		<div class="box">
 			<div class="row">
 				<div class="row">
-					Evaluation by: 
-					<select ng-model='bRole'>
+					Evaluation for: 
+					<select ng-model='fRole'>
 						<option value="INSTRUCTOR">INSTRUCTOR</option>
 						<option value="TGL">TGL</option>
 						<option value="AIM">AIM</option>
 						<option value="OCR">OCR</option>
 					</select>
-					for: 
-					<select ng-model='fRole'>
+					by: 
+					<select ng-model='bRole'>
 						<option value="INSTRUCTOR">INSTRUCTOR</option>
 						<option value="TGL">TGL</option>
 						<option value="AIM">AIM</option>
