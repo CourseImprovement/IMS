@@ -23,6 +23,17 @@ Survey.getConfig = function(){
 	return ims._config;
 }
 
+/**
+ * @name  Survey.getNameById
+ * @todo
+ *  - Get the survey name by an id
+ */
+Survey.getNameById = function(id){
+	var config = Survey.getConfig();
+	var survey = $(config).find('semester[current=true] survey[id=' + id + ']');
+	return $(survey).attr('name') + ': ' + $(survey).attr('week');
+}
+
 Survey.prototype._setAnswers = function(){
 	var _this = this;
 	$(this._xml).find('answer').each(function(){
