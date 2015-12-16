@@ -906,14 +906,6 @@ function MenuItem(obj){
 	this.type = obj.type;
 	this.selected = obj.selected;
 }
-function Performance(obj){
-	this.link = obj.link;
-	this.name = obj.name;
-}
-
-Performance.prototype.isNew = function(){return false;}
-Performance.prototype.getHref = function(){return this.link;}
-Performance.prototype.getFullName = function(){return this.name;}
 function Question(xml, survey){
 	this._answer = $(xml).text();
 	this._survey = survey;
@@ -1524,8 +1516,12 @@ Role.prototype.getTasksToReview = function(withCourse){
 }
 
 /**
- * Get the incomplete tasks of the lower
- * @return {[type]} [description]
+ * @name Role.getIncompleteTasks
+ * @description Get the incomplete tasks of the lower
+ * @todo
+ *  - Get all lower person surveys
+ *  - Get all survey ids from the above task
+ *  - see who doesn't have that Id
  */
 Role.prototype.getIncompleteTasks = function(){
 	var surveyList = [];
@@ -1537,7 +1533,7 @@ Role.prototype.getIncompleteTasks = function(){
 	var ids = {};
 	for (var i = 0; i < surveyList.length; i++){
 		for (var j = 0; j < surveyList[i].length; j++){
-			if (!ids[surveyList[i][j].id]) ids[surveyList[i][j].id] = true;
+			ids[surveyList[i][j].id] = true;
 		}
 	}
 	var keys = Object.keys(ids);
@@ -1549,7 +1545,7 @@ Role.prototype.getIncompleteTasks = function(){
 		}
 		var differences = [];
 		$.grep(keys, function(el){
-			if ($.inArray(el, existing) == -1) differences.push(el);
+			if ($.inArray(el, existing) == -1) differences.push(Survey.getNameById(el));
 		});
 		if (differences.length > 0){
 			result.push({
@@ -1738,13 +1734,7 @@ Role.prototype.getQuestionForAll = function(name){
  */
 Role.prototype.getRoster = function(){
 	if (this._role == 'instructor') return null;
-	var roster = [new Performance({
-        link: 'https://docs.google.com/forms/d/1zM5mc8LTNeKKmpjUuzSUI6myvL6dz_aSNh3sIsqaNaY/viewform?formkey=dG01Ykt2UXlBMmo3UEh0VlNtZXZLWlE6MQ#gid=0',
-        name: 'Performance Report'
-    }), new Performance({
-        link: 'https://docs.google.com/spreadsheets/d/11POvOguG7ltFYb92XeLmdLX8ZbIfy7n9q9r6pspQ_ac/edit#gid=0&vpid=A2',
-        name: 'Performace Results'
-    })];
+	var roster = [];
 	for (var i = 0; i < this._org.length; i++){
 		roster.push(this._org[i].user);
 	}
@@ -1881,7 +1871,7 @@ Role.prototype._getHats = function(){
 	}
 	else{
 		hats.push({
-			value: this._user._first + ' Views',
+			value: this._user._first + '\'s Views',
 			href: '#',
 			type: 'title',
 			selected: false
@@ -1944,7 +1934,7 @@ Role.prototype.getRolesMenu = function(){
 	var lowerRole = this._nextLowerForMenu(this.getRoleName().toLowerCase());
 	if (this._user.isCurrent()){
 		people.push({
-			value: 'My ' + (lowerRole != 'instructor' ? lowerRole.toUpperCase() : 'Instructor') + "'s",
+			value: 'My ' + (lowerRole != 'instructor' ? lowerRole.toUpperCase() : 'Instructor') + "s",
 			href: '#',
 			type: 'title',
 			selected: false
@@ -1952,7 +1942,7 @@ Role.prototype.getRolesMenu = function(){
 	}
 	else{
 		people.push({
-			value: this._user._first + ' ' + (lowerRole != 'instructor' ? lowerRole.toUpperCase() : 'Instructor') + "'s",
+			value: this._user._first + '\'s ' + (lowerRole != 'instructor' ? lowerRole.toUpperCase() : 'Instructor') + "s",
 			href: '#',
 			type: 'title',
 			selected: false
@@ -2122,6 +2112,17 @@ Survey.getConfig = function(){
 	return ims._config;
 }
 
+/**
+ * @name  Survey.getNameById
+ * @todo
+ *  - Get the survey name by an id
+ */
+Survey.getNameById = function(id){
+	var config = Survey.getConfig();
+	var survey = $(config).find('semester[current=true] survey[id=' + id + ']');
+	return $(survey).attr('name') + ': ' + $(survey).attr('week');
+}
+
 Survey.prototype._setAnswers = function(){
 	var _this = this;
 	$(this._xml).find('answer').each(function(){
@@ -2189,14 +2190,15 @@ Survey.prototype.getPlacement = function(){
  * @return {[type]} [description]
  */
 Survey.prototype.toggleReviewed = function(){
+	var _this = this;
 	User.getLoggedInUserEmail(function(email){
 		if (!email || ims.aes.value.ce.toLowerCase() != email.toLowerCase()) return;
-		var reviewed = this.isReviewed();
-		this._reviewed = !reviewed;
-		reviewed = this._reviewed ? 'true' : 'false';
-		var id = this.id;
-		$(this._user._xml).find('> surveys survey[id=' + id + ']').attr('reviewed', reviewed);
-		this._user.save();
+		var reviewed = _this.isReviewed();
+		_this._reviewed = !reviewed;
+		reviewed = _this._reviewed ? 'true' : 'false';
+		var id = _this.id;
+		$(_this._user._xml).find('> surveys survey[id=' + id + ']').attr('reviewed', reviewed);
+		_this._user.save();
 	})
 }
 
@@ -2287,7 +2289,8 @@ Tile.getAll = function(role) {
         }),
         new Tile({
           title: 'Resources',
-          helpText: 'This tile displays your ' + role._nextLower(name).toUpperCase() + 's.',
+          //helpText: '<h2>Performance Report</h2>A performance report should be filled out if you have noticed an instructor falling below instructor standards for more than one or two weeks and have already re-emphasized standards and expectations with the instructor through performance discussions.  You should not have more than two performance discussions with an instructor without simultaneously submitting a performance report (PR).  Follow Online Instruction’s three-tiered approach for communicating with the instructor about PRs.<br><h2>',
+          helpText: 'This tile provides access to submit and view performance reports.  It also displays ' + tmpPretty(role._nextLower(name).toUpperCase()) + 's in your group.',
           type: 'roster',
           data: role.getRoster(),
           hidden: ''
@@ -2337,7 +2340,7 @@ Tile.getAll = function(role) {
         }),
         new Tile({
           title: 'Resources',
-          helpText: 'This tile displays your instructors.',
+          helpText: 'This tile provides access to submit and view performance reports.  It also displays ' + tmpPretty(role._nextLower(name).toUpperCase()) + 's in your group.',
           type: 'roster',
           data: role.getRoster(),
           hidden: ''
@@ -2459,6 +2462,11 @@ Tile.getAll = function(role) {
       ]
     ];
   }
+}
+
+function tmpPretty(txt){
+  if (txt == 'INSTRUCTOR') return 'Instructor';
+  return txt;
 }
 window._currentUser = null;
 if (ims.aes.value.ce){
@@ -2752,7 +2760,7 @@ User.prototype.getSurveys = function(){
  */
 User.prototype.getSurveysByPlacement = function(placement){
 	var surveys = [];
-	for (var i = 0; i < this._surveys.lenth; i++){
+	for (var i = 0; i < this._surveys.length; i++){
 		if (this._surveys[i].getPlacement().toLowerCase() == placement.toLowerCase()){
 			surveys.push(this._surveys[i]);
 		}

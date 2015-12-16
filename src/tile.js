@@ -54,7 +54,8 @@ Tile.getAll = function(role) {
         }),
         new Tile({
           title: 'Resources',
-          helpText: 'This tile displays your ' + role._nextLower(name).toUpperCase() + 's.',
+          //helpText: '<h2>Performance Report</h2>A performance report should be filled out if you have noticed an instructor falling below instructor standards for more than one or two weeks and have already re-emphasized standards and expectations with the instructor through performance discussions.  You should not have more than two performance discussions with an instructor without simultaneously submitting a performance report (PR).  Follow Online Instruction’s three-tiered approach for communicating with the instructor about PRs.<br><h2>',
+          helpText: 'This tile provides access to submit and view performance reports.  It also displays ' + tmpPretty(role._nextLower(name).toUpperCase()) + 's in your group.',
           type: 'roster',
           data: role.getRoster(),
           hidden: ''
@@ -104,7 +105,7 @@ Tile.getAll = function(role) {
         }),
         new Tile({
           title: 'Resources',
-          helpText: 'This tile displays your instructors.',
+          helpText: 'This tile provides access to submit and view performance reports.  It also displays ' + tmpPretty(role._nextLower(name).toUpperCase()) + 's in your group.',
           type: 'roster',
           data: role.getRoster(),
           hidden: ''
@@ -226,4 +227,9 @@ Tile.getAll = function(role) {
       ]
     ];
   }
+}
+
+function tmpPretty(txt){
+  if (txt == 'INSTRUCTOR') return 'Instructor';
+  return txt;
 }

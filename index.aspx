@@ -126,7 +126,6 @@
 								<div class='link' ng-click='openSurveyData(survey)'>{{survey.getName()}}</div>
 							</li>
 						</ul>
-						<div ng-if='tile.type == "survey-list" && tile.data.length == 0' class="default-msg">No Completed Tasks</div>
 					 <!-- END SURVEY LIST -->
 
 					 <!-- COURSE SURVEY LIST -->
@@ -148,7 +147,6 @@
 								</ul>
 							</li>
 						</ul>
-						<div ng-if='tile.type == "review-list" && tile.data.length == 0' class="default-msg">No Completed Tasks</div>
 					 <!-- END REVIEW LIST -->
 
 					 <!-- GRAPH -->
@@ -159,12 +157,26 @@
 
 					 <!-- ROSTER -->
 					 <table class="table selection" ng-if='tile.type == "roster"'>
+					  <tr>
+					  	<td colspan="4"><strong>Performance Report</strong></td>
+					  </tr>
+					  <tr>
+					  	<td colspan="4"><a href="https://docs.google.com/forms/d/1zM5mc8LTNeKKmpjUuzSUI6myvL6dz_aSNh3sIsqaNaY/viewform?formkey=dG01Ykt2UXlBMmo3UEh0VlNtZXZLWlE6MQ#gid=0" class='link'>Submit Performance Report</a></td>
+					  </tr>
+					  <tr>
+					  	<td colspan="4"><a href="https://docs.google.com/spreadsheets/d/11POvOguG7ltFYb92XeLmdLX8ZbIfy7n9q9r6pspQ_ac/edit#gid=0&vpid=A2" class='link'>View Submitted Performance Results</a></td>
+					  </tr>
+					  <tr>
+					  	<td colspan="4"><strong>&nbsp;</strong></td>
+					  </tr>
+					  <tr>
+					  	<td colspan="4"><strong>Roster</strong></td>
+					  </tr>
 						<tr ng-repeat='user in tile.data | orderBy:"name"'>
 							<td><div class='newInst' ng-if='user.isNew()'>New</div></td>
-							<td ng-if='$index != 0 && $index != 1'><div ng-click='redirect(user.getHref())' class='link'>{{user.getFullName()}}</div></td>
-							<td ng-if='$index == 0 || $index == 1'><a class='link' target='_blank' href="{{user.getHref()}}">{{user.getFullName()}}</a></td>
+							<td><div ng-click='redirect(user.getHref())' class='link'>{{user.getFullName()}}</div></td>
 							<td><a href='mailto:{{user.getFullEmail()}}'>{{user.getFullEmail()}}</a></td>
-							<td ng-if='$index != 0 && $index != 1'><a href="https://outlook.office365.com/owa/#viewmodel=IMailComposeViewModelFactory" target='_blank'><i class='fa fa-envelope'></i></a></td>
+							<td><a href="https://outlook.office365.com/owa/#viewmodel=IMailComposeViewModelFactory" target='_blank'><i class='fa fa-envelope'></i></a></td>
 						</tr>
 					</table>
 					 <!-- END ROSTER -->

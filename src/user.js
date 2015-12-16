@@ -290,7 +290,7 @@ User.prototype.getSurveys = function(){
  */
 User.prototype.getSurveysByPlacement = function(placement){
 	var surveys = [];
-	for (var i = 0; i < this._surveys.lenth; i++){
+	for (var i = 0; i < this._surveys.length; i++){
 		if (this._surveys[i].getPlacement().toLowerCase() == placement.toLowerCase()){
 			surveys.push(this._surveys[i]);
 		}

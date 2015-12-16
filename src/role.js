@@ -544,8 +544,12 @@ Role.prototype.getTasksToReview = function(withCourse){
 }
 
 /**
- * Get the incomplete tasks of the lower
- * @return {[type]} [description]
+ * @name Role.getIncompleteTasks
+ * @description Get the incomplete tasks of the lower
+ * @todo
+ *  - Get all lower person surveys
+ *  - Get all survey ids from the above task
+ *  - see who doesn't have that Id
  */
 Role.prototype.getIncompleteTasks = function(){
 	var surveyList = [];
@@ -557,7 +561,7 @@ Role.prototype.getIncompleteTasks = function(){
 	var ids = {};
 	for (var i = 0; i < surveyList.length; i++){
 		for (var j = 0; j < surveyList[i].length; j++){
-			if (!ids[surveyList[i][j].id]) ids[surveyList[i][j].id] = true;
+			ids[surveyList[i][j].id] = true;
 		}
 	}
 	var keys = Object.keys(ids);
@@ -569,7 +573,7 @@ Role.prototype.getIncompleteTasks = function(){
 		}
 		var differences = [];
 		$.grep(keys, function(el){
-			if ($.inArray(el, existing) == -1) differences.push(el);
+			if ($.inArray(el, existing) == -1) differences.push(Survey.getNameById(el));
 		});
 		if (differences.length > 0){
 			result.push({
@@ -758,13 +762,7 @@ Role.prototype.getQuestionForAll = function(name){
  */
 Role.prototype.getRoster = function(){
 	if (this._role == 'instructor') return null;
-	var roster = [new Performance({
-        link: 'https://docs.google.com/forms/d/1zM5mc8LTNeKKmpjUuzSUI6myvL6dz_aSNh3sIsqaNaY/viewform?formkey=dG01Ykt2UXlBMmo3UEh0VlNtZXZLWlE6MQ#gid=0',
-        name: 'Performance Report'
-    }), new Performance({
-        link: 'https://docs.google.com/spreadsheets/d/11POvOguG7ltFYb92XeLmdLX8ZbIfy7n9q9r6pspQ_ac/edit#gid=0&vpid=A2',
-        name: 'Performace Results'
-    })];
+	var roster = [];
 	for (var i = 0; i < this._org.length; i++){
 		roster.push(this._org[i].user);
 	}
@@ -901,7 +899,7 @@ Role.prototype._getHats = function(){
 	}
 	else{
 		hats.push({
-			value: this._user._first + ' Views',
+			value: this._user._first + '\'s Views',
 			href: '#',
 			type: 'title',
 			selected: false
@@ -964,7 +962,7 @@ Role.prototype.getRolesMenu = function(){
 	var lowerRole = this._nextLowerForMenu(this.getRoleName().toLowerCase());
 	if (this._user.isCurrent()){
 		people.push({
-			value: 'My ' + (lowerRole != 'instructor' ? lowerRole.toUpperCase() : 'Instructor') + "'s",
+			value: 'My ' + (lowerRole != 'instructor' ? lowerRole.toUpperCase() : 'Instructor') + "s",
 			href: '#',
 			type: 'title',
 			selected: false
@@ -972,7 +970,7 @@ Role.prototype.getRolesMenu = function(){
 	}
 	else{
 		people.push({
-			value: this._user._first + ' ' + (lowerRole != 'instructor' ? lowerRole.toUpperCase() : 'Instructor') + "'s",
+			value: this._user._first + '\'s ' + (lowerRole != 'instructor' ? lowerRole.toUpperCase() : 'Instructor') + "s",
 			href: '#',
 			type: 'title',
 			selected: false
