@@ -214,6 +214,21 @@ if (!ims.error){
 	    if (items) return items.slice().reverse();
 	  };
 	});
+    
+    /**
+     * @name angular.filter.reverseByWeek
+     * @description Reverses the items in an ng-repeat by id
+     * @todo
+     *  - Filter by week (Grant)
+     */
+    app.filter('reverseByWeek', function() {
+      return function(items){
+          if (items){
+              var items = [];
+              
+          }
+      } 
+    });
 
 	/**
 	 * Remove the duplates from the suggestions ng-repeat
