@@ -1753,7 +1753,7 @@ Evaluations.prototype.setAnswers = function(evaluatee, row, locations){
 			if (this.people[evaluatee][quest] == undefined){
 				this.people[evaluatee][quest] = _this.cleanseString(ans);
 			} else{
-				this.people[evaluatee][quest] += ' ' + _this.cleanseString(ans);
+				this.people[evaluatee][quest] += '\\' + _this.cleanseString(ans);
 			}
 		} else if (locations[loc].logic == 'p'){ /*PERCENTAGE*/
 			if (this.people[evaluatee][quest] == undefined){
