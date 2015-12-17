@@ -5,7 +5,7 @@
  * @start CSV
  */
 /**
- * @name  CSV
+ * @name CSV
  * @description CSV Object
  */
 function CSV(){
