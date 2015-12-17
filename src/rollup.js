@@ -1,5 +1,9 @@
 window._rollupXml = null;
 
+/**
+ * @name Rollup 
+ * @description
+ */
 function Rollup(obj){
 	this._level = obj.level;
 	this._email = obj.email;
@@ -11,7 +15,8 @@ function Rollup(obj){
 }
 
 /**
- * loads the xml file if the file is not already loaded
+ * @name Rollup._initalXmlLoad
+ * @description loads the xml file if the file is not already loaded
  */
 Rollup.prototype._initalXmlLoad = function(){
 	if (window._rollupXml){
@@ -23,14 +28,17 @@ Rollup.prototype._initalXmlLoad = function(){
 	}
 }
 
-
+/**
+ * @name Rollup.getData 
+ * @description
+ */
 Rollup.prototype.getData = function(){
 	return this._data;
 }
 
 /**
- * returns a list of the data topics
- * @return {Array} list of data topics 
+ * @name Rollup._getData
+ * @description returns a list of the data topics 
  */
 Rollup.prototype._getData = function(){
 	var _this = this;

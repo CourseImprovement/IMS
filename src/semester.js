@@ -1,3 +1,7 @@
+/**
+ * @name Semester 
+ * @description
+ */
 function Semester(obj){
 	if (typeof obj == 'string'){
 		this._code = obj;
@@ -5,14 +9,14 @@ function Semester(obj){
 }
 
 /**
- * Get the semester code
- * @return {[type]} [description]
+ * @name Semester.getCode
+ * @description Get the semester code
  */
 Semester.prototype.getCode = function(){return this._code;}
 
 /**
- * Get the href for the menu item
- * @return {[type]} [description]
+ * @name Semester.getHref
+ * @description Get the href for the menu item
  */
 Semester.prototype.getHref = function(){
 	var loc = window.location.href;
@@ -24,10 +28,18 @@ Semester.prototype.getHref = function(){
 	}
 }
 
+/**
+ * @name Semesters
+ * @description
+ */
 function Semesters(){
 	this._current = null;
 }
 
+/**
+ * @name Semesters.getCurrent 
+ * @description
+ */
 Semesters.prototype.getCurrent = function(){
 	if (!this._current){
 		this._current = new Semester($(Survey.getConfig()).find('semester[current=true]').attr('code'));
@@ -35,6 +47,10 @@ Semesters.prototype.getCurrent = function(){
 	return this._current;
 }
 
+/**
+ * @name Semesters.getCurrentCode 
+ * @description
+ */
 Semesters.prototype.getCurrentCode = function(){
 	var loc = window.location.href;
 	if (loc.indexOf('&sem=') > -1){
@@ -47,6 +63,10 @@ Semesters.prototype.getCurrentCode = function(){
 	return this.getCurrent().getCode();
 }
 
+/**
+ * ims.semesters
+ * @description
+ */
 ims.semesters = (function(){
 	return new Semesters();
 })()

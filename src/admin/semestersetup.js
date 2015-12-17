@@ -7,11 +7,8 @@
 function SemesterSetup(csv){
 	this._csv = csv;
 	this._org = {};
-	this._rollup = null;
-	this._master = null;
-	this._newMaster = null;
-	this._individualFiles = null;
-	this._sem = null; 
+	this._rollup = ims.sharepoint.getXmlByEmail('rollup');
+	this._master = ims.sharepoint.getXmlByEmail('master');
 }
 /**
  * @name isGreater 
@@ -595,7 +592,7 @@ SemesterSetup.prototype._createRollup = function(){
 	console.log('rollup is being created');
 	var code = this._org.semester.code;
 	var people = this._org.semester.people.person;
-	var semester = $('<semester code="' + code + '"><people></people></semester>');
+	var semester = $('<semesters><semester code="' + code + '"><people></people></semester></semesters>');
 	for (var p = 0; p < people.length; p++){
 		for (var r = 0; r < people[p].roles.role.length; r++){
 			var role = people[p].roles.role[r].type;
@@ -619,7 +616,7 @@ SemesterSetup.prototype._createRollup = function(){
 						}]
 					}
 				}
-				semester.find('> people').append(byui.createNode('person', person));
+				semester.find('semester > people').append(byui.createNode('person', person));
 			}
 		}
 	}
@@ -638,8 +635,9 @@ SemesterSetup.prototype._createRollup = function(){
 			name: 'Weekly Hours'
 		}]
 	};
-	semester.append(byui.createNode('questions', questions));
-	console.log(semester[0]);
+	semester.find('semester').append(byui.createNode('questions', questions));
+	$(this._rollup).find('semesters').append($(semester).find('semester').clone());
+	console.log(this._rollup);
 }
 /**
  * @name _createMaster
@@ -649,22 +647,29 @@ SemesterSetup.prototype._createRollup = function(){
 SemesterSetup.prototype._createMaster = function(){
 	console.log('master is being created');
 	var newMaster = byui.createNode('semesters', this._org);
-	console.log(newMaster);
+	$(this._master).find('semesters').append($(newMaster).find('semester').clone());
+	console.log(this._master);
 }
 /**
  * @name _createIndividualFiles
  * @description Creates a new semester sections in all of the peoples files from the map file
  * @assign Grant
  */
-SemesterSetup.prototype._createIndividualFiles = function(){
+SemesterSetup.prototype._createIndividualFiles = function() {
 	console.log('individual files are being created');
 	var code = this._org.semester.code;
 	var people = this._org.semester.people.person;
-	for (var p = 0; p < people.length; p++){
-		var semester = $('<semester code="' + code + '"><people></people></semester>');
+	for (var p = 0; p < people.length; p++) {
+		var semester = $('<semesters><semester code="' + code + '"><people></people></semester></semesters>');
 		var person = byui.createNode('person', people[p]);
-		semester.find('> people').append(person);
-		console.log(semester[0]);
+		semester.find('semester > people').append(person);
+		var xml = ims.sharepoint.getXmlByEmail(people[p].email);
+		if (xml != null) {
+			$(xml).find('semesters').append($(semester).find('semester').clone());
+		} else {
+			xml = $.parseXML((new XMLSerializer()).serializeToString(semester[0]));
+		}
+		console.log(xml);
 	}
 }
 /**

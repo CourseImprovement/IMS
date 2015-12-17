@@ -9,32 +9,32 @@ function Course(xml){
 Course.prototype.getId = function(){return this._id;}
 
 /**
- * Get the name of the course
- * @return {[type]} [description]
+ * @name Course.getName
+ * @description Get the name of the course
  */
 Course.prototype.getName = function(){return this._name;}
 
 /** 
- * Get the sections for the course in an Array
- * @return {[type]} [description]
+ * @name Course.getSections
+ * @description Get the sections for the course in an Array
  */
 Course.prototype.getSections = function(){return this._sections;}
 
 /**
- * Get the credits for the course
- * @return {[type]} [description]
+ * @name Course.getCredits
+ * @description Get the credits for the course
  */
 Course.prototype.getCredits = function(){return this._credits;}
 
 /**
- * Checks if the course is piloting
- * @return {Boolean} [description]
+ * @name Course.isPilot
+ * @description Checks if the course is piloting
  */
 Course.prototype.isPilot = function(){return this._pilot;}
 
 /**
- * Get the href for the course
- * @return {[type]} [description]
+ * @name getHref
+ * @description Get the href for the course
  */
 Course.prototype.getHref = function(){
 	var loc = window.location.href;
@@ -46,6 +46,10 @@ Course.prototype.getHref = function(){
 	} 
 }
 
+/**
+ * @name Course.getCurrent 
+ * @description Returns the course that is currently being viewed
+ */
 Course.getCurrent = function(){
 	if (ims.params.c){
 		var course = decodeURI(ims.params.c);

@@ -1,3 +1,7 @@
+/**
+ * @name ims 
+ * @description
+ */
 window.ims = {}
 
 if (window.location.href.indexOf('?r=1') > 0){
@@ -6,9 +10,8 @@ if (window.location.href.indexOf('?r=1') > 0){
 }
 
 /** 
- * Get the params found in the url
- * @param  {Object} ){                 var map [description]
- * @return {[type]}     [description]
+ * @name ims.params
+ * @description Get the params found in the url
  */
 ims.params = (function(){
     var map = {};
@@ -25,6 +28,10 @@ ims.params = (function(){
     return map;
 })();
 
+/**
+ * @name redirectError 
+ * @description
+ */
 function redirectError(){
     if (window.location.href.indexOf('?r=1') > -1) return;
     if (window.location.href.indexOf('?v=') > 0){
@@ -36,46 +43,33 @@ function redirectError(){
 }
 
 /**
- * Global encryption library
- * @memberOf ims
- * @namespace ims.aes
- * @type {Object}
+ * @name ims.aes
+ * @description Global encryption library
  */
 ims.aes = {
     /**
      * Encryption Key
-     * @memberOf ims.aes
-     * @type {String}
      */
     key: '00420059005500490023',
     /**
-     * Encrypt a string
-     * @param  {String} str 
-     * @param  {String} key   generally will always be ims.aes.key
-     * @return {String}       Encrypted string
-     * @function
-     * @memberOf ims.aes
+     * @name ims.aes.encrypt
+     * @description Encrypt a string
      */
     encrypt: function(str, key){
         var encrypted = CryptoJS['AES']['encrypt'](str, key);
         return encrypted.toString();
     },
     /**
-     * Decrypt a string
-     * @param  {String} code  Encrypted code 
-     * @param  {String} key   generally will always be ims.aes.key
-     * @return {String}       Encrypted string
-     * @function
-     * @memberOf ims.aes
+     * @name ims.aes.decrypt
+     * @description Decrypt a string
      */
     decrypt: function(code, key){
         var decrypted = CryptoJS['AES']['decrypt'](code, key).toString(CryptoJS['enc']['Utf8']);
         return decrypted;
     },
     /**
-     * The global encrypted value
-     * @type {Object}
-     * @memberOf ims.aes
+     * @name ims.aes.value
+     * @description The global encrypted value
      */
     value: {},
     raw: ''
@@ -83,9 +77,8 @@ ims.aes = {
 
 
 /**
- * Encode the string in hex
- * @return {string} String of hex
- * @memberOf String
+ * @name hexEncode
+ * @description Encode the string in hex
  */
 String.prototype.hexEncode = function(){
     var hex, i;
@@ -100,9 +93,8 @@ String.prototype.hexEncode = function(){
 }
 
 /**
- * Dencode the string in hex
- * @return {string} String
- * @memberOf String
+ * @name hexDecode
+ * @description Dencode the string in hex
  */
 String.prototype.hexDecode = function(){
     var j;
@@ -116,10 +108,9 @@ String.prototype.hexDecode = function(){
 }
 
 /**
-     * Initial decrypt
-     * @function
-     * @memberOf ims.aes
-     */
+ * @name ims.aes.initDecrypt
+ * @description Initial decrypt
+ */
 ims.aes.initDecrypt = (function(){
     if (window.location.href.indexOf('?') == -1){
         ims.error = true;
@@ -138,11 +129,8 @@ ims.aes.initDecrypt = (function(){
 })();
 
 /**
- * Show a tooltip
- * @param  {MouseEvent} e The mouse event
- * @param  {string} msg A String to display the message
- * @param  {string} pos left or right
- * @memberOf ims
+ * @name ims.tooltip
+ * @description Show a tooltip
  */
 ims.tooltip = function(e, msg, pos){
     if (pos && pos == 'left'){
@@ -159,45 +147,39 @@ ims.tooltip = function(e, msg, pos){
     }
 }
 /**
- * Sharepoint items
- * @namespace ims.sharepoint
- * @memberOf ims
- * @type {Object}
+ * @name ims.sharepoint
+ * @description Sharepoint items
  */
 ims.sharepoint = {
 	/**
-	 * The base url for the api calls
-	 * @type {String}
-	 * @memberOf ims.sharepoint
+	 * @name ims.sharepoint.base
+	 * @description The base url for the api calls
 	 */
 	base: '../',
 	/**
-	 * The relative base for the api calls
-	 * @type {String}
-	 * @memberOf ims.sharepoint
+	 * @name ims.sharepoint.relativeBase
+	 * @description The relative base for the api calls
 	 */
 	relativeBase: window.location.pathname.split('Shared%20Documents/index.aspx')[0],
 	/**
-	 * Make a Sharepoint post request. This is most commly used when a file is being posted 
+	 * @name ims.sharepoint.makePostRequest
+	 * @description Make a Sharepoint post request. This is most commly used when a file is being posted 
 	 * to the sharepoint server.
-	 * @param  {string}   hostUrl     base url of post request
-	 * @param  {string}   restCommand rest command
-	 * @param  {Object}   data        JSON object
-	 * @param  {Function} callback    callback function
-	 * @return {string}               In the callback, the first arg is a string
-	 * @memberOf ims.sharepoint
-	 * @function
 	 */
 	makePostRequest: function(hostUrl, restCommand, data, callback) {
-    var executor = new SP.RequestExecutor(hostUrl);
-    var info = {
-      'url': restCommand,
-      'method': "POST",
-      'data': JSON.stringify(data),
-      'success': callback
-    };  
-    executor.executeAsync(info);
+	    var executor = new SP.RequestExecutor(hostUrl);
+	    var info = {
+	      'url': restCommand,
+	      'method': "POST",
+	      'data': JSON.stringify(data),
+	      'success': callback
+	    };  
+	    executor.executeAsync(info);
 	},	
+	/**
+	 * @name ims.sharepoint.redirectToLoggedInUser 
+	 * @description
+	 */
 	redirectToLoggedInUser: function(err, success){
 		$.ajax({
 	    url: ims.sharepoint.base + '_api/Web/CurrentUser/Email',
@@ -214,6 +196,10 @@ ims.sharepoint = {
 	    }
 	  });
 	},
+	/**
+	 * @name ims.sharepoint.getLoggedInUserEmail 
+	 * @description
+	 */
 	getLoggedInUserEmail: function(callback){
 		if (!window._loggedUser){
 			$.ajax({
@@ -229,8 +215,8 @@ ims.sharepoint = {
 		callback(window._loggedUser);
 	},
 	/**
-	 * Get the survey configuration file. This file houses all the configurations for the surveys.
-	 * @return {XMLDocument} Usually we use JQuery to filter down through the document
+	 * @name ims.sharepoint.getSurveyConfig
+	 * @description Get the survey configuration file. This file houses all the configurations for the surveys.
 	 */
 	getSurveyConfig: function(){
 		var url = ims.sharepoint.base + 'Instructor%20Reporting/config/config.xml';
@@ -245,10 +231,8 @@ ims.sharepoint = {
 	  return doc;
 	},
 	/**
-	 * Posts the current user xml file.
-	 * @return {null} Nothing is returned
-	 * @function
-	 * @memberOf ims.sharepoint
+	 * @name ims.sharepoint.postCurrentFile
+	 * @description Posts the current user xml file.
 	 */
 	postCurrentFile: function(){
 		function str2ab(str) {
@@ -261,7 +245,7 @@ ims.sharepoint = {
 
 		var fileName = u.getEmail() + '.xml';
 		var url = ims.sharepoint.base + "_api/Web/GetFolderByServerRelativeUrl('" + ims.sharepoint.relativeBase + "Instructor%20Reporting/Master')/Files/add(overwrite=true, url='" + fileName + "')";
-    $['ajax']({
+    	$['ajax']({
 		    'url': ims.sharepoint.base + "_api/contextinfo",
 		    'header': {
 		        "accept": "application/json; odata=verbose",
@@ -271,20 +255,24 @@ ims.sharepoint = {
 		    'contentType': "application/json;charset=utf-8"
 		}).done(function(d) {
 			jQuery['ajax']({
-	        'url': url,
-	        'type': "POST",
-	        'data': buffer,
-	        'processData': false,
-	        'headers': {
-	            "accept": "application/json;odata=verbose",
-	            "X-RequestDigest": $(d).find('d\\:FormDigestValue, FormDigestValue').text()
-	        },
-	        'success': function(){
-	        	
-	        }
-	    });
+		        'url': url,
+		        'type': "POST",
+		        'data': buffer,
+		        'processData': false,
+		        'headers': {
+		            "accept": "application/json;odata=verbose",
+		            "X-RequestDigest": $(d).find('d\\:FormDigestValue, FormDigestValue').text()
+		        },
+		        'success': function(){
+		        	
+		        }
+	    	});
 		});
 	},
+	/**
+	 * @name ims.sharepoint.postFile 
+	 * @description
+	 */
 	postFile: function(u){
 		function str2ab(str) {
 			// new TextDecoder(encoding).decode(uint8array);
@@ -295,7 +283,7 @@ ims.sharepoint = {
 
 		var fileName = User.getCurrent().getEmail() + '.xml';
 		var url = ims.sharepoint.base + "_api/Web/GetFolderByServerRelativeUrl('" + ims.sharepoint.relativeBase + "Instructor%20Reporting/Master')/Files/add(overwrite=true, url='" + fileName + "')";
-    $['ajax']({
+    	$['ajax']({
 		    'url': ims.sharepoint.base + "_api/contextinfo",
 		    'header': {
 		        "accept": "application/json; odata=verbose",
@@ -305,25 +293,33 @@ ims.sharepoint = {
 		    'contentType': "application/json;charset=utf-8"
 		}).done(function(d) {
 			jQuery['ajax']({
-	        'url': url,
-	        'type': "POST",
-	        'data': buffer,
-	        'processData': false,
-	        'headers': {
-	            "accept": "application/json;odata=verbose",
-	            "X-RequestDigest": $(d).find('d\\:FormDigestValue, FormDigestValue').text()
-	        },
-	        'success': function(){
-	        	
-	        }
-	    });
+		        'url': url,
+		        'type': "POST",
+		        'data': buffer,
+		        'processData': false,
+		        'headers': {
+		            "accept": "application/json;odata=verbose",
+		            "X-RequestDigest": $(d).find('d\\:FormDigestValue, FormDigestValue').text()
+		        },
+		        'success': function(){
+		        	
+		        }
+		    });
 		});
 	},
+	/**
+	 * @name ims.sharepoint.postFileTestTest 
+	 * @description
+	 */
 	postFileTestTest: function(){
 		for (var i = 0; i < 1500; i++){
 			ims.sharepoint.postFileTest(i + '-test.txt');
 		}
 	},
+	/**
+	 * @name ims.sharepoint.postFileTest 
+	 * @description
+	 */
 	postFileTest: function(fileName){
 		function str2ab(str) {
 			// new TextDecoder(encoding).decode(uint8array);
@@ -332,7 +328,7 @@ ims.sharepoint = {
 		
 		var buffer = str2ab(User.getCurrent()._xml.firstChild.outerHTML);
 		var url = ims.sharepoint.base + "_api/Web/GetFolderByServerRelativeUrl('" + ims.sharepoint.relativeBase + "Instructor%20Reporting/Test')/Files/add(url='" + fileName + "')";
-    $['ajax']({
+    	$['ajax']({
 		    'url': ims.sharepoint.base + "_api/contextinfo",
 		    'header': {
 		        "accept": "application/json; odata=verbose",
@@ -342,28 +338,23 @@ ims.sharepoint = {
 		    'contentType': "application/json;charset=utf-8"
 		}).done(function(d) {
 			jQuery['ajax']({
-	        'url': url,
-	        'type': "POST",
-	        'data': buffer,
-	        'processData': false,
-	        'headers': {
-	            "accept": "application/json;odata=verbose",
-	            "X-RequestDigest": $(d).find('d\\:FormDigestValue, FormDigestValue').text()
-	        },
-	        'success': function(){
-	        	
-	        }
-	    });
+		        'url': url,
+		        'type': "POST",
+		        'data': buffer,
+		        'processData': false,
+		        'headers': {
+		            "accept": "application/json;odata=verbose",
+		            "X-RequestDigest": $(d).find('d\\:FormDigestValue, FormDigestValue').text()
+		        },
+		        'success': function(){
+		        	
+		        }
+		    });
 		});
 	},
 	/**
-	 * Marks a certain users survey as reviewed.
-	 * @param  {string} id       The ID of the survey
-	 * @param  {string} email    The first part of the email address
-	 * @param  {Boolean} reviewed If the survey has been reviewed or not
-	 * @return {null}          Nothing is returned
-	 * @function
-	 * @memberOf ims.sharepoint
+	 * @name ims.sharepoint.markAsReviewed
+	 * @description Marks a certain users survey as reviewed.
 	 */
 	markAsReviewed: function(id, email, reviewed){
 
@@ -438,11 +429,8 @@ ims.sharepoint = {
 		}
 	},
 	/**
-	 * Get a XML file for a given user by email address.
-	 * @param  {string} email The first part of the users given email address
-	 * @return {XMLDocument}       Use JQuery to find the current users document
-	 * @function
-	 * @memberOf ims.sharepoint
+	 * @name ims.sharepoint.getXmlByEmail
+	 * @description Get a XML file for a given user by email address.
 	 */
 	getXmlByEmail: function(email){
 		var url = ims.sharepoint.base + 'Instructor%20Reporting/Master/' + email + '.xml'
@@ -483,32 +471,32 @@ function Course(xml){
 Course.prototype.getId = function(){return this._id;}
 
 /**
- * Get the name of the course
- * @return {[type]} [description]
+ * @name Course.getName
+ * @description Get the name of the course
  */
 Course.prototype.getName = function(){return this._name;}
 
 /** 
- * Get the sections for the course in an Array
- * @return {[type]} [description]
+ * @name Course.getSections
+ * @description Get the sections for the course in an Array
  */
 Course.prototype.getSections = function(){return this._sections;}
 
 /**
- * Get the credits for the course
- * @return {[type]} [description]
+ * @name Course.getCredits
+ * @description Get the credits for the course
  */
 Course.prototype.getCredits = function(){return this._credits;}
 
 /**
- * Checks if the course is piloting
- * @return {Boolean} [description]
+ * @name Course.isPilot
+ * @description Checks if the course is piloting
  */
 Course.prototype.isPilot = function(){return this._pilot;}
 
 /**
- * Get the href for the course
- * @return {[type]} [description]
+ * @name getHref
+ * @description Get the href for the course
  */
 Course.prototype.getHref = function(){
 	var loc = window.location.href;
@@ -520,6 +508,10 @@ Course.prototype.getHref = function(){
 	} 
 }
 
+/**
+ * @name Course.getCurrent 
+ * @description Returns the course that is currently being viewed
+ */
 Course.getCurrent = function(){
 	if (ims.params.c){
 		var course = decodeURI(ims.params.c);
@@ -544,10 +536,18 @@ if (!ims.error){
 		$scope.selectedRole = window._selectedRole;
 		$scope.backButton = currentUser.backButton();
 
+		/**
+		 * @name back 
+		 * @description Go back to the previous webpage
+		 */
 		$scope.back = function(){
 			User.redirectBack();
 		}
 
+		/**
+		 * @name openRoleMenu 
+		 * @description Show a list of roles that the user has
+		 */
 		$scope.openRoleMenu = function(){
 			var right = '71px';
 			if ($('.back-btn').length > 0){
@@ -564,10 +564,18 @@ if (!ims.error){
 			}, 2);
 		}
 
+		/**
+		 * @name toggleSubMenu 
+		 * @description Toggle the views of the sub menu
+		 */
 		$scope.toggleSubMenu = function(e){
 			$(e.target).find('ul').slideToggle();
 		}
 
+		/**
+		 * @name openCourseMenu 
+		 * @description
+		 */
 		$scope.openCourseMenu = function(e){
 			var right = '71px';
 			if ($('.back-btn').length > 0){
@@ -584,6 +592,10 @@ if (!ims.error){
 			}, 2);
 		}
 
+		/**
+		 * @name openSearch 
+		 * @description
+		 */
 		$scope.openSearch = function(){
 			setTimeout(function(){
 				$scope.$apply(function(){
@@ -596,16 +608,28 @@ if (!ims.error){
 			}, 20);
 		}
 
+		/**
+		 * @name appendChart 
+		 * @description
+		 */
 		$scope.appendChart = function(tile){
 			setTimeout(function(){
 				$('#' + tile.config).highcharts(tile.data);
 			}, 10);
 		}
 
+		/**
+		 * @name redirect 
+		 * @description
+		 */
 		$scope.redirect = function(href){
 			window.location.href = href;
 		}
 
+		/**
+		 * @name changelimit 
+		 * @description     
+		 */
 		$scope.changelimit = function(person){
 			if (person.oldLimit > -1){
 				person.limit = person.oldLimit;
@@ -617,6 +641,10 @@ if (!ims.error){
 			}
 		}
 
+		/**
+		 * @name closeSearch 
+		 * @description
+		 */
 		$scope.closeSearch = function(){
 			$('#search').removeClass('search-open');
 			$scope.searchOpened = false;
@@ -640,12 +668,20 @@ if (!ims.error){
 		});
 
 		// GLOBAL
+		/**
+		 * @name toggleMenu 
+		 * @description
+		 */
 		$scope.toggleMenu = function(){
 			$scope.closeSearch();
 			$scope.showRoleMenu = false;
 			$scope.showCourseMenu = false;
 		}
 
+		/**
+		 * @name questionClick 
+		 * @description
+		 */
 		$scope.questionClick = function(e){
 			//$(e.target).parent().find('.hidden').slideToggle();
 			var div = $(e.target.nodeName == 'I' ? e.target.parentNode : e.target);
@@ -656,22 +692,38 @@ if (!ims.error){
 			}
 		}
 
+		/**
+		 * @name questionClickOut 
+		 * @description
+		 */
 		$scope.questionClickOut = function(e){
 			$('#tooltip, #tooltip-left').remove();
 		}
 
+		/**
+		 * @name closeOverlay 
+		 * @description
+		 */
 		$scope.closeOverlay = function(e){
 			$('.rawDataOverlay').fadeOut('fast');
 			$('.background-cover').fadeOut('fast');
 			$(document.body).css({overflow: 'auto'});
 		}
 
+		/**
+		 * @name background-cover
+		 * @description
+		 */
 		$('.background-cover').click(function(){
 			$scope.$apply(function(){
 				$scope.closeOverlay();
 			})
 		})
 
+		/**
+		 * @name openSurveyData 
+		 * @description
+		 */
 		$scope.openSurveyData = function(survey){
 			$scope.selectedSurvey = survey;
 			if ($(window).width() <= 1100){
@@ -682,6 +734,10 @@ if (!ims.error){
 			$(document.body).css({overflow: 'hidden'});
 		}
 
+		/**
+		 * @name searching 
+		 * @description
+		 */
 		$scope.searching = function(q, e){
 			if (e.keyCode == 27){
 				$scope.closeSearch();
@@ -696,6 +752,10 @@ if (!ims.error){
 			}
 		}
 
+		/**
+		 * @name toggleReviewed 
+		 * @description
+		 */
 		$scope.toggleReviewed = function(survey){
 			// little hack
 			setTimeout(function(){
@@ -704,6 +764,10 @@ if (!ims.error){
 			}, 10);
 		}
 
+		/**
+		 * @name toggleMobileMenu 
+		 * @description
+		 */
 		$scope.toggleMobileMenu = function(e){
 			$('.mobile-menu-side').toggleClass('show-menu');
 			if ($('.mobile-menu-side').hasClass('show-menu')){
@@ -721,6 +785,10 @@ if (!ims.error){
 		})
 		OneCol();
 
+		/**
+		 * @name OneCol 
+		 * @description
+		 */
 		function OneCol(){
 			var w = $(window).width();
 			if (w <= 1100){
@@ -734,33 +802,107 @@ if (!ims.error){
 		}
 
 	}]);
+
+	/**
+	 * @name toInt 
+	 * @description Converts a str to a num and handles it if it is a range of numbers by choosing the first number
+	 * @todo 
+	 *  + Check that the str is not intro week
+		 *  + Check for a dash
+	 *  + Convert the string to an int
+	 */
+	function toInt(str) {
+		if (str == "") return -1;
+		if (str.toLowerCase().indexOf('intro') > -1) return 0;
+		if (str.toLowerCase().indexOf('conclusion') > -1) return 100;
+
+		var num = 0;
+
+		if (str.indexOf('-') == -1) {
+			num = parseInt(str);
+		} else {
+			num = parseInt(str.substring(0, str.indexOf('-')));
+		}
+
+		return num;
+	}
+
+	/**
+	 * @name addItemReverseOrder 
+	 * @description Adds a single item to the given array based on the value of the week
+	 * @todo 
+	 *  + If the week is empty then it is added to the end
+	 *  + Add item based on items in list
+	 *  + Return list 
+	 */
+	function addItemReverseOrder(list, item) {
+		if (item['_week'] ==  undefined) {
+			list.splice(list.length, 0, item);
+			return list;
+		}
+		var week = item._week;
+		if (list.length == 0) {
+			list.push(item);
+			return list;
+		} else if (week == "") {
+			list.splice(list.length, 0, item);
+			return list;
+		} else if (week.toLowerCase() == "conclusion") {
+			list.splice(0, 0, item);
+			return list;
+		}else {
+			for (var i = 0; i < list.length; i++) {
+				if (toInt(week) >= toInt(list[i]._week)) {
+					list.splice(i, 0, item);
+					return list;
+				}
+			}
+		}
+	}
+
+	/**
+	 * @name angular.filter.reverseByWeek
+	 * @description Reverses the items in an ng-repeat by id
+	 * @todo
+	 *  + Filter by week (Grant)
+	 */
+	app.filter('reverseByWeek', function() {
+	  	return function(items){
+	      	if (items){
+	      		var finalSet = [];
+	      		var surveyTypes = {};
+
+	      		for (var i = 0; i < items.length; i++){
+	      			if (surveyTypes[items[i].name] == undefined) surveyTypes[items[i].name] = [];
+	          		surveyTypes[items[i].name].push(items[i]);
+	          	}
+
+	          	for (var s in surveyTypes){
+	          		var set = [];
+	          		for (var i = 0; i < surveyTypes[s].length; i++){
+		          		set = addItemReverseOrder(set, surveyTypes[s][i]);
+		          	}
+		          	finalSet = finalSet.concat(set);
+	          	}
+	          	
+	          	return finalSet;
+	      	}
+	  	} 
+	});
 	
 	/**
-	 * Revers the items in an ng-repeat
+	 * @name reverse
+	 * @description Reverse the items in an ng-repeat
 	 */
 	app.filter('reverse', function() {
 	  return function(items) {
 	    if (items) return items.slice().reverse();
 	  };
 	});
-    
-    /**
-     * @name angular.filter.reverseByWeek
-     * @description Reverses the items in an ng-repeat by id
-     * @todo
-     *  - Filter by week (Grant)
-     */
-    app.filter('reverseByWeek', function() {
-      return function(items){
-          if (items){
-              var items = [];
-              
-          }
-      } 
-    });
 
 	/**
-	 * Remove the duplates from the suggestions ng-repeat
+	 * @name noDuplicates
+	 * @description Remove the duplates from the suggestions ng-repeat
 	 */
 	app.filter('noDuplicates', function(){
 		return function(items){
@@ -804,6 +946,10 @@ else{
 		}]);
 	}
 }
+/**
+ * @name Computer 
+ * @description
+ */
 function Computer(){
 	var _this = this;
 
@@ -878,13 +1024,12 @@ function Computer(){
 	})
 }
 /**
- * ary = [
- * 		{
- * 			value: 'FA15',
- * 			href: 'laskjdflskf.aspx'
- * 		}
- * ]
- * @param {[type]} obj [description]
+ * @name Menu
+ * @description
+ *  ary = [{
+ * 		value: 'FA15',
+ * 		href: 'laskjdflskf.aspx'
+ *  }]
  */
 function Menu(ary){
 	this._items = [];
@@ -894,8 +1039,8 @@ function Menu(ary){
 }
 
 /**
- * Set the items
- * @param {[type]} ary [description]
+ * @name _setItems
+ * @description Set the items
  */
 Menu.prototype._setItems = function(ary){
 	for (var i = 0; i < ary.length; i++){
@@ -904,16 +1049,16 @@ Menu.prototype._setItems = function(ary){
 }
 
 /**
- * Get all items
- * @return {[type]} [description]
+ * @name getItems
+ * @description Get all items
  */
 Menu.prototype.getItems = function(){
 	return this._items;
 }
 
 /**
- * A specific item in the menu
- * @param {[type]} obj [description]
+ * @name MenuItems
+ * @description A specific item in the menu
  */
 function MenuItem(obj){
 	this.href = obj.href;
@@ -921,6 +1066,10 @@ function MenuItem(obj){
 	this.type = obj.type;
 	this.selected = obj.selected;
 }
+/**
+ * @name Question 
+ * @description
+ */
 function Question(xml, survey){
 	this._answer = $(xml).text();
 	this._survey = survey;
@@ -933,42 +1082,43 @@ function Question(xml, survey){
 }
 
 /**
- * Get the text of the survey
- * @return {[type]} [description]
+ * @name Question.getText
+ * @description Get the text of the survey
  */
 Question.prototype.getText = function(){
 	return this._text;
 }
 
 /**
- * Get the answer for the question
- * @return {[type]} [description]
+ * @name Question.getAnswer
+ * @description Get the answer for the question
  */
 Question.prototype.getAnswer = function(){
 	return this._answer;
 }
 
 /**
- * Get the smart goal title
- * @return {[type]} [description]
+ * @name Question.getSmartName
+ * @description Get the smart goal title
  */
 Question.prototype.getSmartName = function(){
 	return this._text.split('SMART Goal')[1];
 }
 
 /**
- * Checks for an answer
- * @return {Boolean} [description]
+ * @name Question.hasAnswer
+ * @description Checks for an answer
  */
 Question.prototype.hasAnswer = function(){
 	return this.getText() && this.getText().length > 0;
 }
 
 /**
- * Internal function to clean the answer based on the configurations
- * @return {[type]} [description]
+ * @name Question._cleanAnswer
+ * @description Internal function to clean the answer based on the configurations
  */
 Question.prototype._cleanAnswer = function(){
+	this._answer = this._answer.replace(/[^\x00-\x7F]/g, '');
 	this._answer = this._answer.replace(/\\/g, '\n');
 	var rwhat = $(this._qconfig).attr('replacewhat');
 	var rwith = $(this._qconfig).attr('replacewith');
@@ -985,6 +1135,10 @@ Question.prototype._cleanAnswer = function(){
 		this._answer = this._answer.replace(r, rwith[i]);
 	}
 }
+/**
+ * @name Role 
+ * @description
+ */
 function Role(role, user, dontSetOrg){
 	this._role = role;
 	this._user = user;
@@ -999,13 +1153,17 @@ function Role(role, user, dontSetOrg){
 }
 
 /**
- * Get the tiles based on role
- * @return {[type]} [description]
+ * @name Role.getTitles
+ * @description Get the tiles based on role
  */
 Role.prototype.getTiles = function(){
 	return Tile.getAll(this);
 }
 
+/**
+ * @name Role.getSingleInstructorStandard 
+ * @description
+ */
 Role.prototype.getSingleInstructorStandard = function(name){
 	var standards = [];
 	var data = this.getQuestionForGroup(this._user.getLeader(), name).getData();
@@ -1102,6 +1260,10 @@ Role.prototype.getSingleInstructorStandard = function(name){
         }
 }
 
+/**
+ * @name Role.getSingleInstructorHours 
+ * @description
+ */
 Role.prototype.getSingleInstructorHours = function(){
 	var data = this._user.getHoursRaw();
 	return {
@@ -1151,6 +1313,10 @@ Role.prototype.getSingleInstructorHours = function(){
         }
 }
 
+/**
+ * @name Role.getInstructorHours 
+ * @description
+ */
 Role.prototype.getInstructorHours = function(){
 	var hours = [];
 	for (var i = 0; i < this._org.length; i++){
@@ -1210,6 +1376,10 @@ Role.prototype.getInstructorHours = function(){
         }
 }
 
+/**
+ * @name Role.getInstructorStandardsDrillDown 
+ * @description
+ */
 Role.prototype.getInstructorStandardsDrillDown = function(e){
     var name = e.currentTarget.name;
     var chart = e.currentTarget.chart;
@@ -1218,17 +1388,29 @@ Role.prototype.getInstructorStandardsDrillDown = function(e){
     $('#TGLInstructorStandards').before('<div class="backBtnStandards link" id="drillup" onclick="backStandard()">Back</div>');
 }
 
+/**
+ * @name Role.backStandard 
+ * @description
+ */
 function backStandard(){
     var u = User.getCurrent();
     u._role.setInstructorStandardsDrillUp();
     $('#drillup').remove();
 }
 
+/**
+ * @name Role.setInstructorStandardsDrillUp 
+ * @description
+ */
 Role.prototype.setInstructorStandardsDrillUp = function(){
     $('#TGLInstructorStandards').highcharts().destroy();
     $('#TGLInstructorStandards').highcharts(this.getInstructorStandards());
 }
 
+/**
+ * @name Role.getInstructorStandardsByName 
+ * @description
+ */
 Role.prototype.getInstructorStandardsByName = function(name){
     var series = [];
     var lower = this.getLower();
@@ -1295,6 +1477,10 @@ Role.prototype.getInstructorStandardsByName = function(name){
         }
 }
 
+/**
+ * @name Role.getInstructorStandards 
+ * @description
+ */
 Role.prototype.getInstructorStandards = function(){
 	var standards = [];
 	var standardsAry = ['Building Faith', 'Develop Relationships', 'Inspire a Love', 'Embrace University', 'Seek Development Opportunities'];
@@ -1441,6 +1627,10 @@ Role.prototype.getInstructorStandards = function(){
         }
 }
 
+/**
+ * @name Role.getAvgInstructorHoursByGroup 
+ * @description
+ */
 Role.prototype.getAvgInstructorHoursByGroup = function(){
 	var hours = [];
 	for (var i = 0; i < this._org.length; i++){
@@ -1501,8 +1691,8 @@ Role.prototype.getAvgInstructorHoursByGroup = function(){
 }
 
 /**
- * Get the tasks to review
- * @return {[type]} [description]
+ * @name Role.getTasksToReview
+ * @description Get the tasks to review
  */
 Role.prototype.getTasksToReview = function(withCourse){
 	var tasks = [];
@@ -1573,39 +1763,41 @@ Role.prototype.getIncompleteTasks = function(){
 }
 
 /**
- * return the name of the current role
- * @return {String} instructor, aim, or tgl
+ * @name Role.getRoleName
+ * @description return the name of the current role
  */
 Role.prototype.getRoleName = function(){
 	return this._role;
 }
 
 /**
- * return the lowers in an object
- * @return {Object} Current users organization
+ * @name Role.getOrg
+ * @description return the lowers in an object
  */
 Role.prototype.getOrg = function(){
 	return this._org;
 }
 
+/**
+ * @name Role.isRoleDownFromCurrentUser 
+ * @description
+ */
 Role.prototype.isRoleDownFromCurrentUser = function(user){
 	var lower = this._nextLower(ims.aes.value.cr.toLowerCase());
 	return lower == user.getRole().getRoleName().toLowerCase();
 }
 
 /**
- * creates the users organization
- * @return {Object} Current users organization
+ * @name Role._setOrg
+ * @description creates the users organization
  */
 Role.prototype._setOrg = function(){
 	return this._recursiveChildren(this._user._xml);
 }
 
 /**
- * Recursivly get the org
- * @param  {[type]} topRole [description]
- * @param  {[type]} lower   [description]
- * @return {[type]}         [description]
+ * @name Role._recursiveChildren
+ * @description Recursivly get the org
  */
 Role.prototype._recursiveChildren = function(xml){
     var org = [];
@@ -1634,9 +1826,8 @@ Role.prototype._recursiveChildren = function(xml){
 }
 
 /**
- * Get the next lower role
- * @param  {[type]} role [description]
- * @return {[type]}      [description]
+ * @name Role._nextLower
+ * @description Get the next lower role
  */
 Role.prototype._nextLower = function(role){
 	switch (role){
@@ -1655,6 +1846,10 @@ Role.prototype._nextLower = function(role){
 	return null;
 }
 
+/**
+ * @name Role._nextHigher 
+ * @description
+ */
 Role.prototype._nextHigher = function(role){
     switch (role){
         case 'aim': return 'im';
@@ -1673,9 +1868,8 @@ Role.prototype._nextHigher = function(role){
 }
 
 /**
- * Get the next lower role for the menu
- * @param  {[type]} role [description]
- * @return {[type]}      [description]
+ * @name Role._nextLowerForMenu
+ * @description Get the next lower role for the menu
  */
 Role.prototype._nextLowerForMenu = function(role){
 	switch (role){
@@ -1695,24 +1889,24 @@ Role.prototype._nextLowerForMenu = function(role){
 }
 
 /**
- * API call for _nextLowerRole()
- * @return {[type]} [description]
+ * @name Role.getLowerRole
+ * @description API call for _nextLowerRole()
  */
 Role.prototype.getLowerRole = function(){
 	return this._nextLower(this.getRoleName().toLowerCase());
 }
 
 /**
- * API call for _nextHigherRole()
- * @return {[type]} [description]
+ * @name Role.getHigherRole
+ * @description API call for _nextHigherRole()
  */
 Role.prototype.getHigherRole = function(){
     return this._nextHigher(this.getRoleName().toLowerCase());
 }
 
 /**
- * Init function for lower role
- * @return {[type]} [description]
+ * @name Role.getLowerRoleInit
+ * @description Init function for lower role
  */
 Role.prototype.getLowerRoleInit = function(){
 	if (this._user.isCurrent())
@@ -1721,9 +1915,8 @@ Role.prototype.getLowerRoleInit = function(){
 }
 
 /**
- * returns collection of average standards by week for a group
- * @param  {String} name name of a standard
- * @return {Array}      average value for standard in group by week
+ * @name Role.getQuestionForGroup
+ * @description returns collection of average standards by week for a group
  */
 Role.prototype.getQuestionForGroup = function(email, name){
     var role = this.getRoleName().toLowerCase();
@@ -1733,16 +1926,15 @@ Role.prototype.getQuestionForGroup = function(email, name){
 }
 
 /**
- * returns collection of average standards by week for everyone
- * @param  {String} name name of a standard
- * @return {Array}      average value for standard in entire org by week
+ * @name Role.getQuestionForAll
+ * @description returns collection of average standards by week for everyone
  */
 Role.prototype.getQuestionForAll = function(name){
 	return new Rollup({level: '*', email: '', question: name});
 }
 
 /**
- * @name  Role.getRoster
+ * @name Role.getRoster
  * @description returns a list of the various people in the users group
  * @todo
  *  + Include performance report link
@@ -1757,16 +1949,16 @@ Role.prototype.getRoster = function(){
 }
 
 /**
- * return supervisor
- * @return {[type]} [description]
+ * @name Role.getLeader 
+ * @description
  */
 Role.prototype.getLeader = function(){
     return this._user.getLeader();
 }
 
 /**
- * return collection of underlings
- * @return {[type]} [description]
+ * @name Role.getLower
+ * @description return collection of underlings
  */
 Role.prototype.getLower = function(){
 	var result = [];
@@ -1777,16 +1969,16 @@ Role.prototype.getLower = function(){
 }
 
 /**
- * return collection of completed and incompleted tasks by underlings
- * @return {[type]} [description]
+ * @name Role.getLowerTasks
+ * @description return collection of completed and incompleted tasks by underlings
  */
 Role.prototype.getLowerTasks = function(){
     return this.getLower();
 }
 
 /**
- * return collection of completed tasks for current user
- * @return {[type]} [description]
+ * @name Role.getCompletedTasks
+ * @description return collection of completed tasks for current user
  */
 Role.prototype.getCompletedTasks = function(){
 	var result = [];
@@ -1800,8 +1992,8 @@ Role.prototype.getCompletedTasks = function(){
 }
 
 /**
- * return collection of evaluations for current user
- * @return {[type]} [description]
+ * @name Role.getEvaluations
+ * @description return collection of evaluations for current user
  */
 Role.prototype.getEvaluations = function(){
     var result = [];
@@ -1815,8 +2007,8 @@ Role.prototype.getEvaluations = function(){
 }
 
 /**
- * Get the completed tasks by course
- * @return {[type]} [description]
+ * @name Role.getCompletedTasksByCourse
+ * @description Get the completed tasks by course
  */
 Role.prototype.getCompletedTasksByCourse = function(){
     var surveyList = {};
@@ -1846,8 +2038,8 @@ Role.prototype.getCompletedTasksByCourse = function(){
 }
 
 /**
- * Get the href for that given role
- * @return {[type]} [description]
+ * @name Role.getHref
+ * @description Get the href for that given role
  */
 Role.prototype.getHref = function(){
 	var val = JSON.parse(JSON.stringify(ims.aes.value));
@@ -1868,8 +2060,8 @@ Role.prototype.getHref = function(){
 }
 
 /**
- * Get the different hats for the role menu
- * @return {[type]} [description]
+ * @name Role._getHats
+ * @description Get the different hats for the role menu
  */
 Role.prototype._getHats = function(){
 	var role = this.getRoleName().toLowerCase();
@@ -1910,6 +2102,10 @@ Role.prototype._getHats = function(){
  	return hats;
 }
 
+/**
+ * @name Role.getSuggested 
+ * @description
+ */
 Role.prototype.getSuggested = function(q){
     q = q.toLowerCase();
     var result = [];
@@ -1938,6 +2134,7 @@ Role.prototype.getSuggested = function(q){
 }
 
 /**
+ * @name Role.getRolesMenu
  * @description Gets the roles menu, if instructor return null
  * @todo 
  *  + Rename 'INSTRUCTOR' to 'Instructor'
@@ -1985,6 +2182,10 @@ Role.prototype.getRolesMenu = function(){
 // END GROUP: Menu
 window._rollupXml = null;
 
+/**
+ * @name Rollup 
+ * @description
+ */
 function Rollup(obj){
 	this._level = obj.level;
 	this._email = obj.email;
@@ -1996,7 +2197,8 @@ function Rollup(obj){
 }
 
 /**
- * loads the xml file if the file is not already loaded
+ * @name Rollup._initalXmlLoad
+ * @description loads the xml file if the file is not already loaded
  */
 Rollup.prototype._initalXmlLoad = function(){
 	if (window._rollupXml){
@@ -2008,14 +2210,17 @@ Rollup.prototype._initalXmlLoad = function(){
 	}
 }
 
-
+/**
+ * @name Rollup.getData 
+ * @description
+ */
 Rollup.prototype.getData = function(){
 	return this._data;
 }
 
 /**
- * returns a list of the data topics
- * @return {Array} list of data topics 
+ * @name Rollup._getData
+ * @description returns a list of the data topics 
  */
 Rollup.prototype._getData = function(){
 	var _this = this;
@@ -2050,6 +2255,10 @@ Rollup.prototype._getData = function(){
 		});
 	}
 }
+/**
+ * @name Semester 
+ * @description
+ */
 function Semester(obj){
 	if (typeof obj == 'string'){
 		this._code = obj;
@@ -2057,14 +2266,14 @@ function Semester(obj){
 }
 
 /**
- * Get the semester code
- * @return {[type]} [description]
+ * @name Semester.getCode
+ * @description Get the semester code
  */
 Semester.prototype.getCode = function(){return this._code;}
 
 /**
- * Get the href for the menu item
- * @return {[type]} [description]
+ * @name Semester.getHref
+ * @description Get the href for the menu item
  */
 Semester.prototype.getHref = function(){
 	var loc = window.location.href;
@@ -2076,10 +2285,18 @@ Semester.prototype.getHref = function(){
 	}
 }
 
+/**
+ * @name Semesters
+ * @description
+ */
 function Semesters(){
 	this._current = null;
 }
 
+/**
+ * @name Semesters.getCurrent 
+ * @description
+ */
 Semesters.prototype.getCurrent = function(){
 	if (!this._current){
 		this._current = new Semester($(Survey.getConfig()).find('semester[current=true]').attr('code'));
@@ -2087,6 +2304,10 @@ Semesters.prototype.getCurrent = function(){
 	return this._current;
 }
 
+/**
+ * @name Semesters.getCurrentCode 
+ * @description
+ */
 Semesters.prototype.getCurrentCode = function(){
 	var loc = window.location.href;
 	if (loc.indexOf('&sem=') > -1){
@@ -2099,9 +2320,17 @@ Semesters.prototype.getCurrentCode = function(){
 	return this.getCurrent().getCode();
 }
 
+/**
+ * ims.semesters
+ * @description
+ */
 ims.semesters = (function(){
 	return new Semesters();
 })()
+/**
+ * @name Survey 
+ * @description
+ */
 function Survey(xml, user){
 	this._course = user.getCourseById($(xml).attr('courseid'));
 	this._xml = xml;
@@ -2117,8 +2346,8 @@ function Survey(xml, user){
 }
 
 /**
- * Get the basic survey config file
- * @return {[type]} [description]
+ * @name Survey.getConfig
+ * @description Get the basic survey config file
  */
 Survey.getConfig = function(){
 	if (!ims._config){
@@ -2128,9 +2357,10 @@ Survey.getConfig = function(){
 }
 
 /**
- * @name  Survey.getNameById
+ * @name Survey.getNameById
+ * @description 
  * @todo
- *  - Get the survey name by an id
+ *  + Get the survey name by an id
  */
 Survey.getNameById = function(id){
 	var config = Survey.getConfig();
@@ -2138,6 +2368,10 @@ Survey.getNameById = function(id){
 	return $(survey).attr('name') + ': ' + $(survey).attr('week');
 }
 
+/**
+ * @name Survey._setAnswers 
+ * @description
+ */
 Survey.prototype._setAnswers = function(){
 	var _this = this;
 	$(this._xml).find('answer').each(function(){
@@ -2146,8 +2380,8 @@ Survey.prototype._setAnswers = function(){
 }
 
 /**
- * Get the name of the survey
- * @return {[type]} [description]
+ * @name Survey.getName
+ * @description Get the name of the survey
  */
 Survey.prototype.getName = function(){
 	if (this.withCourse && this._user.getCourses().length > 1){
@@ -2157,52 +2391,56 @@ Survey.prototype.getName = function(){
 }
 
 /**
- * Verifiy if the survey is reviewed
- * @return {Boolean} [description]
+ * @name Survey.isReviewed
+ * @description Verifiy if the survey is reviewed
  */
 Survey.prototype.isReviewed = function(){
 	return this._reviewed;
 }
 
 /**
- * Get the week of the survey
- * @return {[type]} [description]
+ * @name Survey.getWeek
+ * @description Get the week of the survey
  */
 Survey.prototype.getWeek = function(){
 	return this._week;
 }
 
+/**
+ * @name Survey.isEvaluation 
+ * @description
+ */
 Survey.prototype.isEvaluation = function(){
 	return $(this._config).attr('iseval') == 'true';
 }
 
 /**
- * Get the answers of the survey
- * @return {[type]} [description]
+ * @name Survey.getAnswers
+ * @description Get the answers of the survey
  */
 Survey.prototype.getAnswers = function(){
 	return this._answers;
 }
 
 /**
- * Check if the survey is completed or empty
- * @return {Boolean} [description]
+ * @name Survey.isComplete
+ * @description Check if the survey is completed or empty
  */
 Survey.prototype.isComplete = function(){
 	return this._answers.length > 0;
 }
 
 /**
- * Checks the placement of the survey
- * @return {[type]} [description]
+ * @name Survey.getPlacement
+ * @description Checks the placement of the survey
  */
 Survey.prototype.getPlacement = function(){
 	return this._placement;
 }
 
 /**
- * Toggle if the survey has been reviewed or not
- * @return {[type]} [description]
+ * @name Survey.toggleReviewed
+ * @description Toggle if the survey has been reviewed or not
  */
 Survey.prototype.toggleReviewed = function(){
 	var _this = this;
@@ -2218,9 +2456,8 @@ Survey.prototype.toggleReviewed = function(){
 }
 
 /**
- * Search for all questions containing text
- * @param  {[type]} txt [description]
- * @return {[type]}     [description]
+ * @name Survey.getQuestionsContainingText
+ * @description Search for all questions containing text
  */
 Survey.prototype.getQuestionsContainingText = function(txt){
 	var answers = this.getAnswers();
@@ -2233,17 +2470,17 @@ Survey.prototype.getQuestionsContainingText = function(txt){
 }
 
 /**
- * Gets the course the survey was taken. If the course
+ * @name Survey.getCourse
+ * @description Gets the course the survey was taken. If the course
  * is not validated, it will return null (good for debugging)
- * @return {[type]} [description]
  */
 Survey.prototype.getCourse = function(){
 	return this._course;
 }
 
 /**
- * Get the questions from the survey, alias for getAnswers()
- * @return {[type]} [description]
+ * @name Survey.getQuestions
+ * @description Get the questions from the survey, alias for getAnswers()
  */
 Survey.prototype.getQuestions = function(){
 	return this.getAnswers();
@@ -2266,6 +2503,10 @@ function Tile(config) {
   this.config = config.config;
 }
 
+/**
+ * @name Tile.getAll 
+ * @description
+ */
 Tile.getAll = function(role) {
   var name = role.getRoleName().toLowerCase();
   if (name == 'aim' || name == 'im') {
@@ -2479,6 +2720,10 @@ Tile.getAll = function(role) {
   }
 }
 
+/**
+ * @name Tile.tmpPretty 
+ * @description
+ */
 function tmpPretty(txt){
   if (txt == 'INSTRUCTOR') return 'Instructor';
   return txt;
@@ -2488,6 +2733,10 @@ if (ims.aes.value.ce){
 	window._baseUserXml = ims.sharepoint.getXmlByEmail(ims.aes.value.ce);
 }
 
+/**
+ * @name User 
+ * @description
+ */
 function User(obj){
 	if (!obj) throw "Invalid User Object";
 	if (!obj.email) throw 'Invalid email';
@@ -2508,14 +2757,14 @@ function User(obj){
 }
 
 /**
- * The standard for instructor hours per credit
- * @type {Number}
+ * @name User.HoursStandard
+ * @description The standard for instructor hours per credit
  */
 User.HoursStandard = 3.5;
 
 /**
- * Get the current user (the current dashboard user)
- * @return {[type]} [description]
+ * @name User.getCurrent
+ * @description Get the current user (the current dashboard user)
  */
 User.getCurrent = function(){
 	if (!window._currentUser){
@@ -2525,9 +2774,8 @@ User.getCurrent = function(){
 }
 
 /**
- * Get the email and redirect to the logged in user
- * @param  {[type]} err [description]
- * @return {[type]}     [description]
+ * @name User.redirectToLoggedInUser
+ * @description Get the email and redirect to the logged in user
  */
 User.redirectToLoggedInUser = function(err){
 	ims.sharepoint.redirectToLoggedInUser(err, function(email){
@@ -2535,14 +2783,17 @@ User.redirectToLoggedInUser = function(err){
 	});
 }
 
+/**
+ * @name User.getLoggedInUserEmail 
+ * @description
+ */
 User.getLoggedInUserEmail = function(callback){
 	ims.sharepoint.getLoggedInUserEmail(callback);
 }
 
 /**
- * The inital search for person
- * @param  {[type]} email [description]
- * @return {[type]}       [description]
+ * @name User.redirectToDashboard
+ * @description The inital search for person
  */
 User.redirectToDashboard = function(email){
 	if (email.indexOf('@')) email = email.split('@')[0];
@@ -2564,17 +2815,16 @@ User.redirectToDashboard = function(email){
 }
 
 /**
- * Get the suggested list
- * @param  {[type]} q [description]
- * @return {[type]}   [description]
+ * @name User.getSuggested
+ * @description Get the suggested list
  */
 User.prototype.getSuggested = function(q){
 	return this._role.getSuggested(q);
 }
 
 /**
- * Get all the roles associated with the user
- * @return {[type]} [description]
+ * @name User.getAllRoles
+ * @description Get all the roles associated with the user
  */
 User.prototype.getAllRoles = function(){	
 	var roles = $(this._xml).parent().find('> role');
@@ -2586,9 +2836,10 @@ User.prototype.getAllRoles = function(){
 }
 
 /**
- * TODO:
- * 	call this._role.canSearch();
- * @return {[type]} [description]
+ * @name User.canSearch
+ * @description
+ * @todo 
+ * 	+ call this._role.canSearch();
  */
 User.prototype.canSearch = function(){
 	var roleName = this.getRole().getRoleName().toLowerCase();
@@ -2596,22 +2847,27 @@ User.prototype.canSearch = function(){
 }
 
 /**
- * TODO:
- * 	call this._role.isLeader();
- * @return {Boolean} [description]
+ * @name User.isLeader
+ * @todo
+ * 	+ call this._role.isLeader();
  */
 User.prototype.isLeader = function(){
 	var r = this.getRole().getRoleName().toLowerCase();
 	return r == 'aim' || r == 'tgl' || r == 'atgl' || r == 'im';
 }
 
+/**
+ * @name User.isCurrent 
+ * @description
+ */
 User.prototype.isCurrent = function(){
 	if (ims.aes.value.e != ims.aes.value.ce) return false;
 	return this._isCurrent;
 }
 
 /**
- * Internal function to populate the users surveys into the _surveys
+ * @name User._setSurveys
+ * @description Internal function to populate the users surveys into the _surveys
  * array
  */
 User.prototype._setSurveys = function(){ 
@@ -2622,7 +2878,8 @@ User.prototype._setSurveys = function(){
 }
 
 /**
- * Set the basic personal information
+ * @name User._setPersonalInfo
+ * @description Set the basic personal information
  */
 User.prototype._setPersonalInfo = function(isBase, userXml){
 	var sem = ims.semesters.getCurrentCode();
@@ -2645,8 +2902,8 @@ User.prototype._setPersonalInfo = function(isBase, userXml){
 }
 
 /**
- * Show the course menu for an instructor
- * @return {[type]} [description]
+ * @name User.showCourseMenu
+ * @description Show the course menu for an instructor
  */
 User.prototype.showCourseMenu = function(){
 	var role = this.getRole().getRoleName().toUpperCase();
@@ -2654,8 +2911,8 @@ User.prototype.showCourseMenu = function(){
 }
 
 /**
- * Returns the selected course if the user is an instructor
- * @return {[type]} [description]
+ * @name User.selectedCourse
+ * @description Returns the selected course if the user is an instructor
  */
 User.prototype.selectedCourse = function(){
 	if (ims.params.c && !this._selectedCourse){
@@ -2668,7 +2925,8 @@ User.prototype.selectedCourse = function(){
 }
 
 /**
- * Set the courses
+ * @name User._setCourses
+ * @description Set the courses
  */
 User.prototype._setCourses = function(){
 	var _this = this;
@@ -2678,28 +2936,32 @@ User.prototype._setCourses = function(){
 }
 
 /**
- * Get the first name of the user
- * @return {[type]} [description]
+ * @name User.getFirst
+ * @description Get the first name of the user
  */
 User.prototype.getFirst = function(){
 	return this._first;
 }
 
 /**
- * Get the last name of the user
- * @return {[type]} [description]
+ * @name User.getLast
+ * @description Get the last name of the user
  */
 User.prototype.getLast = function(){
 	return this._last;
 }
 
+/**
+ * @name User.getHighestRole 
+ * @description
+ */
 User.prototype.getHighestRole = function(){
 	return $(this._xml).parent().parent().attr('highestrole');
 }
 
 /**
- * Only used for instructors
- * @type {[type]}
+ * @name User.getLeader
+ * @description Only used for instructors
  */
 User.prototype.getLeader = function(){
 	var type = '';
@@ -2716,34 +2978,33 @@ User.prototype.getLeader = function(){
 }
 
 /**
- * Get the email of the user
- * @return {[type]} [description]
+ * @name User.getEmail
+ * @description Get the email of the user
  */
 User.prototype.getEmail = function(){
 	return this._email;
 }
 
 /**
- * Get the email of the user including the @byui.edu
- * @return {[type]} [description]
+ * @name User.getFullEmail
+ * @description Get the email of the user including the @byui.edu
  */
 User.prototype.getFullEmail = function(){
 	return this._email + '@byui.edu';
 }
 
 /**
- * Get the full name of the user with a space between the first
+ * @name User.getFullName
+ * @description Get the full name of the user with a space between the first
  * and last name, and a capital first letter of each name.
- * @return {[type]} [description]
  */
 User.prototype.getFullName = function(){
 	return this._first + ' ' + this._last;
 }
 
 /**
- * Get a specific survey from the user
- * @param  {[type]} sid [description]
- * @return {[type]}     [description]
+ * @name User.getSurvey
+ * @description Get a specific survey from the user
  */
 User.prototype.getSurvey = function(sid){
 	var surveys = this.getSurveys();
@@ -2753,25 +3014,24 @@ User.prototype.getSurvey = function(sid){
 }
 
 /**
- * Save the xml to the server
- * @return {[type]} [description]
+ * @name User.save
+ * @description Save the xml to the server
  */
 User.prototype.save = function(){
 	ims.sharepoint.postFile(this);
 }
 
 /**
- * Get an Array of the surveys
- * @return {[type]} [description]
+ * @name User.getSurveys
+ * @description Get an Array of the surveys
  */
 User.prototype.getSurveys = function(){
 	return this._surveys;
 }
 
 /**
- * Get the survey by placement
- * @param  {[type]} placement [description]
- * @return {[type]}           [description]
+ * @name USer.getSurveysByPlacement
+ * @description Get the survey by placement
  */
 User.prototype.getSurveysByPlacement = function(placement){
 	var surveys = [];
@@ -2785,34 +3045,33 @@ User.prototype.getSurveysByPlacement = function(placement){
 
 // GROUP: Roles
 /**
- * Get the users role relative to the current user and their role
- * @return {[type]} [description]
+ * @name User.getRole
+ * @description Get the users role relative to the current user and their role
  */
 User.prototype.getRole = function(){
 	return this._role;
 }
 
 /**
- * Get the role as with a hat
- * @param  {[type]} type [description]
- * @return {[type]}      [description]
+ * @name User.getRoleAs
+ * @description Get the role as with a hat
  */
 User.prototype.getRoleAs = function(type){
 	return new Role(type, this, true);
 }
 
 /**
- * Validates if the instructor is a new instructor
+ * @name User.isNew
+ * @description Validates if the instructor is a new instructor
  * or not.
- * @return {Boolean} [description]
  */
 User.prototype.isNew = function(){
 	return this._new;
 }
 
 /**
- * Get the href for the user
- * @return {[type]} [description]
+ * @name User.getHref
+ * @description Get the href for the user
  */
 User.prototype.getHref = function(){
 	if (this._email == 'davismel'){
@@ -2833,8 +3092,8 @@ User.prototype.getHref = function(){
 }
 
 /**
- * Returns an array of SMART goals if taken
- * @return {[type]} [description]
+ * @name User.getSmartGoals
+ * @description Returns an array of SMART goals if taken
  */
 User.prototype.getSmartGoals = function(){
 	var weeklyReflections = this.getWeeklyReflections();
@@ -2848,8 +3107,8 @@ User.prototype.getSmartGoals = function(){
 }
 
 /**
- * Get the target hours for this user.
- * @return {[type]} [description]
+ * @name User.getTargetHours
+ * @description Get the target hours for this user.
  */
 User.prototype.getTargetHours = function(){
 	var credits = this.getTotalCredits();
@@ -2867,13 +3126,17 @@ User.prototype.getTargetHours = function(){
 	}
 }
 
+/**
+ * @name User.backButton 
+ * @description
+ */
 User.prototype.backButton = function(){
 	return ims.aes.value.ce != ims.aes.value.e;
 }
 
 /**
- * Get the weekly hours averaged out by course
- * @return {[type]} [description]
+ * @name User.getHours
+ * @description Get the weekly hours averaged out by course
  */
 User.prototype.getHours = function(){
 	var wr = this.getWeeklyReflections();
@@ -2943,8 +3206,8 @@ User.prototype.getHours = function(){
 }
 
 /**
- * Get the weekly hours averaged out by course
- * @return {[type]} [description]
+ * @name User.getHoursRaw
+ * @description Get the weekly hours averaged out by course
  */
 User.prototype.getHoursRaw = function(){
 	var wr = this.getWeeklyReflections();
@@ -2997,6 +3260,10 @@ User.prototype.getHoursRaw = function(){
 	return hours;
 }
 
+/**
+ * @name User.getStandard 
+ * @description
+ */
 User.prototype.getStandard = function(name){
 	var wr = this.getWeeklyReflections();
 	var hours = [];
@@ -3050,8 +3317,8 @@ User.prototype.getStandard = function(name){
 }
 
 /**
- * Get an array of the weekly reflections
- * @return {[type]} [description]
+ * @name User.getWeeklyReflections
+ * @description Get an array of the weekly reflections
  */
 User.prototype.getWeeklyReflections = function(){
 	var surveys = this.getSurveys();
@@ -3069,8 +3336,8 @@ User.prototype.getWeeklyReflections = function(){
 }
 
 /**
- * Redirect the url to a specific place
- * @return {[type]} [description]
+ * @name User.redirectTo
+ * @description Redirect the url to a specific place
  */
 User.prototype.redirectTo = function(){
   var email = this._email;
@@ -3085,8 +3352,8 @@ User.prototype.redirectTo = function(){
 }
 
 /**
- * Redirect to the base dashboard
- * @return {[type]} [description]
+ * @name User.redirectHome
+ * @description Redirect to the base dashboard
  */
 User.redirectHome = function(){
 	var val = JSON.parse(JSON.stringify(ims.aes.value));
@@ -3100,8 +3367,8 @@ User.redirectHome = function(){
 }
 
 /**
- * Redirects back to the previous page
- * @return {[type]} [description]
+ * @name User.redirectBack
+ * @description Redirects back to the previous page
  */
 User.redirectBack = function(){
 	var val = JSON.parse(JSON.stringify(ims.aes.value));
@@ -3117,8 +3384,8 @@ User.redirectBack = function(){
 }
 
 /**
- * Get an array of Course objects
- * @return {Array} [description]
+ * @name User.getCourses
+ * @description Get an array of Course objects
  */
 User.prototype.getCourses = function(){
 	if (this._courses.length == 0){
@@ -3131,9 +3398,8 @@ User.prototype.getCourses = function(){
 }
 
 /**
- * Get a course by name
- * @param  {[type]} name [description]
- * @return {[type]}      [description]
+ * @name User.getCourse
+ * @description Get a course by name
  */
 User.prototype.getCourse = function(name){
 	var result = null;
@@ -3147,9 +3413,8 @@ User.prototype.getCourse = function(name){
 }
 
 /**
- * Get a course by id
- * @param  {[type]} id [description]
- * @return {[type]}    [description]
+ * @name User.getCourseById
+ * @description Get a course by id
  */
 User.prototype.getCourseById = function(id){
 	var result = null;
@@ -3163,8 +3428,8 @@ User.prototype.getCourseById = function(id){
 }
 
 /**
- * Get the total Credits this user is taking
- * @return {[type]} [description]
+ * @name User.getTotalCredits
+ * @description Get the total Credits this user is taking
  */
 User.prototype.getTotalCredits = function(){
 	var total = 0;
@@ -3177,8 +3442,8 @@ User.prototype.getTotalCredits = function(){
 }
 
 /**
- * Get a list of available semesters for this user
- * @return {[type]} [description]
+ * @name User.getSemesters
+ * @description Get a list of available semesters for this user
  */
 User.prototype.getSemesters = function(){
 	if (this._semesters.length == 0){
@@ -3192,8 +3457,8 @@ User.prototype.getSemesters = function(){
 
 //GROUP: Menu
 /**
- * Gets the semester Menu
- * @return {[type]} [description]
+ * @name User.getSemesterMenu
+ * @description Gets the semester Menu
  */
 User.prototype.getSemesterMenu = function(){
 	var semesters = this.getSemesters();
@@ -3208,8 +3473,8 @@ User.prototype.getSemesterMenu = function(){
 }
 
 /**
- * Gets the courses menu, if no courses needed, return null
- * @return {[type]} [description]
+ * @name User.getCoursesMenu
+ * @description Gets the courses menu, if no courses needed, return null
  */
 User.prototype.getCoursesMenu = function(){
 	var courses = this.getCourses();

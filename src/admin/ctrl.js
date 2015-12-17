@@ -132,7 +132,7 @@ app.controller('adminCtrl', ["$scope", function($scope){
 						throw "columns need to be read from left to right (A-Z)";
 					}
 					for (var j = start; j <= end; j++){
-						sets.splice(i, 0, Config.columnNumberToLetter(j));
+						sets.splice(sets.length, 0, Config.columnNumberToLetter(j));
 					}
 				} else {
 					if (sets[i].length > 2) {
@@ -173,7 +173,7 @@ app.controller('adminCtrl', ["$scope", function($scope){
 			return;
 		}
 
-		if (columns.indexOf(';') != -1 && columns.length > 2){
+		if (columns.indexOf(';') == -1 && columns.indexOf('-') == -1 && columns.length > 2){
 			alert("Please seperate each column with a ';' (no spaces needed)");
 			return;
 		}
@@ -598,6 +598,93 @@ app.controller('adminCtrl', ["$scope", function($scope){
 	 * @end
 	 */
 }]);
+
+/**
+ * @name toInt 
+ * @description Converts a str to a num and handles it if it is a range of numbers by choosing the first number
+ * @todo 
+ *  + Check that the str is not intro week
+	 *  + Check for a dash
+ *  + Convert the string to an int
+ */
+function toInt(str) {
+	if (str == "") return -1;
+	if (str.toLowerCase().indexOf('intro') > -1) return 0;
+	if (str.toLowerCase().indexOf('conclusion') > -1) return 100;
+
+	var num = 0;
+
+	if (str.indexOf('-') == -1) {
+		num = parseInt(str);
+	} else {
+		num = parseInt(str.substring(0, str.indexOf('-')));
+	}
+
+	return num;
+}
+
+/**
+ * @name addItemReverseOrder 
+ * @description Adds a single item to the given array based on the value of the week
+ * @todo 
+ *  + If the week is empty then it is added to the end
+ *  + Add item based on items in list
+ *  + Return list 
+ */
+function addItemReverseOrder(list, item) {
+	if (item['week'] ==  undefined) {
+		list.splice(list.length, 0, item);
+		return list;
+	}
+	var week = item.week;
+	if (list.length == 0) {
+		list.push(item);
+		return list;
+	} else if (week == "") {
+		list.splice(list.length, 0, item);
+		return list;
+	} else if (week.toLowerCase() == "conclusion") {
+		list.splice(0, 0, item);
+		return list;
+	}else {
+		for (var i = 0; i < list.length; i++) {
+			if (toInt(week) >= toInt(list[i].week)) {
+				list.splice(i, 0, item);
+				return list;
+			}
+		}
+	}
+}
+
+/**
+ * @name angular.filter.reverseByWeek
+ * @description Reverses the items in an ng-repeat by id
+ * @todo
+ *  + Filter by week (Grant)
+ */
+app.filter('reverseByWeek', function() {
+  	return function(items){
+      	if (items){
+      		var finalSet = [];
+      		var surveyTypes = {};
+
+      		for (var i = 0; i < items.length; i++){
+      			if (surveyTypes[items[i].name] == undefined) surveyTypes[items[i].name] = [];
+          		surveyTypes[items[i].name].push(items[i]);
+          	}
+
+          	for (var s in surveyTypes){
+          		var set = [];
+          		for (var i = 0; i < surveyTypes[s].length; i++){
+	          		set = addItemReverseOrder(set, surveyTypes[s][i]);
+	          	}
+	          	finalSet = finalSet.concat(set);
+          	}
+          	
+          	return finalSet;
+      	}
+  	} 
+});
 /**
  * @end
  */

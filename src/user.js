@@ -3,6 +3,10 @@ if (ims.aes.value.ce){
 	window._baseUserXml = ims.sharepoint.getXmlByEmail(ims.aes.value.ce);
 }
 
+/**
+ * @name User 
+ * @description
+ */
 function User(obj){
 	if (!obj) throw "Invalid User Object";
 	if (!obj.email) throw 'Invalid email';
@@ -23,14 +27,14 @@ function User(obj){
 }
 
 /**
- * The standard for instructor hours per credit
- * @type {Number}
+ * @name User.HoursStandard
+ * @description The standard for instructor hours per credit
  */
 User.HoursStandard = 3.5;
 
 /**
- * Get the current user (the current dashboard user)
- * @return {[type]} [description]
+ * @name User.getCurrent
+ * @description Get the current user (the current dashboard user)
  */
 User.getCurrent = function(){
 	if (!window._currentUser){
@@ -40,9 +44,8 @@ User.getCurrent = function(){
 }
 
 /**
- * Get the email and redirect to the logged in user
- * @param  {[type]} err [description]
- * @return {[type]}     [description]
+ * @name User.redirectToLoggedInUser
+ * @description Get the email and redirect to the logged in user
  */
 User.redirectToLoggedInUser = function(err){
 	ims.sharepoint.redirectToLoggedInUser(err, function(email){
@@ -50,14 +53,17 @@ User.redirectToLoggedInUser = function(err){
 	});
 }
 
+/**
+ * @name User.getLoggedInUserEmail 
+ * @description
+ */
 User.getLoggedInUserEmail = function(callback){
 	ims.sharepoint.getLoggedInUserEmail(callback);
 }
 
 /**
- * The inital search for person
- * @param  {[type]} email [description]
- * @return {[type]}       [description]
+ * @name User.redirectToDashboard
+ * @description The inital search for person
  */
 User.redirectToDashboard = function(email){
 	if (email.indexOf('@')) email = email.split('@')[0];
@@ -79,17 +85,16 @@ User.redirectToDashboard = function(email){
 }
 
 /**
- * Get the suggested list
- * @param  {[type]} q [description]
- * @return {[type]}   [description]
+ * @name User.getSuggested
+ * @description Get the suggested list
  */
 User.prototype.getSuggested = function(q){
 	return this._role.getSuggested(q);
 }
 
 /**
- * Get all the roles associated with the user
- * @return {[type]} [description]
+ * @name User.getAllRoles
+ * @description Get all the roles associated with the user
  */
 User.prototype.getAllRoles = function(){	
 	var roles = $(this._xml).parent().find('> role');
@@ -101,9 +106,10 @@ User.prototype.getAllRoles = function(){
 }
 
 /**
- * TODO:
- * 	call this._role.canSearch();
- * @return {[type]} [description]
+ * @name User.canSearch
+ * @description
+ * @todo 
+ * 	+ call this._role.canSearch();
  */
 User.prototype.canSearch = function(){
 	var roleName = this.getRole().getRoleName().toLowerCase();
@@ -111,22 +117,27 @@ User.prototype.canSearch = function(){
 }
 
 /**
- * TODO:
- * 	call this._role.isLeader();
- * @return {Boolean} [description]
+ * @name User.isLeader
+ * @todo
+ * 	+ call this._role.isLeader();
  */
 User.prototype.isLeader = function(){
 	var r = this.getRole().getRoleName().toLowerCase();
 	return r == 'aim' || r == 'tgl' || r == 'atgl' || r == 'im';
 }
 
+/**
+ * @name User.isCurrent 
+ * @description
+ */
 User.prototype.isCurrent = function(){
 	if (ims.aes.value.e != ims.aes.value.ce) return false;
 	return this._isCurrent;
 }
 
 /**
- * Internal function to populate the users surveys into the _surveys
+ * @name User._setSurveys
+ * @description Internal function to populate the users surveys into the _surveys
  * array
  */
 User.prototype._setSurveys = function(){ 
@@ -137,7 +148,8 @@ User.prototype._setSurveys = function(){
 }
 
 /**
- * Set the basic personal information
+ * @name User._setPersonalInfo
+ * @description Set the basic personal information
  */
 User.prototype._setPersonalInfo = function(isBase, userXml){
 	var sem = ims.semesters.getCurrentCode();
@@ -160,8 +172,8 @@ User.prototype._setPersonalInfo = function(isBase, userXml){
 }
 
 /**
- * Show the course menu for an instructor
- * @return {[type]} [description]
+ * @name User.showCourseMenu
+ * @description Show the course menu for an instructor
  */
 User.prototype.showCourseMenu = function(){
 	var role = this.getRole().getRoleName().toUpperCase();
@@ -169,8 +181,8 @@ User.prototype.showCourseMenu = function(){
 }
 
 /**
- * Returns the selected course if the user is an instructor
- * @return {[type]} [description]
+ * @name User.selectedCourse
+ * @description Returns the selected course if the user is an instructor
  */
 User.prototype.selectedCourse = function(){
 	if (ims.params.c && !this._selectedCourse){
@@ -183,7 +195,8 @@ User.prototype.selectedCourse = function(){
 }
 
 /**
- * Set the courses
+ * @name User._setCourses
+ * @description Set the courses
  */
 User.prototype._setCourses = function(){
 	var _this = this;
@@ -193,28 +206,32 @@ User.prototype._setCourses = function(){
 }
 
 /**
- * Get the first name of the user
- * @return {[type]} [description]
+ * @name User.getFirst
+ * @description Get the first name of the user
  */
 User.prototype.getFirst = function(){
 	return this._first;
 }
 
 /**
- * Get the last name of the user
- * @return {[type]} [description]
+ * @name User.getLast
+ * @description Get the last name of the user
  */
 User.prototype.getLast = function(){
 	return this._last;
 }
 
+/**
+ * @name User.getHighestRole 
+ * @description
+ */
 User.prototype.getHighestRole = function(){
 	return $(this._xml).parent().parent().attr('highestrole');
 }
 
 /**
- * Only used for instructors
- * @type {[type]}
+ * @name User.getLeader
+ * @description Only used for instructors
  */
 User.prototype.getLeader = function(){
 	var type = '';
@@ -231,34 +248,33 @@ User.prototype.getLeader = function(){
 }
 
 /**
- * Get the email of the user
- * @return {[type]} [description]
+ * @name User.getEmail
+ * @description Get the email of the user
  */
 User.prototype.getEmail = function(){
 	return this._email;
 }
 
 /**
- * Get the email of the user including the @byui.edu
- * @return {[type]} [description]
+ * @name User.getFullEmail
+ * @description Get the email of the user including the @byui.edu
  */
 User.prototype.getFullEmail = function(){
 	return this._email + '@byui.edu';
 }
 
 /**
- * Get the full name of the user with a space between the first
+ * @name User.getFullName
+ * @description Get the full name of the user with a space between the first
  * and last name, and a capital first letter of each name.
- * @return {[type]} [description]
  */
 User.prototype.getFullName = function(){
 	return this._first + ' ' + this._last;
 }
 
 /**
- * Get a specific survey from the user
- * @param  {[type]} sid [description]
- * @return {[type]}     [description]
+ * @name User.getSurvey
+ * @description Get a specific survey from the user
  */
 User.prototype.getSurvey = function(sid){
 	var surveys = this.getSurveys();
@@ -268,25 +284,24 @@ User.prototype.getSurvey = function(sid){
 }
 
 /**
- * Save the xml to the server
- * @return {[type]} [description]
+ * @name User.save
+ * @description Save the xml to the server
  */
 User.prototype.save = function(){
 	ims.sharepoint.postFile(this);
 }
 
 /**
- * Get an Array of the surveys
- * @return {[type]} [description]
+ * @name User.getSurveys
+ * @description Get an Array of the surveys
  */
 User.prototype.getSurveys = function(){
 	return this._surveys;
 }
 
 /**
- * Get the survey by placement
- * @param  {[type]} placement [description]
- * @return {[type]}           [description]
+ * @name USer.getSurveysByPlacement
+ * @description Get the survey by placement
  */
 User.prototype.getSurveysByPlacement = function(placement){
 	var surveys = [];
@@ -300,34 +315,33 @@ User.prototype.getSurveysByPlacement = function(placement){
 
 // GROUP: Roles
 /**
- * Get the users role relative to the current user and their role
- * @return {[type]} [description]
+ * @name User.getRole
+ * @description Get the users role relative to the current user and their role
  */
 User.prototype.getRole = function(){
 	return this._role;
 }
 
 /**
- * Get the role as with a hat
- * @param  {[type]} type [description]
- * @return {[type]}      [description]
+ * @name User.getRoleAs
+ * @description Get the role as with a hat
  */
 User.prototype.getRoleAs = function(type){
 	return new Role(type, this, true);
 }
 
 /**
- * Validates if the instructor is a new instructor
+ * @name User.isNew
+ * @description Validates if the instructor is a new instructor
  * or not.
- * @return {Boolean} [description]
  */
 User.prototype.isNew = function(){
 	return this._new;
 }
 
 /**
- * Get the href for the user
- * @return {[type]} [description]
+ * @name User.getHref
+ * @description Get the href for the user
  */
 User.prototype.getHref = function(){
 	if (this._email == 'davismel'){
@@ -348,8 +362,8 @@ User.prototype.getHref = function(){
 }
 
 /**
- * Returns an array of SMART goals if taken
- * @return {[type]} [description]
+ * @name User.getSmartGoals
+ * @description Returns an array of SMART goals if taken
  */
 User.prototype.getSmartGoals = function(){
 	var weeklyReflections = this.getWeeklyReflections();
@@ -363,8 +377,8 @@ User.prototype.getSmartGoals = function(){
 }
 
 /**
- * Get the target hours for this user.
- * @return {[type]} [description]
+ * @name User.getTargetHours
+ * @description Get the target hours for this user.
  */
 User.prototype.getTargetHours = function(){
 	var credits = this.getTotalCredits();
@@ -382,13 +396,17 @@ User.prototype.getTargetHours = function(){
 	}
 }
 
+/**
+ * @name User.backButton 
+ * @description
+ */
 User.prototype.backButton = function(){
 	return ims.aes.value.ce != ims.aes.value.e;
 }
 
 /**
- * Get the weekly hours averaged out by course
- * @return {[type]} [description]
+ * @name User.getHours
+ * @description Get the weekly hours averaged out by course
  */
 User.prototype.getHours = function(){
 	var wr = this.getWeeklyReflections();
@@ -458,8 +476,8 @@ User.prototype.getHours = function(){
 }
 
 /**
- * Get the weekly hours averaged out by course
- * @return {[type]} [description]
+ * @name User.getHoursRaw
+ * @description Get the weekly hours averaged out by course
  */
 User.prototype.getHoursRaw = function(){
 	var wr = this.getWeeklyReflections();
@@ -512,6 +530,10 @@ User.prototype.getHoursRaw = function(){
 	return hours;
 }
 
+/**
+ * @name User.getStandard 
+ * @description
+ */
 User.prototype.getStandard = function(name){
 	var wr = this.getWeeklyReflections();
 	var hours = [];
@@ -565,8 +587,8 @@ User.prototype.getStandard = function(name){
 }
 
 /**
- * Get an array of the weekly reflections
- * @return {[type]} [description]
+ * @name User.getWeeklyReflections
+ * @description Get an array of the weekly reflections
  */
 User.prototype.getWeeklyReflections = function(){
 	var surveys = this.getSurveys();
@@ -584,8 +606,8 @@ User.prototype.getWeeklyReflections = function(){
 }
 
 /**
- * Redirect the url to a specific place
- * @return {[type]} [description]
+ * @name User.redirectTo
+ * @description Redirect the url to a specific place
  */
 User.prototype.redirectTo = function(){
   var email = this._email;
@@ -600,8 +622,8 @@ User.prototype.redirectTo = function(){
 }
 
 /**
- * Redirect to the base dashboard
- * @return {[type]} [description]
+ * @name User.redirectHome
+ * @description Redirect to the base dashboard
  */
 User.redirectHome = function(){
 	var val = JSON.parse(JSON.stringify(ims.aes.value));
@@ -615,8 +637,8 @@ User.redirectHome = function(){
 }
 
 /**
- * Redirects back to the previous page
- * @return {[type]} [description]
+ * @name User.redirectBack
+ * @description Redirects back to the previous page
  */
 User.redirectBack = function(){
 	var val = JSON.parse(JSON.stringify(ims.aes.value));
@@ -632,8 +654,8 @@ User.redirectBack = function(){
 }
 
 /**
- * Get an array of Course objects
- * @return {Array} [description]
+ * @name User.getCourses
+ * @description Get an array of Course objects
  */
 User.prototype.getCourses = function(){
 	if (this._courses.length == 0){
@@ -646,9 +668,8 @@ User.prototype.getCourses = function(){
 }
 
 /**
- * Get a course by name
- * @param  {[type]} name [description]
- * @return {[type]}      [description]
+ * @name User.getCourse
+ * @description Get a course by name
  */
 User.prototype.getCourse = function(name){
 	var result = null;
@@ -662,9 +683,8 @@ User.prototype.getCourse = function(name){
 }
 
 /**
- * Get a course by id
- * @param  {[type]} id [description]
- * @return {[type]}    [description]
+ * @name User.getCourseById
+ * @description Get a course by id
  */
 User.prototype.getCourseById = function(id){
 	var result = null;
@@ -678,8 +698,8 @@ User.prototype.getCourseById = function(id){
 }
 
 /**
- * Get the total Credits this user is taking
- * @return {[type]} [description]
+ * @name User.getTotalCredits
+ * @description Get the total Credits this user is taking
  */
 User.prototype.getTotalCredits = function(){
 	var total = 0;
@@ -692,8 +712,8 @@ User.prototype.getTotalCredits = function(){
 }
 
 /**
- * Get a list of available semesters for this user
- * @return {[type]} [description]
+ * @name User.getSemesters
+ * @description Get a list of available semesters for this user
  */
 User.prototype.getSemesters = function(){
 	if (this._semesters.length == 0){
@@ -707,8 +727,8 @@ User.prototype.getSemesters = function(){
 
 //GROUP: Menu
 /**
- * Gets the semester Menu
- * @return {[type]} [description]
+ * @name User.getSemesterMenu
+ * @description Gets the semester Menu
  */
 User.prototype.getSemesterMenu = function(){
 	var semesters = this.getSemesters();
@@ -723,8 +743,8 @@ User.prototype.getSemesterMenu = function(){
 }
 
 /**
- * Gets the courses menu, if no courses needed, return null
- * @return {[type]} [description]
+ * @name User.getCoursesMenu
+ * @description Gets the courses menu, if no courses needed, return null
  */
 User.prototype.getCoursesMenu = function(){
 	var courses = this.getCourses();

@@ -1,3 +1,7 @@
+/**
+ * @name Question 
+ * @description
+ */
 function Question(xml, survey){
 	this._answer = $(xml).text();
 	this._survey = survey;
@@ -10,42 +14,43 @@ function Question(xml, survey){
 }
 
 /**
- * Get the text of the survey
- * @return {[type]} [description]
+ * @name Question.getText
+ * @description Get the text of the survey
  */
 Question.prototype.getText = function(){
 	return this._text;
 }
 
 /**
- * Get the answer for the question
- * @return {[type]} [description]
+ * @name Question.getAnswer
+ * @description Get the answer for the question
  */
 Question.prototype.getAnswer = function(){
 	return this._answer;
 }
 
 /**
- * Get the smart goal title
- * @return {[type]} [description]
+ * @name Question.getSmartName
+ * @description Get the smart goal title
  */
 Question.prototype.getSmartName = function(){
 	return this._text.split('SMART Goal')[1];
 }
 
 /**
- * Checks for an answer
- * @return {Boolean} [description]
+ * @name Question.hasAnswer
+ * @description Checks for an answer
  */
 Question.prototype.hasAnswer = function(){
 	return this.getText() && this.getText().length > 0;
 }
 
 /**
- * Internal function to clean the answer based on the configurations
- * @return {[type]} [description]
+ * @name Question._cleanAnswer
+ * @description Internal function to clean the answer based on the configurations
  */
 Question.prototype._cleanAnswer = function(){
+	this._answer = this._answer.replace(/[^\x00-\x7F]/g, '');
 	this._answer = this._answer.replace(/\\/g, '\n');
 	var rwhat = $(this._qconfig).attr('replacewhat');
 	var rwith = $(this._qconfig).attr('replacewith');

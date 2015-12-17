@@ -1,3 +1,7 @@
+/**
+ * @name Computer 
+ * @description
+ */
 function Computer(){
 	var _this = this;
 

@@ -1,11 +1,10 @@
 /**
- * ary = [
- * 		{
- * 			value: 'FA15',
- * 			href: 'laskjdflskf.aspx'
- * 		}
- * ]
- * @param {[type]} obj [description]
+ * @name Menu
+ * @description
+ *  ary = [{
+ * 		value: 'FA15',
+ * 		href: 'laskjdflskf.aspx'
+ *  }]
  */
 function Menu(ary){
 	this._items = [];
@@ -15,8 +14,8 @@ function Menu(ary){
 }
 
 /**
- * Set the items
- * @param {[type]} ary [description]
+ * @name _setItems
+ * @description Set the items
  */
 Menu.prototype._setItems = function(ary){
 	for (var i = 0; i < ary.length; i++){
@@ -25,16 +24,16 @@ Menu.prototype._setItems = function(ary){
 }
 
 /**
- * Get all items
- * @return {[type]} [description]
+ * @name getItems
+ * @description Get all items
  */
 Menu.prototype.getItems = function(){
 	return this._items;
 }
 
 /**
- * A specific item in the menu
- * @param {[type]} obj [description]
+ * @name MenuItems
+ * @description A specific item in the menu
  */
 function MenuItem(obj){
 	this.href = obj.href;

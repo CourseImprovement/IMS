@@ -1,3 +1,7 @@
+/**
+ * @name Role 
+ * @description
+ */
 function Role(role, user, dontSetOrg){
 	this._role = role;
 	this._user = user;
@@ -12,13 +16,17 @@ function Role(role, user, dontSetOrg){
 }
 
 /**
- * Get the tiles based on role
- * @return {[type]} [description]
+ * @name Role.getTitles
+ * @description Get the tiles based on role
  */
 Role.prototype.getTiles = function(){
 	return Tile.getAll(this);
 }
 
+/**
+ * @name Role.getSingleInstructorStandard 
+ * @description
+ */
 Role.prototype.getSingleInstructorStandard = function(name){
 	var standards = [];
 	var data = this.getQuestionForGroup(this._user.getLeader(), name).getData();
@@ -115,6 +123,10 @@ Role.prototype.getSingleInstructorStandard = function(name){
         }
 }
 
+/**
+ * @name Role.getSingleInstructorHours 
+ * @description
+ */
 Role.prototype.getSingleInstructorHours = function(){
 	var data = this._user.getHoursRaw();
 	return {
@@ -164,6 +176,10 @@ Role.prototype.getSingleInstructorHours = function(){
         }
 }
 
+/**
+ * @name Role.getInstructorHours 
+ * @description
+ */
 Role.prototype.getInstructorHours = function(){
 	var hours = [];
 	for (var i = 0; i < this._org.length; i++){
@@ -223,6 +239,10 @@ Role.prototype.getInstructorHours = function(){
         }
 }
 
+/**
+ * @name Role.getInstructorStandardsDrillDown 
+ * @description
+ */
 Role.prototype.getInstructorStandardsDrillDown = function(e){
     var name = e.currentTarget.name;
     var chart = e.currentTarget.chart;
@@ -231,17 +251,29 @@ Role.prototype.getInstructorStandardsDrillDown = function(e){
     $('#TGLInstructorStandards').before('<div class="backBtnStandards link" id="drillup" onclick="backStandard()">Back</div>');
 }
 
+/**
+ * @name Role.backStandard 
+ * @description
+ */
 function backStandard(){
     var u = User.getCurrent();
     u._role.setInstructorStandardsDrillUp();
     $('#drillup').remove();
 }
 
+/**
+ * @name Role.setInstructorStandardsDrillUp 
+ * @description
+ */
 Role.prototype.setInstructorStandardsDrillUp = function(){
     $('#TGLInstructorStandards').highcharts().destroy();
     $('#TGLInstructorStandards').highcharts(this.getInstructorStandards());
 }
 
+/**
+ * @name Role.getInstructorStandardsByName 
+ * @description
+ */
 Role.prototype.getInstructorStandardsByName = function(name){
     var series = [];
     var lower = this.getLower();
@@ -308,6 +340,10 @@ Role.prototype.getInstructorStandardsByName = function(name){
         }
 }
 
+/**
+ * @name Role.getInstructorStandards 
+ * @description
+ */
 Role.prototype.getInstructorStandards = function(){
 	var standards = [];
 	var standardsAry = ['Building Faith', 'Develop Relationships', 'Inspire a Love', 'Embrace University', 'Seek Development Opportunities'];
@@ -454,6 +490,10 @@ Role.prototype.getInstructorStandards = function(){
         }
 }
 
+/**
+ * @name Role.getAvgInstructorHoursByGroup 
+ * @description
+ */
 Role.prototype.getAvgInstructorHoursByGroup = function(){
 	var hours = [];
 	for (var i = 0; i < this._org.length; i++){
@@ -514,8 +554,8 @@ Role.prototype.getAvgInstructorHoursByGroup = function(){
 }
 
 /**
- * Get the tasks to review
- * @return {[type]} [description]
+ * @name Role.getTasksToReview
+ * @description Get the tasks to review
  */
 Role.prototype.getTasksToReview = function(withCourse){
 	var tasks = [];
@@ -586,39 +626,41 @@ Role.prototype.getIncompleteTasks = function(){
 }
 
 /**
- * return the name of the current role
- * @return {String} instructor, aim, or tgl
+ * @name Role.getRoleName
+ * @description return the name of the current role
  */
 Role.prototype.getRoleName = function(){
 	return this._role;
 }
 
 /**
- * return the lowers in an object
- * @return {Object} Current users organization
+ * @name Role.getOrg
+ * @description return the lowers in an object
  */
 Role.prototype.getOrg = function(){
 	return this._org;
 }
 
+/**
+ * @name Role.isRoleDownFromCurrentUser 
+ * @description
+ */
 Role.prototype.isRoleDownFromCurrentUser = function(user){
 	var lower = this._nextLower(ims.aes.value.cr.toLowerCase());
 	return lower == user.getRole().getRoleName().toLowerCase();
 }
 
 /**
- * creates the users organization
- * @return {Object} Current users organization
+ * @name Role._setOrg
+ * @description creates the users organization
  */
 Role.prototype._setOrg = function(){
 	return this._recursiveChildren(this._user._xml);
 }
 
 /**
- * Recursivly get the org
- * @param  {[type]} topRole [description]
- * @param  {[type]} lower   [description]
- * @return {[type]}         [description]
+ * @name Role._recursiveChildren
+ * @description Recursivly get the org
  */
 Role.prototype._recursiveChildren = function(xml){
     var org = [];
@@ -647,9 +689,8 @@ Role.prototype._recursiveChildren = function(xml){
 }
 
 /**
- * Get the next lower role
- * @param  {[type]} role [description]
- * @return {[type]}      [description]
+ * @name Role._nextLower
+ * @description Get the next lower role
  */
 Role.prototype._nextLower = function(role){
 	switch (role){
@@ -668,6 +709,10 @@ Role.prototype._nextLower = function(role){
 	return null;
 }
 
+/**
+ * @name Role._nextHigher 
+ * @description
+ */
 Role.prototype._nextHigher = function(role){
     switch (role){
         case 'aim': return 'im';
@@ -686,9 +731,8 @@ Role.prototype._nextHigher = function(role){
 }
 
 /**
- * Get the next lower role for the menu
- * @param  {[type]} role [description]
- * @return {[type]}      [description]
+ * @name Role._nextLowerForMenu
+ * @description Get the next lower role for the menu
  */
 Role.prototype._nextLowerForMenu = function(role){
 	switch (role){
@@ -708,24 +752,24 @@ Role.prototype._nextLowerForMenu = function(role){
 }
 
 /**
- * API call for _nextLowerRole()
- * @return {[type]} [description]
+ * @name Role.getLowerRole
+ * @description API call for _nextLowerRole()
  */
 Role.prototype.getLowerRole = function(){
 	return this._nextLower(this.getRoleName().toLowerCase());
 }
 
 /**
- * API call for _nextHigherRole()
- * @return {[type]} [description]
+ * @name Role.getHigherRole
+ * @description API call for _nextHigherRole()
  */
 Role.prototype.getHigherRole = function(){
     return this._nextHigher(this.getRoleName().toLowerCase());
 }
 
 /**
- * Init function for lower role
- * @return {[type]} [description]
+ * @name Role.getLowerRoleInit
+ * @description Init function for lower role
  */
 Role.prototype.getLowerRoleInit = function(){
 	if (this._user.isCurrent())
@@ -734,9 +778,8 @@ Role.prototype.getLowerRoleInit = function(){
 }
 
 /**
- * returns collection of average standards by week for a group
- * @param  {String} name name of a standard
- * @return {Array}      average value for standard in group by week
+ * @name Role.getQuestionForGroup
+ * @description returns collection of average standards by week for a group
  */
 Role.prototype.getQuestionForGroup = function(email, name){
     var role = this.getRoleName().toLowerCase();
@@ -746,16 +789,15 @@ Role.prototype.getQuestionForGroup = function(email, name){
 }
 
 /**
- * returns collection of average standards by week for everyone
- * @param  {String} name name of a standard
- * @return {Array}      average value for standard in entire org by week
+ * @name Role.getQuestionForAll
+ * @description returns collection of average standards by week for everyone
  */
 Role.prototype.getQuestionForAll = function(name){
 	return new Rollup({level: '*', email: '', question: name});
 }
 
 /**
- * @name  Role.getRoster
+ * @name Role.getRoster
  * @description returns a list of the various people in the users group
  * @todo
  *  + Include performance report link
@@ -770,16 +812,16 @@ Role.prototype.getRoster = function(){
 }
 
 /**
- * return supervisor
- * @return {[type]} [description]
+ * @name Role.getLeader 
+ * @description
  */
 Role.prototype.getLeader = function(){
     return this._user.getLeader();
 }
 
 /**
- * return collection of underlings
- * @return {[type]} [description]
+ * @name Role.getLower
+ * @description return collection of underlings
  */
 Role.prototype.getLower = function(){
 	var result = [];
@@ -790,16 +832,16 @@ Role.prototype.getLower = function(){
 }
 
 /**
- * return collection of completed and incompleted tasks by underlings
- * @return {[type]} [description]
+ * @name Role.getLowerTasks
+ * @description return collection of completed and incompleted tasks by underlings
  */
 Role.prototype.getLowerTasks = function(){
     return this.getLower();
 }
 
 /**
- * return collection of completed tasks for current user
- * @return {[type]} [description]
+ * @name Role.getCompletedTasks
+ * @description return collection of completed tasks for current user
  */
 Role.prototype.getCompletedTasks = function(){
 	var result = [];
@@ -813,8 +855,8 @@ Role.prototype.getCompletedTasks = function(){
 }
 
 /**
- * return collection of evaluations for current user
- * @return {[type]} [description]
+ * @name Role.getEvaluations
+ * @description return collection of evaluations for current user
  */
 Role.prototype.getEvaluations = function(){
     var result = [];
@@ -828,8 +870,8 @@ Role.prototype.getEvaluations = function(){
 }
 
 /**
- * Get the completed tasks by course
- * @return {[type]} [description]
+ * @name Role.getCompletedTasksByCourse
+ * @description Get the completed tasks by course
  */
 Role.prototype.getCompletedTasksByCourse = function(){
     var surveyList = {};
@@ -859,8 +901,8 @@ Role.prototype.getCompletedTasksByCourse = function(){
 }
 
 /**
- * Get the href for that given role
- * @return {[type]} [description]
+ * @name Role.getHref
+ * @description Get the href for that given role
  */
 Role.prototype.getHref = function(){
 	var val = JSON.parse(JSON.stringify(ims.aes.value));
@@ -881,8 +923,8 @@ Role.prototype.getHref = function(){
 }
 
 /**
- * Get the different hats for the role menu
- * @return {[type]} [description]
+ * @name Role._getHats
+ * @description Get the different hats for the role menu
  */
 Role.prototype._getHats = function(){
 	var role = this.getRoleName().toLowerCase();
@@ -923,6 +965,10 @@ Role.prototype._getHats = function(){
  	return hats;
 }
 
+/**
+ * @name Role.getSuggested 
+ * @description
+ */
 Role.prototype.getSuggested = function(q){
     q = q.toLowerCase();
     var result = [];
@@ -951,6 +997,7 @@ Role.prototype.getSuggested = function(q){
 }
 
 /**
+ * @name Role.getRolesMenu
  * @description Gets the roles menu, if instructor return null
  * @todo 
  *  + Rename 'INSTRUCTOR' to 'Instructor'

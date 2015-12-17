@@ -1,3 +1,7 @@
+/**
+ * @name ims 
+ * @description
+ */
 window.ims = {}
 
 if (window.location.href.indexOf('?r=1') > 0){
@@ -6,9 +10,8 @@ if (window.location.href.indexOf('?r=1') > 0){
 }
 
 /** 
- * Get the params found in the url
- * @param  {Object} ){                 var map [description]
- * @return {[type]}     [description]
+ * @name ims.params
+ * @description Get the params found in the url
  */
 ims.params = (function(){
     var map = {};
@@ -25,6 +28,10 @@ ims.params = (function(){
     return map;
 })();
 
+/**
+ * @name redirectError 
+ * @description
+ */
 function redirectError(){
     if (window.location.href.indexOf('?r=1') > -1) return;
     if (window.location.href.indexOf('?v=') > 0){
@@ -36,46 +43,33 @@ function redirectError(){
 }
 
 /**
- * Global encryption library
- * @memberOf ims
- * @namespace ims.aes
- * @type {Object}
+ * @name ims.aes
+ * @description Global encryption library
  */
 ims.aes = {
     /**
      * Encryption Key
-     * @memberOf ims.aes
-     * @type {String}
      */
     key: '00420059005500490023',
     /**
-     * Encrypt a string
-     * @param  {String} str 
-     * @param  {String} key   generally will always be ims.aes.key
-     * @return {String}       Encrypted string
-     * @function
-     * @memberOf ims.aes
+     * @name ims.aes.encrypt
+     * @description Encrypt a string
      */
     encrypt: function(str, key){
         var encrypted = CryptoJS['AES']['encrypt'](str, key);
         return encrypted.toString();
     },
     /**
-     * Decrypt a string
-     * @param  {String} code  Encrypted code 
-     * @param  {String} key   generally will always be ims.aes.key
-     * @return {String}       Encrypted string
-     * @function
-     * @memberOf ims.aes
+     * @name ims.aes.decrypt
+     * @description Decrypt a string
      */
     decrypt: function(code, key){
         var decrypted = CryptoJS['AES']['decrypt'](code, key).toString(CryptoJS['enc']['Utf8']);
         return decrypted;
     },
     /**
-     * The global encrypted value
-     * @type {Object}
-     * @memberOf ims.aes
+     * @name ims.aes.value
+     * @description The global encrypted value
      */
     value: {},
     raw: ''
@@ -83,9 +77,8 @@ ims.aes = {
 
 
 /**
- * Encode the string in hex
- * @return {string} String of hex
- * @memberOf String
+ * @name hexEncode
+ * @description Encode the string in hex
  */
 String.prototype.hexEncode = function(){
     var hex, i;
@@ -100,9 +93,8 @@ String.prototype.hexEncode = function(){
 }
 
 /**
- * Dencode the string in hex
- * @return {string} String
- * @memberOf String
+ * @name hexDecode
+ * @description Dencode the string in hex
  */
 String.prototype.hexDecode = function(){
     var j;
@@ -116,10 +108,9 @@ String.prototype.hexDecode = function(){
 }
 
 /**
-     * Initial decrypt
-     * @function
-     * @memberOf ims.aes
-     */
+ * @name ims.aes.initDecrypt
+ * @description Initial decrypt
+ */
 ims.aes.initDecrypt = (function(){
     if (window.location.href.indexOf('?') == -1){
         ims.error = true;
@@ -138,11 +129,8 @@ ims.aes.initDecrypt = (function(){
 })();
 
 /**
- * Show a tooltip
- * @param  {MouseEvent} e The mouse event
- * @param  {string} msg A String to display the message
- * @param  {string} pos left or right
- * @memberOf ims
+ * @name ims.tooltip
+ * @description Show a tooltip
  */
 ims.tooltip = function(e, msg, pos){
     if (pos && pos == 'left'){

@@ -1,3 +1,7 @@
+/**
+ * @name Survey 
+ * @description
+ */
 function Survey(xml, user){
 	this._course = user.getCourseById($(xml).attr('courseid'));
 	this._xml = xml;
@@ -13,8 +17,8 @@ function Survey(xml, user){
 }
 
 /**
- * Get the basic survey config file
- * @return {[type]} [description]
+ * @name Survey.getConfig
+ * @description Get the basic survey config file
  */
 Survey.getConfig = function(){
 	if (!ims._config){
@@ -24,9 +28,10 @@ Survey.getConfig = function(){
 }
 
 /**
- * @name  Survey.getNameById
+ * @name Survey.getNameById
+ * @description 
  * @todo
- *  - Get the survey name by an id
+ *  + Get the survey name by an id
  */
 Survey.getNameById = function(id){
 	var config = Survey.getConfig();
@@ -34,6 +39,10 @@ Survey.getNameById = function(id){
 	return $(survey).attr('name') + ': ' + $(survey).attr('week');
 }
 
+/**
+ * @name Survey._setAnswers 
+ * @description
+ */
 Survey.prototype._setAnswers = function(){
 	var _this = this;
 	$(this._xml).find('answer').each(function(){
@@ -42,8 +51,8 @@ Survey.prototype._setAnswers = function(){
 }
 
 /**
- * Get the name of the survey
- * @return {[type]} [description]
+ * @name Survey.getName
+ * @description Get the name of the survey
  */
 Survey.prototype.getName = function(){
 	if (this.withCourse && this._user.getCourses().length > 1){
@@ -53,52 +62,56 @@ Survey.prototype.getName = function(){
 }
 
 /**
- * Verifiy if the survey is reviewed
- * @return {Boolean} [description]
+ * @name Survey.isReviewed
+ * @description Verifiy if the survey is reviewed
  */
 Survey.prototype.isReviewed = function(){
 	return this._reviewed;
 }
 
 /**
- * Get the week of the survey
- * @return {[type]} [description]
+ * @name Survey.getWeek
+ * @description Get the week of the survey
  */
 Survey.prototype.getWeek = function(){
 	return this._week;
 }
 
+/**
+ * @name Survey.isEvaluation 
+ * @description
+ */
 Survey.prototype.isEvaluation = function(){
 	return $(this._config).attr('iseval') == 'true';
 }
 
 /**
- * Get the answers of the survey
- * @return {[type]} [description]
+ * @name Survey.getAnswers
+ * @description Get the answers of the survey
  */
 Survey.prototype.getAnswers = function(){
 	return this._answers;
 }
 
 /**
- * Check if the survey is completed or empty
- * @return {Boolean} [description]
+ * @name Survey.isComplete
+ * @description Check if the survey is completed or empty
  */
 Survey.prototype.isComplete = function(){
 	return this._answers.length > 0;
 }
 
 /**
- * Checks the placement of the survey
- * @return {[type]} [description]
+ * @name Survey.getPlacement
+ * @description Checks the placement of the survey
  */
 Survey.prototype.getPlacement = function(){
 	return this._placement;
 }
 
 /**
- * Toggle if the survey has been reviewed or not
- * @return {[type]} [description]
+ * @name Survey.toggleReviewed
+ * @description Toggle if the survey has been reviewed or not
  */
 Survey.prototype.toggleReviewed = function(){
 	var _this = this;
@@ -114,9 +127,8 @@ Survey.prototype.toggleReviewed = function(){
 }
 
 /**
- * Search for all questions containing text
- * @param  {[type]} txt [description]
- * @return {[type]}     [description]
+ * @name Survey.getQuestionsContainingText
+ * @description Search for all questions containing text
  */
 Survey.prototype.getQuestionsContainingText = function(txt){
 	var answers = this.getAnswers();
@@ -129,17 +141,17 @@ Survey.prototype.getQuestionsContainingText = function(txt){
 }
 
 /**
- * Gets the course the survey was taken. If the course
+ * @name Survey.getCourse
+ * @description Gets the course the survey was taken. If the course
  * is not validated, it will return null (good for debugging)
- * @return {[type]} [description]
  */
 Survey.prototype.getCourse = function(){
 	return this._course;
 }
 
 /**
- * Get the questions from the survey, alias for getAnswers()
- * @return {[type]} [description]
+ * @name Survey.getQuestions
+ * @description Get the questions from the survey, alias for getAnswers()
  */
 Survey.prototype.getQuestions = function(){
 	return this.getAnswers();

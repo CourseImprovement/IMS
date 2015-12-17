@@ -298,7 +298,7 @@ Survey.prototype.process = function(rows){
 				processItems();
 			}, 10);
 		}
-		else if (rows[i][eCol] == undefined){
+		else if (rows[i] != undefined && rows[i][eCol] == undefined){
 			i++;
 			if (i == rows.length){
 				ims.loading.set((i / rows.length) * 100);

@@ -1,43 +1,37 @@
 /**
- * Sharepoint items
- * @namespace ims.sharepoint
- * @memberOf ims
- * @type {Object}
+ * @name ims.sharepoint
+ * @description Sharepoint items
  */
 ims.sharepoint = {
 	/**
-	 * The base url for the api calls
-	 * @type {String}
-	 * @memberOf ims.sharepoint
+	 * @name ims.sharepoint.base
+	 * @description The base url for the api calls
 	 */
 	base: '../',
 	/**
-	 * The relative base for the api calls
-	 * @type {String}
-	 * @memberOf ims.sharepoint
+	 * @name ims.sharepoint.relativeBase
+	 * @description The relative base for the api calls
 	 */
 	relativeBase: window.location.pathname.split('Shared%20Documents/index.aspx')[0],
 	/**
-	 * Make a Sharepoint post request. This is most commly used when a file is being posted 
+	 * @name ims.sharepoint.makePostRequest
+	 * @description Make a Sharepoint post request. This is most commly used when a file is being posted 
 	 * to the sharepoint server.
-	 * @param  {string}   hostUrl     base url of post request
-	 * @param  {string}   restCommand rest command
-	 * @param  {Object}   data        JSON object
-	 * @param  {Function} callback    callback function
-	 * @return {string}               In the callback, the first arg is a string
-	 * @memberOf ims.sharepoint
-	 * @function
 	 */
 	makePostRequest: function(hostUrl, restCommand, data, callback) {
-    var executor = new SP.RequestExecutor(hostUrl);
-    var info = {
-      'url': restCommand,
-      'method': "POST",
-      'data': JSON.stringify(data),
-      'success': callback
-    };  
-    executor.executeAsync(info);
+	    var executor = new SP.RequestExecutor(hostUrl);
+	    var info = {
+	      'url': restCommand,
+	      'method': "POST",
+	      'data': JSON.stringify(data),
+	      'success': callback
+	    };  
+	    executor.executeAsync(info);
 	},	
+	/**
+	 * @name ims.sharepoint.redirectToLoggedInUser 
+	 * @description
+	 */
 	redirectToLoggedInUser: function(err, success){
 		$.ajax({
 	    url: ims.sharepoint.base + '_api/Web/CurrentUser/Email',
@@ -54,6 +48,10 @@ ims.sharepoint = {
 	    }
 	  });
 	},
+	/**
+	 * @name ims.sharepoint.getLoggedInUserEmail 
+	 * @description
+	 */
 	getLoggedInUserEmail: function(callback){
 		if (!window._loggedUser){
 			$.ajax({
@@ -69,8 +67,8 @@ ims.sharepoint = {
 		callback(window._loggedUser);
 	},
 	/**
-	 * Get the survey configuration file. This file houses all the configurations for the surveys.
-	 * @return {XMLDocument} Usually we use JQuery to filter down through the document
+	 * @name ims.sharepoint.getSurveyConfig
+	 * @description Get the survey configuration file. This file houses all the configurations for the surveys.
 	 */
 	getSurveyConfig: function(){
 		var url = ims.sharepoint.base + 'Instructor%20Reporting/config/config.xml';
@@ -85,10 +83,8 @@ ims.sharepoint = {
 	  return doc;
 	},
 	/**
-	 * Posts the current user xml file.
-	 * @return {null} Nothing is returned
-	 * @function
-	 * @memberOf ims.sharepoint
+	 * @name ims.sharepoint.postCurrentFile
+	 * @description Posts the current user xml file.
 	 */
 	postCurrentFile: function(){
 		function str2ab(str) {
@@ -101,7 +97,7 @@ ims.sharepoint = {
 
 		var fileName = u.getEmail() + '.xml';
 		var url = ims.sharepoint.base + "_api/Web/GetFolderByServerRelativeUrl('" + ims.sharepoint.relativeBase + "Instructor%20Reporting/Master')/Files/add(overwrite=true, url='" + fileName + "')";
-    $['ajax']({
+    	$['ajax']({
 		    'url': ims.sharepoint.base + "_api/contextinfo",
 		    'header': {
 		        "accept": "application/json; odata=verbose",
@@ -111,20 +107,24 @@ ims.sharepoint = {
 		    'contentType': "application/json;charset=utf-8"
 		}).done(function(d) {
 			jQuery['ajax']({
-	        'url': url,
-	        'type': "POST",
-	        'data': buffer,
-	        'processData': false,
-	        'headers': {
-	            "accept": "application/json;odata=verbose",
-	            "X-RequestDigest": $(d).find('d\\:FormDigestValue, FormDigestValue').text()
-	        },
-	        'success': function(){
-	        	
-	        }
-	    });
+		        'url': url,
+		        'type': "POST",
+		        'data': buffer,
+		        'processData': false,
+		        'headers': {
+		            "accept": "application/json;odata=verbose",
+		            "X-RequestDigest": $(d).find('d\\:FormDigestValue, FormDigestValue').text()
+		        },
+		        'success': function(){
+		        	
+		        }
+	    	});
 		});
 	},
+	/**
+	 * @name ims.sharepoint.postFile 
+	 * @description
+	 */
 	postFile: function(u){
 		function str2ab(str) {
 			// new TextDecoder(encoding).decode(uint8array);
@@ -135,7 +135,7 @@ ims.sharepoint = {
 
 		var fileName = User.getCurrent().getEmail() + '.xml';
 		var url = ims.sharepoint.base + "_api/Web/GetFolderByServerRelativeUrl('" + ims.sharepoint.relativeBase + "Instructor%20Reporting/Master')/Files/add(overwrite=true, url='" + fileName + "')";
-    $['ajax']({
+    	$['ajax']({
 		    'url': ims.sharepoint.base + "_api/contextinfo",
 		    'header': {
 		        "accept": "application/json; odata=verbose",
@@ -145,25 +145,33 @@ ims.sharepoint = {
 		    'contentType': "application/json;charset=utf-8"
 		}).done(function(d) {
 			jQuery['ajax']({
-	        'url': url,
-	        'type': "POST",
-	        'data': buffer,
-	        'processData': false,
-	        'headers': {
-	            "accept": "application/json;odata=verbose",
-	            "X-RequestDigest": $(d).find('d\\:FormDigestValue, FormDigestValue').text()
-	        },
-	        'success': function(){
-	        	
-	        }
-	    });
+		        'url': url,
+		        'type': "POST",
+		        'data': buffer,
+		        'processData': false,
+		        'headers': {
+		            "accept": "application/json;odata=verbose",
+		            "X-RequestDigest": $(d).find('d\\:FormDigestValue, FormDigestValue').text()
+		        },
+		        'success': function(){
+		        	
+		        }
+		    });
 		});
 	},
+	/**
+	 * @name ims.sharepoint.postFileTestTest 
+	 * @description
+	 */
 	postFileTestTest: function(){
 		for (var i = 0; i < 1500; i++){
 			ims.sharepoint.postFileTest(i + '-test.txt');
 		}
 	},
+	/**
+	 * @name ims.sharepoint.postFileTest 
+	 * @description
+	 */
 	postFileTest: function(fileName){
 		function str2ab(str) {
 			// new TextDecoder(encoding).decode(uint8array);
@@ -172,7 +180,7 @@ ims.sharepoint = {
 		
 		var buffer = str2ab(User.getCurrent()._xml.firstChild.outerHTML);
 		var url = ims.sharepoint.base + "_api/Web/GetFolderByServerRelativeUrl('" + ims.sharepoint.relativeBase + "Instructor%20Reporting/Test')/Files/add(url='" + fileName + "')";
-    $['ajax']({
+    	$['ajax']({
 		    'url': ims.sharepoint.base + "_api/contextinfo",
 		    'header': {
 		        "accept": "application/json; odata=verbose",
@@ -182,28 +190,23 @@ ims.sharepoint = {
 		    'contentType': "application/json;charset=utf-8"
 		}).done(function(d) {
 			jQuery['ajax']({
-	        'url': url,
-	        'type': "POST",
-	        'data': buffer,
-	        'processData': false,
-	        'headers': {
-	            "accept": "application/json;odata=verbose",
-	            "X-RequestDigest": $(d).find('d\\:FormDigestValue, FormDigestValue').text()
-	        },
-	        'success': function(){
-	        	
-	        }
-	    });
+		        'url': url,
+		        'type': "POST",
+		        'data': buffer,
+		        'processData': false,
+		        'headers': {
+		            "accept": "application/json;odata=verbose",
+		            "X-RequestDigest": $(d).find('d\\:FormDigestValue, FormDigestValue').text()
+		        },
+		        'success': function(){
+		        	
+		        }
+		    });
 		});
 	},
 	/**
-	 * Marks a certain users survey as reviewed.
-	 * @param  {string} id       The ID of the survey
-	 * @param  {string} email    The first part of the email address
-	 * @param  {Boolean} reviewed If the survey has been reviewed or not
-	 * @return {null}          Nothing is returned
-	 * @function
-	 * @memberOf ims.sharepoint
+	 * @name ims.sharepoint.markAsReviewed
+	 * @description Marks a certain users survey as reviewed.
 	 */
 	markAsReviewed: function(id, email, reviewed){
 
@@ -278,11 +281,8 @@ ims.sharepoint = {
 		}
 	},
 	/**
-	 * Get a XML file for a given user by email address.
-	 * @param  {string} email The first part of the users given email address
-	 * @return {XMLDocument}       Use JQuery to find the current users document
-	 * @function
-	 * @memberOf ims.sharepoint
+	 * @name ims.sharepoint.getXmlByEmail
+	 * @description Get a XML file for a given user by email address.
 	 */
 	getXmlByEmail: function(email){
 		var url = ims.sharepoint.base + 'Instructor%20Reporting/Master/' + email + '.xml'

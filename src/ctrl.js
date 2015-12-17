@@ -15,10 +15,18 @@ if (!ims.error){
 		$scope.selectedRole = window._selectedRole;
 		$scope.backButton = currentUser.backButton();
 
+		/**
+		 * @name back 
+		 * @description Go back to the previous webpage
+		 */
 		$scope.back = function(){
 			User.redirectBack();
 		}
 
+		/**
+		 * @name openRoleMenu 
+		 * @description Show a list of roles that the user has
+		 */
 		$scope.openRoleMenu = function(){
 			var right = '71px';
 			if ($('.back-btn').length > 0){
@@ -35,10 +43,18 @@ if (!ims.error){
 			}, 2);
 		}
 
+		/**
+		 * @name toggleSubMenu 
+		 * @description Toggle the views of the sub menu
+		 */
 		$scope.toggleSubMenu = function(e){
 			$(e.target).find('ul').slideToggle();
 		}
 
+		/**
+		 * @name openCourseMenu 
+		 * @description
+		 */
 		$scope.openCourseMenu = function(e){
 			var right = '71px';
 			if ($('.back-btn').length > 0){
@@ -55,6 +71,10 @@ if (!ims.error){
 			}, 2);
 		}
 
+		/**
+		 * @name openSearch 
+		 * @description
+		 */
 		$scope.openSearch = function(){
 			setTimeout(function(){
 				$scope.$apply(function(){
@@ -67,16 +87,28 @@ if (!ims.error){
 			}, 20);
 		}
 
+		/**
+		 * @name appendChart 
+		 * @description
+		 */
 		$scope.appendChart = function(tile){
 			setTimeout(function(){
 				$('#' + tile.config).highcharts(tile.data);
 			}, 10);
 		}
 
+		/**
+		 * @name redirect 
+		 * @description
+		 */
 		$scope.redirect = function(href){
 			window.location.href = href;
 		}
 
+		/**
+		 * @name changelimit 
+		 * @description     
+		 */
 		$scope.changelimit = function(person){
 			if (person.oldLimit > -1){
 				person.limit = person.oldLimit;
@@ -88,6 +120,10 @@ if (!ims.error){
 			}
 		}
 
+		/**
+		 * @name closeSearch 
+		 * @description
+		 */
 		$scope.closeSearch = function(){
 			$('#search').removeClass('search-open');
 			$scope.searchOpened = false;
@@ -111,12 +147,20 @@ if (!ims.error){
 		});
 
 		// GLOBAL
+		/**
+		 * @name toggleMenu 
+		 * @description
+		 */
 		$scope.toggleMenu = function(){
 			$scope.closeSearch();
 			$scope.showRoleMenu = false;
 			$scope.showCourseMenu = false;
 		}
 
+		/**
+		 * @name questionClick 
+		 * @description
+		 */
 		$scope.questionClick = function(e){
 			//$(e.target).parent().find('.hidden').slideToggle();
 			var div = $(e.target.nodeName == 'I' ? e.target.parentNode : e.target);
@@ -127,22 +171,38 @@ if (!ims.error){
 			}
 		}
 
+		/**
+		 * @name questionClickOut 
+		 * @description
+		 */
 		$scope.questionClickOut = function(e){
 			$('#tooltip, #tooltip-left').remove();
 		}
 
+		/**
+		 * @name closeOverlay 
+		 * @description
+		 */
 		$scope.closeOverlay = function(e){
 			$('.rawDataOverlay').fadeOut('fast');
 			$('.background-cover').fadeOut('fast');
 			$(document.body).css({overflow: 'auto'});
 		}
 
+		/**
+		 * @name background-cover
+		 * @description
+		 */
 		$('.background-cover').click(function(){
 			$scope.$apply(function(){
 				$scope.closeOverlay();
 			})
 		})
 
+		/**
+		 * @name openSurveyData 
+		 * @description
+		 */
 		$scope.openSurveyData = function(survey){
 			$scope.selectedSurvey = survey;
 			if ($(window).width() <= 1100){
@@ -153,6 +213,10 @@ if (!ims.error){
 			$(document.body).css({overflow: 'hidden'});
 		}
 
+		/**
+		 * @name searching 
+		 * @description
+		 */
 		$scope.searching = function(q, e){
 			if (e.keyCode == 27){
 				$scope.closeSearch();
@@ -167,6 +231,10 @@ if (!ims.error){
 			}
 		}
 
+		/**
+		 * @name toggleReviewed 
+		 * @description
+		 */
 		$scope.toggleReviewed = function(survey){
 			// little hack
 			setTimeout(function(){
@@ -175,6 +243,10 @@ if (!ims.error){
 			}, 10);
 		}
 
+		/**
+		 * @name toggleMobileMenu 
+		 * @description
+		 */
 		$scope.toggleMobileMenu = function(e){
 			$('.mobile-menu-side').toggleClass('show-menu');
 			if ($('.mobile-menu-side').hasClass('show-menu')){
@@ -192,6 +264,10 @@ if (!ims.error){
 		})
 		OneCol();
 
+		/**
+		 * @name OneCol 
+		 * @description
+		 */
 		function OneCol(){
 			var w = $(window).width();
 			if (w <= 1100){
@@ -205,33 +281,107 @@ if (!ims.error){
 		}
 
 	}]);
+
+	/**
+	 * @name toInt 
+	 * @description Converts a str to a num and handles it if it is a range of numbers by choosing the first number
+	 * @todo 
+	 *  + Check that the str is not intro week
+		 *  + Check for a dash
+	 *  + Convert the string to an int
+	 */
+	function toInt(str) {
+		if (str == "") return -1;
+		if (str.toLowerCase().indexOf('intro') > -1) return 0;
+		if (str.toLowerCase().indexOf('conclusion') > -1) return 100;
+
+		var num = 0;
+
+		if (str.indexOf('-') == -1) {
+			num = parseInt(str);
+		} else {
+			num = parseInt(str.substring(0, str.indexOf('-')));
+		}
+
+		return num;
+	}
+
+	/**
+	 * @name addItemReverseOrder 
+	 * @description Adds a single item to the given array based on the value of the week
+	 * @todo 
+	 *  + If the week is empty then it is added to the end
+	 *  + Add item based on items in list
+	 *  + Return list 
+	 */
+	function addItemReverseOrder(list, item) {
+		if (item['_week'] ==  undefined) {
+			list.splice(list.length, 0, item);
+			return list;
+		}
+		var week = item._week;
+		if (list.length == 0) {
+			list.push(item);
+			return list;
+		} else if (week == "") {
+			list.splice(list.length, 0, item);
+			return list;
+		} else if (week.toLowerCase() == "conclusion") {
+			list.splice(0, 0, item);
+			return list;
+		}else {
+			for (var i = 0; i < list.length; i++) {
+				if (toInt(week) >= toInt(list[i]._week)) {
+					list.splice(i, 0, item);
+					return list;
+				}
+			}
+		}
+	}
+
+	/**
+	 * @name angular.filter.reverseByWeek
+	 * @description Reverses the items in an ng-repeat by id
+	 * @todo
+	 *  + Filter by week (Grant)
+	 */
+	app.filter('reverseByWeek', function() {
+	  	return function(items){
+	      	if (items){
+	      		var finalSet = [];
+	      		var surveyTypes = {};
+
+	      		for (var i = 0; i < items.length; i++){
+	      			if (surveyTypes[items[i].name] == undefined) surveyTypes[items[i].name] = [];
+	          		surveyTypes[items[i].name].push(items[i]);
+	          	}
+
+	          	for (var s in surveyTypes){
+	          		var set = [];
+	          		for (var i = 0; i < surveyTypes[s].length; i++){
+		          		set = addItemReverseOrder(set, surveyTypes[s][i]);
+		          	}
+		          	finalSet = finalSet.concat(set);
+	          	}
+	          	
+	          	return finalSet;
+	      	}
+	  	} 
+	});
 	
 	/**
-	 * Revers the items in an ng-repeat
+	 * @name reverse
+	 * @description Reverse the items in an ng-repeat
 	 */
 	app.filter('reverse', function() {
 	  return function(items) {
 	    if (items) return items.slice().reverse();
 	  };
 	});
-    
-    /**
-     * @name angular.filter.reverseByWeek
-     * @description Reverses the items in an ng-repeat by id
-     * @todo
-     *  - Filter by week (Grant)
-     */
-    app.filter('reverseByWeek', function() {
-      return function(items){
-          if (items){
-              var items = [];
-              
-          }
-      } 
-    });
 
 	/**
-	 * Remove the duplates from the suggestions ng-repeat
+	 * @name noDuplicates
+	 * @description Remove the duplates from the suggestions ng-repeat
 	 */
 	app.filter('noDuplicates', function(){
 		return function(items){

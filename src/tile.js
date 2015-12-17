@@ -16,6 +16,10 @@ function Tile(config) {
   this.config = config.config;
 }
 
+/**
+ * @name Tile.getAll 
+ * @description
+ */
 Tile.getAll = function(role) {
   var name = role.getRoleName().toLowerCase();
   if (name == 'aim' || name == 'im') {
@@ -229,6 +233,10 @@ Tile.getAll = function(role) {
   }
 }
 
+/**
+ * @name Tile.tmpPretty 
+ * @description
+ */
 function tmpPretty(txt){
   if (txt == 'INSTRUCTOR') return 'Instructor';
   return txt;
