@@ -58,7 +58,7 @@
 				<li>{{user.getFullName()}}</li>
 				<!-- <li ng-click='toggleSubMenu($event)'>{{semester}}
 					<ul>
-						<li ng-repeat="item in semesters" ng-class="item.selected ? 'selected' : ''" ng-click='selectedSemesterMenuItem(item)'>- {{item}}</li>
+						<li ng-repeat="semester in semesters" ng-class="semester.selected ? 'selected' : ''" ng-click='selectedSemesterMenuItem(semester)'>- {{semester}}</li>
 					</ul>
 				</li> -->
 				<li ng-if='backButton' ng-click='back()'>Back</li>
@@ -107,7 +107,7 @@
 						<li ng-repeat='person in tile.data | orderBy:"_first"'>
 							{{person.user.getFullName()}}
 							<ul class="list tasks">
-								<li ng-repeat='survey in person.surveys | reverse | limitTo:person.limit'>
+								<li ng-repeat='survey in person.surveys | reverseByWeek | limitTo:person.limit'>
 									<i class='fa fa-square-o checkbox' ng-click='toggleReviewed(survey)' ng-if='!survey.isReviewed()'></i>
 									<i class='fa fa-check-square-o checkbox' ng-click='toggleReviewed(survey)' ng-if='survey.isReviewed()'></i> 
 									<span ng-if='!survey.isReviewed()' class='link' ng-click='openSurveyData(survey)'>{{survey.getName()}}</span>
@@ -122,7 +122,7 @@
 
 					 <!-- SURVEY LIST -->
 					 <ul class="list selection" ng-if='tile.type == "survey-list" && tile.data.length > 0'>
-							<li ng-repeat='survey in tile.data | reverse'>
+							<li ng-repeat='survey in tile.data | reverseByWeek'>
 								<div class='link' ng-click='openSurveyData(survey)'>{{survey.getName()}}</div>
 							</li>
 						</ul>
@@ -132,7 +132,7 @@
 					 <div ng-repeat='course in tile.data' ng-if='tile.type == "course-survey-list"'>
 							<h3>{{course.course.getName()}}</h3>
 							<ul class="list selection" ng-if='course.surveys.length > 0'>
-								<li ng-repeat='survey in course.surveys | reverse'>
+								<li ng-repeat='survey in course.surveys | reverseByWeek'>
 									<div class='link' ng-click='openSurveyData(survey)'>{{survey.getName()}}</div>
 								</li>
 							</ul>
@@ -141,9 +141,9 @@
 
 					 <!-- REVIEW LIST -->
 					 <ul class="list selection tasks" ng-if='tile.type == "review-list" && tile.data.length > 0'>
-							<li ng-repeat='survey in tile.data'>
+							<li ng-repeat='survey in tile.data'> {{survey.user.getFullName()}}
 								<ul>
-									<li ng-repeat='difference in survey.differences'><div class='link' ng-click='openSurveyData(survey)'>{{survey.user.getFullName()}} - {{difference}}</div></li>
+									<li ng-repeat='difference in survey.differences'>{{difference}}</li>
 								</ul>
 							</li>
 						</ul>
