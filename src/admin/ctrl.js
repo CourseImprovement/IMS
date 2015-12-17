@@ -141,7 +141,7 @@ app.controller('adminCtrl', ["$scope", function($scope){
 					}
 				}
 			}
-			return sets.sort();
+			return sets;
 		}
 		else{
 			return columns.split(';');

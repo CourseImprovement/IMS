@@ -81,7 +81,7 @@ Evaluations.prototype.setAnswers = function(evaluatee, row, locations){
 			if (this.people[evaluatee][quest] == undefined){
 				this.people[evaluatee][quest] = _this.cleanseString(ans);
 			} else{
-				this.people[evaluatee][quest] += '\\' + _this.cleanseString(ans);
+				this.people[evaluatee][quest] += '\\\\' + _this.cleanseString(ans);
 			}
 		} else if (locations[loc].logic == 'p'){ /*PERCENTAGE*/
 			if (this.people[evaluatee][quest] == undefined){
@@ -134,7 +134,7 @@ Evaluations.prototype.sendToCSV = function(){
 
 	/*ADD THE TITLES TO THE CSV*/
 	for (var j = 0; j < this._evaluations.dataSeries.length; j++){
-		csv += this._evaluations.dataSeries[j].question.replace(/( )|(,)/g, "%20") + ",";
+		csv += this._evaluations.dataSeries[j].question.replace(/( )|(,)/g, "%20").replace(/’/g, "%27") + ",";
 	}
 
 	csv += "%0A"; // NEW LINE
@@ -145,7 +145,7 @@ Evaluations.prototype.sendToCSV = function(){
 		for (var q in this.people[person]){
 			if (q != 'count'){
 				if (isNaN(this.people[person][q])){
-					csv += this.people[person][q].replace(/( )|(\/\/\/)|(,)/g, "%20") + ",";
+					csv += this.people[person][q].replace(/( )|(\/\/\/)|(,)/g, "%20").replace(/’/g, "%27") + ",";
 				} else {
 					csv += this.people[person][q] + ",";
 				}
