@@ -197,7 +197,30 @@ SemesterSetup.prototype._createOrg = function(){
 								first: this._csv[rows][0].formalize(),
 								last: this._csv[rows][1].formalize(),
 								email: this._csv[rows][2].toLowerCase().split('@')[0],
-								type: 'instructor'
+								type: 'instructor',
+								roles: {
+									role: [{
+										type: 'instructor',
+										surveys: {},
+										stewardship: {},
+										leadership: {
+											people: {
+												person: [{
+													
+												}]
+											}
+										}	
+									}]
+								},
+								courses: {
+									course: [{
+										id: 1,
+										$text: this._csv[rows][3],
+										credits: this._csv[rows][4],
+										pilot: this._csv[rows][17].toLowerCase(),
+										ocr: this._csv[rows][18].toLowerCase()
+									}]
+								}
 							}]
 						}
 					},
