@@ -256,7 +256,7 @@ Config.prototype.getMap = function(){
  *  + return columns
  */
 Config.prototype._getSurveyColumns = function(surveyId){
-	var survey = $(this._xml).find('semester[code=FA15] > surveys > survey[id="' + surveyId + '"]');
+	var survey = $(this._xml).find('semester[code="' + $(this._xml).find('semesters semester[current=true]').attr('code') + '"] > surveys > survey[id="' + surveyId + '"]');
 	var columns = {
 		iseval: survey.attr('iseval'),
 		id: surveyId,
