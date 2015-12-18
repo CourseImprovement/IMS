@@ -405,6 +405,7 @@ Number.isFloat = function(n){
  *  - Add todos
  */
 function changeAll(){
+	var sem = $(window.config._xml).find('semesters semester[current=true]').attr('code');
 	var master = ims.sharepoint.getXmlByEmail('master');
 
 	$(master).find('person[highestrole=aim]').each(function(){
@@ -427,7 +428,7 @@ function changeAll(){
 
 		}
 		if (!xml){
-			xml = $('<semesters><semester code="FA15"><people><person></person></people></semester></semesters>');
+			xml = $('<semesters><semester code="' + sem + '"><people><person></person></people></semester></semesters>');
 		}
 		$(xml).find('semester > people > person').remove();
 		$(xml).find('semester > people').append($(this).clone());
@@ -865,7 +866,7 @@ Config.prototype.getMap = function(){
  *  + return columns
  */
 Config.prototype._getSurveyColumns = function(surveyId){
-	var survey = $(this._xml).find('semester[code=FA15] > surveys > survey[id="' + surveyId + '"]');
+	var survey = $(this._xml).find('semester[code="' + $(this._xml).find('semesters semester[current=true]').attr('code') + '"] > surveys > survey[id="' + surveyId + '"]');
 	var columns = {
 		iseval: survey.attr('iseval'),
 		id: surveyId,
@@ -1772,6 +1773,7 @@ function Evaluations(obj, file){
 	this._evaluations = obj;
 	this._file = file;
 	this.people = {};
+	this._sem = $(window.config._xml).find('semester semester[current=true]').attr('code');
 }
 
 /**
@@ -1967,7 +1969,7 @@ Evaluations.prototype.parse = function(){
 
 			for (var i = start; i < rows.length; i++){
 				if (rows[i][emailCol] != undefined) {
-					var xPath = 'semester[code=FA15] > people > person > roles > role[type="' + _this._evaluations.eFor.toLowerCase() + '"]';
+					var xPath = 'semester[code="' + this._sem +'"] > people > person > roles > role[type="' + _this._evaluations.eFor.toLowerCase() + '"]';
 					var evaluator = rows[i][emailCol].split('@')[0];
 					var evaluatee = null;
 					if ($(master).find(xPath).has('stewardship > people > person[email="' + evaluator + '"][type="' + _this._evaluations.eBy.toLowerCase() + '"]').length > 0) {
@@ -2869,6 +2871,11 @@ String.prototype.formalize = function(){
 	return this.charAt(0).toUpperCase() + this.slice(1).toLowerCase();
 }
 
+SemesterSetup.prototype._isSameSem = function(){
+	var code = $(window.config._xml).find('semesters semester[current=true]').attr('code');
+	return code == this._org.semester.code;
+}
+
 /**
  * @name _createConfig
  * @description
@@ -2877,9 +2884,11 @@ SemesterSetup.prototype._createConfig = function(){
 	var config = $(window.config._xml).find('semesters semester[current=true]').clone();
 	$(window.config._xml).find('semesters semester[current=true]').attr('current', 'false');
 	$(config).attr('code', this._org.semester.code);
+	if (this._isSameSem()) {
+		$(window.config._xml).find('semesters semester[current=true]').remove();
+	}
 	$(window.config._xml).find('semesters').append(config);
-	console.log('New config file');
-	console.log(window.config._xml[0]);
+	Sharepoint.postFile(window.config._xml, 'config/', 'config.xml', function(){});
 }
 
 /**
@@ -3439,8 +3448,14 @@ SemesterSetup.prototype._createRollup = function(){
 		}]
 	};
 	semester.find('semester').append(byui.createNode('questions', questions));
+	
+	if (this._isSameSem()){
+		this._rollup.find('semesters semester[code="' + code + '"]').remove();
+	}
+
 	$(this._rollup).find('semesters').append($(semester).find('semester').clone());
-	console.log(this._rollup);
+	
+	Sharepoint.postFile(this._rollup, 'master/', 'rollup.xml', function(){});
 }
 /**
  * @name _createMaster
@@ -3450,8 +3465,11 @@ SemesterSetup.prototype._createRollup = function(){
 SemesterSetup.prototype._createMaster = function(){
 	console.log('master is being created');
 	var newMaster = byui.createNode('semesters', this._org);
+	if (this._isSameSem()){
+		$(this._master).find('semesters semester[code="' + this._org.semester.code + '"]').remove();
+	}
 	$(this._master).find('semesters').append($(newMaster).find('semester').clone());
-	console.log(this._master);
+	Sharepoint.postFile(this._master, 'master/', 'master.xml', function(){});
 }
 /**
  * @name _createIndividualFiles
@@ -3468,11 +3486,15 @@ SemesterSetup.prototype._createIndividualFiles = function() {
 		semester.find('semester > people').append(person);
 		var xml = ims.sharepoint.getXmlByEmail(people[p].email);
 		if (xml != null) {
+			if (this._isSameSem()){
+				$(xml).find('semesters semester[code="' + code + '"]').remove();
+			}
 			$(xml).find('semesters').append($(semester).find('semester').clone());
 		} else {
 			xml = $.parseXML((new XMLSerializer()).serializeToString(semester[0]));
 		}
-		console.log(xml);
+
+		Sharepoint.postFile(xml, 'master/', people[p].email + '.xml', function(){});
 	}
 }
 /**

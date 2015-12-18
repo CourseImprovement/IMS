@@ -405,6 +405,7 @@ Number.isFloat = function(n){
  *  - Add todos
  */
 function changeAll(){
+	var sem = $(window.config._xml).find('semesters semester[current=true]').attr('code');
 	var master = ims.sharepoint.getXmlByEmail('master');
 
 	$(master).find('person[highestrole=aim]').each(function(){
@@ -427,7 +428,7 @@ function changeAll(){
 
 		}
 		if (!xml){
-			xml = $('<semesters><semester code="FA15"><people><person></person></people></semester></semesters>');
+			xml = $('<semesters><semester code="' + sem + '"><people><person></person></people></semester></semesters>');
 		}
 		$(xml).find('semester > people > person').remove();
 		$(xml).find('semester > people').append($(this).clone());
