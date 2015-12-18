@@ -89,6 +89,7 @@ SemesterSetup.prototype._createConfig = function(){
 	$(window.config._xml).find('semesters semester[current=true]').attr('current', 'false');
 	$(config).attr('code', this._org.semester.code);
 	$(window.config._xml).find('semesters').append(config);
+	console.log(window.config._xml[0]);
 }
 
 /**
