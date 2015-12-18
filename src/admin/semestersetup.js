@@ -65,6 +65,7 @@ SemesterSetup.prototype.semesterSetup = function(){
 	this._createMaster();
 	this._createIndividualFiles();
 	this._createRollup();
+	this._createConfig();
 }
 /**
  * @name formalize 
@@ -77,6 +78,17 @@ SemesterSetup.prototype.semesterSetup = function(){
 String.prototype.formalize = function(){
 	if (this == undefined || this == null || this.length == 0) return;
 	return this.charAt(0).toUpperCase() + this.slice(1).toLowerCase();
+}
+
+/**
+ * @name _createConfig
+ * @description
+ */
+SemesterSetup.prototype._createConfig = function(){
+	var config = $(window.config._xml).find('semesters semester[current=true]').clone();
+	$(window.config._xml).find('semesters semester[current=true]').attr('current', 'false');
+	$(config).attr('code', this._org.semester.code);
+	$(window.config._xml).find('semesters').append(config);
 }
 
 /**
