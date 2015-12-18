@@ -44,6 +44,9 @@
 				</li>
 				<li class="right" ng-if='user.isLeader()'>View as: </li>
 				<li class="course-drop-down right person-drop-down" ng-if='user.showCourseMenu()' ng-click='openCourseMenu($event)'>{{user.selectedCourse() ? user.selectedCourse().getName() : 'All'}}<div class='arrow-down2'><i class="fa fa-arrow-down"></i></div></li>
+				<li class="right person-drop-down" ng-if='user.getRole()._role == "instructor"' ng-click='openSemesterMenu($event)'>
+					{{ims.semesters.getCurrentCode()}} <div class='arrow-down2'><i class="fa fa-arrow-down"></i></div>
+				</li>
 			</ul>
 			<ol class="suggestion" ng-if='suggestions.length > 0'>
 				<li ng-repeat='s in suggestions | noDuplicates' ng-click='redirect(s.user.getHref())' ng-class='s.selected ? "selected" : ""'>{{s.user.getRole().getRoleName().toUpperCase().slice(0, 4)}} - {{s.user.getFullName()}}</li>
@@ -56,11 +59,11 @@
 		<div class="mobile-menu-side">
 			<ul>
 				<li>{{user.getFullName()}}</li>
-				<!-- <li ng-click='toggleSubMenu($event)'>{{semester}}
+				<li ng-click='toggleSubMenu($event)'>{{ims.semesters.getCurrentCode()}}
 					<ul>
-						<li ng-repeat="semester in semesters" ng-class="semester.selected ? 'selected' : ''" ng-click='selectedSemesterMenuItem(semester)'>- {{semester}}</li>
+						<li ng-repeat="sem in semesters._items" ng-class="sem.selected ? 'selected' : ''" ng-click='redirect(sem.href)'>- {{sem.name}}</li>
 					</ul>
-				</li> -->
+				</li>
 				<li ng-if='backButton' ng-click='back()'>Back</li>
 				<li ng-click='toggleSubMenu($event)' ng-if='user.isLeader()'>View As: {{selectedRole}}
 					<ul>
@@ -83,9 +86,9 @@
 			<ul class="semester-popup-dropdown" ng-show='showRoleMenu'>
 				<li ng-repeat="role in roleMenu" ng-class="role.type ? 'menuTitle' : role.selected ? 'selected' : ''" ng-click='redirect(role.href)'>{{role.name}}</li>
 			</ul>
-			<!-- <ul class="semester-popup-dropdown2" ng-show='showSemesterMenu'>
-				<li ng-repeat="item in semesters" ng-class="item.selected ? 'selected' : ''" ng-click='selectedSemesterMenuItem(item)'>{{item}}</li>
-			</ul> -->
+			<ul class="semester-popup-dropdown2" ng-show='showSemesterMenu'>
+				<li ng-repeat="sem in semesters._items" ng-class="sem.selected ? 'selected' : ''" ng-click='redirect(sem.href)'>{{sem.name}}</li>
+			</ul>
 			<ul class="semester-popup-dropdown3" ng-show='showCourseMenu'>
 				<li ng-repeat='course in user.getCourses()' ng-click='redirect(course.getHref())'>{{course.getName()}}</li>
 				<li ng-click='redirect(user.getHref())'>All</li>

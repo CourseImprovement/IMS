@@ -528,13 +528,15 @@ if (!ims.error){
 		// MENU
 		$scope.redirectHome = User.redirectHome;
 		$scope.user = currentUser;
-		$scope.semester = ims.semesters;
+		$scope.semesters = currentUser.getSemesterMenu();
 		$scope.searchOpened = false;
 		$scope.roleMenu = currentUser.getRole().getRolesMenu().getItems();
 		$scope.showRoleMenu = false;
+		$scope.showSemesterMenu = false;
 		$scope.cols = currentUser.getRole().getTiles();
 		$scope.selectedRole = window._selectedRole;
 		$scope.backButton = currentUser.backButton();
+		$scope.ims = ims;
 
 		/**
 		 * @name back 
@@ -588,6 +590,27 @@ if (!ims.error){
 			setTimeout(function(){
 				$scope.$apply(function(){
 					$scope.showCourseMenu = true;
+				})
+			}, 2);
+		}
+
+		/**
+		 * @name  openSemesterMenu
+		 * @todo
+		 *  + Set the drop down for the semester
+		 */
+		$scope.openSemesterMenu = function(e){
+			var right = '71px';
+			if ($('.back-btn').length > 0){
+				right = '71px';
+			}	
+			else{
+				right = '82px';
+			}		
+			$('.semester-popup-dropdown2').css({right: right, top: '39px'});
+			setTimeout(function(){
+				$scope.$apply(function(){
+					$scope.showSemesterMenu = true;
 				})
 			}, 2);
 		}
@@ -676,6 +699,7 @@ if (!ims.error){
 			$scope.closeSearch();
 			$scope.showRoleMenu = false;
 			$scope.showCourseMenu = false;
+			$scope.showSemesterMenu = false;
 		}
 
 		/**
@@ -2278,11 +2302,20 @@ Semester.prototype.getCode = function(){return this._code;}
 Semester.prototype.getHref = function(){
 	var loc = window.location.href;
 	if (loc.indexOf('&sem=') > -1){
-		window.location.href = loc.split('&sem=')[0] + '&sem=' + this.getCode();
+		return loc.split('&sem=')[0] + '&sem=' + this.getCode();
 	}
 	else{
-		window.location.href = loc + '&sem=' + this.getName();
+		return loc + '&sem=' + this.getName();
 	}
+}
+
+/**
+ * @name  Semester.getName
+ * @todo
+ *  + Get the name of the semester
+ */
+Semester.prototype.getName = function(){
+	return this._code.toUpperCase();
 }
 
 /**
@@ -3448,7 +3481,7 @@ User.prototype.getTotalCredits = function(){
 User.prototype.getSemesters = function(){
 	if (this._semesters.length == 0){
 		var _this = this;
-		$(this._xml).find('semester').each(function(){
+		$(window._baseUserXml).find('semester').each(function(){
 			_this._semesters.push(new Semester($(this).attr('code')));
 		});	
 	}

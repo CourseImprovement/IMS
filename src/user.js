@@ -718,7 +718,7 @@ User.prototype.getTotalCredits = function(){
 User.prototype.getSemesters = function(){
 	if (this._semesters.length == 0){
 		var _this = this;
-		$(this._xml).find('semester').each(function(){
+		$(window._baseUserXml).find('semester').each(function(){
 			_this._semesters.push(new Semester($(this).attr('code')));
 		});	
 	}

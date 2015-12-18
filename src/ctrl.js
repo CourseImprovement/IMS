@@ -7,13 +7,15 @@ if (!ims.error){
 		// MENU
 		$scope.redirectHome = User.redirectHome;
 		$scope.user = currentUser;
-		$scope.semester = ims.semesters;
+		$scope.semesters = currentUser.getSemesterMenu();
 		$scope.searchOpened = false;
 		$scope.roleMenu = currentUser.getRole().getRolesMenu().getItems();
 		$scope.showRoleMenu = false;
+		$scope.showSemesterMenu = false;
 		$scope.cols = currentUser.getRole().getTiles();
 		$scope.selectedRole = window._selectedRole;
 		$scope.backButton = currentUser.backButton();
+		$scope.ims = ims;
 
 		/**
 		 * @name back 
@@ -67,6 +69,27 @@ if (!ims.error){
 			setTimeout(function(){
 				$scope.$apply(function(){
 					$scope.showCourseMenu = true;
+				})
+			}, 2);
+		}
+
+		/**
+		 * @name  openSemesterMenu
+		 * @todo
+		 *  + Set the drop down for the semester
+		 */
+		$scope.openSemesterMenu = function(e){
+			var right = '71px';
+			if ($('.back-btn').length > 0){
+				right = '71px';
+			}	
+			else{
+				right = '82px';
+			}		
+			$('.semester-popup-dropdown2').css({right: right, top: '39px'});
+			setTimeout(function(){
+				$scope.$apply(function(){
+					$scope.showSemesterMenu = true;
 				})
 			}, 2);
 		}
@@ -155,6 +178,7 @@ if (!ims.error){
 			$scope.closeSearch();
 			$scope.showRoleMenu = false;
 			$scope.showCourseMenu = false;
+			$scope.showSemesterMenu = false;
 		}
 
 		/**
