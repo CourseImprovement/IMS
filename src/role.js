@@ -666,7 +666,7 @@ Role.prototype._recursiveChildren = function(xml){
     var org = [];
     var _this = this;
     var people = $(xml).find('> stewardship > people > person');
-    if (people.length == 0) people = $(xml).find('person');
+    //if (people.length == 0) people = $(xml).find('person');
     if (people.length == 0) return [];
     for (var i = 0; i < people.length; i++){
         var person = people[i];

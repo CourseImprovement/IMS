@@ -97,6 +97,7 @@ SemesterSetup.prototype._createConfig = function(){
 		$(window.config._xml).find('semesters semester[current=true]').remove();
 	}
 	$(window.config._xml).find('semesters').append(config);
+	//console.log(window.config._xml);
 	Sharepoint.postFile(window.config._xml, 'config/', 'config.xml', function(){});
 }
 
@@ -155,30 +156,30 @@ SemesterSetup.prototype._createOrg = function(){
 					stewardship: {},
 					leadership: {
 						people: {
-							person: []
+							person: [{
+								first: this._csv[rows][11].split(' ')[0].formalize(),
+								last: this._csv[rows][11].split(' ')[1].formalize(),
+								email: this._csv[rows][10].toLowerCase().split('@')[0],
+								type: 'im'
+							},{
+								first: this._csv[rows][9].split(' ')[0].formalize(),
+								last: this._csv[rows][9].split(' ')[1].formalize(),
+								email: this._csv[rows][8].toLowerCase().split('@')[0],
+								type: 'aim'
+							},{
+								first: this._csv[rows][7].split(' ')[0].formalize(),
+								last: this._csv[rows][7].split(' ')[1].formalize(),
+								email: this._csv[rows][6].toLowerCase().split('@')[0],
+								type: 'tgl'
+							}]
 						}
 					}	
 				}]
 			},
 			courses: {
-				course: [{
-					id: 1,
-					$text: this._csv[rows][3],
-					credits: this._csv[rows][4],
-					pilot: this._csv[rows][17].toLowerCase(),
-					ocr: this._csv[rows][18].toLowerCase()
-				}]
+				course: this.addCourse(this._csv[rows][2].toLowerCase().split('@')[0])
 			}
 		};
-
-		if (this._csv[rows][19] == 'TRUE'){
-			inst.courses.course[0]['pwsection'] = this._csv[rows][5];
-			inst.courses.course[0]['section'] = '';
-		}
-		else{
-			inst.courses.course[0]['section'] = this._csv[rows][5];
-			inst.courses.course[0]['pwsection'] = '';
-		}
 
 		// TGL OBJECT
 		var tgl = {
@@ -206,27 +207,44 @@ SemesterSetup.prototype._createOrg = function(){
 										leadership: {
 											people: {
 												person: [{
-													
+													first: this._csv[rows][7].formalize(),
+													last: this._csv[rows][7].formalize(),
+													email: this._csv[rows][6].toLowerCase().split('@')[0],
+													type: 'tgl'
+												},{
+													first: this._csv[rows][9].split(' ')[0].formalize(),
+													last: this._csv[rows][9].split(' ')[1].formalize(),
+													email: this._csv[rows][8].toLowerCase().split('@')[0],
+													type: 'aim'
+												},{
+													first: this._csv[rows][11].split(' ')[0].formalize(),
+													last: this._csv[rows][11].split(' ')[1].formalize(),
+													email: this._csv[rows][10].toLowerCase().split('@')[0],
+													type: 'im'
 												}]
 											}
 										}	
 									}]
 								},
 								courses: {
-									course: [{
-										id: 1,
-										$text: this._csv[rows][3],
-										credits: this._csv[rows][4],
-										pilot: this._csv[rows][17].toLowerCase(),
-										ocr: this._csv[rows][18].toLowerCase()
-									}]
+									course: this.addCourse(this._csv[rows][2].toLowerCase().split('@')[0])
 								}
 							}]
 						}
 					},
 					leadership: {
 						people: {
-							person: []
+							person: [{
+								first: this._csv[rows][11].split(' ')[0].formalize(),
+								last: this._csv[rows][11].split(' ')[1].formalize(),
+								email: this._csv[rows][10].toLowerCase().split('@')[0],
+								type: 'im'
+							},{
+								first: this._csv[rows][9].split(' ')[0].formalize(),
+								last: this._csv[rows][9].split(' ')[1].formalize(),
+								email: this._csv[rows][8].toLowerCase().split('@')[0],
+								type: 'aim'
+							}]
 						}  
 					}
 				},{
@@ -235,12 +253,24 @@ SemesterSetup.prototype._createOrg = function(){
 					stewardship: {},
 					leadership: {
 						people: {
-							person: []
+							person: [{
+								first: this._csv[rows][9].split(' ')[0].formalize(),
+								last: this._csv[rows][9].split(' ')[1].formalize(),
+								email: this._csv[rows][8].toLowerCase().split('@')[0],
+								type: 'tgl'
+							},{
+								first: this._csv[rows][11].split(' ')[0].formalize(),
+								last: this._csv[rows][11].split(' ')[1].formalize(),
+								email: this._csv[rows][10].toLowerCase().split('@')[0],
+								type: 'aim'
+							}]
 						}  
 					}
 				}]
 			},
-			courses: {}
+			courses: {
+				course: this.addCourse(this._csv[rows][6].toLowerCase().split('@')[0])
+			}
 		};
 		
 		// AIM OBJECT
@@ -260,13 +290,47 @@ SemesterSetup.prototype._createOrg = function(){
 								first: this._csv[rows][7].split(' ')[0].formalize(),
 								last: this._csv[rows][7].split(' ')[1].formalize(),
 								email: this._csv[rows][6].toLowerCase().split('@')[0],
-								type: 'tgl'
+								type: 'tgl',
+								courses: {
+									course: this.addCourse(this._csv[rows][6].toLowerCase().split('@')[0])
+								},
+								roles: {
+									role:[{
+										type: 'tgl',
+										surveys: {},
+										stewardship: {
+											people:{
+												person: []
+											}
+										},
+										leadership: {
+											people: {
+												person: [{
+													first: this._csv[rows][9].split(' ')[0].formalize(),
+													last: this._csv[rows][9].split(' ')[1].formalize(),
+													email: this._csv[rows][8].toLowerCase().split('@')[0],
+													type: 'aim'
+												},{
+													first: this._csv[rows][11].split(' ')[0].formalize(),
+													last: this._csv[rows][11].split(' ')[1].formalize(),
+													email: this._csv[rows][10].toLowerCase().split('@')[0],
+													type: 'im'
+												}]
+											}
+										}
+									}]
+								}
 							}]
 						}
 					},
 					leadership: {
 						people: {
-							person: []
+							person: [{
+								first: this._csv[rows][11].split(' ')[0].formalize(),
+								last: this._csv[rows][11].split(' ')[1].formalize(),
+								email: this._csv[rows][10].toLowerCase().split('@')[0],
+								type: 'im'
+							}]
 						}
 					}
 				},{
@@ -278,18 +342,54 @@ SemesterSetup.prototype._createOrg = function(){
 								first: this._csv[rows][7].split(' ')[0].formalize(),
 								last: this._csv[rows][7].split(' ')[1].formalize(),
 								email: this._csv[rows][6].toLowerCase().split('@')[0],
-								type: 'instructor'
+								type: 'instructor',
+								courses: {
+									course: this.addCourse(this._csv[rows][6].toLowerCase().split('@')[0])
+								},
+								roles: {
+									role:[{
+										type: 'instructor',
+										surveys: {},
+										stewardship: {
+											people:{
+												person: []
+											}
+										},
+										leadership: {
+											people: {
+												person: [{
+													first: this._csv[rows][9].split(' ')[0].formalize(),
+													last: this._csv[rows][9].split(' ')[1].formalize(),
+													email: this._csv[rows][8].toLowerCase().split('@')[0],
+													type: 'tgl'
+												},{
+													first: this._csv[rows][11].split(' ')[0].formalize(),
+													last: this._csv[rows][11].split(' ')[1].formalize(),
+													email: this._csv[rows][10].toLowerCase().split('@')[0],
+													type: 'aim'
+												}]
+											}
+										}
+									}]
+								}
 							}]
 						}
 					},
 					leadership: {
 						people: {
-							person: []
+							person: [{
+								first: this._csv[rows][11].split(' ')[0].formalize(),
+								last: this._csv[rows][11].split(' ')[1].formalize(),
+								email: this._csv[rows][10].toLowerCase().split('@')[0],
+								type: 'aim'
+							}]
 						}
 					}
 				}]
 			},
-			courses: {}
+			courses: {
+				course: this.addCourse(this._csv[rows][8].toLowerCase().split('@')[0])
+			}
 		};
 
 		// IM OBJECT
@@ -309,14 +409,40 @@ SemesterSetup.prototype._createOrg = function(){
 								first: this._csv[rows][9].split(' ')[0].formalize(),
 								last: this._csv[rows][9].split(' ')[1].formalize(),
 								email: this._csv[rows][8].toLowerCase().split('@')[0],
-								type: 'aim'
+								type: 'aim',
+								courses: {
+									course: this.addCourse(this._csv[rows][8].toLowerCase().split('@')[0])
+								},
+								roles: {
+									role: [{
+										type: 'aim',
+										surveys: {},
+										stewardship: {
+											people:{
+												person: []
+											}
+										},
+										leadership: {
+											people: {
+												person: [{
+													first: this._csv[rows][11].split(' ')[0].formalize(),
+													last: this._csv[rows][11].split(' ')[1].formalize(),
+													email: this._csv[rows][10].toLowerCase().split('@')[0],
+													type: 'im'
+												}]
+											}
+										}
+									}]
+								}
 							}]
 						}
 					},
 					leadership: {}
 				}]
 			},
-			courses: {}
+			courses: {
+				course: this.addCourse(this._csv[rows][10].toLowerCase().split('@')[0])
+			}
 		};
 
 		var ocr = null;
@@ -340,7 +466,31 @@ SemesterSetup.prototype._createOrg = function(){
 									first: this._csv[rows][0].formalize(),
 									last: this._csv[rows][1].formalize(),
 									email: this._csv[rows][2].toLowerCase().split('@')[0],
-									type: 'instructor'
+									type: 'instructor',
+									roles: {
+										role: [{
+											type: 'instructor',
+											surveys: {},
+											stewardship: {
+												people: {
+													person: []
+												}
+											},
+											leadership: {
+												people: {
+													person: [{
+														first: this._csv[rows][13].split(' ')[0].formalize(),
+														last: this._csv[rows][13].split(' ')[1].formalize(),
+														email: this._csv[rows][12].toLowerCase().split('@')[0],
+														type: 'ocr'
+													}]
+												}
+											}
+										}]
+									},
+									courses: {
+										course: this.addCourse(this._csv[rows][2].toLowerCase().split('@')[0])
+									}
 								}]
 							}
 						},
@@ -351,7 +501,9 @@ SemesterSetup.prototype._createOrg = function(){
 						}
 					}]
 				},
-				courses: {}
+				courses: {
+					course: this.addCourse(this._csv[rows][12].toLowerCase().split('@')[0])
+				}
 			};
 
 			// OCRM OBJECT
@@ -378,27 +530,11 @@ SemesterSetup.prototype._createOrg = function(){
 						leadership: {}
 					}]
 				},
-				courses: {}
+				courses: {
+					course: this.addCourse(this._csv[rows][15].toLowerCase().split('@')[0])
+				}
 			};
 		}
-
-		// INSTRUCTOR LEADERSHIP
-		inst.roles.role[0].leadership.people.person = [{
-			first: this._csv[rows][11].split(' ')[0].formalize(),
-			last: this._csv[rows][11].split(' ')[1].formalize(),
-			email: this._csv[rows][10].toLowerCase().split('@')[0],
-			type: 'im'
-		},{
-			first: this._csv[rows][9].split(' ')[0].formalize(),
-			last: this._csv[rows][9].split(' ')[1].formalize(),
-			email: this._csv[rows][8].toLowerCase().split('@')[0],
-			type: 'aim'
-		},{
-			first: this._csv[rows][7].split(' ')[0].formalize(),
-			last: this._csv[rows][7].split(' ')[1].formalize(),
-			email: this._csv[rows][6].toLowerCase().split('@')[0],
-			type: 'tgl'
-		}];
 
 		if (ocr != null){
 			inst.roles.role[0].leadership.people.person.push({
@@ -422,46 +558,6 @@ SemesterSetup.prototype._createOrg = function(){
 			}]
 		}
 
-		// TGL LEADERSHIP
-		// AS TGL
-		tgl.roles.role[0].leadership.people.person = [{
-			first: this._csv[rows][11].split(' ')[0].formalize(),
-			last: this._csv[rows][11].split(' ')[1].formalize(),
-			email: this._csv[rows][10].toLowerCase().split('@')[0],
-			type: 'im'
-		},{
-			first: this._csv[rows][9].split(' ')[0].formalize(),
-			last: this._csv[rows][9].split(' ')[1].formalize(),
-			email: this._csv[rows][8].toLowerCase().split('@')[0],
-			type: 'aim'
-		}]
-		// AS INSTRUCTOR
-		tgl.roles.role[1].leadership.people.person = [{
-			first: this._csv[rows][9].split(' ')[0].formalize(),
-			last: this._csv[rows][9].split(' ')[1].formalize(),
-			email: this._csv[rows][8].toLowerCase().split('@')[0],
-			type: 'tgl'
-		},{
-			first: this._csv[rows][11].split(' ')[0].formalize(),
-			last: this._csv[rows][11].split(' ')[1].formalize(),
-			email: this._csv[rows][10].toLowerCase().split('@')[0],
-			type: 'aim'
-		}]
-
-		// AIM LEADERSHIP
-		aim.roles.role[0].leadership.people.person = [{
-			first: this._csv[rows][11].split(' ')[0].formalize(),
-			last: this._csv[rows][11].split(' ')[1].formalize(),
-			email: this._csv[rows][10].toLowerCase().split('@')[0],
-			type: 'im'
-		}];
-		aim.roles.role[1].leadership.people.person = [{
-			first: this._csv[rows][11].split(' ')[0].formalize(),
-			last: this._csv[rows][11].split(' ')[1].formalize(),
-			email: this._csv[rows][10].toLowerCase().split('@')[0],
-			type: 'aim'
-		}];
-
 		this.addToOrg(inst);
 		this.addToOrg(tgl);
 		this.addToOrg(aim);
@@ -480,8 +576,8 @@ SemesterSetup.prototype._createOrg = function(){
 					for (var t = 0; t < this._org.semester.people.person[i].roles.role[r].stewardship.people.person.length; t++){
 						var role = this._org.semester.people.person[i].roles.role[r].stewardship.people.person[t].type;
 						var email = this._org.semester.people.person[i].roles.role[r].stewardship.people.person[t].email;
-						this._org.semester.people.person[i].roles.role[r].stewardship.people.person[t]['people'] = {};
-						this._org.semester.people.person[i].roles.role[r].stewardship.people.person[t].people['person'] = this.addStewardship(email, role);
+						this._org.semester.people.person[i].roles.role[r].stewardship.people.person[t].roles.role[0].stewardship['people'] = {};
+						this._org.semester.people.person[i].roles.role[r].stewardship.people.person[t].roles.role[0].stewardship.people['person'] = this.addStewardship(email, role);
 					}
 				}
 			}
@@ -502,20 +598,56 @@ SemesterSetup.prototype._createOrg = function(){
 	}
 
 	// ADD IM STEWARDSHIP
-	for (var i = 0; i < this._org.semester.people.person.length; i++){
-		if (this._org.semester.people.person[i].highestrole == 'im'){
-			for (var r = 0; r < this._org.semester.people.person[i].roles.role.length; r++){
-				if (this._org.semester.people.person[i].roles.role[r].type == 'im'){
+	for (var i = 0; i < this._org.semester.people.person.length; i++) {
+		if (this._org.semester.people.person[i].highestrole == 'im') {
+			for (var r = 0; r < this._org.semester.people.person[i].roles.role.length; r++) {
+				if (this._org.semester.people.person[i].roles.role[r].type == 'im') {
 					for (var a = 0; a < this._org.semester.people.person[i].roles.role[r].stewardship.people.person.length; a++){
 						var role = this._org.semester.people.person[i].roles.role[r].stewardship.people.person[a].type;
 						var email = this._org.semester.people.person[i].roles.role[r].stewardship.people.person[a].email;
-						this._org.semester.people.person[i].roles.role[r].stewardship.people.person[a]['people'] = {};
-						this._org.semester.people.person[i].roles.role[r].stewardship.people.person[a].people['person'] = this.addStewardship(email, role);
+						this._org.semester.people.person[i].roles.role[r].stewardship.people.person[a].roles.role[0].stewardship['people'] = {};
+						this._org.semester.people.person[i].roles.role[r].stewardship.people.person[a].roles.role[0].stewardship.people['person'] = this.addStewardship(email, role);
 					}
 				}
 			}
 		}
 	}
+}
+/**
+ * @name addCourse 
+ * @description
+ */
+SemesterSetup.prototype.addCourse = function(email) {
+	var course = [];
+	var start = 0;
+	var idx = 0;
+	while (this._csv[start][2] != 'email'){
+		start++;
+	}
+
+	for (var i = start; i < this._csv.length; i++){
+		if (this._csv[i][2] == email){
+			course.push({
+				id: 1,
+				$text: this._csv[i][3],
+				credits: this._csv[i][4],
+				pilot: this._csv[i][17].toLowerCase(),
+				ocr: this._csv[i][18].toLowerCase()
+			});
+
+			if (this._csv[i][19] == 'TRUE') {
+				course[idx]['pwsection'] = this._csv[i][5];
+				course[idx]['section'] = '';
+			} else {
+				course[idx]['section'] = this._csv[i][5];
+				course[idx]['pwsection'] = '';
+			}
+
+			idx++;
+		}
+	}
+
+	return course;
 }
 /**
  * @name addStewardship 
@@ -550,7 +682,7 @@ SemesterSetup.prototype.addToOrg = function(person){
 	}
 	else {
 		for (var i = 0; i < this._org.semester.people.person.length; i++){
-			if (this._org.semester.people.person[i].email == person.email){
+			if (this._org.semester.people.person[i].email == person.email){ // THE PERSON IS ALREADY IN THE ORG
 				// CHECK ROLE
 				if (this._org.semester.people.person[i].highestrole != person.highestrole){
 					// CHOOSE HIGHEST ROLE
@@ -568,57 +700,35 @@ SemesterSetup.prototype.addToOrg = function(person){
 					if (uniqueRole){
 						this._org.semester.people.person[i].roles.role.push(person.roles.role[0]);
 					}
-				}
-				else{
+				} else {
 					for (var r = 0; r < this._org.semester.people.person[i].roles.role.length; r++){
 						// FIND THE ROLE THAT IS SHARED
-						if (this._org.semester.people.person[i].highestrole == this._org.semester.people.person[i].roles.role[r].type){
+						if (person.roles.role[r] != undefined && this._org.semester.people.person[i].roles.role[r].type == person.roles.role[r].type){
 							var setSteward = true;
 							var setLeader = true;
-							if (this._org.semester.people.person[i].roles.role[r].stewardship.people != undefined){
+							if (this._org.semester.people.person[i].roles.role[r].stewardship.people != undefined) {
 								for (var s = 0; s < this._org.semester.people.person[i].roles.role[r].stewardship.people.person.length; s++){
 									if (this._org.semester.people.person[i].roles.role[r].stewardship.people.person[s].email == person.roles.role[0].stewardship.people.person[0].email){
 										setSteward = false;
 									}
 								}
-								if (setSteward){
+
+								if (setSteward) {
 									this._org.semester.people.person[i].roles.role[r].stewardship.people.person.push(person.roles.role[0].stewardship.people.person[0]);
 								}
 							}
-							if (this._org.semester.people.person[i].roles.role[r].leadership.people != undefined){
+							if (this._org.semester.people.person[i].roles.role[r].leadership.people != undefined) {
 								for (var l = 0; l < this._org.semester.people.person[i].roles.role[r].leadership.people.person.length; l++){
 									if (this._org.semester.people.person[i].roles.role[r].leadership.people.person[l].email == person.roles.role[0].leadership.people.person[0].email){
 										setLeader = false;
 									}
 								}
 								
-								if (setLeader){
+								if (setLeader) {
 									this._org.semester.people.person[i].roles.role[r].leadership.people.person.push(person.roles.role[0].leadership.people.person[0]);
 								}
 							}
 						}
-					}
-				}
-				// CHECK COURSE
-				if (person.courses.course != undefined){
-					if (this._org.semester.people.person[i].courses.course == undefined){
-						this._org.semester.people.person[i].courses.course = [];
-						this._org.semester.people.person[i].courses.course.push(person.courses.course[0]);
-					}
-					else{
-						for (var c = 0; c < this._org.semester.people.person[i].courses.course.length; c++){
-							if (this._org.semester.people.person[i].courses.course[c].$text == person.courses.course[0].$text){
-								if (this._org.semester.people.person[i].courses.course[c].section != person.courses.course[0].section){
-									this._org.semester.people.person[i].courses.course[c].section += ' ' + person.courses.course[0].section;
-								}
-								if (this._org.semester.people.person[i].courses.course[c].pwsection != person.courses.course[0].pwsection){
-									this._org.semester.people.person[i].courses.course[c].pwsection += ' ' + person.courses.course[0].pwsection;
-								}
-								return;
-							}
-						}
-						person.courses.course[0].id++;
-						this._org.semester.people.person[i].courses.course.push(person.courses.course[0]);
 					}
 				}
 				return;
@@ -682,11 +792,12 @@ SemesterSetup.prototype._createRollup = function(){
 	semester.find('semester').append(byui.createNode('questions', questions));
 	
 	if (this._isSameSem()){
-		this._rollup.find('semesters semester[code="' + sem + '"]').remove();
+		$(this._rollup).find('semesters semester[code="' + code + '"]').remove();
 	}
 
 	$(this._rollup).find('semesters').append($(semester).find('semester').clone());
 	
+	//console.log(this._rollup);
 	Sharepoint.postFile(this._rollup, 'master/', 'rollup.xml', function(){});
 }
 /**
@@ -701,6 +812,7 @@ SemesterSetup.prototype._createMaster = function(){
 		$(this._master).find('semesters semester[code="' + this._org.semester.code + '"]').remove();
 	}
 	$(this._master).find('semesters').append($(newMaster).find('semester').clone());
+	//console.log(this._master);
 	Sharepoint.postFile(this._master, 'master/', 'master.xml', function(){});
 }
 /**
@@ -725,7 +837,7 @@ SemesterSetup.prototype._createIndividualFiles = function() {
 		} else {
 			xml = $.parseXML((new XMLSerializer()).serializeToString(semester[0]));
 		}
-
+		//console.log(xml);
 		Sharepoint.postFile(xml, 'master/', people[p].email + '.xml', function(){});
 	}
 }

@@ -462,7 +462,9 @@ ims.sharepoint = {
 
 function Course(xml){
 	this._name = $(xml).text();
-	this._sections = $(xml).attr('section').indexOf(' ') > -1 ? $(xml).attr('section').split(' ') : [$(xml).attr('section')];
+	if ($(xml).attr('section') != undefined) {
+		this._sections = $(xml).attr('section').indexOf(' ') > -1 ? $(xml).attr('section').split(' ') : [$(xml).attr('section')];
+	}
 	this._credits = parseInt($(xml).attr('credit'));
 	this._pilot = $(xml).attr('pilot') == 'true';
 	this._id = $(xml).attr('id');
@@ -1827,7 +1829,7 @@ Role.prototype._recursiveChildren = function(xml){
     var org = [];
     var _this = this;
     var people = $(xml).find('> stewardship > people > person');
-    if (people.length == 0) people = $(xml).find('person');
+    //if (people.length == 0) people = $(xml).find('person');
     if (people.length == 0) return [];
     for (var i = 0; i < people.length; i++){
         var person = people[i];
@@ -2963,9 +2965,11 @@ User.prototype.selectedCourse = function(){
  */
 User.prototype._setCourses = function(){
 	var _this = this;
-	$(this._xml).find('course').each(function(){
-		_this._courses.push(new Course(this));
-	})
+	if ($(this._xml).find('> course').length != 0){
+		$(this._xml).find('> course').each(function(){
+			_this._courses.push(new Course(this));
+		});
+	}
 }
 
 /**
@@ -3423,9 +3427,13 @@ User.redirectBack = function(){
 User.prototype.getCourses = function(){
 	if (this._courses.length == 0){
 		var _this = this;
-		$(this._personXml).find('> courses course').each(function(){
-			_this._courses.push(new Course(this));
-		})
+		if ($(this._personXml).find('> courses course').length != 0){
+			$(this._personXml).find('> courses course').each(function(){
+				_this._courses.push(new Course(this));
+			});
+		} else {
+			_this._courses = [];
+		}
 	}
 	return this._courses;
 }
