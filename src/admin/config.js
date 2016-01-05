@@ -234,7 +234,7 @@ Config.prototype.getMaster = function(){
  * @todo 
  *  + If the map is not there get the map from Sharepoint
  *  + Return the map
- *  - Possibly remove this function
+ *  + Possibly remove this function
  */
 Config.prototype.getMap = function(){
 	if (!this._map){

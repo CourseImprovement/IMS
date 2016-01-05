@@ -12,16 +12,7 @@ function CSV(){
 	console.log('new CSV object created');
 	this._data = null;
 }
-/**
- * @name getData
- * @description Get the CSV's data in array form
- * @assign Grant
- * @todo 
- *  - Return the data
- */
-CSV.prototype.getData = function(){
-	console.log('return CSV data');
-}
+
 /**
  * @name readFile
  * @description Read the CSV into _data

@@ -107,11 +107,11 @@ var Sharepoint = {
 	current: 0,
 	/**
 	 * @name query 
-	 * @description
+	 * @description Search for users
 	 * @assign Chase
 	 * @todo 
-	 *  - add description
-	 *  - add todos
+	 *  + add description
+	 *  + add todos
 	 */
 	query: function(txt){
 		$.ajax({
@@ -266,7 +266,7 @@ ims.sharepoint = {
 	 *              </code></pre>
 	 * @assign Chase
 	 * @todo 
-	 *  - possibly remove this function
+	 *  + possibly remove this function
 	 */
 	getSemesterConfig: function(){
 		var url = ims.sharepoint.base + 'Instructor%20Reporting/config/semesters.xml';
@@ -282,10 +282,10 @@ ims.sharepoint = {
 	},
 	/**
 	 * @name getPermissionsXml 
-	 * @description
+	 * @description Get the permissions xml file. This file is used to prevent the overusage of API calls to the SharePoint server
 	 * @assign Chase
 	 * @todo
-	 *  - Add a description
+	 *  + Add a description
 	 *  + Get the permissions file sharepoint url
 	 *  + Get the permissions file
 	 *  + Return the file

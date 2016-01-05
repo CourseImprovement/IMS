@@ -107,11 +107,11 @@ var Sharepoint = {
 	current: 0,
 	/**
 	 * @name query 
-	 * @description
+	 * @description Search for users
 	 * @assign Chase
 	 * @todo 
-	 *  - add description
-	 *  - add todos
+	 *  + add description
+	 *  + add todos
 	 */
 	query: function(txt){
 		$.ajax({
@@ -266,7 +266,7 @@ ims.sharepoint = {
 	 *              </code></pre>
 	 * @assign Chase
 	 * @todo 
-	 *  - possibly remove this function
+	 *  + possibly remove this function
 	 */
 	getSemesterConfig: function(){
 		var url = ims.sharepoint.base + 'Instructor%20Reporting/config/semesters.xml';
@@ -282,10 +282,10 @@ ims.sharepoint = {
 	},
 	/**
 	 * @name getPermissionsXml 
-	 * @description
+	 * @description Get the permissions xml file. This file is used to prevent the overusage of API calls to the SharePoint server
 	 * @assign Chase
 	 * @todo
-	 *  - Add a description
+	 *  + Add a description
 	 *  + Get the permissions file sharepoint url
 	 *  + Get the permissions file
 	 *  + Return the file
@@ -844,7 +844,7 @@ Config.prototype.getMaster = function(){
  * @todo 
  *  + If the map is not there get the map from Sharepoint
  *  + Return the map
- *  - Possibly remove this function
+ *  + Possibly remove this function
  */
 Config.prototype.getMap = function(){
 	if (!this._map){
@@ -1023,16 +1023,7 @@ function CSV(){
 	console.log('new CSV object created');
 	this._data = null;
 }
-/**
- * @name getData
- * @description Get the CSV's data in array form
- * @assign Grant
- * @todo 
- *  - Return the data
- */
-CSV.prototype.getData = function(){
-	console.log('return CSV data');
-}
+
 /**
  * @name readFile
  * @description Read the CSV into _data
@@ -2988,7 +2979,30 @@ SemesterSetup.prototype._createOrg = function(){
 								first: this._csv[rows][0].formalize(),
 								last: this._csv[rows][1].formalize(),
 								email: this._csv[rows][2].toLowerCase().split('@')[0],
-								type: 'instructor'
+								type: 'instructor',
+								roles: {
+									role: [{
+										type: 'instructor',
+										surveys: {},
+										stewardship: {},
+										leadership: {
+											people: {
+												person: [{
+													
+												}]
+											}
+										}	
+									}]
+								},
+								courses: {
+									course: [{
+										id: 1,
+										$text: this._csv[rows][3],
+										credits: this._csv[rows][4],
+										pilot: this._csv[rows][17].toLowerCase(),
+										ocr: this._csv[rows][18].toLowerCase()
+									}]
+								}
 							}]
 						}
 					},
@@ -3450,7 +3464,7 @@ SemesterSetup.prototype._createRollup = function(){
 	semester.find('semester').append(byui.createNode('questions', questions));
 	
 	if (this._isSameSem()){
-		this._rollup.find('semesters semester[code="' + code + '"]').remove();
+		this._rollup.find('semesters semester[code="' + sem + '"]').remove();
 	}
 
 	$(this._rollup).find('semesters').append($(semester).find('semester').clone());

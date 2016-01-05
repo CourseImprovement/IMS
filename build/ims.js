@@ -1748,9 +1748,9 @@ Role.prototype.getTasksToReview = function(withCourse){
  * @name Role.getIncompleteTasks
  * @description Get the incomplete tasks of the lower
  * @todo
- *  - Get all lower person surveys
- *  - Get all survey ids from the above task
- *  - see who doesn't have that Id
+ *  + Get all lower person surveys
+ *  + Get all survey ids from the above task
+ *  + see who doesn't have that Id
  */
 Role.prototype.getIncompleteTasks = function(){
 	var surveyList = [];
