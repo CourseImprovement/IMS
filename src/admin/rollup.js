@@ -29,6 +29,13 @@ function Rollup(){
 Rollup.avg = function(sum, count){
 	return Math.floor((sum / count) * 10) / 10;
 }
+
+Rollup._calcSections = function(str){
+	var m = str.match(/[a-zA-Z0-9]{1,}\b/g);
+	if (m == undefined) return 0;
+	return m.length;
+}
+
 /**
  * @name update 
  * @description Updates the rollup with the totals for each leaders stewardship
@@ -87,13 +94,14 @@ Rollup.prototype.update = function(){
 				var credits = 0;
 				$(this).find('survey[id=' + _this._surveyId + '] answer[id=' + _this._questions[i].id + ']').each(function(){
 					if ($(this).text().length == 0) return;
-					var courseid = $(this).parents('survey').attr('id');
-					var tmpCredits = parseInt($(this).parents('roles').parent().find("course[id=" + courseid + ']').attr('credit'));
-					var sections = $(this).parents('roles').parent().find("course[id=" + courseid + ']').attr('section').split(/ /g).length;
-
+					var courseid = $(this).parents('survey').attr('courseid');
+					var tmpCredits = parseInt($(this).parents('roles').parent().find("course[id=" + courseid + ']').attr('credits'));
+					var sections = Rollup._calcSections($(this).parents('roles').parent().find("course[id=" + courseid + ']').attr('section'));
+					sections += Rollup._calcSections($(this).parents('roles').parent().find("course[id=" + courseid + ']').attr('pwsection'));
 					credits += (tmpCredits * sections);
 					sum += parseFloat($(this).text());
 				});
+				console.log($(this).parents('person').attr('email') + ': ' + sum + ' : ' + credits);
 				if (isNaN(sum) || isNaN(credits) || sum == 0 || credits == 0){
 					console.log($(this).parents('person').attr('email') + ' - 0 credits');
 					continue;
@@ -208,12 +216,12 @@ Rollup.prototype.update = function(){
 				list: [],
 				aims: {}
 			};
-			$(this).find('stewardship people person[type=aim]').each(function(){
+			$(this).find('> stewardship > people > person[type=aim]').each(function(){
 				var aimEmail = $(this).attr('email');
 				org[imEmail].aims[aimEmail] = {
 					list: []
 				}
-				$(this).find('people person[type=tgl]').each(function(){
+				$(this).find('> people > person[type=tgl]').each(function(){
 					var tglEmail = $(this).attr('email');
 					var info = result[q][tglEmail];
 					org[imEmail].list = org[imEmail].list.concat(info);
@@ -229,13 +237,17 @@ Rollup.prototype.update = function(){
 			var count = 0;
 			if (questions[q] == 'Weekly Hours'){
 				for (var i = 0; i < list.length; i++){
-					sum += list[i].sum;
-					count += list[i].credits;
+					if (list[i] != undefined) {
+						sum += list[i].sum;
+						count += list[i].credits;
+					}
 				}
 			} else {
 				count = list.length;
 				for (var i = 0; i < list.length; i++){
-					sum += list[i];
+					if (list[i] != undefined) {
+						sum += list[i];
+					}
 				}
 			}
 			iValue = Rollup.avg(sum, count);
@@ -248,13 +260,17 @@ Rollup.prototype.update = function(){
 				var aCount = 0;
 				if (questions[q] == 'Weekly Hours'){
 					for (var i = 0; i < aList.length; i++){
-						aSum += aList[i].sum;
-						aCount += aList[i].credits;
+						if (aList[i] != undefined) {
+							aSum += aList[i].sum;
+							aCount += aList[i].credits;
+						}
 					}
 				} else {
 					aCount = aList.length;
 					for (var i = 0; i < aList.length; i++){
-						aSum += aList[i];
+						if (aList[i] != undefined) {
+							aSum += aList[i];
+						}
 					}
 				}
 				aValue = Rollup.avg(aSum, aCount);
