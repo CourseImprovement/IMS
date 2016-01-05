@@ -3,7 +3,10 @@ function Course(xml){
 	if ($(xml).attr('section') != undefined) {
 		this._sections = $(xml).attr('section').indexOf(' ') > -1 ? $(xml).attr('section').split(' ') : [$(xml).attr('section')];
 	}
-	this._credits = parseInt($(xml).attr('credit'));
+	if ($(xml).attr('pwsection') != undefined) {
+		this._pwsections = $(xml).attr('pwsection').indexOf(' ') > -1 ? $(xml).attr('pwsection').split(' ') : [$(xml).attr('pwsection')];
+	}
+	this._credits = parseInt($(xml).attr('credits'));
 	this._pilot = $(xml).attr('pilot') == 'true';
 	this._id = $(xml).attr('id');
 }
