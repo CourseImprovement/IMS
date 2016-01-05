@@ -87,7 +87,7 @@ Rollup.prototype.update = function(){
 				var credits = 0;
 				$(this).find('survey[id=' + _this._surveyId + '] answer[id=' + _this._questions[i].id + ']').each(function(){
 					if ($(this).text().length == 0) return;
-					var courseid = $(this).parents('survey').attr('courseid');
+					var courseid = $(this).parents('survey').attr('id');
 					var tmpCredits = parseInt($(this).parents('roles').parent().find("course[id=" + courseid + ']').attr('credit'));
 					var sections = $(this).parents('roles').parent().find("course[id=" + courseid + ']').attr('section').split(/ /g).length;
 
