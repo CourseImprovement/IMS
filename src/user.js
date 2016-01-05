@@ -200,9 +200,11 @@ User.prototype.selectedCourse = function(){
  */
 User.prototype._setCourses = function(){
 	var _this = this;
-	$(this._xml).find('course').each(function(){
-		_this._courses.push(new Course(this));
-	})
+	if ($(this._xml).find('> course').length != 0){
+		$(this._xml).find('> course').each(function(){
+			_this._courses.push(new Course(this));
+		});
+	}
 }
 
 /**
@@ -660,9 +662,13 @@ User.redirectBack = function(){
 User.prototype.getCourses = function(){
 	if (this._courses.length == 0){
 		var _this = this;
-		$(this._personXml).find('> courses course').each(function(){
-			_this._courses.push(new Course(this));
-		})
+		if ($(this._personXml).find('> courses course').length != 0){
+			$(this._personXml).find('> courses course').each(function(){
+				_this._courses.push(new Course(this));
+			});
+		} else {
+			_this._courses = [];
+		}
 	}
 	return this._courses;
 }
