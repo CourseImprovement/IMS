@@ -23,7 +23,7 @@ function User(obj){
 	this._semesters = [];
 	this._isCurrent = obj.isBase == true;
 	this._new = false;
-	this._role = new Role(this._baseRole, this);
+	this._role = new Role(this._baseRole, this, !this._isCurrent);
 }
 
 /**

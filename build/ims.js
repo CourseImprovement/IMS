@@ -1840,13 +1840,16 @@ Role.prototype._recursiveChildren = function(xml){
         }
         if ($(person).attr('email') == this._user.getEmail()) continue;
         var user = new User({email: $(person).attr('email'), role: role, isBase: false, xml: person});
+        // org.push({
+        //     user: user,
+        //     lower: _this._recursiveChildren($(person).find('> roles > role[type=' + $(person).attr('type') + ']'))
+        // });
         org.push({
-            user: user,
-            lower: _this._recursiveChildren($(person).find('> roles > role[type=' + $(person).attr('type') + ']'))
+            user: user
         });
-        if (user._role._org != null && user._role._org.length != org[org.length - 1].lower.length){
-            org[org.length - 1].lower = user._role._org; 
-        }
+        // if (user._role._org != null && user._role._org.length != org[org.length - 1].lower.length){
+        //     org[org.length - 1].lower = user._role._org; 
+        // }
     }
     return org;
 }
@@ -2788,7 +2791,7 @@ function User(obj){
 	this._semesters = [];
 	this._isCurrent = obj.isBase == true;
 	this._new = false;
-	this._role = new Role(this._baseRole, this);
+	this._role = new Role(this._baseRole, this, !this._isCurrent);
 }
 
 /**
