@@ -17,9 +17,8 @@
  */
 function Config(){
 	this.surveys = [];
+	this._xml = null;
 	this._initSetup();
-	this._xml;
-	this.semesters = ims.sharepoint.getSemesterConfig();
 	this.selectedSurvey = null;
 	this.otherPeople = {};
 }
@@ -64,7 +63,7 @@ Config.prototype.newSurvey = function(){
  *  + return the current semester 
  */
 Config.prototype.getCurrentSemester = function(){
-	if (!this._currentSemester) this._currentSemester = $(this._xml).find('[current=true]').attr('name');
+	if (!this._currentSemester) this._currentSemester = $(this._xml).find('[current=true]').attr('code');
 	return this._currentSemester;
 }
 /**
