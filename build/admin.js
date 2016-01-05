@@ -674,7 +674,7 @@ Config.prototype.newSurvey = function(){
  *  + return the current semester 
  */
 Config.prototype.getCurrentSemester = function(){
-	if (!this._currentSemester) this._currentSemester = $(this.semesters).find('[current=true]').attr('name');
+	if (!this._currentSemester) this._currentSemester = $(this._xml).find('[current=true]').attr('name');
 	return this._currentSemester;
 }
 /**
@@ -1698,16 +1698,10 @@ function addItemReverseOrder(list, item) {
 		return list;
 	}
 	var week = item.week;
-	if (list.length == 0) {
-		list.push(item);
-		return list;
-	} else if (week == "") {
-		list.splice(list.length, 0, item);
-		return list;
-	} else if (week.toLowerCase() == "conclusion") {
-		list.splice(0, 0, item);
-		return list;
-	}else {
+	if (list.length == 0) list.push(item);
+	else if (!week || week.length == 0 || week.toLowerCase() == "intro") list.splice(list.length, 0, item);
+	else if (week.toLowerCase() == "conclusion") list.splice(0, 0, item); 
+	else {
 		for (var i = 0; i < list.length; i++) {
 			if (toInt(week) >= toInt(list[i].week)) {
 				list.splice(i, 0, item);
@@ -1715,6 +1709,7 @@ function addItemReverseOrder(list, item) {
 			}
 		}
 	}
+	return list;
 }
 
 /**

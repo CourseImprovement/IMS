@@ -64,7 +64,7 @@ Config.prototype.newSurvey = function(){
  *  + return the current semester 
  */
 Config.prototype.getCurrentSemester = function(){
-	if (!this._currentSemester) this._currentSemester = $(this.semesters).find('[current=true]').attr('name');
+	if (!this._currentSemester) this._currentSemester = $(this._xml).find('[current=true]').attr('name');
 	return this._currentSemester;
 }
 /**
