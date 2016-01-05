@@ -568,7 +568,7 @@ SemesterSetup.prototype._createOrg = function(){
 		}
 	}
 
-	// ADD AIM AND OCRM STEWARDSHIP
+	// ADD AIM AND OCRM STEWARDSHIP OF STEWARDSHIP
 	for (var i = 0; i < this._org.semester.people.person.length; i++){
 		if (this._org.semester.people.person[i].highestrole == 'aim'){
 			for (var r = 0; r < this._org.semester.people.person[i].roles.role.length; r++){
@@ -597,7 +597,7 @@ SemesterSetup.prototype._createOrg = function(){
 		}
 	}
 
-	// ADD IM STEWARDSHIP
+	// ADD IM STEWARDSHIP OF STEWARDSHIP
 	for (var i = 0; i < this._org.semester.people.person.length; i++) {
 		if (this._org.semester.people.person[i].highestrole == 'im') {
 			for (var r = 0; r < this._org.semester.people.person[i].roles.role.length; r++) {
@@ -627,23 +627,49 @@ SemesterSetup.prototype.addCourse = function(email) {
 
 	for (var i = start; i < this._csv.length; i++){
 		if (this._csv[i][2] == email){
-			course.push({
-				id: 1,
-				$text: this._csv[i][3],
-				credits: this._csv[i][4],
-				pilot: this._csv[i][17].toLowerCase(),
-				ocr: this._csv[i][18].toLowerCase()
-			});
-
-			if (this._csv[i][19] == 'TRUE') {
-				course[idx]['pwsection'] = this._csv[i][5];
-				course[idx]['section'] = '';
-			} else {
-				course[idx]['section'] = this._csv[i][5];
-				course[idx]['pwsection'] = '';
+			var pos = 0;
+			var duplicate = false;
+			
+			for (var c = 0; c < course.length; c++){
+				if (course[c].$text == this._csv[i][3]){
+					duplicate = true;
+					pos = c;
+				}
 			}
 
-			idx++;
+			if (duplicate) {
+				if (this._csv[i][19] == 'TRUE') {
+					if (course[pos].pwsection == '') {
+						course[pos].pwsection = this._csv[i][5];
+					} else {
+						course[pos].pwsection += ' ' + this._csv[i][5];
+					}
+				} else {
+					if (course[pos].section == '') {
+						course[pos].section = this._csv[i][5];
+					} else {
+						course[pos].section += ' ' + this._csv[i][5];
+					}
+				}
+			} else {
+				course.push({
+					id: 1,
+					$text: this._csv[i][3],
+					credits: this._csv[i][4],
+					pilot: this._csv[i][17].toLowerCase(),
+					ocr: this._csv[i][18].toLowerCase()
+				});
+
+				if (this._csv[i][19] == 'TRUE') {
+					course[idx]['pwsection'] = this._csv[i][5];
+					course[idx]['section'] = '';
+				} else {
+					course[idx]['section'] = this._csv[i][5];
+					course[idx]['pwsection'] = '';
+				}
+
+				idx++;
+			}
 		}
 	}
 
@@ -714,7 +740,7 @@ SemesterSetup.prototype.addToOrg = function(person){
 								}
 
 								if (setSteward) {
-									this._org.semester.people.person[i].roles.role[r].stewardship.people.person.push(person.roles.role[0].stewardship.people.person[0]);
+									this._org.semester.people.person[i].roles.role[r].stewardship.people.person.push(person.roles.role[r].stewardship.people.person[0]);
 								}
 							}
 							if (this._org.semester.people.person[i].roles.role[r].leadership.people != undefined) {
