@@ -156,7 +156,7 @@ ims.sharepoint = {
 		        'success': function(){
 		        	
 		        }
-		    });
+		    })
 		});
 	},
 	/**

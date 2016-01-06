@@ -304,7 +304,7 @@ ims.sharepoint = {
 		        'success': function(){
 		        	
 		        }
-		    });
+		    })
 		});
 	},
 	/**
@@ -552,17 +552,20 @@ if (!ims.error){
 		}
 
 		/**
+		 * @name selectedSuggestion
+		 * @description Go to the person selected
+		 */
+		$scope.selectedSuggestion = function(item){
+			var user = new User({email: $(item._xml).attr('email'), role: $(item._xml).attr('type'), isBase: false, xml: item._xml});
+			user.redirectTo();
+		}
+
+		/**
 		 * @name openRoleMenu 
 		 * @description Show a list of roles that the user has
 		 */
 		$scope.openRoleMenu = function(){
-			var right = '71px';
-			if ($('.back-btn').length > 0){
-				right = '71px';
-			}
-			else{
-				right = '39px';
-			}
+			var right = ($(window).width() - ($('.role-drop-down-public').offset().left + $('.role-drop-down-public').outerWidth()));
 			$('.semester-popup-dropdown').css({right: right, top: '39px'});
 			setTimeout(function(){
 				$scope.$apply(function(){
@@ -584,13 +587,7 @@ if (!ims.error){
 		 * @description
 		 */
 		$scope.openCourseMenu = function(e){
-			var right = '71px';
-			if ($('.back-btn').length > 0){
-				right = '71px';
-			}	
-			else{
-				right = '10px';
-			}		
+			var right = ($(window).width() - ($('.course-drop-down').offset().left + $('.course-drop-down').outerWidth()));
 			$('.semester-popup-dropdown3').css({right: right, top: '39px'});
 			setTimeout(function(){
 				$scope.$apply(function(){
@@ -605,14 +602,8 @@ if (!ims.error){
 		 *  + Set the drop down for the semester
 		 */
 		$scope.openSemesterMenu = function(e){
-			var right = '71px';
-			if ($('.back-btn').length > 0){
-				right = '71px';
-			}	
-			else{
-				right = '82px';
-			}		
-			$('.semester-popup-dropdown2').css({right: right, top: '39px'});
+			var right = ($(window).width() - ($('.semester-drop-down-public').offset().left + $('.semester-drop-down-public').outerWidth()));		
+			$('.semester-popup-dropdown2').css({right: right + 'px', top: '39px'});
 			setTimeout(function(){
 				$scope.$apply(function(){
 					$scope.showSemesterMenu = true;
@@ -938,8 +929,8 @@ if (!ims.error){
 			var result = [];
 			var found = {};
 			for (var i = 0; i < items.length; i++){
-				var first = items[i].user.getRole().getRoleName().toUpperCase().slice(0, 4);
-				var last = items[i].user.getFullName();
+				var first = items[i].role.toUpperCase().slice(0, 4);
+				var last = items[i].full;
 				if (!found[first + ' - ' + last]){
 					result.push(items[i]);
 					found[first + ' - ' + last] = true;
@@ -2141,38 +2132,14 @@ Role.prototype._getHats = function(){
 Role.prototype.getSuggested = function(q){
     q = q.toLowerCase();
     var result = [];
-    for (var i = 0; i < this._org.length; i++){
-        var topUser = this._org[i];
-        if (topUser.user.getEmail().toLowerCase().indexOf(q) > -1 ||
-            topUser.user.getFullName().toLowerCase().indexOf(q) > -1){
-            result.push(this._org[i]);
-        }
 
-        $(this._org[i].user._xml).find('stewardship > people > person').each(function(){
-            var user = new User({email: $(this).attr('email'), role: $(this).attr('type'), isBase: false, xml: this});
-            if (user.getEmail().toLowerCase().indexOf(q) > -1 ||
-                user.getFullName().toLowerCase().indexOf(q) > -1){
-                result.push({
-                    user: user
-                });
-            }
+    $(this._user._xml).find('> stewardship person[first*="' + q + '"], > stewardship person[last*="' + q + '"], > stewardship person[email*="' + q + '"]').each(function(){
+        result.push({
+            role: $(this).attr('type'),
+            full: $(this).attr('first') + ' ' + $(this).attr('last'),
+            _xml: this
         });
-
-        // for (var j = 0; j < topUser.lower.length; j++){
-        //     var lower = this._org[i].lower[j];
-        //     if (lower.user.getEmail().toLowerCase().indexOf(q) > -1 ||
-        //         lower.user.getFullName().toLowerCase().indexOf(q) > -1){
-        //         result.push(lower);
-        //     }
-        //     for (var k = 0; k < lower.lower.length; k++){
-        //         var lowest = this._org[i].lower[j].lower[k];
-        //         if (lowest.user.getEmail().toLowerCase().indexOf(q) > -1 ||
-        //             lowest.user.getFullName().toLowerCase().indexOf(q) > -1){
-        //             result.push(lowest);
-        //         }
-        //     }
-        // }
-    }
+    });
     return result;
 }
 
@@ -3397,7 +3364,7 @@ User.prototype.redirectTo = function(){
   var email = this._email;
   var val = JSON.parse(JSON.stringify(ims.aes.value));
   val.ce = email;
-  val.cr = this._role.getName().toUpperCase();
+  val.cr = this._role.getRoleName().toUpperCase();
   val.pe = val.e;
   val.pr = val.i;
   var str = JSON.stringify(val);

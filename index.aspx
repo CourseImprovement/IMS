@@ -3,10 +3,10 @@
 <html lang="en" ng-app='ims' ng-controller='view' ng-click='toggleMenu()' xmlns:mso="urn:schemas-microsoft-com:office:office" xmlns:msdt="uuid:C2F41010-65B3-11d1-A29F-00AA00C14882">
 <head>
 	<meta charset="UTF-8">
-	<link type="image/x-icon" href="//webmailbyui.sharepoint.com///www.byui.edu/prebuilt/stylenew/images/ico/favicon.ico" rel="shortcut icon">
+	<link type="image/x-icon" href="https://www.byui.edu/prebuilt/stylenew/images/ico/favicon.ico" rel="shortcut icon">
 	<link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.4.0/css/font-awesome.min.css">
 	<link rel="stylesheet" type="text/css" href="css/style.css">
-	<script async="" src="//www.google-analytics.com/analytics.js"></script><script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.3.15/angular.min.js"></script>
+	<script async="" src="https://www.google-analytics.com/analytics.js"></script><script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.3.15/angular.min.js"></script>
 	<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
 	<script type="text/javascript" src="build/crypto.js"></script>
 	<script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.11.4/jquery-ui.min.js"></script>
@@ -38,18 +38,18 @@
 					<i class='fa fa-search' ng-if='!searchOpened'></i>
 					<input type='text' class="searchInput" placeholder='Search...' ng-model='q' ng-if='searchOpened' ng-keydown='searching(q, $event)'>
 				</li>
-				<li class="right person-drop-down" ng-if='user.isLeader()' ng-click='openRoleMenu($event)'> 
+				<li class="right person-drop-down role-drop-down-public" ng-if='user.isLeader()' ng-click='openRoleMenu($event)'> 
 					{{selectedRole}} 
 					<div class='arrow-down2'><i class="fa fa-arrow-down"></i></div>
 				</li>
 				<li class="right" ng-if='user.isLeader()'>View as: </li>
 				<li class="course-drop-down right person-drop-down" ng-if='user.showCourseMenu()' ng-click='openCourseMenu($event)'>{{user.selectedCourse() ? user.selectedCourse().getName() : 'All'}}<div class='arrow-down2'><i class="fa fa-arrow-down"></i></div></li>
-				<li class="right person-drop-down" ng-if='user.getRole()._role == "instructor"' ng-click='openSemesterMenu($event)'>
+				<li class="right person-drop-down semester-drop-down-public" ng-if='user.getRole()._role == "instructor"' ng-click='openSemesterMenu($event)'>
 					{{ims.semesters.getCurrentCode()}} <div class='arrow-down2'><i class="fa fa-arrow-down"></i></div>
 				</li>
 			</ul>
 			<ol class="suggestion" ng-if='suggestions.length > 0'>
-				<li ng-repeat='s in suggestions | noDuplicates' ng-click='redirect(s.user.getHref())' ng-class='s.selected ? "selected" : ""'>{{s.user.getRole().getRoleName().toUpperCase().slice(0, 4)}} - {{s.user.getFullName()}}</li>
+				<li ng-repeat='s in suggestions | noDuplicates' ng-click='selectedSuggestion(s)'>{{s.role.toUpperCase().slice(0, 4)}} - {{s.full}}</li>
 			</ol>
 			<div class="dashboard-title">Instructor Management System</div>
 		</div>
@@ -237,13 +237,13 @@
 
 
 	<script>
-	  // (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
-	  // (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
-	  // m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
-	  // })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+	  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+	  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+	  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+	  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
 
-	  // ga('create', 'UA-69743303-1', 'auto');
-	  // ga('send', 'pageview');
+	  ga('create', 'UA-69743303-1', 'auto');
+	  ga('send', 'pageview');
 
 	</script>
 

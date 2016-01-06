@@ -6,8 +6,14 @@
  */
 window.ims = {};
 ims.url = {};
-ims.url._base = window.location.protocol + '//' + window.location.hostname + '/sites/onlineinstructionreporting/onlineinstructionreportingdev/';
-ims.url.relativeBase = '/sites/onlineinstructionreporting/onlineinstructionreportingdev/';
+if (window.location.href.indexOf('onlineinstructionreportingdev') > -1){
+	ims.url._base = window.location.protocol + '//' + window.location.hostname + '/sites/onlineinstructionreporting/onlineinstructionreportingdev/';
+	ims.url.relativeBase = '/sites/onlineinstructionreporting/onlineinstructionreportingdev/';
+}
+else{
+	ims.url._base = window.location.protocol + '//' + window.location.hostname + '/sites/onlineinstructionreporting/';
+	ims.url.relativeBase = '/sites/onlineinstructionreporting/';
+}
 ims.url.base = ims.url._base + 'instructor%20Reporting/';
 ims.url.api = ims.url._base + '_api/';
 ims.url.site = ims.url._base; 
@@ -2290,9 +2296,9 @@ Person.prototype.cleanEmailInternal = function(){
  * @todo 
  *  + Post the person's xml file
  */
-Person.prototype.save = function(){
+Person.prototype.save = function(callback){
 	if ($(this._xml)[0] && this._email){
-		Sharepoint.postFile($(this._xml)[0], 'master/', this._email + '.xml', function(){});
+		Sharepoint.postFile($(this._xml)[0], 'master/', this._email + '.xml', callback);
 	}
 }
 /**
@@ -2853,27 +2859,30 @@ function isGreater(role1, role2){
  *  + Call function to create rollup
  */
 SemesterSetup.prototype.semesterSetup = function(){
-	var items = [
-		this._createOrg,
-		this._createMaster,
-		this._createIndividualFiles, 
-		this._createRollup,
-		this._createConfig
-	];
-
-	var spot = 10;
-
-	function processItems(i){
-		items[i]();
+	var _this = this;
+	function processItems(i){		
+		switch (i){
+			case 0: _this._createOrg(); break;
+			case 1: _this._createMaster(); break;
+			case 2: _this._createIndividualFiles(); break;
+			case 3: _this._createRollup(); break;
+			case 4: _this._createConfig(); break;
+			default: return;
+		}
 
 		setTimeout(function(){
 			++i
 			ims.loading.set((20 * i));
+			if (i == 5) return;
 			processItems(i);
 		}, 10);
 	}
-	ims.loading.reset();
-	processItems(0);
+	
+	setTimeout(function(){
+		ims.loading.reset();
+		ims.loading.set(10);
+		processItems(0);
+	}, 10)
 }
 /**
  * @name formalize 
@@ -3927,6 +3936,11 @@ Survey.prototype.process = function(rows){
 	}
 	var i = spot;
 	var _this = this;
+
+	var stats = {
+		total: 0,
+		spot: 0
+	};
 	/**
 	 * @name processItems 
 	 * @description process all the survey data collected
@@ -3945,22 +3959,48 @@ Survey.prototype.process = function(rows){
 					_this.processed++
 				}
 			}
-			
+
 			for (var j = 0; j < _this.people.length; j++){
-				_this.people[j].save();
+				stats.total++;
+				_this.people[j].save(function(){
+					if (++stats.spot == stats.total){
+						setTimeout(function(){
+							alert('Completed | Please reload the page');
+							ims.loading.reset();
+						}, 1000)
+					}
+				});
 			}
 
 			for (var email in window.config.otherPeople){
-				window.config.otherPeople[email].save();
+				stats.total++;
+				window.config.otherPeople[email].save(function(){
+					if (++stats.spot == stats.total){
+						setTimeout(function(){
+							alert('Completed | Please reload the page');
+							ims.loading.reset();
+						}, 1000)
+					}
+				});
 			}
-			
-			Sharepoint.postFile(window.rollup._xml, 'master/', 'rollup.xml', function(){});
-			Sharepoint.postFile(window.config.getMaster(), 'master/', 'master.xml', function(){});
-			
-			setTimeout(function(){
-				ims.loading.reset();
-				alert('Completed | Please reload the page');
-			}, 1200);
+			stats.total++;
+			Sharepoint.postFile(window.rollup._xml, 'master/', 'rollup.xml', function(){
+				if (++stats.spot == stats.total){
+					setTimeout(function(){
+						alert('Completed | Please reload the page');
+						ims.loading.reset();
+					}, 1000)
+				}
+			});
+			stats.total++;
+			Sharepoint.postFile(window.config.getMaster(), 'master/', 'master.xml', function(){
+				if (++stats.spot == stats.total){
+					setTimeout(function(){
+						alert('Completed | Please reload the page');
+						ims.loading.reset();
+					}, 1000)
+				}
+			});
 		} 
 		// clean answers  and then add them to their respective individual
 		if (i < rows.length && rows[i][eCol] != undefined){

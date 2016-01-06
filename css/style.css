@@ -1000,6 +1000,11 @@ a, .link{
 	background-color: #0D82D4;
 }
 
+.course-drop-down {
+  margin-left: 0 !important;
+  border-left: transparent;
+}
+
 .notification{
 	font-size: 15px !important;
 	padding: 11px !important;

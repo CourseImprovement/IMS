@@ -26,17 +26,20 @@ if (!ims.error){
 		}
 
 		/**
+		 * @name selectedSuggestion
+		 * @description Go to the person selected
+		 */
+		$scope.selectedSuggestion = function(item){
+			var user = new User({email: $(item._xml).attr('email'), role: $(item._xml).attr('type'), isBase: false, xml: item._xml});
+			user.redirectTo();
+		}
+
+		/**
 		 * @name openRoleMenu 
 		 * @description Show a list of roles that the user has
 		 */
 		$scope.openRoleMenu = function(){
-			var right = '71px';
-			if ($('.back-btn').length > 0){
-				right = '71px';
-			}
-			else{
-				right = '39px';
-			}
+			var right = ($(window).width() - ($('.role-drop-down-public').offset().left + $('.role-drop-down-public').outerWidth()));
 			$('.semester-popup-dropdown').css({right: right, top: '39px'});
 			setTimeout(function(){
 				$scope.$apply(function(){
@@ -58,13 +61,7 @@ if (!ims.error){
 		 * @description
 		 */
 		$scope.openCourseMenu = function(e){
-			var right = '71px';
-			if ($('.back-btn').length > 0){
-				right = '71px';
-			}	
-			else{
-				right = '10px';
-			}		
+			var right = ($(window).width() - ($('.course-drop-down').offset().left + $('.course-drop-down').outerWidth()));
 			$('.semester-popup-dropdown3').css({right: right, top: '39px'});
 			setTimeout(function(){
 				$scope.$apply(function(){
@@ -79,14 +76,8 @@ if (!ims.error){
 		 *  + Set the drop down for the semester
 		 */
 		$scope.openSemesterMenu = function(e){
-			var right = '71px';
-			if ($('.back-btn').length > 0){
-				right = '71px';
-			}	
-			else{
-				right = '82px';
-			}		
-			$('.semester-popup-dropdown2').css({right: right, top: '39px'});
+			var right = ($(window).width() - ($('.semester-drop-down-public').offset().left + $('.semester-drop-down-public').outerWidth()));		
+			$('.semester-popup-dropdown2').css({right: right + 'px', top: '39px'});
 			setTimeout(function(){
 				$scope.$apply(function(){
 					$scope.showSemesterMenu = true;
@@ -412,8 +403,8 @@ if (!ims.error){
 			var result = [];
 			var found = {};
 			for (var i = 0; i < items.length; i++){
-				var first = items[i].user.getRole().getRoleName().toUpperCase().slice(0, 4);
-				var last = items[i].user.getFullName();
+				var first = items[i].role.toUpperCase().slice(0, 4);
+				var last = items[i].full;
 				if (!found[first + ' - ' + last]){
 					result.push(items[i]);
 					found[first + ' - ' + last] = true;

@@ -76,9 +76,9 @@ Person.prototype.cleanEmailInternal = function(){
  * @todo 
  *  + Post the person's xml file
  */
-Person.prototype.save = function(){
+Person.prototype.save = function(callback){
 	if ($(this._xml)[0] && this._email){
-		Sharepoint.postFile($(this._xml)[0], 'master/', this._email + '.xml', function(){});
+		Sharepoint.postFile($(this._xml)[0], 'master/', this._email + '.xml', callback);
 	}
 }
 /**

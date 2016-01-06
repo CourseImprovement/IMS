@@ -6,8 +6,14 @@
  */
 window.ims = {};
 ims.url = {};
-ims.url._base = window.location.protocol + '//' + window.location.hostname + '/sites/onlineinstructionreporting/onlineinstructionreportingdev/';
-ims.url.relativeBase = '/sites/onlineinstructionreporting/onlineinstructionreportingdev/';
+if (window.location.href.indexOf('onlineinstructionreportingdev') > -1){
+	ims.url._base = window.location.protocol + '//' + window.location.hostname + '/sites/onlineinstructionreporting/onlineinstructionreportingdev/';
+	ims.url.relativeBase = '/sites/onlineinstructionreporting/onlineinstructionreportingdev/';
+}
+else{
+	ims.url._base = window.location.protocol + '//' + window.location.hostname + '/sites/onlineinstructionreporting/';
+	ims.url.relativeBase = '/sites/onlineinstructionreporting/';
+}
 ims.url.base = ims.url._base + 'instructor%20Reporting/';
 ims.url.api = ims.url._base + '_api/';
 ims.url.site = ims.url._base; 

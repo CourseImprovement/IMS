@@ -975,38 +975,14 @@ Role.prototype._getHats = function(){
 Role.prototype.getSuggested = function(q){
     q = q.toLowerCase();
     var result = [];
-    for (var i = 0; i < this._org.length; i++){
-        var topUser = this._org[i];
-        if (topUser.user.getEmail().toLowerCase().indexOf(q) > -1 ||
-            topUser.user.getFullName().toLowerCase().indexOf(q) > -1){
-            result.push(this._org[i]);
-        }
 
-        $(this._org[i].user._xml).find('stewardship > people > person').each(function(){
-            var user = new User({email: $(this).attr('email'), role: $(this).attr('type'), isBase: false, xml: this});
-            if (user.getEmail().toLowerCase().indexOf(q) > -1 ||
-                user.getFullName().toLowerCase().indexOf(q) > -1){
-                result.push({
-                    user: user
-                });
-            }
+    $(this._user._xml).find('> stewardship person[first*="' + q + '"], > stewardship person[last*="' + q + '"], > stewardship person[email*="' + q + '"]').each(function(){
+        result.push({
+            role: $(this).attr('type'),
+            full: $(this).attr('first') + ' ' + $(this).attr('last'),
+            _xml: this
         });
-
-        // for (var j = 0; j < topUser.lower.length; j++){
-        //     var lower = this._org[i].lower[j];
-        //     if (lower.user.getEmail().toLowerCase().indexOf(q) > -1 ||
-        //         lower.user.getFullName().toLowerCase().indexOf(q) > -1){
-        //         result.push(lower);
-        //     }
-        //     for (var k = 0; k < lower.lower.length; k++){
-        //         var lowest = this._org[i].lower[j].lower[k];
-        //         if (lowest.user.getEmail().toLowerCase().indexOf(q) > -1 ||
-        //             lowest.user.getFullName().toLowerCase().indexOf(q) > -1){
-        //             result.push(lowest);
-        //         }
-        //     }
-        // }
-    }
+    });
     return result;
 }
 

@@ -215,6 +215,11 @@ Survey.prototype.process = function(rows){
 	}
 	var i = spot;
 	var _this = this;
+
+	var stats = {
+		total: 0,
+		spot: 0
+	};
 	/**
 	 * @name processItems 
 	 * @description process all the survey data collected
@@ -233,22 +238,48 @@ Survey.prototype.process = function(rows){
 					_this.processed++
 				}
 			}
-			
+
 			for (var j = 0; j < _this.people.length; j++){
-				_this.people[j].save();
+				stats.total++;
+				_this.people[j].save(function(){
+					if (++stats.spot == stats.total){
+						setTimeout(function(){
+							alert('Completed | Please reload the page');
+							ims.loading.reset();
+						}, 1000)
+					}
+				});
 			}
 
 			for (var email in window.config.otherPeople){
-				window.config.otherPeople[email].save();
+				stats.total++;
+				window.config.otherPeople[email].save(function(){
+					if (++stats.spot == stats.total){
+						setTimeout(function(){
+							alert('Completed | Please reload the page');
+							ims.loading.reset();
+						}, 1000)
+					}
+				});
 			}
-			
-			Sharepoint.postFile(window.rollup._xml, 'master/', 'rollup.xml', function(){});
-			Sharepoint.postFile(window.config.getMaster(), 'master/', 'master.xml', function(){});
-			
-			setTimeout(function(){
-				ims.loading.reset();
-				alert('Completed | Please reload the page');
-			}, 1200);
+			stats.total++;
+			Sharepoint.postFile(window.rollup._xml, 'master/', 'rollup.xml', function(){
+				if (++stats.spot == stats.total){
+					setTimeout(function(){
+						alert('Completed | Please reload the page');
+						ims.loading.reset();
+					}, 1000)
+				}
+			});
+			stats.total++;
+			Sharepoint.postFile(window.config.getMaster(), 'master/', 'master.xml', function(){
+				if (++stats.spot == stats.total){
+					setTimeout(function(){
+						alert('Completed | Please reload the page');
+						ims.loading.reset();
+					}, 1000)
+				}
+			});
 		} 
 		// clean answers  and then add them to their respective individual
 		if (i < rows.length && rows[i][eCol] != undefined){
