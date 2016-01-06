@@ -2853,11 +2853,27 @@ function isGreater(role1, role2){
  *  + Call function to create rollup
  */
 SemesterSetup.prototype.semesterSetup = function(){
-	this._createOrg();
-	this._createMaster();
-	this._createIndividualFiles();
-	this._createRollup();
-	this._createConfig();
+	var items = [
+		this._createOrg,
+		this._createMaster,
+		this._createIndividualFiles, 
+		this._createRollup,
+		this._createConfig
+	];
+
+	var spot = 10;
+
+	function processItems(i){
+		items[i]();
+
+		setTimeout(function(){
+			++i
+			ims.loading.set((20 * i));
+			processItems(i);
+		}, 10);
+	}
+	ims.loading.reset();
+	processItems(0);
 }
 /**
  * @name formalize 
