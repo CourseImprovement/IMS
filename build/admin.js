@@ -2899,10 +2899,11 @@ SemesterSetup.prototype._isSameSem = function(){
  */
 SemesterSetup.prototype._createConfig = function(){
 	var config = $(window.config._xml).find('semesters semester[current=true]').clone();
-	$(window.config._xml).find('semesters semester[current=true]').attr('current', 'false');
 	$(config).attr('code', this._org.semester.code);
 	if (this._isSameSem()) {
 		$(window.config._xml).find('semesters semester[current=true]').remove();
+	} else {
+		$(window.config._xml).find('semesters semester[current=true]').attr('current', 'false');
 	}
 	$(window.config._xml).find('semesters').append(config);
 	//console.log(window.config._xml);
