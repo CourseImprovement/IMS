@@ -400,17 +400,7 @@ if (!ims.error){
 	 */
 	app.filter('noDuplicates', function(){
 		return function(items){
-			var result = [];
-			var found = {};
-			for (var i = 0; i < items.length; i++){
-				var first = items[i].role.toUpperCase().slice(0, 4);
-				var last = items[i].full;
-				if (!found[first + ' - ' + last]){
-					result.push(items[i]);
-					found[first + ' - ' + last] = true;
-				}
-			}
-			return result;
+			return items;
 		}
 	})
 }
