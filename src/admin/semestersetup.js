@@ -227,8 +227,8 @@ SemesterSetup.prototype._createOrg = function(){
 										leadership: {
 											people: {
 												person: [{
-													first: this._csv[rows][7].formalize(),
-													last: this._csv[rows][7].formalize(),
+													first: this._csv[rows][7].split(' ')[0].formalize(),
+													last: this._csv[rows][7].split(' ')[1].formalize(),
 													email: this._csv[rows][6].toLowerCase().split('@')[0],
 													type: 'tgl'
 												},{
