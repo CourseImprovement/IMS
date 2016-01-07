@@ -66,7 +66,7 @@ Tile.getAll = function(role) {
         }),
         new Tile({
           title: 'Evaluations',
-          helpText: 'This tile displays evaluations others have completed about ' + getPronoun('you', role) + ' in ' + getPronoun('your', role) + ' name as an ' + (name.toLowerCase() == 'aim' ? 'Assistant Instructor Manager' : 'Instructor Manager') + '.',
+          helpText: 'This tile displays evaluations others have completed about ' + getPronoun('you', role) + ' as an ' + (name.toLowerCase() == 'aim' ? 'Assistant Instructor Manager' : 'Instructor Manager') + '.',
           type: 'survey-list',
           data: role.getEvaluations(),
           hidden: ''

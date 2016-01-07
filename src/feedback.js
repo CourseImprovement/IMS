@@ -2,10 +2,10 @@
  * @name Computer 
  * @description
  */
-function Computer(){
+function Computer() {
 	var _this = this;
 
-	ims.sharepoint.getLoggedInUserEmail(function(email){
+	ims.sharepoint.getLoggedInUserEmail(function(email) {
 		var nVer = navigator.appVersion;
 		var nAgt = navigator.userAgent;
 		var browserName  = navigator.appName;
