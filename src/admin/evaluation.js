@@ -9,7 +9,7 @@
  *  + set the evaluations object
  *  + set the csv file location
  */
-function Evaluations(obj, file){
+function Evaluations(obj, file) {
 	this._evaluations = obj;
 	this._file = file;
 	this.people = {};
@@ -24,10 +24,10 @@ function Evaluations(obj, file){
  *  + loop through the different data series
  *   + convert the col letter to a number
  */
-Evaluations.prototype.getColumnLocations = function(){
+Evaluations.prototype.getColumnLocations = function() {
 	var newArray = [];
 
-	for (var i = 0; i < this._evaluations.dataSeries.length; i++){
+	for (var i = 0; i < this._evaluations.dataSeries.length; i++) {
 		newArray.push({
 			col: Config.columnLetterToNumber(this._evaluations.dataSeries[i].col),
 			question: this._evaluations.dataSeries[i].question,
@@ -47,7 +47,7 @@ Evaluations.prototype.getColumnLocations = function(){
  *  + replace unwanted html
  *  + error handling
  */
-Evaluations.prototype.cleanseString = function(str){
+Evaluations.prototype.cleanseString = function(str) {
 	if(str == undefined || str.length == 0) return str;
 	return str.replace(/<[^>]*>/g, '');
 }
@@ -66,8 +66,8 @@ Evaluations.prototype.cleanseString = function(str){
  *   + add response data for evaluatee
  *  + error handling
  */
-Evaluations.prototype.setAnswers = function(evaluatee, row, locations){
-	if (this.people[evaluatee] == undefined){
+Evaluations.prototype.setAnswers = function(evaluatee, row, locations) {
+	if (this.people[evaluatee] == undefined) {
 		this.people[evaluatee] = {
 			count: 1
 		};
@@ -75,19 +75,19 @@ Evaluations.prototype.setAnswers = function(evaluatee, row, locations){
 		this.people[evaluatee].count++;
 	}
 
-	for (var loc = 0; loc < locations.length; loc++){
+	for (var loc = 0; loc < locations.length; loc++) {
 		var quest = locations[loc].question;
 		var ans = row[locations[loc].col];
-		if (locations[loc].logic == 'v' && ans != ""){ /*VALUE*/
-			if (this.people[evaluatee][quest] == undefined){
+		if (locations[loc].logic == 'v' && ans != "") { /*VALUE*/
+			if (this.people[evaluatee][quest] == undefined) {
 				this.people[evaluatee][quest] = _this.cleanseString(ans);
-			} else{
+			} else {
 				this.people[evaluatee][quest] += '\\\\' + _this.cleanseString(ans);
 			}
-		} else if (locations[loc].logic == 'p'){ /*PERCENTAGE*/
-			if (this.people[evaluatee][quest] == undefined){
+		} else if (locations[loc].logic == 'p') { /*PERCENTAGE*/
+			if (this.people[evaluatee][quest] == undefined) {
 				this.people[evaluatee][quest] = (ans != "" ? parseFloat(1) : parseFloat(0));
-			} else{
+			} else {
 				this.people[evaluatee][quest] += (ans != "" ? parseFloat(1) : parseFloat(0));
 			}
 		}
@@ -106,11 +106,11 @@ Evaluations.prototype.setAnswers = function(evaluatee, row, locations){
  *    + replace answer with new percentage 
  *  + error handling
  */
-Evaluations.prototype.calculatePercentages = function(){
-	for (var person in this.people){
-		for (var j = 0; j < this._evaluations.dataSeries.length; j++){
+Evaluations.prototype.calculatePercentages = function() {
+	for (var person in this.people) {
+		for (var j = 0; j < this._evaluations.dataSeries.length; j++) {
 			var eval = this._evaluations.dataSeries[j];
-			if (eval.logic == 'p'){
+			if (eval.logic == 'p') {
 				this.people[person][eval.question] = (this.people[person][eval.question] * 100 / this.people[person].count).toPrecision(3) + '%';
 			}
 		}
@@ -130,22 +130,22 @@ Evaluations.prototype.calculatePercentages = function(){
  *  + download string as csv
  *  + error handling
  */
-Evaluations.prototype.sendToCSV = function(){
+Evaluations.prototype.sendToCSV = function() {
 	var csv = "###,###,###,email,";
 
 	/*ADD THE TITLES TO THE CSV*/
-	for (var j = 0; j < this._evaluations.dataSeries.length; j++){
+	for (var j = 0; j < this._evaluations.dataSeries.length; j++) {
 		csv += this._evaluations.dataSeries[j].question.replace(/( )|(,)/g, "%20").replace(/’/g, "%27") + ",";
 	}
 
 	csv += "%0A"; // NEW LINE
 
 	/*ADD THE PEOPLE AND THEIR DATA TO THE CSV*/
-	for (var person in this.people){
+	for (var person in this.people) {
 		csv += "###,###,100.100.100," + person + ",";
-		for (var q in this.people[person]){
+		for (var q in this.people[person]) {
 			if (q != 'count'){
-				if (isNaN(this.people[person][q])){
+				if (isNaN(this.people[person][q])) {
 					csv += this.people[person][q].replace(/( )|(\/\/\/)|(,)/g, "%20").replace(/’/g, "%27") + ",";
 				} else {
 					csv += this.people[person][q] + ",";
@@ -179,11 +179,11 @@ Evaluations.prototype.sendToCSV = function(){
  *  + calculate the percentage
  *  + error handling
  */
-Evaluations.prototype.parse = function(){
+Evaluations.prototype.parse = function() {
 	_this = this;
-	Sharepoint.getFile(ims.url.base + 'Master/master.xml', function(master){
+	Sharepoint.getFile(ims.url.base + 'Master/master.xml', function(master) {
 		var csv = new CSV();
-		csv.readFile(_this._file, function(csv){
+		csv.readFile(_this._file, function(csv) {
 			var rows = csv.data;
 			var emailCol = Config.columnLetterToNumber(_this._evaluations.emailCol);
 			var locations = _this.getColumnLocations();
@@ -195,8 +195,8 @@ Evaluations.prototype.parse = function(){
 			}
 
 			var start = 0;
-			for (var i = 0; i < rows.length; i++){
-				if (rows[i][2].match(/\./g) && rows[i][2].match(/\./g).length >= 2){
+			for (var i = 0; i < rows.length; i++) {
+				if (rows[i][2].match(/\./g) && rows[i][2].match(/\./g).length >= 2) {
 					start = i;
 					break;
 				}
@@ -207,7 +207,7 @@ Evaluations.prototype.parse = function(){
 				throw 'CSV must be wrong or in an unfamiliar format';
 			}
 
-			for (var i = start; i < rows.length; i++){
+			for (var i = start; i < rows.length; i++) {
 				if (rows[i][emailCol] != undefined) {
 					var xPath = 'semester[code=' + _this._sem +'] > people > person > roles > role[type=' + _this._evaluations.eFor.toLowerCase() + ']';
 					var evaluator = rows[i][emailCol].split('@')[0];
@@ -222,7 +222,7 @@ Evaluations.prototype.parse = function(){
 						} else {
 							evaluatee = $(master).find(xPath).has('stewardship > people > person[email="' + evaluator + '"][type="' + _this._evaluations.eBy.toLowerCase() + '"]').parents('person').attr('email');
 						}
-						if (evaluatee != null){
+						if (evaluatee != null) {
 							_this.setAnswers(evaluatee, rows[i], locations);
 						}
 					}
