@@ -974,15 +974,25 @@ Role.prototype._getHats = function(){
  */
 Role.prototype.getSuggested = function(q){
     q = q.toLowerCase();
-    var result = [];
+    var items = [];
 
     $(this._user._xml).find('> stewardship person[first*="' + q + '"], > stewardship person[last*="' + q + '"], > stewardship person[email*="' + q + '"]').each(function(){
-        result.push({
-            role: $(this).attr('type'),
-            full: $(this).attr('first') + ' ' + $(this).attr('last'),
+        items.push({
+            role: $(this).first().attr('type'),
+            full: $(this).first().attr('first') + ' ' + $(this).first().attr('last'),
             _xml: this
         });
     });
+    var found = {};
+    var result = [];
+    for (var i = 0; i < items.length; i++){
+        var first = items[i].role.toUpperCase().slice(0, 4);
+        var last = items[i].full;
+        if (!found[first + ' - ' + last]){
+            result.push(items[i]);
+            found[first + ' - ' + last] = true;
+        }
+    }
     return result;
 }
 

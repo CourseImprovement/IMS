@@ -12,10 +12,11 @@
 function Permissions(){
 	console.log('new Permissions object created');
 	this._xml = this.getPermissionsXml();
-	//this.map = window.config.getMaster();
 	this.map = new Master();
-	this.init();
 	this.changes = [];
+	this.graph = {};
+	this.people = [];
+	this.init();
 	this.status = {inProgress: 0, completed: 0};
 }
 /**
@@ -24,8 +25,6 @@ function Permissions(){
  * @assign Chase
  */
 Permissions.prototype.init = function(){
-	this.graph = {};
-	this.people = [];
 	var _this = this;
 	$(this._xml).find('file').each(function(){
 		var p = new PermissionsPerson(this, _this);
@@ -41,6 +40,31 @@ Permissions.prototype.init = function(){
 		_this.roles = roles;
 	})
 }
+
+/**
+ * @name  change
+ * @description The start to changing all of the permissions
+ * @assign Chase
+ */
+Permissions.prototype.change = function(callback){
+	if (!this.check()) alert('No Changes Necessary');
+	window._permissions = this;
+	var result = '';
+	for (var i = 0; i < this.changes.length; i++){
+		if (!this.siteUsers){
+			alert('Press Start Again');
+			return;
+		}
+		if ($(this.siteUsers.xml).find('d\\:Email:contains("' + this.changes[i].email + '"), Email:contains("' + this.changes[i].email + '")').length == 0){
+			result += this.changes[i].email + '@byui.edu;';
+		}
+	}
+	if (result.length > 0) document.body.innerHTML += '<textarea>' + result + '</textarea>';
+	else{
+		alert('Ready');
+	}
+}
+
 /**
  * The xml file for permissions
  */
@@ -67,6 +91,11 @@ Permissions.prototype.check = function(){
 	for (var i = 0; i < this.people.length; i++){
 		var r = this.people[i].check(this.map.graph[this.people[i].email]);
 		if (r) actions.push(r);
+	}
+	for (var i = 0; i < this.map.people.length; i++){
+		if (!this.map.people[i].checked){
+			actions.push(PermissionsPerson.setNewMapPersonInformation(this.map.people[i]));
+		}
 	}
 	this.changes = actions;
 	return actions.length > 0;
@@ -142,6 +171,7 @@ function PermissionsPerson(xml, permissions){
  */
 PermissionsPerson.prototype.check = function(mapPerson){
 	if (!mapPerson) return null;
+	mapPerson.checked = true;
 	var results = {
 		email: this.email,
 		add: [],
@@ -224,6 +254,26 @@ PermissionsPerson.prototype.api = function(ary, isAdd){
 			}
 		}
 	});
+}
+/**
+ * @name  setNewMapPersonInformation
+ * @description Set the new map person and populate who needs to be added to the file
+ * @assign Chase
+ */
+PermissionsPerson.setNewMapPersonInformation = function(mapPerson){
+	var results = {
+		email: mapPerson.email,
+		add: [],
+		remove: []
+	};
+	for (var i = 0; i < mapPerson.lowers.length; i++){
+		results.add.push(mapPerson.lowers[i].person.email);
+	}
+	for (var i = 0; i < mapPerson.uppers.length; i++){
+		results.add.push(mapPerson.uppers[i].person.email);
+	}
+
+	return results;
 }
 /**
  * @end

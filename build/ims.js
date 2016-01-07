@@ -926,17 +926,7 @@ if (!ims.error){
 	 */
 	app.filter('noDuplicates', function(){
 		return function(items){
-			var result = [];
-			var found = {};
-			for (var i = 0; i < items.length; i++){
-				var first = items[i].role.toUpperCase().slice(0, 4);
-				var last = items[i].full;
-				if (!found[first + ' - ' + last]){
-					result.push(items[i]);
-					found[first + ' - ' + last] = true;
-				}
-			}
-			return result;
+			return items;
 		}
 	})
 }
@@ -2131,15 +2121,25 @@ Role.prototype._getHats = function(){
  */
 Role.prototype.getSuggested = function(q){
     q = q.toLowerCase();
-    var result = [];
+    var items = [];
 
     $(this._user._xml).find('> stewardship person[first*="' + q + '"], > stewardship person[last*="' + q + '"], > stewardship person[email*="' + q + '"]').each(function(){
-        result.push({
-            role: $(this).attr('type'),
-            full: $(this).attr('first') + ' ' + $(this).attr('last'),
+        items.push({
+            role: $(this).first().attr('type'),
+            full: $(this).first().attr('first') + ' ' + $(this).first().attr('last'),
             _xml: this
         });
     });
+    var found = {};
+    var result = [];
+    for (var i = 0; i < items.length; i++){
+        var first = items[i].role.toUpperCase().slice(0, 4);
+        var last = items[i].full;
+        if (!found[first + ' - ' + last]){
+            result.push(items[i]);
+            found[first + ' - ' + last] = true;
+        }
+    }
     return result;
 }
 
@@ -2533,14 +2533,14 @@ Tile.getAll = function(role) {
       [
         new Tile({
           title: 'Tasks To Review',
-          helpText: 'This tile displays tasks that your ' + role._nextLower(name).toUpperCase() + 's have completed and that as an ' + name.toUpperCase() + ' you need to review.',
+          helpText: 'This tile displays tasks that ' + getPronoun('your', role, "'s") + ' ' + role._nextLower(name).toUpperCase() + 's have completed and that as an ' + name.toUpperCase() + ' ' + getPronoun('you', role) + ' need to review.',
           type: 'task-list',
           data: role.getTasksToReview(false),
           hidden: ''
         }),
         new Tile({
           title: 'Completed ' + name.toUpperCase() + ' Tasks',
-          helpText: 'This tile displays ' + name.toUpperCase() + ' tasks that you have completed.',
+          helpText: 'This tile displays ' + name.toUpperCase() + ' tasks that ' + getPronoun('you', role) + ' have completed.',
           type: 'survey-list',
           data: role.getCompletedTasks(),
           hidden: ''
@@ -2557,7 +2557,7 @@ Tile.getAll = function(role) {
       [
         new Tile({
           title: 'Incomplete ' + role._nextLower(name).toUpperCase() + ' Tasks',
-          helpText: 'This tile displays overdue tasks for ' + role._nextLower(name).toUpperCase() + 's in your area.',
+          helpText: 'This tile displays overdue tasks for ' + role._nextLower(name).toUpperCase() + 's in ' + getPronoun('your', role, "'s") + ' area.',
           type: 'review-list',
           data: role.getIncompleteTasks(),
           hidden: ''
@@ -2565,14 +2565,14 @@ Tile.getAll = function(role) {
         new Tile({
           title: 'Resources',
           //helpText: '<h2>Performance Report</h2>A performance report should be filled out if you have noticed an instructor falling below instructor standards for more than one or two weeks and have already re-emphasized standards and expectations with the instructor through performance discussions.  You should not have more than two performance discussions with an instructor without simultaneously submitting a performance report (PR).  Follow Online Instruction’s three-tiered approach for communicating with the instructor about PRs.<br><h2>',
-          helpText: 'This tile provides access to submit and view performance reports.  It also displays ' + tmpPretty(role._nextLower(name).toUpperCase()) + 's in your group.',
+          helpText: 'This tile provides access to submit and view performance reports.  It also displays ' + tmpPretty(role._nextLower(name).toUpperCase()) + 's in ' + getPronoun('your', role, "'s") + ' group.',
           type: 'roster',
           data: role.getRoster(),
           hidden: ''
         }),
         new Tile({
           title: 'Evaluations',
-          helpText: 'This tile displays evaluations others have completed about you in your name as an ' + (name.toLowerCase() == 'aim' ? 'Assistant Instructor Manager' : 'Instructor Manager') + '.',
+          helpText: 'This tile displays evaluations others have completed about ' + getPronoun('you', role) + ' in ' + getPronoun('your', role) + ' name as an ' + (name.toLowerCase() == 'aim' ? 'Assistant Instructor Manager' : 'Instructor Manager') + '.',
           type: 'survey-list',
           data: role.getEvaluations(),
           hidden: ''
@@ -2594,28 +2594,28 @@ Tile.getAll = function(role) {
       [
         new Tile({
           title: 'Completed TGL Tasks',
-          helpText: 'This tile displays TGL tasks that you have completed.',
+          helpText: 'This tile displays TGL tasks that ' + getPronoun('you', role) + ' have completed.',
           type: 'survey-list',
           data: role.getCompletedTasks(),
           hidden: ''
         }),
         new Tile({
           title: 'Incomplete Instructor Tasks',
-          helpText: 'This tile displays overdue tasks for TGLs in your area.',
+          helpText: 'This tile displays overdue tasks for TGLs in ' + getPronoun('your', role, "'s") + ' area.',
           type: 'review-list',
           data: role.getIncompleteTasks(),
           hidden: ''
         }),
         new Tile({
           title: 'Evaluations',
-          helpText: 'This tile displays evaluations on you as a ' + name.toUpperCase() + '.',
+          helpText: 'This tile displays evaluations on ' + getPronoun('you', role) + ' as a ' + name.toUpperCase() + '.',
           type: 'survey-list',
           data: role.getEvaluations(),
           hidden: ''
         }),
         new Tile({
           title: 'Resources',
-          helpText: 'This tile provides access to submit and view performance reports.  It also displays ' + tmpPretty(role._nextLower(name).toUpperCase()) + 's in your group.',
+          helpText: 'This tile provides access to submit and view performance reports.  It also displays ' + tmpPretty(role._nextLower(name).toUpperCase()) + 's in ' + getPronoun('your', role, "'s") + ' group.',
           type: 'roster',
           data: role.getRoster(),
           hidden: ''
@@ -2624,7 +2624,7 @@ Tile.getAll = function(role) {
       [
         new Tile({
           title: 'Tasks To Review',
-          helpText: 'This tile displays tasks that your TGLs have completed and that as an AIM you need to review.',
+          helpText: 'This tile displays tasks that ' + getPronoun('your', role, "'s") + ' TGLs have completed and that as an AIM ' + getPronoun('you', role) + ' need to review.',
           type: 'task-list',
           data: role.getTasksToReview(true),
           hidden: ''
@@ -2655,7 +2655,7 @@ Tile.getAll = function(role) {
         role._user.showCourseMenu() ?
         new Tile({
           title: 'Completed Instructor Tasks',
-          helpText: 'These are the tasks that you completed. The link opens the results.',
+          helpText: 'These are the tasks that ' + getPronoun('you', role) + ' completed. The link opens the results.',
           type: 'course-survey-list',
           data: role.getCompletedTasksByCourse(),
           hidden: ''
@@ -2663,7 +2663,7 @@ Tile.getAll = function(role) {
 
         new Tile({
           title: 'Completed Instructor Tasks',
-          helpText: 'These are the tasks that you completed. The link opens the results.',
+          helpText: 'These are the tasks that ' + getPronoun('you', role) + ' completed. The link opens the results.',
           type: 'survey-list',
           data: role.getCompletedTasks(),
           hidden: ''
@@ -2688,7 +2688,7 @@ Tile.getAll = function(role) {
       [
         new Tile({
           title: 'SMART Goals',
-          helpText: 'The SMART goals set by the instructor during the Week 2 Weekly Reflection.',
+          helpText: 'The SMART goals set by ' + getPronoun('the instructor', role) + ' during the Week 2 Weekly Reflection.',
           type: 'smart',
           data: role._user.getSmartGoals(),
           hidden: ''
@@ -2729,7 +2729,7 @@ Tile.getAll = function(role) {
         }),
         new Tile({
           title: 'Evaluations',
-          helpText: 'This tile displays evaluations on you as an Instructor.',
+          helpText: 'This tile displays evaluations on ' + getPronoun('you', role) + ' as an Instructor.',
           type: 'survey-list',
           data: role.getEvaluations(),
           hidden: ''
@@ -2737,6 +2737,14 @@ Tile.getAll = function(role) {
       ]
     ];
   }
+}
+
+function getPronoun(text, role, opChar){
+  if (role.getRoleName().toUpperCase() == ims.aes.value.i.toUpperCase() && role._user.getEmail() == ims.aes.value.e){
+    return text;
+  }
+  if (opChar) return role._user.getFirst() + opChar;
+  return role._user.getFirst();
 }
 
 /**

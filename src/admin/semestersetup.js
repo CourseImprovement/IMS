@@ -578,10 +578,10 @@ SemesterSetup.prototype._createOrg = function(){
 			}]
 		}
 
-		this.addToOrg(inst);
-		this.addToOrg(tgl);
-		this.addToOrg(aim);
 		this.addToOrg(im);
+		this.addToOrg(aim);
+		this.addToOrg(tgl);
+		this.addToOrg(inst);
 		if (ocr != null){
 			this.addToOrg(ocr);
 			this.addToOrg(ocrm);

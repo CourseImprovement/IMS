@@ -7,6 +7,8 @@
  */
 function Master(isMap){
 	this._xml = ims.sharepoint.getXmlByEmail('master');
+	this.people = [];
+	this.graph = {};
 	this.init();
 }
 /**
@@ -21,8 +23,6 @@ function Master(isMap){
  */
 Master.prototype.init = function(){
 	var sem = window.config.getCurrentSemester();
-	this.people = [];
-	this.graph = {};
 	var _this = this;
 	$(this._xml).find('semester[code=' + sem + '] > people > person').each(function(){
 		var mp = new MasterPerson(this, _this);
