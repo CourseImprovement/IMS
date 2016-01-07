@@ -39,8 +39,8 @@ CSV.prototype.readFile = function(file, callback){
  * @description Download a string as a CSV
  * @assign Grant
  * @todo
- *  - Check that the proper characters have been encoded
- *  - Save the file
+ *  + Check that the proper characters have been encoded
+ *  + Save the file
  */
 CSV.downloadCSV = function(csvString){
 	console.log('CSV downloaded')

@@ -1055,8 +1055,8 @@ CSV.prototype.readFile = function(file, callback){
  * @description Download a string as a CSV
  * @assign Grant
  * @todo
- *  - Check that the proper characters have been encoded
- *  - Save the file
+ *  + Check that the proper characters have been encoded
+ *  + Save the file
  */
 CSV.downloadCSV = function(csvString){
 	console.log('CSV downloaded')
@@ -1765,7 +1765,7 @@ function Evaluations(obj, file){
 	this._evaluations = obj;
 	this._file = file;
 	this.people = {};
-	this._sem = $(window.config._xml).find('semester semester[current=true]').attr('code');
+	this._sem = window.config.getCurrentSemester();
 }
 
 /**
@@ -1961,7 +1961,7 @@ Evaluations.prototype.parse = function(){
 
 			for (var i = start; i < rows.length; i++){
 				if (rows[i][emailCol] != undefined) {
-					var xPath = 'semester[code="' + this._sem +'"] > people > person > roles > role[type="' + _this._evaluations.eFor.toLowerCase() + '"]';
+					var xPath = 'semester[code=' + _this._sem +'] > people > person > roles > role[type=' + _this._evaluations.eFor.toLowerCase() + ']';
 					var evaluator = rows[i][emailCol].split('@')[0];
 					var evaluatee = null;
 					if ($(master).find(xPath).has('stewardship > people > person[email="' + evaluator + '"][type="' + _this._evaluations.eBy.toLowerCase() + '"]').length > 0) {
