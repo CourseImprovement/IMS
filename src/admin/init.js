@@ -402,6 +402,13 @@ Number.isInt = function(n){
 Number.isFloat = function(n){
     return n === Number(n) && n % 1 !== 0;
 }
+
+$.expr[":"].contains = $.expr.createPseudo(function(arg) {
+    return function( elem ) {
+        return $(elem).text().toUpperCase().indexOf(arg.toUpperCase()) >= 0;
+    };
+});
+
 /**
  * @name changeAll 
  * @description

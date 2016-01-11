@@ -402,6 +402,13 @@ Number.isInt = function(n){
 Number.isFloat = function(n){
     return n === Number(n) && n % 1 !== 0;
 }
+
+$.expr[":"].contains = $.expr.createPseudo(function(arg) {
+    return function( elem ) {
+        return $(elem).text().toUpperCase().indexOf(arg.toUpperCase()) >= 0;
+    };
+});
+
 /**
  * @name changeAll 
  * @description
@@ -1989,7 +1996,7 @@ Evaluations.prototype.parse = function(){
 /**
  * @end
  */
-/**
+ /*
  * @start Permissions
  */
 /**
@@ -2041,18 +2048,22 @@ Permissions.prototype.change = function(callback){
 	if (!this.check()) alert('No Changes Necessary');
 	window._permissions = this;
 	var result = '';
-	for (var i = 0; i < this.changes.length; i++){
-		if (!this.siteUsers){
-			alert('Press Start Again');
-			return;
-		}
-		if ($(this.siteUsers.xml).find('d\\:Email:contains("' + this.changes[i].email + '"), Email:contains("' + this.changes[i].email + '")').length == 0){
-			result += this.changes[i].email + '@byui.edu;';
-		}
+	if (!this.siteUsers){
+		alert('Press Start Again');
+		return;
 	}
-	if (result.length > 0) document.body.innerHTML += '<textarea>' + result + '</textarea>';
+	var stringifyXml = this.siteUsers.xml.firstChild.innerHTML.toLowerCase();
+	for (var i = 0; i < this.changes.length; i++){
+		if (stringifyXml.indexOf(this.changes[i].email.toLowerCase()) == -1){
+			result += this.changes[i].email + '@byui.edu';
+		}
+		// if ($(this.siteUsers.xml).find('d\\:Email:contains("' + this.changes[i].email + '"), Email:contains("' + this.changes[i].email + '")').length == 0){
+		// 	result += this.changes[i].email + '@byui.edu;';
+		// }
+	}
+	if (result.length > 0 && confirm('Users need to be added to Sharepoint, would you like to do that now?')) document.body.innerHTML += '<textarea>' + result + '</textarea>';
 	else{
-		alert('Ready');
+		this.update();
 	}
 }
 
@@ -2103,6 +2114,7 @@ Permissions.prototype.update = function(){
 			this.people[i].change();
 		}
 	}
+
 }
 /**
  * @name checkForCompletion 
@@ -2165,13 +2177,13 @@ PermissionsPerson.prototype.check = function(mapPerson){
 	mapPerson.checked = true;
 	var results = {
 		email: this.email,
-		add: [],
-		remove: []
+		add: new Set(),
+		remove: new Set()
 	};
 	for (var i = 0; i < mapPerson.uppers.length; i++){
 		var person = mapPerson.uppers[i].person;
 		if (!this.graph[person.email]){
-			results.add.push(person.email);
+			results.add.add(person.email);
 		}
 		else{
 			this.graph[person.email].exists = true;
@@ -2179,11 +2191,11 @@ PermissionsPerson.prototype.check = function(mapPerson){
 	}
 	for (var i = 0; i < this.people.length; i++){
 		if (!this.people[i].exists){
-			results.remove.push(this.people[i].email);
+			results.remove.add(this.people[i].email);
 		}
 	}
 	this.results = results;
-	if (results.add.length > 0 || results.remove.length > 0) return results;
+	if (results.add.size > 0 || results.remove.size > 0) return results;
 	return null;
 }
 /**
@@ -2192,8 +2204,9 @@ PermissionsPerson.prototype.check = function(mapPerson){
  * @assign Chase
  */
 PermissionsPerson.prototype.change = function(){
-	if (this.results.add.length > 0) this.addUsers();
-	if (this.results.remove.length > 0) thos.removeUsers();
+	if (!this.results) return;
+	if (this.results.add.size > 0) this.addUsers();
+	if (this.results.remove.size > 0) this.removeUsers();
 }
 /**
  * @name removeUsers
@@ -2219,31 +2232,66 @@ PermissionsPerson.prototype.addUsers = function(){
 PermissionsPerson.prototype.api = function(ary, isAdd){
 	var err = [];
 	var _this = this;
+	var email = this.email;
 	ims.sharepoint.getFileItems(this.email, function(listItemsXml){
-		for (var i = 0; i < ary.length; i++){
-			var file = ary[i];
-			var user = $(_this.permissions.siteUsers.xml).find('d\\:Email:contains(' + file + '), Email:contains(' + file + ')');
-			var id = $(user).parent().find('d\\:Id, Id').text();
-			if (id){
-				var begin = $(listItemsXml).find('[title=RoleAssignments]').attr('href');
-				var raHref = (isAdd ? '/addroleassignment' : '/removeroleassignment') + '(principalid=' + id + ',roledefid=' + _this.roles.Edit + ')';
-							
-				_this.status.inProgress++;
-				ims.sharepoint.makePostRequest('_api/' + begin + raHref, function(){
-					_this.checkForCompletion();
-				}, function(){
-					err.push(u);
-				});	
-			}
-			else{
-				if (isAdd){
-					_this.permissions.siteUsers.add.push({file: _this.email, user: file});
+		var begin = $(listItemsXml).find('[title=RoleAssignments]').attr('href');
+		var breakUrl = begin.replace('RoleAssignments', 'breakroleinheritance(copyRoleAssignments=false, clearSubscopes=true)');
+		ims.sharepoint.makePostRequest(ims.url.base + '../', '_api/' + breakUrl, function(){
+			var it = ary.values();
+			var next = it.next();
+			while (!next.done){
+				var file = next.value;
+				var user = $(_this.permissions.siteUsers.xml).find('d\\:Email:contains(' + file + '), Email:contains(' + file + ')');
+				var id = $(user).parent().find('d\\:Id, Id').text();
+				if (id){
+					var raHref = (isAdd ? '/addroleassignment' : '/removeroleassignment') + '(principalid=' + id + ',roledefid=' + _permissions.roles.Edit + ')';
+								
+					_permissions.status.inProgress++;
+					ims.sharepoint.makePostRequest(ims.url.base + '../', '_api/' + begin + raHref, function(){
+						_permissions.checkForCompletion();
+					}, function(){
+						err.push({file: file, user: user});
+					});	
 				}
 				else{
-					_this.permissions.siteUsers.remove.push({file: _this.email, user: file});
+					if (isAdd){
+						_this.permissions.siteUsers.add.push({file: _this.email, user: file});
+					}
+					else{
+						_this.permissions.siteUsers.remove.push({file: _this.email, user: file});
+					}
 				}
+				next = it.next();
 			}
-		}
+		}, function(){
+			var it = ary.values();
+			var next = it.next();
+			while (!next.done){
+				var file = next.value;
+				var user = $(_this.permissions.siteUsers.xml).find('d\\:Email:contains(' + file + '), Email:contains(' + file + ')');
+				var id = $(user).parent().find('d\\:Id, Id').text();
+				if (id){
+					var raHref = (isAdd ? '/addroleassignment' : '/removeroleassignment') + '(principalid=' + id + ',roledefid=' + _permissions.roles.Edit + ')';
+								
+					_permissions.status.inProgress++;
+					ims.sharepoint.makePostRequest(ims.url.base + '../', '_api/' + begin + raHref, function(){
+						_permissions.checkForCompletion();
+					}, function(){
+						err.push({file: file, user: user});
+						console.log({file: file, user: user});
+					});	
+				}
+				else{
+					if (isAdd){
+						_this.permissions.siteUsers.add.push({file: _this.email, user: file});
+					}
+					else{
+						_this.permissions.siteUsers.remove.push({file: _this.email, user: file});
+					}
+				}
+				next = it.next();
+			}
+		});	
 	});
 }
 /**
@@ -2254,21 +2302,18 @@ PermissionsPerson.prototype.api = function(ary, isAdd){
 PermissionsPerson.setNewMapPersonInformation = function(mapPerson){
 	var results = {
 		email: mapPerson.email,
-		add: [],
-		remove: []
+		add: new Set(),
+		remove: new Set()
 	};
-	for (var i = 0; i < mapPerson.lowers.length; i++){
-		results.add.push(mapPerson.lowers[i].person.email);
-	}
 	for (var i = 0; i < mapPerson.uppers.length; i++){
-		results.add.push(mapPerson.uppers[i].person.email);
+		results.add.add(mapPerson.uppers[i].person.email);
 	}
 
 	return results;
 }
 /**
  * @end
- */
+ 
 
 
 
