@@ -217,7 +217,6 @@
 	<!-- PERMISSIONS -->
 	<div class="container" ng-if='mode == "Permissions"'>
 		<button class="big-btn" ng-click='permissions()'>Start</button>
-		<button class="big-btn" ng-click='checkPermissions()'>Check</button>
 		<button class="big-btn" ng-click='changeMode("home")'>Back</button>
 	</div>
 

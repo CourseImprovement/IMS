@@ -46,7 +46,7 @@ function MasterPerson(xml, master){
 	this._xml = xml;
 	this.roles = [];
 	var _this = this;
-	$(xml).find('role').each(function(){
+	$(xml).find('> roles > role').each(function(){
 		_this.roles.push($(this).attr('type'));
 	});
 	this.leaders = {}; // organized

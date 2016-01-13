@@ -15,6 +15,7 @@
 	<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/highcharts/4.1.8/modules/exporting.js"></script>
 	<script type="text/javascript" src="build/angular.highcharts.js"></script>
 	<script type="text/javascript" src="../_layouts/15/SP.RequestExecutor.js"></script>
+	<script type="text/javascript" src='build/byui.js'></script>
 
 	<script type="text/javascript" src="build/ims.js"></script>
 	<title>IMS | Dashboard</title>

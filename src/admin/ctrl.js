@@ -91,7 +91,7 @@ app.controller('adminCtrl', ["$scope", function($scope){
 	 */
 	$scope.permissions = function(){
 		if (!permissionsGlobal) permissionsGlobal = new Permissions();
-		permissionsGlobal.change();
+		permissionsGlobal.start();
 	}
 	/**
 	 * @end

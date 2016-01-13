@@ -511,7 +511,7 @@ function MasterPerson(xml, master){
 	this._xml = xml;
 	this.roles = [];
 	var _this = this;
-	$(xml).find('role').each(function(){
+	$(xml).find('> roles > role').each(function(){
 		_this.roles.push($(this).attr('type'));
 	});
 	this.leaders = {}; // organized
@@ -549,6 +549,361 @@ MasterPerson.prototype.addUpperAndLowers = function(){
 /**
  * @end
  */
+/**
+ * Steps
+ *  1. get sharepoint siteusers, roles, permissions, and master
+ */
+function Permissions(){
+	this.master = new Master();
+	this.rolesXml = null;
+	this.permissionsXml = null;
+	this.siteUsersXml = null;
+	window._permissions = this;
+	this.roles = {};
+	this.permissionsXmlFiles = {
+		graph: {},
+		ary: []
+	};
+	this.permissionPersons = {
+		graph: {},
+		ary: []
+	};
+	this.changes = {
+		graph: {},
+		ary: []
+	};
+}
+
+Permissions.prototype.start = function(){
+	var _this = this;
+
+	// this needs to be ugly to refresh the UI loading screen...
+	ims.loading.reset();
+	this.stepOne(function(){
+		setTimeout(function(){
+			ims.loading.set(5);
+			_this.stepTwo();
+			setTimeout(function(){
+				ims.loading.set(15);
+				setTimeout(function(){
+					_this.stepThree(function(){
+						ims.loading.set(20);
+						setTimeout(function(){
+							_this.stepFour(function(){
+								setTimeout(function(){
+									ims.loading.set(60);
+									_this.stepFive(function(){
+										setTimeout(function(){
+											ims.loading.set(70);
+											_this.stepSix();
+											setTimeout(function(){
+												ims.loading.set(100);
+											}, 10);
+										}, 10);
+									})
+								}, 10);
+							})
+						}, 10)
+					})
+				}, 10)
+			}, 10)
+		}, 10)
+	})
+}
+
+Permissions.prototype.getSiteUserIdByEmail = function(email){
+	var id = $(this.siteUsersXml).find('d\\:Email:contains(' + email + '), Email:contains(' + email + ')').parent().find('d\\:Id, Id').text();
+	return id;
+}
+
+Permissions.prototype.stepSix = function(){
+	for (var i = 0; i < this.permissionPersons.ary.length; i++){
+		$(this.permissionsXml).find('file[name=' + this.permissionPersons.ary[i].email + ']').remove();
+		var spot = $(this.permissionsXml).find('permissions').append('<file broken="true" name="' + this.permissionPersons.ary[i].email + '"></file>')
+			.find('file[name=' + this.permissionPersons.ary[i].email + ']');
+		var keys = Object.keys(this.permissionPersons.ary[i].org);
+		for (var j = 0; j < keys.length; j++){
+			var role = keys[j];
+			var email = this.permissionPersons.ary[i].org[role];
+			$(spot).append('<user email="' + email + '" role="' + role + '" />');
+		}
+	}
+	Sharepoint.postFile(this.permissionsXml, 'config/', 'permissions.xml', function(){
+		alert('Completed');
+		window.location.reload();
+	});
+}
+
+Permissions.prototype.stepFive = function(callback){
+	console.log('Step 5');
+
+	var USER_SIZE = 50;
+	var digest;
+
+	$.ajax({
+	  	url: ims.sharepoint.base + '_api/contextinfo',
+	  	header: {
+	  		'accept': 'application/json; odata=verbose',
+	  		'content-type': 'application/json;odata=verbose'
+	  	},
+	  	type: 'post',
+	  	contentType: 'application/json;charset=utf-8'
+	  }).done(function(d){
+  	digest = $(d).find('d\\:FormDigestValue, FormDigestValue').text();
+  	nextWave(0);
+  })
+
+	function nextWave(spot){
+		var calls = [];
+  	for (var i = spot; i < USER_SIZE + spot; i++){
+  		if (!_permissions.permissionPersons.ary[i]) {
+  			callback();
+  			break;
+  		}
+  		else{
+  			var urls = _permissions.permissionPersons.ary[i].getUrls();
+	  		for (var j = 0; j < urls.length; j++){
+	  			calls.push({
+						name: _permissions.permissionPersons.ary[i].email,
+						url: ims.url.relativeBase + urls[j],
+						headers: {
+							"accept": "application/json;odata=verbose",
+		          "X-RequestDigest": digest
+						},
+						method: 'POST'
+					});	
+	  		}  		
+  		}
+  	}
+
+  	byui.ajaxPool({
+  		calls: calls,
+  		done: function(err, succ){
+  			console.log(err);
+  			nextWave(spot + USER_SIZE - 1);
+  		}
+  	})
+	}
+}
+
+Permissions.prototype.stepFour = function(callback){
+	console.log('Step 4');
+  $.ajax({
+  	url: ims.sharepoint.base + '_api/contextinfo',
+  	header: {
+  		'accept': 'application/json; odata=verbose',
+  		'content-type': 'application/json;odata=verbose'
+  	},
+  	type: 'post',
+  	contentType: 'application/json;charset=utf-8'
+  }).done(function(d){
+  	var digest = $(d).find('d\\:FormDigestValue, FormDigestValue').text();
+  	var calls = [];
+  	for (var i = 0; i < _permissions.permissionPersons.ary.length; i++){
+  		if (_permissions.permissionPersons.ary[i].broken) continue;
+  		calls.push({
+				name: _permissions.permissionPersons.ary[i].email,
+				url: ims.url.relativeBase + _permissions.permissionPersons.ary[i].breakUrl,
+				headers: {
+					"accept": "application/json;odata=verbose",
+          "X-RequestDigest": digest
+				},
+				method: 'POST'
+			});	
+  	}
+  	callback();
+  	byui.ajaxPool({
+  		calls: calls,
+  		done: function(err, succ){
+  			console.log(err);
+  			callback();
+  		}
+  	})
+  })
+}
+
+Permissions.prototype.stepThree = function(callback){
+	console.log('Step 3');
+	var firstUrl = ims.url._base + 	"_api/Web/GetFileByServerRelativeUrl('" + ims.url.relativeBase + "Instructor%20Reporting/Master/";
+	var secondUrl = ".xml')/ListItemAllFields";
+	var calls = [];
+	for (var i = 0; i < this.permissionPersons.ary.length; i++){
+		if (this.permissionPersons.ary[i].hasChanges()){
+			calls.push({
+				name: this.permissionPersons.ary[i].email,
+				url: firstUrl + this.permissionPersons.ary[i].email + secondUrl
+			})
+		}
+	}
+	var _this = this;
+	byui.ajaxPool({
+		done: function(err, success){
+			console.log(err);
+			var keys = Object.keys(success);
+			for (var i = 0; i < keys.length; i++){
+				var begin = $(success[keys[i]]).find('[title=RoleAssignments]').attr('href');
+				var breakUrl = '_api/' + begin.replace('RoleAssignments', 'breakroleinheritance(copyRoleAssignments=false, clearSubscopes=true)');
+				var baseUrl = '_api/' + begin;
+				_this.permissionPersons.graph[keys[i]].breakUrl = breakUrl;
+				_this.permissionPersons.graph[keys[i]].baseUrl = baseUrl;
+			}
+			callback();
+		},
+		calls: calls
+	})
+}
+
+Permissions.prototype.stepTwo = function(callback){
+	console.log('Step 2');
+	var _this = this;
+	$(this.permissionsXml).find('file').each(function(){
+		var p = new PermissionFile(this);
+
+		_this.permissionsXmlFiles.ary.push(p);
+		_this.permissionsXmlFiles.graph[p.name] = p;
+	});
+
+	for (var i = 0; i < this.master.people.length; i++){
+		var mp = this.master.people[i];
+		var p = PermissionPerson.fromMasterPerson(mp);
+		this.permissionPersons.ary.push(p);
+		this.permissionPersons.graph[p.email] = p;
+		p.compareWithPermissionsXml(this.permissionsXmlFiles.graph[p.email]);
+	}
+
+	$(this.rolesXml).find('properties Name, m\\:properties d\\:Name').each(function(){
+		_this.roles[$(this).text()] = $(this).prev().text();
+	})
+}
+
+Permissions.prototype.stepOne = function(callback){
+	console.log('Step 1');
+	var _this = this;
+	byui.ajaxPool({
+		done: function(err, success){
+			if (err && err.length > 0) console.log(err);
+			_this.rolesXml = success.siteRoles;
+			_this.siteUsersXml = success.siteUsers;
+			_this.permissionsXml = success.permissionsXml;
+			callback();
+		},
+		calls: [
+		 	{
+		 		name: 'siteUsers',
+		 		url: ims.url._base + '_api/Web/siteUsers'
+		 	},
+		 	{
+		 		name: 'siteRoles',
+		 		url: ims.url._base + '_api/Web/roledefinitions'
+		 	},
+		 	{
+		 		name: 'permissionsXml',
+		 		url: ims.sharepoint.base + 'Instructor%20Reporting/config/permissions.xml'
+		 	}
+		]
+	})
+}
+
+function PermissionFile(xml){
+	var obj = byui(xml).obj();
+	var keys = Object.keys(obj.file);
+	for (var i = 0; i < keys.length; i++){
+		this[keys[i]] = obj.file[keys[i]];
+	}
+	this._rawXml = xml;
+}
+
+// End Result
+function PermissionPerson(email, org){
+	this.email = email;
+	this.org = org;
+	this.changes = {
+		add: new Set(),
+		remove: new Set()
+	}
+	this.breakUrl = null;
+	this.baseUrl = null;
+	this.broken = false;
+}
+
+PermissionPerson.fromMasterPerson = function(mp){
+	var org = {};
+	for (var i = 0; i < mp.uppers.length; i++){
+		org[mp.uppers[i].role] = mp.uppers[i].person.email;
+	}
+	var pp = new PermissionPerson(mp.email, org);
+	return pp;
+}
+
+PermissionPerson.prototype.hasChanges = function(){
+	return this.changes.add.size > 0 || this.changes.remove.size > 0;
+}
+
+PermissionPerson.prototype.getUrls = function(){
+	var result = [];
+
+	var adds = this.changes.add.values();
+	if (adds && this.changes.add.size > 0){
+		var next = adds.next();
+		while (!next.done){
+			var email = next.value;
+			var id = _permissions.getSiteUserIdByEmail(email);
+			if (!id){
+				console.log('Add ' + email + ' user to site');
+			}
+			else{
+				result.push(this.baseUrl + '/addroleassignment(principalid=' + id + ',roledefid=' + _permissions.roles.Edit + ')');
+			}
+			next = adds.next();
+		}
+	}
+
+	var removes = this.changes.remove.values();
+	if (removes && this.changes.remove.size > 0){
+		var next = removes.next();
+		while (!next.done){
+			var email = next.value;
+			var id = _permissions.getSiteUserIdByEmail(email);
+			if (!id){
+				console.log('Add ' + email + ' user to site');
+			}
+			else{
+				result.push(this.baseUrl + '/removeroleassignment(principalid=' + id + ',roledefid=' + _permissions.roles.Edit + ')');
+			}
+			next = removes.next();
+		}
+	}
+
+	return result;
+}
+
+PermissionPerson.prototype.compareWithPermissionsXml = function(permissionsXmlFile){
+	if (!permissionsXmlFile){ // create file
+		var keys = Object.keys(this.org);
+		for (var i = 0; i < keys.length; i++){
+			this.changes.add.add(this.org[keys[i]]);
+		}
+	}
+	else{
+		this.broken = permissionsXmlFile.broken == 'true';
+		for (var i = 0; i < permissionsXmlFile.children.length; i++){
+			var role = permissionsXmlFile.children[i].user.role;
+			var email = permissionsXmlFile.children[i].user.email;
+			if (!this.org[role]){
+				this.changes.remove.add(email)
+			}
+			else if (this.org[role] != email){
+				this.changes.remove.add(email);
+				this.changes.add.add(this.org[role]);
+			}
+			else {} // do nothing
+		}
+	}
+
+	if (!this.org.self){
+		this.changes.add.add(this.email);
+	}
+}
 /**
  * @start Group Answer
  */
@@ -1164,7 +1519,7 @@ app.controller('adminCtrl', ["$scope", function($scope){
 	 */
 	$scope.permissions = function(){
 		if (!permissionsGlobal) permissionsGlobal = new Permissions();
-		permissionsGlobal.change();
+		permissionsGlobal.start();
 	}
 	/**
 	 * @end
@@ -1996,324 +2351,6 @@ Evaluations.prototype.parse = function() {
 /**
  * @end
  */
- /*
- * @start Permissions
- */
-/**
- * Permissions Object
- * NOTE:
- * 	If the users are not found in the SharePoint site somewhere (anywhere),
- * 	they will need to be added manually to the SharePoint site using some 
- * 	sort of groups. An API was attempted to be made to automate this, 
- * 	however, it has become difficult.
- */
-function Permissions(){
-	console.log('new Permissions object created');
-	this._xml = this.getPermissionsXml();
-	this.map = new Master();
-	this.changes = [];
-	this.graph = {};
-	this.people = [];
-	this.init();
-	this.status = {inProgress: 0, completed: 0};
-}
-/**
- * @name init
- * @description Initalize and create all the necessary items to setup for permission
- * @assign Chase
- */
-Permissions.prototype.init = function(){
-	var _this = this;
-	$(this._xml).find('file').each(function(){
-		var p = new PermissionsPerson(this, _this);
-		_this.people.push(p);
-		_this.graph[p.email] = p;
-	});
-	// get the site users
-	ims.sharepoint.getSiteUsers(function(users){
-		_this.siteUsers = {xml: users, add: [], remove: []};
-	})
-	// Get the sharepoint site roles
-	ims.sharepoint.getRoles(function(roles){
-		_this.roles = roles;
-	})
-}
-
-/**
- * @name  change
- * @description The start to changing all of the permissions
- * @assign Chase
- */
-Permissions.prototype.change = function(callback){
-	if (!this.check()) alert('No Changes Necessary');
-	window._permissions = this;
-	var result = '';
-	if (!this.siteUsers){
-		alert('Press Start Again');
-		return;
-	}
-	var stringifyXml = this.siteUsers.xml.firstChild.innerHTML.toLowerCase();
-	for (var i = 0; i < this.changes.length; i++){
-		if (stringifyXml.indexOf(this.changes[i].email.toLowerCase()) == -1){
-			result += this.changes[i].email + '@byui.edu';
-		}
-		// if ($(this.siteUsers.xml).find('d\\:Email:contains("' + this.changes[i].email + '"), Email:contains("' + this.changes[i].email + '")').length == 0){
-		// 	result += this.changes[i].email + '@byui.edu;';
-		// }
-	}
-	if (result.length > 0 && confirm('Users need to be added to Sharepoint, would you like to do that now?')) document.body.innerHTML += '<textarea>' + result + '</textarea>';
-	else{
-		this.update();
-	}
-}
-
-/**
- * The xml file for permissions
- */
-Permissions._xml = null;
-/**
- * @name getPermissionsXml
- * @description Get the permissions xml file. If it was already pulled, it will grab the 
- * @assign Chase
- */
-Permissions.prototype.getPermissionsXml = function(){
-	if (!Permissions._xml){
-		Permissions._xml = ims.sharepoint.getPermissionsXml();
-	}
-	return Permissions._xml;
-}
-/**
- * @name check
- * @description Check if there are any changes to do
- * @assign Chase
- */
-Permissions.prototype.check = function(){
-	console.log('Checking if permissions need changing');
-	var actions = [];
-	for (var i = 0; i < this.people.length; i++){
-		var r = this.people[i].check(this.map.graph[this.people[i].email]);
-		if (r) actions.push(r);
-	}
-	for (var i = 0; i < this.map.people.length; i++){
-		if (!this.map.people[i].checked){
-			actions.push(PermissionsPerson.setNewMapPersonInformation(this.map.people[i]));
-		}
-	}
-	this.changes = actions;
-	return actions.length > 0;
-}
-/**
- * @name update
- * @description Update the permissions on various files
- * @assign Chase
- */
-Permissions.prototype.update = function(){
-	console.log('updating the permissions');
-	if (this.check()){
-		for (var i = 0; i < this.people.length; i++){
-			this.people[i].change();
-		}
-	}
-
-}
-/**
- * @name checkForCompletion 
- * @description
- * @assign Chase
- */
-Permissions.prototype.checkForCompletion = function(){
-	var _this = this;
-	this.status.completed++;
-	if (--this.status.inProgress == 0){
-		for (var i = 0; i < this.siteUsers.remove.length; i++){
-			var p = this.siteUsers.remove[i];
-			$(this._xml).find('file[email=' + p.file + '] user[email=' + p.user + ']').remove();
-		}
-		for (var i = 0; i < this.siteUsers.add.length; i++){
-			var p = this.siteUsers.add[i];
-			$(this._xml).find('file[email=' + p.file + ']').append('<user email="' + p.user + '" />');
-		}
-		Sharepoint.postFile(this._xml, 'config/', 'permissions.xml', function(){
-			console.log(_this.siteUsers);
-			alert('Updated ' + this.status.completed + ' permissions');
-		});
-	}
-}
-/**
- * @end
- */
-
-
-
-/**
- * @start PermissionsPerson
- */
-/**
- * @name permissionPerson
- * @description create a new permissions file person
- */
-function PermissionsPerson(xml, permissions){
-	this.email = $(xml).attr('email');
-	this.people = [];
-	this.graph = {};
-	this.permissions = permissions;
-	if ($(xml).prop('nodeName') == 'file'){
-		var _this = this;
-		this.email = $(xml).attr('name');
-		$(xml).find('user').each(function(){
-			var p = new PermissionsPerson(this, permissions);
-			_this.people.push(p);
-			_this.graph[p.email] = p;
-		})
-	}
-}
-/**
- * @name check
- * @description Check the permsisions based on the current master file
- * @assign Chase
- */
-PermissionsPerson.prototype.check = function(mapPerson){
-	if (!mapPerson) return null;
-	mapPerson.checked = true;
-	var results = {
-		email: this.email,
-		add: new Set(),
-		remove: new Set()
-	};
-	for (var i = 0; i < mapPerson.uppers.length; i++){
-		var person = mapPerson.uppers[i].person;
-		if (!this.graph[person.email]){
-			results.add.add(person.email);
-		}
-		else{
-			this.graph[person.email].exists = true;
-		}
-	}
-	for (var i = 0; i < this.people.length; i++){
-		if (!this.people[i].exists){
-			results.remove.add(this.people[i].email);
-		}
-	}
-	this.results = results;
-	if (results.add.size > 0 || results.remove.size > 0) return results;
-	return null;
-}
-/**
- * @name change
- * @description Change the permissions from the objects collected during check
- * @assign Chase
- */
-PermissionsPerson.prototype.change = function(){
-	if (!this.results) return;
-	if (this.results.add.size > 0) this.addUsers();
-	if (this.results.remove.size > 0) this.removeUsers();
-}
-/**
- * @name removeUsers
- * @description Remove the users from the files, SharePoint API calls are made here
- * @assign Chase
- */
-PermissionsPerson.prototype.removeUsers = function(){
-	this.api(this.results.remove, false);
-}
-/**
- * @name addUsers
- * @description Add users to the files, SharePoint calls are used here
- * @assign Chase
- */
-PermissionsPerson.prototype.addUsers = function(){
-	this.api(this.results.add, true);
-}
-/** 
- * @name api
- * @description The API call for the permissions api
- * @assign Chase
- */
-PermissionsPerson.prototype.api = function(ary, isAdd){
-	var err = [];
-	var _this = this;
-	var email = this.email;
-	ims.sharepoint.getFileItems(this.email, function(listItemsXml){
-		var begin = $(listItemsXml).find('[title=RoleAssignments]').attr('href');
-		var breakUrl = begin.replace('RoleAssignments', 'breakroleinheritance(copyRoleAssignments=false, clearSubscopes=true)');
-		ims.sharepoint.makePostRequest(ims.url.base + '../', '_api/' + breakUrl, function(){
-			var it = ary.values();
-			var next = it.next();
-			while (!next.done){
-				var file = next.value;
-				var user = $(_this.permissions.siteUsers.xml).find('d\\:Email:contains(' + file + '), Email:contains(' + file + ')');
-				var id = $(user).parent().find('d\\:Id, Id').text();
-				if (id){
-					var raHref = (isAdd ? '/addroleassignment' : '/removeroleassignment') + '(principalid=' + id + ',roledefid=' + _permissions.roles.Edit + ')';
-								
-					_permissions.status.inProgress++;
-					ims.sharepoint.makePostRequest(ims.url.base + '../', '_api/' + begin + raHref, function(){
-						_permissions.checkForCompletion();
-					}, function(){
-						err.push({file: file, user: user});
-					});	
-				}
-				else{
-					if (isAdd){
-						_this.permissions.siteUsers.add.push({file: _this.email, user: file});
-					}
-					else{
-						_this.permissions.siteUsers.remove.push({file: _this.email, user: file});
-					}
-				}
-				next = it.next();
-			}
-		}, function(){
-			var it = ary.values();
-			var next = it.next();
-			while (!next.done){
-				var file = next.value;
-				var user = $(_this.permissions.siteUsers.xml).find('d\\:Email:contains(' + file + '), Email:contains(' + file + ')');
-				var id = $(user).parent().find('d\\:Id, Id').text();
-				if (id){
-					var raHref = (isAdd ? '/addroleassignment' : '/removeroleassignment') + '(principalid=' + id + ',roledefid=' + _permissions.roles.Edit + ')';
-								
-					_permissions.status.inProgress++;
-					ims.sharepoint.makePostRequest(ims.url.base + '../', '_api/' + begin + raHref, function(){
-						_permissions.checkForCompletion();
-					}, function(){
-						err.push({file: file, user: user});
-						console.log({file: file, user: user});
-					});	
-				}
-				else{
-					if (isAdd){
-						_this.permissions.siteUsers.add.push({file: _this.email, user: file});
-					}
-					else{
-						_this.permissions.siteUsers.remove.push({file: _this.email, user: file});
-					}
-				}
-				next = it.next();
-			}
-		});	
-	});
-}
-/**
- * @name  setNewMapPersonInformation
- * @description Set the new map person and populate who needs to be added to the file
- * @assign Chase
- */
-PermissionsPerson.setNewMapPersonInformation = function(mapPerson){
-	var results = {
-		email: mapPerson.email,
-		add: new Set(),
-		remove: new Set()
-	};
-	for (var i = 0; i < mapPerson.uppers.length; i++){
-		results.add.add(mapPerson.uppers[i].person.email);
-	}
-
-	return results;
-}
-/**
- * @end
- 
 
 
 
