@@ -33,6 +33,9 @@
 		<div class="big-btn" ng-click='changeMode("LeadershipEval")'>
 			Evaluations
 		</div>
+		<div class="big-btn" ng-click='changeMode("ParseTool")'>
+			Parse Tool
+		</div>
 	</div>
 
 	<!-- REGISTER orderBy:["name", "week"]-->
@@ -198,6 +201,42 @@
 				</div>
 				<button ng-show="isFile" ng-click='CreateEvaluationCSV()' class="submit">Start</button>
 				<button ng-click='clearEvaluation(); changeMode("LeadershipEval")' class="submit">Back</button>
+			</div>
+		</div>
+	</div>
+
+	<!-- PARSETOOL -->
+	<div class="container" ng-if='mode == "ParseTool"'>
+		<div class="box">
+			<div class="row">
+				<div class="row">
+					Left side: 
+					<select ng-model='left'>
+						<option value="INSTRUCTOR">INSTRUCTOR</option>
+						<option value="TGL">TGL</option>
+						<option value="AIM">AIM</option>
+						<option value="IM">IM</option>
+						<option value="OCR">OCR</option>
+					</select>
+					Right side: 
+					<select ng-model='right'>
+						<option value="INSTRUCTOR">INSTRUCTOR</option>
+						<option value="TGL">TGL</option>
+						<option value="AIM">AIM</option>
+						<option value="IM">IM</option>
+						<option value="OCR">OCR</option>
+					</select>
+				</div>
+ 				<div class="row"> 
+ 					<input type="checkbox" ng-model='useCourse'>
+ 				</div>
+			</div>
+			<div class="row">
+				<div class="submit" ng-click='chooseFile()'>
+					Choose File
+				</div>
+				<button ng-show="isFile" ng-click='' class="submit">Start</button>
+				<button ng-click='changeMode("home")' class="submit">Back</button>
 			</div>
 		</div>
 	</div>
