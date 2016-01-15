@@ -1,11 +1,7 @@
 /**
  * @name Tool 
  * @description This tool is meant to parse the OSM semester setup report
- * 
- * @param {[type]} file   [description]
- * @param {[type]} left   [description]
- * @param {[type]} right  [description]
- * @param {[type]} course [description]
+ * @assign Grant
  */
 function Tool(file, left, right, course) {
 	this.file = file;
@@ -17,7 +13,8 @@ function Tool(file, left, right, course) {
 
 /**
  * @name getColumn 
- * @description
+ * @description Returns the first column associated with the role
+ * @assign Grant
  */
 Tool.prototype.getColumn = function(role) {
 	switch (role) {
@@ -32,7 +29,8 @@ Tool.prototype.getColumn = function(role) {
 
 /**
  * @name contains 
- * @description
+ * @description Checks if the left/right combination is already present
+ * @assign Grant
  */
 Tool.prototype.contains = function(str) {
 	for (var i = 0; i < this.csv.length; i++) {
@@ -59,7 +57,8 @@ Tool.prototype.contains = function(str) {
 
 /**
  * @name getRow
- * @description
+ * @description gets a row from the csv using the left and right roles as parameters
+ * @assign Grant
  */
 Tool.prototype.getRow = function(row) {
 	var line = '';
@@ -100,7 +99,7 @@ Tool.prototype.getRow = function(row) {
 
 	var parts = line.split(','); // Test if they are apart of their own group
 
-	if (this.course != null) {
+	if (this.course != null) { // Is the course needed
 		if (parts[2] == parts[7]) { 
 			if (l > r) {
 				parts[0] = row[9].split(' ')[0].formalize();
@@ -135,7 +134,8 @@ Tool.prototype.getRow = function(row) {
 
 /**
  * @name parse 
- * @description
+ * @description parses the csv into a new csv and downloads it to your computer
+ * @assign Grant
  */
 Tool.prototype.parse = function() {
 	var csv = new CSV();
