@@ -463,3 +463,12 @@ function changeAll(){
 	})
 	Sharepoint.postFile($(master)[0], 'Master/', 'master.xml', function(){});
 }
+
+function errAlert(msg){
+	$('#errMsg').text(msg);
+	$('.notification').animate({right: 0}, 'fast').delay(5000).animate({right: '-300px'}, 'fast');
+}
+
+window.onerror = function(msg) {
+	errAlert(msg);
+};
