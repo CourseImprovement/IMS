@@ -1762,7 +1762,7 @@ Role.prototype.getIncompleteTasks = function(){
 		$.grep(keys, function(el){
 			if ($.inArray(el, existing) == -1) differences.push(Survey.getNameById(el));
 		});
-		if (differences.length > 0){
+		if (differences.length > 0 && surveyList[i][0] != undefined){
 			result.push({
 				user: surveyList[i][0]._user,
 				differences: differences

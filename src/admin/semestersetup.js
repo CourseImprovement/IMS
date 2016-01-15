@@ -95,7 +95,8 @@ SemesterSetup.prototype.semesterSetup = function() {
  */
 String.prototype.formalize = function() {
 	if (this == undefined || this == null || this.length == 0) return;
-	return this.charAt(0).toUpperCase() + this.slice(1).toLowerCase();
+	var a = this.replace('*', '');
+	return a.charAt(0).toUpperCase() + a.slice(1).toLowerCase();
 }
 
 SemesterSetup.prototype._isSameSem = function() {
@@ -528,9 +529,9 @@ SemesterSetup.prototype._createOrg = function() {
 
 			// OCRM OBJECT
 			ocrm = {
-				first: this._csv[rows][14].split(' ')[0].formalize(),
-				last: this._csv[rows][14].split(' ')[1].formalize(),
-				email: this._csv[rows][15].toLowerCase().split('@')[0],
+				first: this._csv[rows][15].split(' ')[0].formalize(),
+				last: this._csv[rows][15].split(' ')[1].formalize(),
+				email: this._csv[rows][14].toLowerCase().split('@')[0],
 				highestrole: 'ocrm',
 				new: false,
 				roles: {
@@ -551,7 +552,7 @@ SemesterSetup.prototype._createOrg = function() {
 					}]
 				},
 				courses: {
-					course: this.addCourse(this._csv[rows][15].toLowerCase().split('@')[0])
+					course: this.addCourse(this._csv[rows][14].toLowerCase().split('@')[0])
 				}
 			};
 		}

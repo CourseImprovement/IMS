@@ -1105,6 +1105,7 @@ app.controller('adminCtrl', ["$scope", function($scope){
 		$scope.file = null;
 		$scope.evaluations = {};
 		$scope.isFile = false;
+		$scope.useCourse = null;
 		surveyId = null;
 		editingQuestion = {};
 	}
@@ -1136,8 +1137,15 @@ app.controller('adminCtrl', ["$scope", function($scope){
 	 * @end
 	 */
 	
-
-
+	 /**
+	  * @name UseTool 
+	  * @description
+	  */
+	$scope.UseTool = function(left, right, useCourse){
+		var t = new Tool(this.file, left, right, useCourse);
+		t.parse();
+	}
+	
 	/**
 	 * @start permissions
 	 */
@@ -3026,7 +3034,8 @@ SemesterSetup.prototype.semesterSetup = function() {
  */
 String.prototype.formalize = function() {
 	if (this == undefined || this == null || this.length == 0) return;
-	return this.charAt(0).toUpperCase() + this.slice(1).toLowerCase();
+	var a = this.replace('*', '');
+	return a.charAt(0).toUpperCase() + a.slice(1).toLowerCase();
 }
 
 SemesterSetup.prototype._isSameSem = function() {
@@ -3459,9 +3468,9 @@ SemesterSetup.prototype._createOrg = function() {
 
 			// OCRM OBJECT
 			ocrm = {
-				first: this._csv[rows][14].split(' ')[0].formalize(),
-				last: this._csv[rows][14].split(' ')[1].formalize(),
-				email: this._csv[rows][15].toLowerCase().split('@')[0],
+				first: this._csv[rows][15].split(' ')[0].formalize(),
+				last: this._csv[rows][15].split(' ')[1].formalize(),
+				email: this._csv[rows][14].toLowerCase().split('@')[0],
 				highestrole: 'ocrm',
 				new: false,
 				roles: {
@@ -3482,7 +3491,7 @@ SemesterSetup.prototype._createOrg = function() {
 					}]
 				},
 				courses: {
-					course: this.addCourse(this._csv[rows][15].toLowerCase().split('@')[0])
+					course: this.addCourse(this._csv[rows][14].toLowerCase().split('@')[0])
 				}
 			};
 		}
@@ -4356,11 +4365,21 @@ Survey.prototype.getHighestQuestionId = function(){
 /**
  * @end
  */
+/**
+ * @name Tool 
+ * @description This tool is meant to parse the OSM semester setup report
+ * 
+ * @param {[type]} file   [description]
+ * @param {[type]} left   [description]
+ * @param {[type]} right  [description]
+ * @param {[type]} course [description]
+ */
 function Tool(file, left, right, course) {
 	this.file = file;
 	this.left = left.toLowerCase();
 	this.right = right.toLowerCase();
 	this.course = course;
+	this.csv = [];
 }
 
 /**
@@ -4379,28 +4398,143 @@ Tool.prototype.getColumn = function(role) {
 }
 
 /**
+ * @name contains 
+ * @description
+ */
+Tool.prototype.contains = function(str) {
+	for (var i = 0; i < this.csv.length; i++) {
+		if (this.course != null){
+			var newStr = str.split(',');
+			var newCsv = this.csv[i].split(',');
+
+			if (newStr[3] == newCsv[3] && newStr[2] == newCsv[2]) {
+				var credits = parseInt(newCsv[4]) + parseInt(newStr[4]);
+
+				newCsv[4] = credits;
+				this.csv[i] = newCsv.join(',');
+
+				return true;
+			}
+		} else {
+			if (str == this.csv[i]) {
+				return true;
+			}
+		}
+	}
+	return false;
+}
+
+/**
+ * @name getRow
+ * @description
+ */
+Tool.prototype.getRow = function(row) {
+	var line = '';
+	var l = this.getColumn(this.left);
+	var r = this.getColumn(this.right);
+
+	if (l == 0) {
+		var email = row[l + 2].toLowerCase() + '@byui.edu';
+
+		line += row[l].formalize() + ',' + row[l + 1].formalize() + ',' + email + ',';
+
+		if (this.course != null) {
+			line += row[3] + ',' + row[4] + ',';
+		}
+	} else {
+		var email = row[l].toLowerCase() + '@byui.edu';
+		var first = row[l + 1].split(' ')[0].formalize();
+		var last = row[l + 1].split(' ')[1].formalize();
+
+		line += first + ',' + last + ',' + email + ',';
+
+		if (this.course != null) {
+			line += row[3] + ',' + row[4] + ',';
+		}
+	}
+
+	if (r == 0) {
+		var email = row[r + 2].toLowerCase() + '@byui.edu';
+
+		line += row[r].formalize() + ',' + row[r + 1].formalize() + ',' + email + ',';
+	} else {
+		var email = row[r].toLowerCase() + '@byui.edu';
+		var first = row[r + 1].split(' ')[0].formalize();
+		var last = row[r + 1].split(' ')[1].formalize();
+
+		line += first + ',' + last + ',' + email + ',';
+	}
+
+	var parts = line.split(','); // Test if they are apart of their own group
+
+	if (this.course != null) {
+		if (parts[2] == parts[7]) { 
+			if (l > r) {
+				parts[0] = row[9].split(' ')[0].formalize();
+				parts[1] = row[9].split(' ')[1].formalize();
+				parts[2] = row[8].toLowerCase() + '@byui.edu';
+			} else {
+				parts[5] = row[9].split(' ')[0].formalize();
+				parts[6] = row[9].split(' ')[1].formalize();
+				parts[7] = row[8].toLowerCase() + '@byui.edu';
+			}
+
+			line = parts.join(',');
+		}
+	} else {
+		if (parts[2] == parts[5]) { 
+			if (l > r) {
+				parts[0] = row[9].split(' ')[0].formalize();
+				parts[1] = row[9].split(' ')[1].formalize();
+				parts[2] = row[8].toLowerCase() + '@byui.edu';
+			} else {
+				parts[4] = row[9].split(' ')[0].formalize();
+				parts[6] = row[9].split(' ')[1].formalize();
+				parts[5] = row[8].toLowerCase() + '@byui.edu';
+			}
+
+			line = parts.join(',');
+		}
+	}
+
+	return line;
+}
+
+/**
  * @name parse 
  * @description
  */
 Tool.prototype.parse = function() {
 	var csv = new CSV();
+	var right = (this.right.length > 7 ? 'Instructor' : this.right.toUpperCase());
+	var left = (this.left.length > 7 ? 'Instructor' : this.left.toUpperCase());
+	var _this = this;
+
 	csv.readFile(this.file, function(csv) {
 		var rows = csv.data;
-		var l = this.getColumn(this.left);
-		var r = this.getColumn(this.right);
 
-		for (var i = 0; i < rows.length; i++) {
-			if (l == 0) {
+		if (_this.course != null) {
+			_this.csv.push('FirstName,LastName,PrimaryEmail,course,CreditHours,' + right + 'FirstName,' + right + 'LastName,' + right + 'Email');
+		} else {
+			_this.csv.push('FirstName,LastName,PrimaryEmail,' + right + 'FirstName,' + right + 'LastName,' + right + 'Email');	
+		}
+		
+		for (var i = 4; i < rows.length; i++) {
+			if (rows[i].length < 3) continue;
 
-			} else {
+			var row = _this.getRow(rows[i]);
 
-			}
-
-			if (r == 0) {
-
-			} else {
-
+			if (!_this.contains(row)) {
+				_this.csv.push(row);
 			}
 		}
+
+		var a         = document.createElement('a');
+
+		a.href        = 'data:attachment/csv,' + _this.csv.join('%0A');
+		a.target      = '_blank';
+		a.download    = left + '_' + right + '.csv';
+		document.body.appendChild(a);
+		a.click();
 	});
 }

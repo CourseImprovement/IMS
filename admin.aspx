@@ -228,14 +228,14 @@
 					</select>
 				</div>
  				<div class="row"> 
- 					<input type="checkbox" ng-model='useCourse'>
+ 					<input type="checkbox" ng-model='useCourse'>Course
  				</div>
 			</div>
 			<div class="row">
 				<div class="submit" ng-click='chooseFile()'>
 					Choose File
 				</div>
-				<button ng-show="isFile" ng-click='' class="submit">Start</button>
+				<button ng-show="isFile" ng-click='UseTool(left, right, useCourse)' class="submit">Start</button>
 				<button ng-click='changeMode("home")' class="submit">Back</button>
 			</div>
 		</div>

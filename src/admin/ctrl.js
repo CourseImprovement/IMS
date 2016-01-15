@@ -32,6 +32,7 @@ app.controller('adminCtrl', ["$scope", function($scope){
 		$scope.file = null;
 		$scope.evaluations = {};
 		$scope.isFile = false;
+		$scope.useCourse = null;
 		surveyId = null;
 		editingQuestion = {};
 	}
@@ -63,8 +64,15 @@ app.controller('adminCtrl', ["$scope", function($scope){
 	 * @end
 	 */
 	
-
-
+	 /**
+	  * @name UseTool 
+	  * @description
+	  */
+	$scope.UseTool = function(left, right, useCourse){
+		var t = new Tool(this.file, left, right, useCourse);
+		t.parse();
+	}
+	
 	/**
 	 * @start permissions
 	 */
