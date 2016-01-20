@@ -574,361 +574,6 @@ MasterPerson.prototype.addUpperAndLowers = function(){
  * @end
  */
 /**
- * Steps
- *  1. get sharepoint siteusers, roles, permissions, and master
- */
-function Permissions(){
-	this.master = new Master();
-	this.rolesXml = null;
-	this.permissionsXml = null;
-	this.siteUsersXml = null;
-	window._permissions = this;
-	this.roles = {};
-	this.permissionsXmlFiles = {
-		graph: {},
-		ary: []
-	};
-	this.permissionPersons = {
-		graph: {},
-		ary: []
-	};
-	this.changes = {
-		graph: {},
-		ary: []
-	};
-}
-
-Permissions.prototype.start = function(){
-	var _this = this;
-
-	// this needs to be ugly to refresh the UI loading screen...
-	ims.loading.reset();
-	this.stepOne(function(){
-		setTimeout(function(){
-			ims.loading.set(5);
-			_this.stepTwo();
-			setTimeout(function(){
-				ims.loading.set(15);
-				setTimeout(function(){
-					_this.stepThree(function(){
-						ims.loading.set(20);
-						setTimeout(function(){
-							_this.stepFour(function(){
-								setTimeout(function(){
-									ims.loading.set(60);
-									_this.stepFive(function(){
-										setTimeout(function(){
-											ims.loading.set(70);
-											_this.stepSix();
-											setTimeout(function(){
-												ims.loading.set(100);
-											}, 10);
-										}, 10);
-									})
-								}, 10);
-							})
-						}, 10)
-					})
-				}, 10)
-			}, 10)
-		}, 10)
-	})
-}
-
-Permissions.prototype.getSiteUserIdByEmail = function(email){
-	var id = $(this.siteUsersXml).find('d\\:Email:contains(' + email + '), Email:contains(' + email + ')').parent().find('d\\:Id, Id').text();
-	return id;
-}
-
-Permissions.prototype.stepSix = function(){
-	for (var i = 0; i < this.permissionPersons.ary.length; i++){
-		$(this.permissionsXml).find('file[name=' + this.permissionPersons.ary[i].email + ']').remove();
-		var spot = $(this.permissionsXml).find('permissions').append('<file broken="true" name="' + this.permissionPersons.ary[i].email + '"></file>')
-			.find('file[name=' + this.permissionPersons.ary[i].email + ']');
-		var keys = Object.keys(this.permissionPersons.ary[i].org);
-		for (var j = 0; j < keys.length; j++){
-			var role = keys[j];
-			var email = this.permissionPersons.ary[i].org[role];
-			$(spot).append('<user email="' + email + '" role="' + role + '" />');
-		}
-	}
-	Sharepoint.postFile(this.permissionsXml, 'config/', 'permissions.xml', function(){
-		alert('Completed');
-		window.location.reload();
-	});
-}
-
-Permissions.prototype.stepFive = function(callback){
-	console.log('Step 5');
-
-	var USER_SIZE = 50;
-	var digest;
-
-	$.ajax({
-	  	url: ims.sharepoint.base + '_api/contextinfo',
-	  	header: {
-	  		'accept': 'application/json; odata=verbose',
-	  		'content-type': 'application/json;odata=verbose'
-	  	},
-	  	type: 'post',
-	  	contentType: 'application/json;charset=utf-8'
-	  }).done(function(d){
-  	digest = $(d).find('d\\:FormDigestValue, FormDigestValue').text();
-  	nextWave(0);
-  })
-
-	function nextWave(spot){
-		var calls = [];
-  	for (var i = spot; i < USER_SIZE + spot; i++){
-  		if (!_permissions.permissionPersons.ary[i]) {
-  			callback();
-  			break;
-  		}
-  		else{
-  			var urls = _permissions.permissionPersons.ary[i].getUrls();
-	  		for (var j = 0; j < urls.length; j++){
-	  			calls.push({
-						name: _permissions.permissionPersons.ary[i].email,
-						url: ims.url.relativeBase + urls[j],
-						headers: {
-							"accept": "application/json;odata=verbose",
-		          "X-RequestDigest": digest
-						},
-						method: 'POST'
-					});	
-	  		}  		
-  		}
-  	}
-
-  	byui.ajaxPool({
-  		calls: calls,
-  		done: function(err, succ){
-  			console.log(err);
-  			nextWave(spot + USER_SIZE - 1);
-  		}
-  	})
-	}
-}
-
-Permissions.prototype.stepFour = function(callback){
-	console.log('Step 4');
-  $.ajax({
-  	url: ims.sharepoint.base + '_api/contextinfo',
-  	header: {
-  		'accept': 'application/json; odata=verbose',
-  		'content-type': 'application/json;odata=verbose'
-  	},
-  	type: 'post',
-  	contentType: 'application/json;charset=utf-8'
-  }).done(function(d){
-  	var digest = $(d).find('d\\:FormDigestValue, FormDigestValue').text();
-  	var calls = [];
-  	for (var i = 0; i < _permissions.permissionPersons.ary.length; i++){
-  		if (_permissions.permissionPersons.ary[i].broken) continue;
-  		calls.push({
-				name: _permissions.permissionPersons.ary[i].email,
-				url: ims.url.relativeBase + _permissions.permissionPersons.ary[i].breakUrl,
-				headers: {
-					"accept": "application/json;odata=verbose",
-          "X-RequestDigest": digest
-				},
-				method: 'POST'
-			});	
-  	}
-  	callback();
-  	byui.ajaxPool({
-  		calls: calls,
-  		done: function(err, succ){
-  			console.log(err);
-  			callback();
-  		}
-  	})
-  })
-}
-
-Permissions.prototype.stepThree = function(callback){
-	console.log('Step 3');
-	var firstUrl = ims.url._base + 	"_api/Web/GetFileByServerRelativeUrl('" + ims.url.relativeBase + "Instructor%20Reporting/Master/";
-	var secondUrl = ".xml')/ListItemAllFields";
-	var calls = [];
-	for (var i = 0; i < this.permissionPersons.ary.length; i++){
-		if (this.permissionPersons.ary[i].hasChanges()){
-			calls.push({
-				name: this.permissionPersons.ary[i].email,
-				url: firstUrl + this.permissionPersons.ary[i].email + secondUrl
-			})
-		}
-	}
-	var _this = this;
-	byui.ajaxPool({
-		done: function(err, success){
-			console.log(err);
-			var keys = Object.keys(success);
-			for (var i = 0; i < keys.length; i++){
-				var begin = $(success[keys[i]]).find('[title=RoleAssignments]').attr('href');
-				var breakUrl = '_api/' + begin.replace('RoleAssignments', 'breakroleinheritance(copyRoleAssignments=true, clearSubscopes=true)');
-				var baseUrl = '_api/' + begin;
-				_this.permissionPersons.graph[keys[i]].breakUrl = breakUrl;
-				_this.permissionPersons.graph[keys[i]].baseUrl = baseUrl;
-			}
-			callback();
-		},
-		calls: calls
-	})
-}
-
-Permissions.prototype.stepTwo = function(callback){
-	console.log('Step 2');
-	var _this = this;
-	$(this.permissionsXml).find('file').each(function(){
-		var p = new PermissionFile(this);
-
-		_this.permissionsXmlFiles.ary.push(p);
-		_this.permissionsXmlFiles.graph[p.name] = p;
-	});
-
-	for (var i = 0; i < this.master.people.length; i++){
-		var mp = this.master.people[i];
-		var p = PermissionPerson.fromMasterPerson(mp);
-		this.permissionPersons.ary.push(p);
-		this.permissionPersons.graph[p.email] = p;
-		p.compareWithPermissionsXml(this.permissionsXmlFiles.graph[p.email]);
-	}
-
-	$(this.rolesXml).find('properties Name, m\\:properties d\\:Name').each(function(){
-		_this.roles[$(this).text()] = $(this).prev().text();
-	})
-}
-
-Permissions.prototype.stepOne = function(callback){
-	console.log('Step 1');
-	var _this = this;
-	byui.ajaxPool({
-		done: function(err, success){
-			if (err && err.length > 0) console.log(err);
-			_this.rolesXml = success.siteRoles;
-			_this.siteUsersXml = success.siteUsers;
-			_this.permissionsXml = success.permissionsXml;
-			callback();
-		},
-		calls: [
-		 	{
-		 		name: 'siteUsers',
-		 		url: ims.url._base + '_api/Web/siteUsers'
-		 	},
-		 	{
-		 		name: 'siteRoles',
-		 		url: ims.url._base + '_api/Web/roledefinitions'
-		 	},
-		 	{
-		 		name: 'permissionsXml',
-		 		url: ims.sharepoint.base + 'Instructor%20Reporting/config/permissions.xml'
-		 	}
-		]
-	})
-}
-
-function PermissionFile(xml){
-	var obj = byui(xml).obj();
-	var keys = Object.keys(obj.file);
-	for (var i = 0; i < keys.length; i++){
-		this[keys[i]] = obj.file[keys[i]];
-	}
-	this._rawXml = xml;
-}
-
-// End Result
-function PermissionPerson(email, org){
-	this.email = email;
-	this.org = org;
-	this.changes = {
-		add: new Set(),
-		remove: new Set()
-	}
-	this.breakUrl = null;
-	this.baseUrl = null;
-	this.broken = false;
-}
-
-PermissionPerson.fromMasterPerson = function(mp){
-	var org = {};
-	for (var i = 0; i < mp.uppers.length; i++){
-		org[mp.uppers[i].role] = mp.uppers[i].person.email;
-	}
-	var pp = new PermissionPerson(mp.email, org);
-	return pp;
-}
-
-PermissionPerson.prototype.hasChanges = function(){
-	return this.changes.add.size > 0 || this.changes.remove.size > 0;
-}
-
-PermissionPerson.prototype.getUrls = function(){
-	var result = [];
-
-	var adds = this.changes.add.values();
-	if (adds && this.changes.add.size > 0){
-		var next = adds.next();
-		while (!next.done){
-			var email = next.value;
-			var id = _permissions.getSiteUserIdByEmail(email);
-			if (!id){
-				console.log('Add ' + email + ' user to site');
-			}
-			else{
-				result.push(this.baseUrl + '/addroleassignment(principalid=' + id + ',roledefid=' + _permissions.roles.Edit + ')');
-			}
-			next = adds.next();
-		}
-	}
-
-	var removes = this.changes.remove.values();
-	if (removes && this.changes.remove.size > 0){
-		var next = removes.next();
-		while (!next.done){
-			var email = next.value;
-			var id = _permissions.getSiteUserIdByEmail(email);
-			if (!id){
-				console.log('Add ' + email + ' user to site');
-			}
-			else{
-				result.push(this.baseUrl + '/removeroleassignment(principalid=' + id + ',roledefid=' + _permissions.roles.Edit + ')');
-			}
-			next = removes.next();
-		}
-	}
-
-	return result;
-}
-
-PermissionPerson.prototype.compareWithPermissionsXml = function(permissionsXmlFile){
-	if (!permissionsXmlFile){ // create file
-		var keys = Object.keys(this.org);
-		for (var i = 0; i < keys.length; i++){
-			this.changes.add.add(this.org[keys[i]]);
-		}
-	}
-	else{
-		this.broken = permissionsXmlFile.broken == 'true';
-		for (var i = 0; i < permissionsXmlFile.children.length; i++){
-			var role = permissionsXmlFile.children[i].user.role;
-			var email = permissionsXmlFile.children[i].user.email;
-			if (!this.org[role]){
-				this.changes.remove.add(email)
-			}
-			else if (this.org[role] != email){
-				this.changes.remove.add(email);
-				this.changes.add.add(this.org[role]);
-			}
-			else {} // do nothing
-		}
-	}
-
-	if (!this.org.self){
-		this.changes.add.add(this.email);
-	}
-}
-/**
  * @start Group Answer
  */
 /**
@@ -1522,6 +1167,7 @@ app.controller('adminCtrl', ["$scope", function($scope){
 				if ($scope.view == 'add survey'){
 					$scope.$apply(function(){
 						$scope.selectedSurvey = window.config.newSurvey();
+<<<<<<< HEAD
 						$scope.selectedSurvey.isNew = true;
 					});
 				}
@@ -1534,6 +1180,10 @@ app.controller('adminCtrl', ["$scope", function($scope){
 							$scope.surveys = window.config.surveys;
 						});
 					}
+				}
+			}, 10);
+=======
+					});
 				}
 			}, 10);
 		}
@@ -1550,8 +1200,8 @@ app.controller('adminCtrl', ["$scope", function($scope){
 					}
 				});
 				$('#course').checkbox({
-					onChange: function(val){
-						$scope.prepareTool.useCourse = val;
+					onChange: function(){
+						$scope.prepareTool.useCourse = !$scope.prepareTool.useCourse;
 					}
 				});
 			}, 10);
@@ -1581,23 +1231,19 @@ app.controller('adminCtrl', ["$scope", function($scope){
 		if (typeof $scope.selectedSurvey != 'object'){
 			$scope.selectedSurvey = value;
 			$scope.selectedSurvey = getSelectedSurvey();
-			window.config.selectedSurvey = $scope.selectedSurvey;
 		}
 		if (force){
 			$scope.selectedSurvey = value;
 			$scope.selectedSurvey = getSelectedSurvey();
-			window.config.selectedSurvey = $scope.selectedSurvey;
 		}
 		$scope.$apply(function(){
 			if (typeof $scope.selectedSurvey != 'object'){
 				$scope.selectedSurvey = value;
 				$scope.selectedSurvey = getSelectedSurvey();
-				window.config.selectedSurvey = $scope.selectedSurvey;
 			}
 			if (force){
 				$scope.selectedSurvey = value;
 				$scope.selectedSurvey = getSelectedSurvey();
-				window.config.selectedSurvey = $scope.selectedSurvey;
 			}
 			if ($('#whichView').length > 0){
 				$('#whichView').dropdown('set selected', $scope.selectedSurvey.placement);
@@ -1682,57 +1328,6 @@ app.controller('adminCtrl', ["$scope", function($scope){
 		t.parse();
 	}
 
-	$scope.removeQuestion = function(question){
-		if (selectedQuestion == null){
-			$scope.question = {
-				columnLetter: '',
-				questionText: '',
-				replaces: []
-			};
-		}
-		else{
-			for (var i = 0; i < $scope.selectedSurvey.questions.length; i++){
-				if ($scope.selectedSurvey.questions[i].id == selectedQuestion.id){
-					$scope.selectedSurvey.questions.splice(i, 1);
-				}
-			}
-		}
-	}
-
-	function Replaces(type){
-		var result = '';
-		if (type == 'what'){
-			for (var i = 0; i < $scope.question.replaces.length; i++){
-				if (result.length > 0){
-					result += ';';
-				}
-				result += $scope.question.replaces[i]['what'];
-			}
-		}
-		else if (type == 'with'){
-			for (var i = 0; i < $scope.question.replaces.length; i++){
-				if (result.length > 0){
-					result += ';';
-				}
-				result += $scope.question.replaces[i]['with'];
-			}
-		}
-		return result;
-	}
-
-	function ReplacesCreate(awhat, awith){
-		var bwhat = awhat.split(';');
-		var bwith = awith.split(';');
-		var result = [];
-		for (var i = 0; i < bwhat.length; i++){
-			result.push({
-				'with': bwith[i],
-				'what': bwhat[i]
-			});
-		}
-		return result;
-	}
-
 	$scope.addQuestion = function(){
 		$('#questionModal').modal({
 			onApprove: function(){
@@ -1745,16 +1340,15 @@ app.controller('adminCtrl', ["$scope", function($scope){
 						id: $scope.selectedSurvey.getHighestQuestionId() + 1,
 						text: $scope.question.questionText,
 						col: $scope.question.columnLetter.toUpperCase(),
-						replaceWhat: Replaces('what'),
-						replaceWith: Replaces('with')
+						replaceWhat: $scope.question.replaceWhat,
+						replaceWith: $scope.question.replaceWith
 					}, false));
 					$scope.question = {
 						columnLetter: '',
 						questionText: '',
-						replaces: []
+						replaceWhat: '',
+						replaceWith: ''
 					};
-					$scope['what'] = '';
-					$scope['with'] = '';
 				})
 			},
 			onHide: function(){
@@ -1762,26 +1356,12 @@ app.controller('adminCtrl', ["$scope", function($scope){
 					$scope.question = {
 						columnLetter: '',
 						questionText: '',
-						replaces: []
+						replaceWhat: '',
+						replaceWith: ''
 					};
-					$scope['what'] = '';
-					$scope['with'] = '';
 				});
 			}
 		}).modal('show');
-	}
-
-	$scope.removeReplaces = function(r, idx){
-		$scope.question.replaces.splice(idx, 1);
-	}
-
-	$scope.addReplace = function(wh, wi){
-		$scope.question.replaces.push({
-			'what': wh,
-			'with': wi
-		});
-		$scope['what'] = '';
-		$scope['with'] = '';
 	}
 
 	var selectedQuestion = null;
@@ -1790,7 +1370,8 @@ app.controller('adminCtrl', ["$scope", function($scope){
 		$scope.question = {
 			columnLetter: selectedQuestion.col,
 			questionText: selectedQuestion.text,
-			replaces: ReplacesCreate(selectedQuestion.replaceWhat, selectedQuestion.replaceWith)
+			replaceWhat: selectedQuestion.replaceWhat,
+			replaceWith: selectedQuestion.replaceWith
 		};
 		$('#questionModal').modal({
 			onApprove: function(){
@@ -1800,24 +1381,16 @@ app.controller('adminCtrl', ["$scope", function($scope){
 				}
 				selectedQuestion.col = $scope.question.columnLetter;
 				selectedQuestion.text = $scope.question.questionText;
-				selectedQuestion.replaceWhat = Replaces('what');
-				selectedQuestion.replaceWith = Replaces('with');
-				$scope.question = {
-					columnLetter: '',
-					questionText: '',
-					replaces: []
-				};
-				$scope['what'] = '';
-				$scope['with'] = '';
+				selectedQuestion.replaceWhat = $scope.question.replaceWhat;
+				selectedQuestion.replaceWith = $scope.question.replaceWith;
 			},
 			onHide: function(){
 				$scope.question = {
 					columnLetter: '',
 					questionText: '',
-					replaces: []
+					replaceWhat: '',
+					replaceWith: ''
 				};
-				$scope['what'] = '';
-				$scope['with'] = '';
 				selectedQuestion = null;
 			}
 		}).modal('show');
@@ -1827,6 +1400,7 @@ app.controller('adminCtrl', ["$scope", function($scope){
 		if (!$scope.selectedSurvey){
 			errAlert('Invalid Survey');
 			return false;
+>>>>>>> dd1ad7a29ad11d66814957886e521dd7520dcebc
 		}
 		$scope.selectedSurvey.save();
 	}
@@ -1870,6 +1444,32 @@ app.controller('adminCtrl', ["$scope", function($scope){
 		}
 	}
 
+<<<<<<< HEAD
+	function surveySelected(value, text, force){
+		if (typeof $scope.selectedSurvey != 'object'){
+			$scope.selectedSurvey = value;
+			$scope.selectedSurvey = getSelectedSurvey();
+			window.config.selectedSurvey = $scope.selectedSurvey;
+		}
+		if (force){
+			$scope.selectedSurvey = value;
+			$scope.selectedSurvey = getSelectedSurvey();
+			window.config.selectedSurvey = $scope.selectedSurvey;
+		}
+		$scope.$apply(function(){
+			if (typeof $scope.selectedSurvey != 'object'){
+				$scope.selectedSurvey = value;
+				$scope.selectedSurvey = getSelectedSurvey();
+				window.config.selectedSurvey = $scope.selectedSurvey;
+			}
+			if (force){
+				$scope.selectedSurvey = value;
+				$scope.selectedSurvey = getSelectedSurvey();
+				window.config.selectedSurvey = $scope.selectedSurvey;
+			}
+			if ($('#whichView').length > 0){
+				$('#whichView').dropdown('set selected', $scope.selectedSurvey.placement);
+=======
 	$scope.startEvaluations = function(){
 		var ev = $scope.evaluations;
 		if (ev.by == ev['for']){
@@ -1881,6 +1481,7 @@ app.controller('adminCtrl', ["$scope", function($scope){
 			if (ev[key] == null || ev[key] == ''){
 				errAlert("Some information was left out!");
 				return;
+>>>>>>> dd1ad7a29ad11d66814957886e521dd7520dcebc
 			}
 		}
 
@@ -2021,18 +1622,6 @@ app.filter('reverseByWeek', function() {
       	}
   	} 
 });
-
-app.directive('allCaps', function($compile){
-	return {
-		restrict: 'A',
-		replace: true,
-		link: function(scope, element, attrs){
-			element.keyup(function(){
-				if (typeof this.value == 'string') this.value = this.value.toUpperCase();
-			});
-		}
-	}
-});
 /**
  * @start evaluations
  */
@@ -2110,6 +1699,145 @@ Evaluations.prototype.setAnswers = function(evaluatee, row, locations) {
 		this.people[evaluatee].count++;
 	}
 
+<<<<<<< HEAD
+	$scope.removeQuestion = function(question){
+		if (selectedQuestion == null){
+			$scope.question = {
+				columnLetter: '',
+				questionText: '',
+				replaces: []
+			};
+		}
+		else{
+			for (var i = 0; i < $scope.selectedSurvey.questions.length; i++){
+				if ($scope.selectedSurvey.questions[i].id == selectedQuestion.id){
+					$scope.selectedSurvey.questions.splice(i, 1);
+				}
+			}
+		}
+	}
+
+	function Replaces(type){
+		var result = '';
+		if (type == 'what'){
+			for (var i = 0; i < $scope.question.replaces.length; i++){
+				if (result.length > 0){
+					result += ';';
+				}
+				result += $scope.question.replaces[i]['what'];
+			}
+		}
+		else if (type == 'with'){
+			for (var i = 0; i < $scope.question.replaces.length; i++){
+				if (result.length > 0){
+					result += ';';
+				}
+				result += $scope.question.replaces[i]['with'];
+			}
+		}
+		return result;
+	}
+
+	function ReplacesCreate(awhat, awith){
+		var bwhat = awhat.split(';');
+		var bwith = awith.split(';');
+		var result = [];
+		for (var i = 0; i < bwhat.length; i++){
+			result.push({
+				'with': bwith[i],
+				'what': bwhat[i]
+			});
+		}
+		return result;
+	}
+
+	$scope.addQuestion = function(){
+		$('#questionModal').modal({
+			onApprove: function(){
+				if (!$scope.selectedSurvey){
+					errAlert('Invalid Survey');
+					return false;
+				}
+				$scope.$apply(function(){
+					$scope.selectedSurvey.addQuestion(new Question({
+						id: $scope.selectedSurvey.getHighestQuestionId() + 1,
+						text: $scope.question.questionText,
+						col: $scope.question.columnLetter.toUpperCase(),
+						replaceWhat: Replaces('what'),
+						replaceWith: Replaces('with')
+					}, false));
+					$scope.question = {
+						columnLetter: '',
+						questionText: '',
+						replaces: []
+					};
+					$scope['what'] = '';
+					$scope['with'] = '';
+				})
+			},
+			onHide: function(){
+				$scope.$apply(function(){
+					$scope.question = {
+						columnLetter: '',
+						questionText: '',
+						replaces: []
+					};
+					$scope['what'] = '';
+					$scope['with'] = '';
+				});
+			}
+		}).modal('show');
+	}
+
+	$scope.removeReplaces = function(r, idx){
+		$scope.question.replaces.splice(idx, 1);
+	}
+
+	$scope.addReplace = function(wh, wi){
+		$scope.question.replaces.push({
+			'what': wh,
+			'with': wi
+		});
+		$scope['what'] = '';
+		$scope['with'] = '';
+	}
+
+	var selectedQuestion = null;
+	$scope.editQuestion = function(question){
+		selectedQuestion = question;
+		$scope.question = {
+			columnLetter: selectedQuestion.col,
+			questionText: selectedQuestion.text,
+			replaces: ReplacesCreate(selectedQuestion.replaceWhat, selectedQuestion.replaceWith)
+		};
+		$('#questionModal').modal({
+			onApprove: function(){
+				if (!$scope.selectedSurvey){
+					errAlert('Invalid Survey');
+					return false;
+				}
+				selectedQuestion.col = $scope.question.columnLetter;
+				selectedQuestion.text = $scope.question.questionText;
+				selectedQuestion.replaceWhat = Replaces('what');
+				selectedQuestion.replaceWith = Replaces('with');
+				$scope.question = {
+					columnLetter: '',
+					questionText: '',
+					replaces: []
+				};
+				$scope['what'] = '';
+				$scope['with'] = '';
+			},
+			onHide: function(){
+				$scope.question = {
+					columnLetter: '',
+					questionText: '',
+					replaces: []
+				};
+				$scope['what'] = '';
+				$scope['with'] = '';
+				selectedQuestion = null;
+=======
 	for (var loc = 0; loc < locations.length; loc++) {
 		var quest = locations[loc].question;
 		var ans = row[locations[loc].col];
@@ -2124,6 +1852,7 @@ Evaluations.prototype.setAnswers = function(evaluatee, row, locations) {
 				this.people[evaluatee][quest] = (ans != "" ? parseFloat(1) : parseFloat(0));
 			} else {
 				this.people[evaluatee][quest] += (ans != "" ? parseFloat(1) : parseFloat(0));
+>>>>>>> dd1ad7a29ad11d66814957886e521dd7520dcebc
 			}
 		}
 	}
@@ -2272,6 +2001,415 @@ Evaluations.prototype.parse = function() {
 /**
  * @end
  */
+/**
+ * Steps
+ *  1. get sharepoint siteusers, roles, permissions, and master
+ */
+function Permissions(){
+	this.master = new Master();
+	this.rolesXml = null;
+	this.permissionsXml = null;
+	this.siteUsersXml = null;
+	window._permissions = this;
+	this.roles = {};
+	this.permissionsXmlFiles = {
+		graph: {},
+		ary: []
+	};
+	this.permissionPersons = {
+		graph: {},
+		ary: []
+	};
+	this.changes = {
+		graph: {},
+		ary: []
+	};
+}
+
+Permissions.prototype.start = function(){
+	var _this = this;
+
+	// this needs to be ugly to refresh the UI loading screen...
+	ims.loading.reset();
+	this.stepOne(function(){
+		setTimeout(function(){
+			ims.loading.set(5);
+			_this.stepTwo();
+			setTimeout(function(){
+				ims.loading.set(15);
+				setTimeout(function(){
+					_this.stepThree(function(){
+						ims.loading.set(20);
+						setTimeout(function(){
+							_this.stepFour(function(){
+								setTimeout(function(){
+									ims.loading.set(60);
+									_this.stepFive(function(){
+										setTimeout(function(){
+											ims.loading.set(70);
+											_this.stepSix();
+											setTimeout(function(){
+												ims.loading.set(100);
+											}, 10);
+										}, 10);
+									})
+								}, 10);
+							})
+						}, 10)
+					})
+				}, 10)
+			}, 10)
+		}, 10)
+	})
+}
+
+Permissions.prototype.getSiteUserIdByEmail = function(email){
+	var id = $(this.siteUsersXml).find('d\\:Email:contains(' + email + '), Email:contains(' + email + ')').parent().find('d\\:Id, Id').text();
+	return id;
+}
+
+Permissions.prototype.stepSix = function(){
+	for (var i = 0; i < this.permissionPersons.ary.length; i++){
+		$(this.permissionsXml).find('file[name=' + this.permissionPersons.ary[i].email + ']').remove();
+		var spot = $(this.permissionsXml).find('permissions').append('<file broken="true" name="' + this.permissionPersons.ary[i].email + '"></file>')
+			.find('file[name=' + this.permissionPersons.ary[i].email + ']');
+		var keys = Object.keys(this.permissionPersons.ary[i].org);
+		for (var j = 0; j < keys.length; j++){
+			var role = keys[j];
+			var email = this.permissionPersons.ary[i].org[role];
+			$(spot).append('<user email="' + email + '" role="' + role + '" />');
+		}
+	}
+	Sharepoint.postFile(this.permissionsXml, 'config/', 'permissions.xml', function(){
+		alert('Completed');
+		window.location.reload();
+	});
+}
+
+Permissions.prototype.stepFive = function(callback){
+	console.log('Step 5');
+
+	var USER_SIZE = 50;
+	var digest;
+
+	$.ajax({
+	  	url: ims.sharepoint.base + '_api/contextinfo',
+	  	header: {
+	  		'accept': 'application/json; odata=verbose',
+	  		'content-type': 'application/json;odata=verbose'
+	  	},
+	  	type: 'post',
+	  	contentType: 'application/json;charset=utf-8'
+	  }).done(function(d){
+  	digest = $(d).find('d\\:FormDigestValue, FormDigestValue').text();
+  	nextWave(0);
+  })
+
+	function nextWave(spot){
+		var calls = [];
+  	for (var i = spot; i < USER_SIZE + spot; i++){
+  		if (!_permissions.permissionPersons.ary[i]) {
+  			callback();
+  			break;
+  		}
+  		else{
+  			var urls = _permissions.permissionPersons.ary[i].getUrls();
+	  		for (var j = 0; j < urls.length; j++){
+	  			calls.push({
+						name: _permissions.permissionPersons.ary[i].email,
+						url: ims.url.relativeBase + urls[j],
+						headers: {
+							"accept": "application/json;odata=verbose",
+		          "X-RequestDigest": digest
+						},
+						method: 'POST'
+					});	
+	  		}  		
+  		}
+  	}
+
+  	byui.ajaxPool({
+  		calls: calls,
+  		done: function(err, succ){
+  			console.log(err);
+  			nextWave(spot + USER_SIZE - 1);
+  		}
+  	})
+	}
+}
+
+Permissions.prototype.stepFour = function(callback){
+	console.log('Step 4');
+  $.ajax({
+  	url: ims.sharepoint.base + '_api/contextinfo',
+  	header: {
+  		'accept': 'application/json; odata=verbose',
+  		'content-type': 'application/json;odata=verbose'
+  	},
+  	type: 'post',
+  	contentType: 'application/json;charset=utf-8'
+  }).done(function(d){
+  	var digest = $(d).find('d\\:FormDigestValue, FormDigestValue').text();
+  	var calls = [];
+  	for (var i = 0; i < _permissions.permissionPersons.ary.length; i++){
+  		if (_permissions.permissionPersons.ary[i].broken) continue;
+  		calls.push({
+				name: _permissions.permissionPersons.ary[i].email,
+				url: ims.url.relativeBase + _permissions.permissionPersons.ary[i].breakUrl,
+				headers: {
+					"accept": "application/json;odata=verbose",
+          "X-RequestDigest": digest
+				},
+				method: 'POST'
+			});	
+  	}
+  	callback();
+  	byui.ajaxPool({
+  		calls: calls,
+  		done: function(err, succ){
+  			console.log(err);
+  			callback();
+  		}
+  	})
+  })
+}
+
+Permissions.prototype.stepThree = function(callback){
+	console.log('Step 3');
+	var firstUrl = ims.url._base + 	"_api/Web/GetFileByServerRelativeUrl('" + ims.url.relativeBase + "Instructor%20Reporting/Master/";
+	var secondUrl = ".xml')/ListItemAllFields";
+	var calls = [];
+	for (var i = 0; i < this.permissionPersons.ary.length; i++){
+		if (this.permissionPersons.ary[i].hasChanges()){
+			calls.push({
+				name: this.permissionPersons.ary[i].email,
+				url: firstUrl + this.permissionPersons.ary[i].email + secondUrl
+			})
+		}
+	}
+	var _this = this;
+	byui.ajaxPool({
+		done: function(err, success){
+			console.log(err);
+			var keys = Object.keys(success);
+			for (var i = 0; i < keys.length; i++){
+				var begin = $(success[keys[i]]).find('[title=RoleAssignments]').attr('href');
+				var breakUrl = '_api/' + begin.replace('RoleAssignments', 'breakroleinheritance(copyRoleAssignments=true, clearSubscopes=true)');
+				var baseUrl = '_api/' + begin;
+				_this.permissionPersons.graph[keys[i]].breakUrl = breakUrl;
+				_this.permissionPersons.graph[keys[i]].baseUrl = baseUrl;
+			}
+			callback();
+		},
+		calls: calls
+	})
+}
+
+Permissions.prototype.stepTwo = function(callback){
+	console.log('Step 2');
+	var _this = this;
+	$(this.permissionsXml).find('file').each(function(){
+		var p = new PermissionFile(this);
+
+		_this.permissionsXmlFiles.ary.push(p);
+		_this.permissionsXmlFiles.graph[p.name] = p;
+	});
+
+	for (var i = 0; i < this.master.people.length; i++){
+		var mp = this.master.people[i];
+		var p = PermissionPerson.fromMasterPerson(mp);
+		this.permissionPersons.ary.push(p);
+		this.permissionPersons.graph[p.email] = p;
+		p.compareWithPermissionsXml(this.permissionsXmlFiles.graph[p.email]);
+	}
+
+	$(this.rolesXml).find('properties Name, m\\:properties d\\:Name').each(function(){
+		_this.roles[$(this).text()] = $(this).prev().text();
+	})
+}
+
+Permissions.prototype.stepOne = function(callback){
+	console.log('Step 1');
+	var _this = this;
+	byui.ajaxPool({
+		done: function(err, success){
+			if (err && err.length > 0) console.log(err);
+			_this.rolesXml = success.siteRoles;
+			_this.siteUsersXml = success.siteUsers;
+			_this.permissionsXml = success.permissionsXml;
+			callback();
+		},
+		calls: [
+		 	{
+		 		name: 'siteUsers',
+		 		url: ims.url._base + '_api/Web/siteUsers'
+		 	},
+		 	{
+		 		name: 'siteRoles',
+		 		url: ims.url._base + '_api/Web/roledefinitions'
+		 	},
+		 	{
+		 		name: 'permissionsXml',
+		 		url: ims.sharepoint.base + 'Instructor%20Reporting/config/permissions.xml'
+		 	}
+		]
+	})
+}
+
+<<<<<<< HEAD
+app.filter('reverseByWeek', function() {
+  	return function(items){
+      	if (items){
+      		var finalSet = [];
+      		var surveyTypes = {};
+
+      		for (var i = 0; i < items.length; i++){
+      			if (surveyTypes[items[i].name] == undefined) surveyTypes[items[i].name] = [];
+          		surveyTypes[items[i].name].push(items[i]);
+          	}
+
+          	for (var s in surveyTypes){
+          		var set = [];
+          		for (var i = 0; i < surveyTypes[s].length; i++){
+	          		set = addItemReverseOrder(set, surveyTypes[s][i]);
+	          	}
+	          	finalSet = finalSet.concat(set);
+          	}
+          	
+          	return finalSet;
+      	}
+  	} 
+});
+
+app.directive('allCaps', function($compile){
+	return {
+		restrict: 'A',
+		replace: true,
+		link: function(scope, element, attrs){
+			element.keyup(function(){
+				if (typeof this.value == 'string') this.value = this.value.toUpperCase();
+			});
+		}
+	}
+});
+/**
+ * @start evaluations
+ */
+/**
+ * @name  Evaluations
+ * @assign Grant
+ * @description object used to assign data from the evaluator to the evaluatee
+ * @todo
+ *  + set the evaluations object
+ *  + set the csv file location
+ */
+function Evaluations(obj, file) {
+	this._evaluations = obj;
+	this._file = file;
+	this.people = {};
+	this._sem = window.config.getCurrentSemester();
+=======
+function PermissionFile(xml){
+	var obj = byui(xml).obj();
+	var keys = Object.keys(obj.file);
+	for (var i = 0; i < keys.length; i++){
+		this[keys[i]] = obj.file[keys[i]];
+	}
+	this._rawXml = xml;
+>>>>>>> dd1ad7a29ad11d66814957886e521dd7520dcebc
+}
+
+// End Result
+function PermissionPerson(email, org){
+	this.email = email;
+	this.org = org;
+	this.changes = {
+		add: new Set(),
+		remove: new Set()
+	}
+	this.breakUrl = null;
+	this.baseUrl = null;
+	this.broken = false;
+}
+
+PermissionPerson.fromMasterPerson = function(mp){
+	var org = {};
+	for (var i = 0; i < mp.uppers.length; i++){
+		org[mp.uppers[i].role] = mp.uppers[i].person.email;
+	}
+	var pp = new PermissionPerson(mp.email, org);
+	return pp;
+}
+
+PermissionPerson.prototype.hasChanges = function(){
+	return this.changes.add.size > 0 || this.changes.remove.size > 0;
+}
+
+PermissionPerson.prototype.getUrls = function(){
+	var result = [];
+
+	var adds = this.changes.add.values();
+	if (adds && this.changes.add.size > 0){
+		var next = adds.next();
+		while (!next.done){
+			var email = next.value;
+			var id = _permissions.getSiteUserIdByEmail(email);
+			if (!id){
+				console.log('Add ' + email + ' user to site');
+			}
+			else{
+				result.push(this.baseUrl + '/addroleassignment(principalid=' + id + ',roledefid=' + _permissions.roles.Edit + ')');
+			}
+			next = adds.next();
+		}
+	}
+
+	var removes = this.changes.remove.values();
+	if (removes && this.changes.remove.size > 0){
+		var next = removes.next();
+		while (!next.done){
+			var email = next.value;
+			var id = _permissions.getSiteUserIdByEmail(email);
+			if (!id){
+				console.log('Add ' + email + ' user to site');
+			}
+			else{
+				result.push(this.baseUrl + '/removeroleassignment(principalid=' + id + ',roledefid=' + _permissions.roles.Edit + ')');
+			}
+			next = removes.next();
+		}
+	}
+
+	return result;
+}
+
+PermissionPerson.prototype.compareWithPermissionsXml = function(permissionsXmlFile){
+	if (!permissionsXmlFile){ // create file
+		var keys = Object.keys(this.org);
+		for (var i = 0; i < keys.length; i++){
+			this.changes.add.add(this.org[keys[i]]);
+		}
+	}
+	else{
+		this.broken = permissionsXmlFile.broken == 'true';
+		for (var i = 0; i < permissionsXmlFile.children.length; i++){
+			var role = permissionsXmlFile.children[i].user.role;
+			var email = permissionsXmlFile.children[i].user.email;
+			if (!this.org[role]){
+				this.changes.remove.add(email)
+			}
+			else if (this.org[role] != email){
+				this.changes.remove.add(email);
+				this.changes.add.add(this.org[role]);
+			}
+			else {} // do nothing
+		}
+	}
+
+	if (!this.org.self){
+		this.changes.add.add(this.email);
+	}
+}
 
 
 
@@ -4284,11 +4422,7 @@ Survey.prototype.getHighestQuestionId = function(){
 /**
  * @name Tool 
  * @description This tool is meant to parse the OSM semester setup report
- * 
- * @param {[type]} file   [description]
- * @param {[type]} left   [description]
- * @param {[type]} right  [description]
- * @param {[type]} course [description]
+ * @assign Grant
  */
 function Tool(file, left, right, course) {
 	this.file = file;
@@ -4300,7 +4434,11 @@ function Tool(file, left, right, course) {
 
 /**
  * @name getColumn 
- * @description
+ * @description Returns the first column associated with the role
+ * @assign Grant
+ * @todo 
+ *  + Compare the role
+ *   + Return the proper role column location
  */
 Tool.prototype.getColumn = function(role) {
 	switch (role) {
@@ -4315,11 +4453,20 @@ Tool.prototype.getColumn = function(role) {
 
 /**
  * @name contains 
- * @description
+ * @description Checks if the left/right combination is already present
+ * @assign Grant
+ * @todo 
+ *  + Go through each line in the csv
+ *   + Check if course is a factor
+ *    + Yes: verify that the course and person are unique
+ *     + Return true if true
+ *    + No: Check that the person is unique
+ *     + Return true if true
+ *  + If the personif not there return false
  */
 Tool.prototype.contains = function(str) {
 	for (var i = 0; i < this.csv.length; i++) {
-		if (this.course != null){
+		if (this.course){
 			var newStr = str.split(',');
 			var newCsv = this.csv[i].split(',');
 
@@ -4342,7 +4489,20 @@ Tool.prototype.contains = function(str) {
 
 /**
  * @name getRow
- * @description
+ * @description gets a row from the csv using the left and right roles as parameters
+ * @assign Grant
+ * @todo 
+ *  + Find the locations of the left and right side
+ *  + Is the left or right an Instructor?
+ *   + Yes
+ *    + Get the email, first name, and last name from the csv
+ *    + Get course if nescessary
+ *    + Create a new string from the data
+ *   + No
+ *    + Get the email
+ *    + Parse the first and last name from the csv
+ *    + Create a new string from the data
+ *  + Repeat above steps for both left and right
  */
 Tool.prototype.getRow = function(row) {
 	var line = '';
@@ -4354,7 +4514,7 @@ Tool.prototype.getRow = function(row) {
 
 		line += row[l].formalize() + ',' + row[l + 1].formalize() + ',' + email + ',';
 
-		if (this.course != null) {
+		if (this.course) {
 			line += row[3] + ',' + row[4] + ',';
 		}
 	} else {
@@ -4364,7 +4524,7 @@ Tool.prototype.getRow = function(row) {
 
 		line += first + ',' + last + ',' + email + ',';
 
-		if (this.course != null) {
+		if (this.course) {
 			line += row[3] + ',' + row[4] + ',';
 		}
 	}
@@ -4383,7 +4543,7 @@ Tool.prototype.getRow = function(row) {
 
 	var parts = line.split(','); // Test if they are apart of their own group
 
-	if (this.course != null) {
+	if (this.course) { // Is the course needed
 		if (parts[2] == parts[7]) { 
 			if (l > r) {
 				parts[0] = row[9].split(' ')[0].formalize();
@@ -4418,7 +4578,17 @@ Tool.prototype.getRow = function(row) {
 
 /**
  * @name parse 
- * @description
+ * @description parses the csv into a new csv and downloads it to your computer
+ * @assign Grant
+ * @todo
+ *  + Create a new CSV()
+ *  + Get name of the left and right side
+ *  + Begin the new csv file as an array with titles for each column
+ *  + Go through each line of the csv
+ *   + Add people that are not already contained
+ *  + Download the new csv
+ *   + Join the csv array
+ *   + Name the file using the left and right role names
  */
 Tool.prototype.parse = function() {
 	var csv = new CSV();
@@ -4429,7 +4599,7 @@ Tool.prototype.parse = function() {
 	csv.readFile(this.file, function(csv) {
 		var rows = csv.data;
 
-		if (_this.course != null) {
+		if (_this.course) {
 			_this.csv.push('FirstName,LastName,PrimaryEmail,course,CreditHours,' + right + 'FirstName,' + right + 'LastName,' + right + 'Email');
 		} else {
 			_this.csv.push('FirstName,LastName,PrimaryEmail,' + right + 'FirstName,' + right + 'LastName,' + right + 'Email');	

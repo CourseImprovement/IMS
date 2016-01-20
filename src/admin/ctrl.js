@@ -97,8 +97,8 @@ app.controller('adminCtrl', ["$scope", function($scope){
 					}
 				});
 				$('#course').checkbox({
-					onChange: function(val){
-						$scope.prepareTool.useCourse = val;
+					onChange: function(){
+						$scope.prepareTool.useCourse = !$scope.prepareTool.useCourse;
 					}
 				});
 			}, 10);

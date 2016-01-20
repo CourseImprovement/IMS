@@ -1,11 +1,7 @@
 /**
  * @name Tool 
  * @description This tool is meant to parse the OSM semester setup report
- * 
- * @param {[type]} file   [description]
- * @param {[type]} left   [description]
- * @param {[type]} right  [description]
- * @param {[type]} course [description]
+ * @assign Grant
  */
 function Tool(file, left, right, course) {
 	this.file = file;
@@ -17,7 +13,11 @@ function Tool(file, left, right, course) {
 
 /**
  * @name getColumn 
- * @description
+ * @description Returns the first column associated with the role
+ * @assign Grant
+ * @todo 
+ *  + Compare the role
+ *   + Return the proper role column location
  */
 Tool.prototype.getColumn = function(role) {
 	switch (role) {
@@ -32,11 +32,20 @@ Tool.prototype.getColumn = function(role) {
 
 /**
  * @name contains 
- * @description
+ * @description Checks if the left/right combination is already present
+ * @assign Grant
+ * @todo 
+ *  + Go through each line in the csv
+ *   + Check if course is a factor
+ *    + Yes: verify that the course and person are unique
+ *     + Return true if true
+ *    + No: Check that the person is unique
+ *     + Return true if true
+ *  + If the personif not there return false
  */
 Tool.prototype.contains = function(str) {
 	for (var i = 0; i < this.csv.length; i++) {
-		if (this.course != null){
+		if (this.course){
 			var newStr = str.split(',');
 			var newCsv = this.csv[i].split(',');
 
@@ -59,7 +68,20 @@ Tool.prototype.contains = function(str) {
 
 /**
  * @name getRow
- * @description
+ * @description gets a row from the csv using the left and right roles as parameters
+ * @assign Grant
+ * @todo 
+ *  + Find the locations of the left and right side
+ *  + Is the left or right an Instructor?
+ *   + Yes
+ *    + Get the email, first name, and last name from the csv
+ *    + Get course if nescessary
+ *    + Create a new string from the data
+ *   + No
+ *    + Get the email
+ *    + Parse the first and last name from the csv
+ *    + Create a new string from the data
+ *  + Repeat above steps for both left and right
  */
 Tool.prototype.getRow = function(row) {
 	var line = '';
@@ -71,7 +93,7 @@ Tool.prototype.getRow = function(row) {
 
 		line += row[l].formalize() + ',' + row[l + 1].formalize() + ',' + email + ',';
 
-		if (this.course != null) {
+		if (this.course) {
 			line += row[3] + ',' + row[4] + ',';
 		}
 	} else {
@@ -81,7 +103,7 @@ Tool.prototype.getRow = function(row) {
 
 		line += first + ',' + last + ',' + email + ',';
 
-		if (this.course != null) {
+		if (this.course) {
 			line += row[3] + ',' + row[4] + ',';
 		}
 	}
@@ -100,7 +122,7 @@ Tool.prototype.getRow = function(row) {
 
 	var parts = line.split(','); // Test if they are apart of their own group
 
-	if (this.course != null) {
+	if (this.course) { // Is the course needed
 		if (parts[2] == parts[7]) { 
 			if (l > r) {
 				parts[0] = row[9].split(' ')[0].formalize();
@@ -135,7 +157,17 @@ Tool.prototype.getRow = function(row) {
 
 /**
  * @name parse 
- * @description
+ * @description parses the csv into a new csv and downloads it to your computer
+ * @assign Grant
+ * @todo
+ *  + Create a new CSV()
+ *  + Get name of the left and right side
+ *  + Begin the new csv file as an array with titles for each column
+ *  + Go through each line of the csv
+ *   + Add people that are not already contained
+ *  + Download the new csv
+ *   + Join the csv array
+ *   + Name the file using the left and right role names
  */
 Tool.prototype.parse = function() {
 	var csv = new CSV();
@@ -146,7 +178,7 @@ Tool.prototype.parse = function() {
 	csv.readFile(this.file, function(csv) {
 		var rows = csv.data;
 
-		if (_this.course != null) {
+		if (_this.course) {
 			_this.csv.push('FirstName,LastName,PrimaryEmail,course,CreditHours,' + right + 'FirstName,' + right + 'LastName,' + right + 'Email');
 		} else {
 			_this.csv.push('FirstName,LastName,PrimaryEmail,' + right + 'FirstName,' + right + 'LastName,' + right + 'Email');	
