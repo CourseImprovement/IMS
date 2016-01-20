@@ -6,8 +6,70 @@
 	<link type="image/x-icon" href="https://www.byui.edu/prebuilt/stylenew/images/ico/favicon.ico" rel="shortcut icon">
 	<link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.4.0/css/font-awesome.min.css">
 	<link rel="stylesheet" type="text/css" href="css/style.css">
-	<script async="" src="https://www.google-analytics.com/analytics.js"></script><script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.3.15/angular.min.js"></script>
 	<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+	<script type="text/javascript">
+		window._error_msgs = [];
+		window._error_in_progress = false;
+		function sendError(msg, url, row, col){
+			window._error_in_progress = true;
+			try{
+	  		if (typeof msg != 'string' || msg.length == 0) return;
+		    $.ajax({
+		        url: ims.sharepoint.base + 'Instructor%20Reporting/config/err.xml',
+		        method: 'GET'
+		    }).always(function(txt){
+		        var xml;
+		        if (typeof arguments[2] == 'string' || arguments[2].responseText.indexOf('<errors>') == -1){
+		            xml = '<errors></errors>';
+		            var parser = new DOMParser();
+		            xml = parser.parseFromString(xml, "text/xml");
+		        }
+		        else{
+		        	xml = txt;
+		        }
+		        $(xml).find('errors').append('<error date="' + new Date().toISOString() + '" msg="' + msg + '" row="' + row + '" col="' + col + '" url="' + window.location.href + '" file="' + url + '" />');
+		        var buffer = new TextEncoder('utf8').encode((new XMLSerializer()).serializeToString(xml));
+		        var postUrl = ims.sharepoint.base + "_api/Web/GetFolderByServerRelativeUrl('" + ims.sharepoint.relativeBase + "Instructor%20Reporting/config')/Files/add(overwrite=true, url='err.xml')";
+		        $.ajax({
+		            url: ims.sharepoint.base + "_api/contextinfo",
+		            type: 'POST'
+		        }).done(function(d){
+		            $.ajax({
+		                url: postUrl,
+		                type: 'POST',
+		                data: buffer,
+		                processData: false,
+		                headers: {
+		                    'accept': 'application/json;odata=verbose',
+		                    'X-RequestDigest': $(d).find('d\\:FormDigestValue, FormDigestValue').text()
+		                },
+		                success: function(){
+		                	if (window._error_msgs.length > 0){
+		                		var o = window._error_msgs[0];
+		                		window._error_msgs.splice(0, 1);
+		                		sendError(o.msg, o.url, o.row, o.col);
+		                	}
+		                	else{
+		                		window._error_in_progress = false;
+		                	}
+		                }
+		            });
+		        })
+		    })
+	  	}  
+	  	catch (e){}
+		}
+		window.onerror = function(msg, url, row, col){
+			window._error_msgs.push({msg: msg, url: url, row: row, col: col});
+			if (!window._error_in_progress){
+				var o = window._error_msgs[0];
+				window._error_msgs.splice(0, 1);
+				sendError(o.msg, o.url, o.row, o.col);
+			}
+		}
+	</script>
+	<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.3.15/angular.min.js"></script>
+	<script async="" src="https://www.google-analytics.com/analytics.js"></script>
 	<script type="text/javascript" src="build/crypto.js"></script>
 	<script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.11.4/jquery-ui.min.js"></script>
 	<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/highcharts/4.1.8/highcharts.js"></script>

@@ -6,46 +6,6 @@
 	<link type="image/x-icon" href="https://www.byui.edu/prebuilt/stylenew/images/ico/favicon.ico" rel="shortcut icon">
 	<link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.1.8/semantic.min.css">
 	<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
-	<script type="text/javascript">
-		window.onerror = function(msg, url, row, col){
-	    if (typeof msg != 'string' || msg.length == 0) return;
-
-	    $.ajax({
-	        url: ims.sharepoint.base + 'Instructor%20Reporting/config/err.xml',
-	        method: 'GET'
-	    }).always(function(txt){
-	        var xml;
-	        if (arguments[2].responseText.indexOf('<errors>') == -1){
-	            xml = '<errors></errors>';
-	            var parser = new DOMParser();
-	            xml = parser.parseFromString(xml, "text/xml");
-	        }
-	        $(xml).find('errors').append('<error date="' + new Date().toISOString() + '" msg="' + msg + '" row="' + row + '" col="' + col + '" url="' + window.location.href + '" file="' + url + '" />');
-	        var buffer = new TextEncoder('utf8').encode((new XMLSerializer()).serializeToString(xml));
-	        var postUrl = ims.sharepoint.base + "_api/Web/GetFolderByServerRelativeUrl('" + ims.sharepoint.relativeBase + "Instructor%20Reporting/Master')/Files/add(overwrite=true, url='err.xml')";
-	        $.ajax({
-	            url: '../_api/contextinfo',
-	            headers: {
-	                accept: 'application/json; odata=verbose',
-	                'content-type': 'application/json;odata=verbose'
-	            },
-	            type: 'POST',
-	            contentType: 'application/json:charset=utf-8'
-	        }).done(function(d){
-	            $.ajax({
-	                url: postUrl,
-	                type: 'POST',
-	                data: buffer,
-	                processData: false,
-	                headers: {
-	                    'accept': 'application/json;odata=verbose',
-	                    'X-RequestDigest': $(d).find('d\\:FormDigestValue, FormDigestValue').text()
-	                }
-	            });
-	        })
-	    })
-	}
-	</script>
 	<script type="text/javascript" src='https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.1.8/semantic.min.js'></script>
 	<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.3.15/angular.min.js"></script>
 	<script type="text/javascript" src='https://courseimprovement.github.io/IMS/lib/papaparse.min.js'></script>
