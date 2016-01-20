@@ -1169,8 +1169,8 @@ app.controller('adminCtrl', ["$scope", function($scope){
 					}
 				});
 				$('#course').checkbox({
-					onChange: function(val){
-						$scope.prepareTool.useCourse = val;
+					onChange: function(){
+						$scope.prepareTool.useCourse = !$scope.prepareTool.useCourse;
 					}
 				});
 			}, 10);
@@ -4210,7 +4210,7 @@ Tool.prototype.getColumn = function(role) {
  */
 Tool.prototype.contains = function(str) {
 	for (var i = 0; i < this.csv.length; i++) {
-		if (this.course != null){
+		if (this.course){
 			var newStr = str.split(',');
 			var newCsv = this.csv[i].split(',');
 
@@ -4258,7 +4258,7 @@ Tool.prototype.getRow = function(row) {
 
 		line += row[l].formalize() + ',' + row[l + 1].formalize() + ',' + email + ',';
 
-		if (this.course != null) {
+		if (this.course) {
 			line += row[3] + ',' + row[4] + ',';
 		}
 	} else {
@@ -4268,7 +4268,7 @@ Tool.prototype.getRow = function(row) {
 
 		line += first + ',' + last + ',' + email + ',';
 
-		if (this.course != null) {
+		if (this.course) {
 			line += row[3] + ',' + row[4] + ',';
 		}
 	}
@@ -4287,7 +4287,7 @@ Tool.prototype.getRow = function(row) {
 
 	var parts = line.split(','); // Test if they are apart of their own group
 
-	if (this.course != null) { // Is the course needed
+	if (this.course) { // Is the course needed
 		if (parts[2] == parts[7]) { 
 			if (l > r) {
 				parts[0] = row[9].split(' ')[0].formalize();
@@ -4343,7 +4343,7 @@ Tool.prototype.parse = function() {
 	csv.readFile(this.file, function(csv) {
 		var rows = csv.data;
 
-		if (_this.course != null) {
+		if (_this.course) {
 			_this.csv.push('FirstName,LastName,PrimaryEmail,course,CreditHours,' + right + 'FirstName,' + right + 'LastName,' + right + 'Email');
 		} else {
 			_this.csv.push('FirstName,LastName,PrimaryEmail,' + right + 'FirstName,' + right + 'LastName,' + right + 'Email');	
