@@ -244,10 +244,10 @@ Rollup.prototype.update = function(){
 					}
 				}
 			} else {
-				count = list.length;
 				for (var i = 0; i < list.length; i++) {
 					if (list[i] != undefined) {
 						sum += list[i];
+						count++;
 					}
 				}
 			}
@@ -269,10 +269,10 @@ Rollup.prototype.update = function(){
 						}
 					}
 				} else {
-					aCount = aList.length;
 					for (var i = 0; i < aList.length; i++) {
 						if (aList[i] != undefined) {
 							aSum += aList[i];
+							aCount++;
 						}
 					}
 				}
