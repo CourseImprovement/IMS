@@ -40,6 +40,7 @@ function Survey(survey, isXml){
 		this._xml = this.toXml();
 		this.people = [];
 	}
+	this.isNew = false;
 	this.processed = 0;
 }
 /**
@@ -160,6 +161,7 @@ Survey.prototype.save = function(){
 Survey.prototype.remove = function(){
 	$(this._xml).remove();
 	this._xml = null;
+	window.config.remove(this.id, true);
 }
 /**
  * @name modify

@@ -101,7 +101,7 @@ Config.prototype.getSurveyById = function(id){
  *  + Reset the surveys with the new list
  *  + Save the config file
  */
-Config.prototype.remove = function(id){
+Config.prototype.remove = function(id, noSave){
 	var newSurveys = [];
 	for (var i = 0; i < this.surveys.length; i++){
 		if (this.surveys[i].id != parseInt(id)) 
@@ -111,6 +111,7 @@ Config.prototype.remove = function(id){
 		}
 	}
 	this.surveys = newSurveys;
+	if (noSave) return;
 	this.save();
 }
 /** 

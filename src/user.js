@@ -346,9 +346,6 @@ User.prototype.isNew = function(){
  * @description Get the href for the user
  */
 User.prototype.getHref = function(){
-	if (this._email == 'davismel'){
-		var a = 10;
-	}
 	var val = JSON.parse(JSON.stringify(ims.aes.value));
   val.ce = this.getEmail();
   val.cr = this.getRole().getRoleName().toUpperCase();

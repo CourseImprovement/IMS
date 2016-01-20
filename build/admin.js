@@ -21,6 +21,7 @@ ims.url.site = ims.url._base;
  * UI loading class
  */
 ims.loading = {
+	isVisible: false,
 	/**
 	 * @name set
 	 * @description Set the percentage of loading bar
@@ -29,7 +30,15 @@ ims.loading = {
 	 *  + Change the width of the progress bar
 	 */
 	set: function(percent){
-		$('.bar').css({width: percent + '%'});
+		setTimeout(function(){
+			if (!ims.loading.isVisible){
+				ims.loading.isVisible = true;
+				$('.progress').progress();
+				$('.loading').fadeIn();
+				$('body').css({overflow: 'hidden'});
+			}
+			$('.progress').progress({value: percent});
+		}, 4);
 	},
 	/**
 	 * @name reset
@@ -39,7 +48,12 @@ ims.loading = {
 	 *  + Change the width of the progress bar to 0
 	 */
 	reset: function(){
-		$('.bar').css({width: 0});
+		setTimeout(function(){
+			$('.loading').fadeOut();
+			$('.progress').progress({value: 0});
+			ims.loading.isVisible = false;
+			$('body').css({overflow: 'auto'});
+		}, 10);
 	}
 }
 /**
@@ -734,7 +748,7 @@ Config.prototype.getSurveyById = function(id){
  *  + Reset the surveys with the new list
  *  + Save the config file
  */
-Config.prototype.remove = function(id){
+Config.prototype.remove = function(id, noSave){
 	var newSurveys = [];
 	for (var i = 0; i < this.surveys.length; i++){
 		if (this.surveys[i].id != parseInt(id)) 
@@ -744,6 +758,7 @@ Config.prototype.remove = function(id){
 		}
 	}
 	this.surveys = newSurveys;
+	if (noSave) return;
 	this.save();
 }
 /** 
@@ -1135,13 +1150,13 @@ app.controller('adminCtrl', ["$scope", function($scope){
 		$scope.view = menuItem.name.toLowerCase();
 		if ($scope.view.indexOf('survey') > -1 || $scope.view == 'process'){
 			setTimeout(function(){
-				$('.selection.dropdown').dropdown({
+				$('.selection.dropdown:not(#whichView)').dropdown({
 					onChange: function(value, text){
 						surveySelected(value, text, true);
 					}
 				});
 
-				if ($scope.view == 'modify survey'){
+				if ($scope.view == 'modify survey' || $scope.view == 'add survey'){
 					$('#whichView').dropdown({
 						onChange: function(value, text){
 							$scope.selectedSurvey.placement = value;
@@ -1152,6 +1167,22 @@ app.controller('adminCtrl', ["$scope", function($scope){
 				if ($scope.view == 'add survey'){
 					$scope.$apply(function(){
 						$scope.selectedSurvey = window.config.newSurvey();
+<<<<<<< HEAD
+						$scope.selectedSurvey.isNew = true;
+					});
+				}
+				else {
+					if ($scope.selectedSurvey && $scope.selectedSurvey.isNew){
+						$scope.selectedSurvey.remove();
+						$scope.selectedSurvey = null;
+						window.config.selectedSurvey = null;
+						$scope.$apply(function(){
+							$scope.surveys = window.config.surveys;
+						});
+					}
+				}
+			}, 10);
+=======
 					});
 				}
 			}, 10);
@@ -1369,6 +1400,7 @@ app.controller('adminCtrl', ["$scope", function($scope){
 		if (!$scope.selectedSurvey){
 			errAlert('Invalid Survey');
 			return false;
+>>>>>>> dd1ad7a29ad11d66814957886e521dd7520dcebc
 		}
 		$scope.selectedSurvey.save();
 	}
@@ -1412,6 +1444,32 @@ app.controller('adminCtrl', ["$scope", function($scope){
 		}
 	}
 
+<<<<<<< HEAD
+	function surveySelected(value, text, force){
+		if (typeof $scope.selectedSurvey != 'object'){
+			$scope.selectedSurvey = value;
+			$scope.selectedSurvey = getSelectedSurvey();
+			window.config.selectedSurvey = $scope.selectedSurvey;
+		}
+		if (force){
+			$scope.selectedSurvey = value;
+			$scope.selectedSurvey = getSelectedSurvey();
+			window.config.selectedSurvey = $scope.selectedSurvey;
+		}
+		$scope.$apply(function(){
+			if (typeof $scope.selectedSurvey != 'object'){
+				$scope.selectedSurvey = value;
+				$scope.selectedSurvey = getSelectedSurvey();
+				window.config.selectedSurvey = $scope.selectedSurvey;
+			}
+			if (force){
+				$scope.selectedSurvey = value;
+				$scope.selectedSurvey = getSelectedSurvey();
+				window.config.selectedSurvey = $scope.selectedSurvey;
+			}
+			if ($('#whichView').length > 0){
+				$('#whichView').dropdown('set selected', $scope.selectedSurvey.placement);
+=======
 	$scope.startEvaluations = function(){
 		var ev = $scope.evaluations;
 		if (ev.by == ev['for']){
@@ -1423,6 +1481,7 @@ app.controller('adminCtrl', ["$scope", function($scope){
 			if (ev[key] == null || ev[key] == ''){
 				errAlert("Some information was left out!");
 				return;
+>>>>>>> dd1ad7a29ad11d66814957886e521dd7520dcebc
 			}
 		}
 
@@ -1640,6 +1699,145 @@ Evaluations.prototype.setAnswers = function(evaluatee, row, locations) {
 		this.people[evaluatee].count++;
 	}
 
+<<<<<<< HEAD
+	$scope.removeQuestion = function(question){
+		if (selectedQuestion == null){
+			$scope.question = {
+				columnLetter: '',
+				questionText: '',
+				replaces: []
+			};
+		}
+		else{
+			for (var i = 0; i < $scope.selectedSurvey.questions.length; i++){
+				if ($scope.selectedSurvey.questions[i].id == selectedQuestion.id){
+					$scope.selectedSurvey.questions.splice(i, 1);
+				}
+			}
+		}
+	}
+
+	function Replaces(type){
+		var result = '';
+		if (type == 'what'){
+			for (var i = 0; i < $scope.question.replaces.length; i++){
+				if (result.length > 0){
+					result += ';';
+				}
+				result += $scope.question.replaces[i]['what'];
+			}
+		}
+		else if (type == 'with'){
+			for (var i = 0; i < $scope.question.replaces.length; i++){
+				if (result.length > 0){
+					result += ';';
+				}
+				result += $scope.question.replaces[i]['with'];
+			}
+		}
+		return result;
+	}
+
+	function ReplacesCreate(awhat, awith){
+		var bwhat = awhat.split(';');
+		var bwith = awith.split(';');
+		var result = [];
+		for (var i = 0; i < bwhat.length; i++){
+			result.push({
+				'with': bwith[i],
+				'what': bwhat[i]
+			});
+		}
+		return result;
+	}
+
+	$scope.addQuestion = function(){
+		$('#questionModal').modal({
+			onApprove: function(){
+				if (!$scope.selectedSurvey){
+					errAlert('Invalid Survey');
+					return false;
+				}
+				$scope.$apply(function(){
+					$scope.selectedSurvey.addQuestion(new Question({
+						id: $scope.selectedSurvey.getHighestQuestionId() + 1,
+						text: $scope.question.questionText,
+						col: $scope.question.columnLetter.toUpperCase(),
+						replaceWhat: Replaces('what'),
+						replaceWith: Replaces('with')
+					}, false));
+					$scope.question = {
+						columnLetter: '',
+						questionText: '',
+						replaces: []
+					};
+					$scope['what'] = '';
+					$scope['with'] = '';
+				})
+			},
+			onHide: function(){
+				$scope.$apply(function(){
+					$scope.question = {
+						columnLetter: '',
+						questionText: '',
+						replaces: []
+					};
+					$scope['what'] = '';
+					$scope['with'] = '';
+				});
+			}
+		}).modal('show');
+	}
+
+	$scope.removeReplaces = function(r, idx){
+		$scope.question.replaces.splice(idx, 1);
+	}
+
+	$scope.addReplace = function(wh, wi){
+		$scope.question.replaces.push({
+			'what': wh,
+			'with': wi
+		});
+		$scope['what'] = '';
+		$scope['with'] = '';
+	}
+
+	var selectedQuestion = null;
+	$scope.editQuestion = function(question){
+		selectedQuestion = question;
+		$scope.question = {
+			columnLetter: selectedQuestion.col,
+			questionText: selectedQuestion.text,
+			replaces: ReplacesCreate(selectedQuestion.replaceWhat, selectedQuestion.replaceWith)
+		};
+		$('#questionModal').modal({
+			onApprove: function(){
+				if (!$scope.selectedSurvey){
+					errAlert('Invalid Survey');
+					return false;
+				}
+				selectedQuestion.col = $scope.question.columnLetter;
+				selectedQuestion.text = $scope.question.questionText;
+				selectedQuestion.replaceWhat = Replaces('what');
+				selectedQuestion.replaceWith = Replaces('with');
+				$scope.question = {
+					columnLetter: '',
+					questionText: '',
+					replaces: []
+				};
+				$scope['what'] = '';
+				$scope['with'] = '';
+			},
+			onHide: function(){
+				$scope.question = {
+					columnLetter: '',
+					questionText: '',
+					replaces: []
+				};
+				$scope['what'] = '';
+				$scope['with'] = '';
+				selectedQuestion = null;
+=======
 	for (var loc = 0; loc < locations.length; loc++) {
 		var quest = locations[loc].question;
 		var ans = row[locations[loc].col];
@@ -1654,6 +1852,7 @@ Evaluations.prototype.setAnswers = function(evaluatee, row, locations) {
 				this.people[evaluatee][quest] = (ans != "" ? parseFloat(1) : parseFloat(0));
 			} else {
 				this.people[evaluatee][quest] += (ans != "" ? parseFloat(1) : parseFloat(0));
+>>>>>>> dd1ad7a29ad11d66814957886e521dd7520dcebc
 			}
 		}
 	}
@@ -2057,6 +2256,59 @@ Permissions.prototype.stepOne = function(callback){
 	})
 }
 
+<<<<<<< HEAD
+app.filter('reverseByWeek', function() {
+  	return function(items){
+      	if (items){
+      		var finalSet = [];
+      		var surveyTypes = {};
+
+      		for (var i = 0; i < items.length; i++){
+      			if (surveyTypes[items[i].name] == undefined) surveyTypes[items[i].name] = [];
+          		surveyTypes[items[i].name].push(items[i]);
+          	}
+
+          	for (var s in surveyTypes){
+          		var set = [];
+          		for (var i = 0; i < surveyTypes[s].length; i++){
+	          		set = addItemReverseOrder(set, surveyTypes[s][i]);
+	          	}
+	          	finalSet = finalSet.concat(set);
+          	}
+          	
+          	return finalSet;
+      	}
+  	} 
+});
+
+app.directive('allCaps', function($compile){
+	return {
+		restrict: 'A',
+		replace: true,
+		link: function(scope, element, attrs){
+			element.keyup(function(){
+				if (typeof this.value == 'string') this.value = this.value.toUpperCase();
+			});
+		}
+	}
+});
+/**
+ * @start evaluations
+ */
+/**
+ * @name  Evaluations
+ * @assign Grant
+ * @description object used to assign data from the evaluator to the evaluatee
+ * @todo
+ *  + set the evaluations object
+ *  + set the csv file location
+ */
+function Evaluations(obj, file) {
+	this._evaluations = obj;
+	this._file = file;
+	this.people = {};
+	this._sem = window.config.getCurrentSemester();
+=======
 function PermissionFile(xml){
 	var obj = byui(xml).obj();
 	var keys = Object.keys(obj.file);
@@ -2064,6 +2316,7 @@ function PermissionFile(xml){
 		this[keys[i]] = obj.file[keys[i]];
 	}
 	this._rawXml = xml;
+>>>>>>> dd1ad7a29ad11d66814957886e521dd7520dcebc
 }
 
 // End Result
@@ -2483,6 +2736,7 @@ Rollup.avg = function(sum, count){
 }
 
 Rollup._calcSections = function(str){
+	if (!str) return 0;
 	var m = str.match(/[a-zA-Z0-9]{1,}\b/g);
 	if (m == undefined) return 0;
 	return m.length;
@@ -3706,6 +3960,7 @@ function Survey(survey, isXml){
 		this._xml = this.toXml();
 		this.people = [];
 	}
+	this.isNew = false;
 	this.processed = 0;
 }
 /**
@@ -3826,6 +4081,7 @@ Survey.prototype.save = function(){
 Survey.prototype.remove = function(){
 	$(this._xml).remove();
 	this._xml = null;
+	window.config.remove(this.id, true);
 }
 /**
  * @name modify

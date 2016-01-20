@@ -21,6 +21,7 @@ ims.url.site = ims.url._base;
  * UI loading class
  */
 ims.loading = {
+	isVisible: false,
 	/**
 	 * @name set
 	 * @description Set the percentage of loading bar
@@ -29,7 +30,15 @@ ims.loading = {
 	 *  + Change the width of the progress bar
 	 */
 	set: function(percent){
-		$('.bar').css({width: percent + '%'});
+		setTimeout(function(){
+			if (!ims.loading.isVisible){
+				ims.loading.isVisible = true;
+				$('.progress').progress();
+				$('.loading').fadeIn();
+				$('body').css({overflow: 'hidden'});
+			}
+			$('.progress').progress({value: percent});
+		}, 4);
 	},
 	/**
 	 * @name reset
@@ -39,7 +48,12 @@ ims.loading = {
 	 *  + Change the width of the progress bar to 0
 	 */
 	reset: function(){
-		$('.bar').css({width: 0});
+		setTimeout(function(){
+			$('.loading').fadeOut();
+			$('.progress').progress({value: 0});
+			ims.loading.isVisible = false;
+			$('body').css({overflow: 'auto'});
+		}, 10);
 	}
 }
 /**
