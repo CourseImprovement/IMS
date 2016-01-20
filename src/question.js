@@ -8,7 +8,7 @@ function Question(xml, survey){
 	this._xml = xml;
 	this._id = $(xml).attr('id');
 	this._surveyId = survey.id;
-	this._qconfig = $(Survey.getConfig()).find('survey[id=' + this._surveyId + '] question[id=' + this._id + ']')[0];
+	this._qconfig = $(Survey.getConfig()).find('semester[code=' + ims.semesters.getCurrentCode() + '] survey[id=' + this._surveyId + '] question[id=' + this._id + ']')[0];
 	this._text = $(this._qconfig).text();
 	this._cleanAnswer();
 }
@@ -34,6 +34,7 @@ Question.prototype.getAnswer = function(){
  * @description Get the smart goal title
  */
 Question.prototype.getSmartName = function(){
+	if (this._text.indexOf('SMART Goal') == -1) return '';
 	return this._text.split('SMART Goal')[1];
 }
 
@@ -50,8 +51,8 @@ Question.prototype.hasAnswer = function(){
  * @description Internal function to clean the answer based on the configurations
  */
 Question.prototype._cleanAnswer = function(){
-	this._answer = this._answer.replace(/[^\x00-\x7F]/g, '');
-	this._answer = this._answer.replace(/\\/g, '\n');
+	this._answer = this._answer.replace(/[^\x00-\x7F]/g, ''); // clean qualtrics bugs
+	this._answer = this._answer.replace(/\\/g, '\n'); // clean qualtrics bugs
 	var rwhat = $(this._qconfig).attr('replacewhat');
 	var rwith = $(this._qconfig).attr('replacewith');
 	if (rwhat && rwhat.length > 0){

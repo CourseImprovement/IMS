@@ -308,51 +308,6 @@ ims.sharepoint = {
 		});
 	},
 	/**
-	 * @name ims.sharepoint.postFileTestTest 
-	 * @description
-	 */
-	postFileTestTest: function(){
-		for (var i = 0; i < 1500; i++){
-			ims.sharepoint.postFileTest(i + '-test.txt');
-		}
-	},
-	/**
-	 * @name ims.sharepoint.postFileTest 
-	 * @description
-	 */
-	postFileTest: function(fileName){
-		function str2ab(str) {
-			// new TextDecoder(encoding).decode(uint8array);
-		  return new TextEncoder('utf8').encode(str);
-		}
-		
-		var buffer = str2ab(User.getCurrent()._xml.firstChild.outerHTML);
-		var url = ims.sharepoint.base + "_api/Web/GetFolderByServerRelativeUrl('" + ims.sharepoint.relativeBase + "Instructor%20Reporting/Test')/Files/add(url='" + fileName + "')";
-    	$['ajax']({
-		    'url': ims.sharepoint.base + "_api/contextinfo",
-		    'header': {
-		        "accept": "application/json; odata=verbose",
-		        "content-type": "application/json;odata=verbose"
-		    },
-		    'type': "POST",
-		    'contentType': "application/json;charset=utf-8"
-		}).done(function(d) {
-			jQuery['ajax']({
-		        'url': url,
-		        'type': "POST",
-		        'data': buffer,
-		        'processData': false,
-		        'headers': {
-		            "accept": "application/json;odata=verbose",
-		            "X-RequestDigest": $(d).find('d\\:FormDigestValue, FormDigestValue').text()
-		        },
-		        'success': function(){
-		        	
-		        }
-		    });
-		});
-	},
-	/**
 	 * @name ims.sharepoint.markAsReviewed
 	 * @description Marks a certain users survey as reviewed.
 	 */
@@ -1086,7 +1041,7 @@ function Question(xml, survey){
 	this._xml = xml;
 	this._id = $(xml).attr('id');
 	this._surveyId = survey.id;
-	this._qconfig = $(Survey.getConfig()).find('survey[id=' + this._surveyId + '] question[id=' + this._id + ']')[0];
+	this._qconfig = $(Survey.getConfig()).find('semester[code=' + ims.semesters.getCurrentCode() + '] survey[id=' + this._surveyId + '] question[id=' + this._id + ']')[0];
 	this._text = $(this._qconfig).text();
 	this._cleanAnswer();
 }
@@ -1112,6 +1067,7 @@ Question.prototype.getAnswer = function(){
  * @description Get the smart goal title
  */
 Question.prototype.getSmartName = function(){
+	if (this._text.indexOf('SMART Goal') == -1) return '';
 	return this._text.split('SMART Goal')[1];
 }
 
@@ -1128,8 +1084,8 @@ Question.prototype.hasAnswer = function(){
  * @description Internal function to clean the answer based on the configurations
  */
 Question.prototype._cleanAnswer = function(){
-	this._answer = this._answer.replace(/[^\x00-\x7F]/g, '');
-	this._answer = this._answer.replace(/\\/g, '\n');
+	this._answer = this._answer.replace(/[^\x00-\x7F]/g, ''); // clean qualtrics bugs
+	this._answer = this._answer.replace(/\\/g, '\n'); // clean qualtrics bugs
 	var rwhat = $(this._qconfig).attr('replacewhat');
 	var rwith = $(this._qconfig).attr('replacewith');
 	if (rwhat && rwhat.length > 0){
@@ -1762,7 +1718,7 @@ Role.prototype.getIncompleteTasks = function(){
 		$.grep(keys, function(el){
 			if ($.inArray(el, existing) == -1) differences.push(Survey.getNameById(el));
 		});
-		if (differences.length > 0 && surveyList[i][0] != undefined){
+		if (differences.length > 0 && surveyList[i][0] != undefined && surveyList[i][0]._user){
 			result.push({
 				user: surveyList[i][0]._user,
 				differences: differences
@@ -2355,7 +2311,8 @@ function Survey(xml, user){
 	this._xml = xml;
 	this._user = user;
 	this.id = $(xml).attr('id');
-	this._config = $(Survey.getConfig()).find('survey[id=' + this.id + ']');
+	var sem = ims.semesters.getCurrentCode();
+	this._config = $(Survey.getConfig()).find('semester[code=' + sem + '] survey[id=' + this.id + ']');
 	this._name = $(this._config).attr('name');
 	this._placement = $(this._config).attr('placement');
 	this._week = $(this._config).attr('week');
@@ -3103,9 +3060,6 @@ User.prototype.isNew = function(){
  * @description Get the href for the user
  */
 User.prototype.getHref = function(){
-	if (this._email == 'davismel'){
-		var a = 10;
-	}
 	var val = JSON.parse(JSON.stringify(ims.aes.value));
   val.ce = this.getEmail();
   val.cr = this.getRole().getRoleName().toUpperCase();

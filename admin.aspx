@@ -2,277 +2,546 @@
 <html lang="en" ng-app='admin'>
 <head>
 	<meta charset="UTF-8">
-	<title>Admin</title>
+	<title>IMS | Admin</title>
 	<link type="image/x-icon" href="https://www.byui.edu/prebuilt/stylenew/images/ico/favicon.ico" rel="shortcut icon">
-	<link rel="stylesheet" type="text/css" href="https://courseimprovement.github.io/IMS/css/admin.css">
+	<link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.1.8/semantic.min.css">
 	<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+	<script type="text/javascript">
+		window.onerror = function(msg, url, row, col){
+	    if (typeof msg != 'string' || msg.length == 0) return;
+
+	    $.ajax({
+	        url: ims.sharepoint.base + 'Instructor%20Reporting/config/err.xml',
+	        method: 'GET'
+	    }).always(function(txt){
+	        var xml;
+	        if (arguments[2].responseText.indexOf('<errors>') == -1){
+	            xml = '<errors></errors>';
+	            var parser = new DOMParser();
+	            xml = parser.parseFromString(xml, "text/xml");
+	        }
+	        $(xml).find('errors').append('<error date="' + new Date().toISOString() + '" msg="' + msg + '" row="' + row + '" col="' + col + '" url="' + window.location.href + '" file="' + url + '" />');
+	        var buffer = new TextEncoder('utf8').encode((new XMLSerializer()).serializeToString(xml));
+	        var postUrl = ims.sharepoint.base + "_api/Web/GetFolderByServerRelativeUrl('" + ims.sharepoint.relativeBase + "Instructor%20Reporting/Master')/Files/add(overwrite=true, url='err.xml')";
+	        $.ajax({
+	            url: '../_api/contextinfo',
+	            headers: {
+	                accept: 'application/json; odata=verbose',
+	                'content-type': 'application/json;odata=verbose'
+	            },
+	            type: 'POST',
+	            contentType: 'application/json:charset=utf-8'
+	        }).done(function(d){
+	            $.ajax({
+	                url: postUrl,
+	                type: 'POST',
+	                data: buffer,
+	                processData: false,
+	                headers: {
+	                    'accept': 'application/json;odata=verbose',
+	                    'X-RequestDigest': $(d).find('d\\:FormDigestValue, FormDigestValue').text()
+	                }
+	            });
+	        })
+	    })
+	}
+	</script>
+	<script type="text/javascript" src='https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.1.8/semantic.min.js'></script>
 	<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.3.15/angular.min.js"></script>
 	<script type="text/javascript" src='https://courseimprovement.github.io/IMS/lib/papaparse.min.js'></script>
 	<script type="text/javascript" src='../_layouts/15/SP.RequestExecutor.js'></script>
 	<script type="text/javascript" src='build/byui.js'></script>
 	<script type="text/javascript" src='build/admin.js'></script>
+	<style>
+		 .pusherz{padding-left: 133px;}
+		 .notification{
+			 	background-color: #B52626;
+		    position: fixed;
+		    top: 10px;
+		    right: -300px;
+		    color: white;
+		    padding: 14px 27px;
+		    -webkit-box-shadow: 0 0 17px -2px rgba(0,0,0,.8);
+		    -moz-box-shadow: 0 0 17px -2px rgba(0,0,0,.8);
+		    box-shadow: 0 0 17px -2px rgba(0,0,0,.8);
+		    min-width: 138px;
+		    max-width: 300px;
+		    z-index: 99999;
+		 }
+		 .loading{
+		 		display: none;
+		 }
+	</style>
 </head>
 <body ng-controller='adminCtrl'>
-	<div class="loading">
-		<div class="bar"></div>
+	<div class="ui active dimmer loading" style='display:none;'>
+		<div class="ui indicating progress active">
+		  <div class="bar" style="transition-duration: 300ms; width: 10%;"></div>
+		</div>
+  </div>
+	<div class="ui left demo vertical inverted sidebar labeled icon menu visible">
+	  <a class="item" ng-repeat='item in menu' ng-class='item.active ? "active" : ""' ng-click='menuChange(item)'>
+	    <i class="icon" ng-class='item.icon'></i>
+	    {{item.name}}
+	  </a>
 	</div>
-	<!-- HOME -->
-	<div class="container" ng-if='mode == "home"'>
-		<div class="big-btn" ng-click='changeMode("Register")'>
-			Register a Survey
-		</div>
-		<div class="big-btn" ng-click='changeMode("Process")'>
-			Process a Survey
-		</div>
-		<div class="big-btn" ng-click='changeMode("Permissions")'>
-			Permissions
-		</div>
-		<div class="big-btn" ng-click='changeMode("SemesterSetup")'>
-			Semester Setup
-		</div>
-		<div class="big-btn" ng-click='changeMode("LeadershipEval")'>
-			Evaluations
-		</div>
-		<div class="big-btn" ng-click='changeMode("ParseTool")'>
-			Parse Tool
-		</div>
-	</div>
+	
+	<div class="pusherz">
+		<div class="ui container">
+			<br>
+			<h2 class="ui center aligned icon header">
+			  <i class="circular icon" ng-class='selectedMenuItem.icon'></i>
+			  {{selectedMenuItem.name}}
+			</h2>
 
-	<!-- REGISTER orderBy:["name", "week"]-->
-	<div class="container" ng-if='mode == "Register"'>
-		<div class="row">
-			Register a Survey
-			<div class="big-btn" ng-click='chooseFile()'>
-				Choose File
-			</div>
-			<button class='big-btn' ng-click='surveyModifications("register", "")'>Register</button>
-			<button class="big-btn" ng-click='changeMode("home")'>Back</button>
-		</div>
-		<hr>
-		<div class="row">
-			Delete a Survey
-			<select class="big-btn" ng-model='selectSurvey'>
-				<option ng-repeat='s in surveys | reverseByWeek' value='{{s.id}}'>{{s.name}}: week {{s.week}}</option>
-			</select>
-			<button class="big-btn" ng-click='surveyModifications("delete", selectSurvey)'>Delete</button>
-		</div>
-		<hr>
-		<div class="row">
-			Modify a Survey
-			<select class="big-btn" ng-model='selectSurvey2'>
-				<option ng-repeat='s in surveys | reverseByWeek' value='{{s.id}}'>{{s.name}}: week {{s.week}}</option>
-			</select>
-			<button class="big-btn" ng-click='surveyModifications("modify", selectSurvey2)'>Modify</button>
-		</div>
-		<hr>
-		<div class="row">
-			Copy a Survey
-			<select class="big-btn" ng-model='selectSurvey3'>
-				<option ng-repeat='s in surveys | reverseByWeek' value='{{s.id}}'>{{s.name}}: week {{s.week}}</option>
-			</select>
-			<button class="big-btn" ng-click='surveyModifications("copy", selectSurvey3)'>Copy</button>
-		</div>
-	</div>
-
-	<!-- REGISTER PT2 -->
-	<div class="container" ng-if='mode == "RegisterStart"'>
-		<div class="box">
-			<div class="row">
-				Survey Name: <input type="text" ng-model='selectedSurvey.name' id="surveyName">
-			</div>
-			<div class="row">
-				Week: <input type="text" ng-model='selectedSurvey.week' id="surveyWeek">
-			</div>
-			<div class="row">
-				Which View: <select name="placement" ng-model='selectedSurvey.placement' id="Placement">
-					<option value="Instructor">Instructor</option>
-					<option value="TGL">TGL</option>
-					<option value="AIM">AIM</option>
-				</select>
-			</div>
-			<div class="row">
-				Evaluation: <select name="eval" ng-model='selectedSurvey.iseval' id="iseval">
-					<option value="true">True</option>
-					<option value="false">False</option>
-				</select>
-			</div>
-			<div class="row">
-				Email Col: <input type="text" ng-model='selectedSurvey.email' ng-keyup='selectedSurvey.email = upper($event)' id='eCol'>
-			</div>
-			<div class="row">
-				Course Col: <input type="text" ng-model='selectedSurvey.course' ng-keyup='selectedSurvey.course = upper($event)' id='cCol'>
-			</div>
-			<div class="row">
-				 <div class="link" ng-click='addBlankQuestion()'>
-				 		<i class='fa fa-plus-square'></i> Add Question
-				 </div>
-				 <div class="add-dialog" ng-if='showDialog'>
-				 	<div class="close" ng-click='closeDialog()'>X</div>
-			 			<div class="row">
-			 				<select ng-model='selectedQuestion.col' ng-if='file != null' id="arow">
-			 					<option value="{{$index}}" ng-repeat='d in csv track by $index'>{{d}}</option>
-			 				</select>
-			 				<input type="text" ng-model='selectedQuestion.col' ng-if='file == null' placeholder='Column Letter' id="arow2" ng-keyup='selectedQuestion.col = upper($event)'>
-			 			</div>
-			 			<div class="row">
-			 				<input type="text" ng-model='selectedQuestion.text' placeholder='Question Text'>
-			 			</div>
-			 			<div class="row">
-			 				<input type="text" ng-model='selectedQuestion.replaceWhat' placeholder='Replace;Replace2'>	
-			 			</div>
-			 			<div class="row">
-			 				<input type="text" ng-model='selectedQuestion.replaceWith' placeholder='With;With2'>
-			 			</div>
-			 			<div class="row">
-			 				<button ng-click='addQuestion()'>Add</button>
-			 			</div>
-			 		</div>
-			</div>
-			<div class="row">
-				<ul class="no-bullet">
-					<li ng-repeat='q in questions track by $index'>{{q.text}} <div class="link right" ng-click='removeQuestion(q)'>Remove</div>&nbsp;&nbsp;&nbsp;<div class="link right" ng-click='editQuestion(q)'>Edit</div></li>
-				</ul>
-			</div>
-			<div class="row">
-				<button ng-click='submitSurvey()' class="submit">Submit</button>
-				<button ng-click='changeMode("Register")' class="submit">Back</button>
-			</div>
-		</div>
-	</div>
-
-	<!-- EVALUATION -->
-	<div class="container" ng-if='mode == "Evaluation"'>
-		<div class="box">
-			<div class="row">
-				<div class="row">
-					Evaluation for: 
-					<select ng-model='fRole'>
-						<option value="INSTRUCTOR">INSTRUCTOR</option>
-						<option value="TGL">TGL</option>
-						<option value="AIM">AIM</option>
-						<option value="OCR">OCR</option>
-					</select>
-					by: 
-					<select ng-model='bRole'>
-						<option value="INSTRUCTOR">INSTRUCTOR</option>
-						<option value="TGL">TGL</option>
-						<option value="AIM">AIM</option>
-						<option value="OCR">OCR</option>
-					</select>
+			<div ng-if='view == "instructions"'>
+				<div class="ui styled accordion">
+				  <div class="title active">
+				    <i class="dropdown icon"></i>
+				    Process a Survey
+				  </div>
+				  <div class="content active">
+				    <p class="transition visible" style="display: block !important;">
+				    	To use <strong>Process a Survey</strong> use the following instructions:
+				    	<ol class="ui list">
+				    		<li>Use the dropdown and select a course.</li>
+				    		<li>Upload the Qualtrics file downloaded from the Qualtrics survey</li>
+				    		<li>Click <strong>Start</strong></li>
+				    	</ol>
+				    </p>
+				  </div>
+				  <div class="title">
+				    <i class="dropdown icon"></i>
+				    Permissions
+				  </div>
+				  <div class="content">
+				    <p class="transition visible" style="display: block !important;">
+				    	To use <strong>Permissions</strong> use the following instructions:
+				    	<ol class="ui list">
+				    		<li>Click the button, <strong>Change</strong></li>
+				    	</ol>
+				    </p>
+				  </div>
+				  <div class="title">
+				    <i class="dropdown icon"></i>
+				    Semester Setup
+				  </div>
+				  <div class="content">
+				    <p class="transition visible" style="display: block !important;">
+				    	To use <strong>Semester Setup</strong> use the following instructions:
+				    	<ol class="ui list">
+				    		<li>Click <strong>Choose File</strong>, and upload the OSM Semester Setup report</li>
+				    		<li>Click <strong>Start</strong></li>
+				    	</ol>
+				    </p>
+				  </div>
+				  <div class="title">
+				    <i class="dropdown icon"></i>
+				    Qualtrics Prep
+				  </div>
+				  <div class="content">
+				    <p class="transition visible" style="display: block !important;">
+				    	To use <strong>Qualtrics Prep</strong> use the following instructions:
+				    	<ol class="ui list">
+				    		<li>From the dropdown, choose the left most side of the CSV you want exported</li>
+				    		<li>From the dropdown, choose the right most side of the CSV you want to be exported</li>
+				    		<li>Select <strong>Include Course</strong> if the course is needed to be included</li>
+				    		<li>Click <strong>Choose File</strong> and upload the OSM Semester Setup file</li>
+				    		<li>Click <strong>Start</strong></li>
+				    	</ol>
+				    </p>
+				  </div>
+				  <div class="title">
+				    <i class="dropdown icon"></i>
+				    Evaluations
+				  </div>
+				  <div class="content">
+				    <p class="transition visible" style="display: block !important;">
+				    	To use <strong>Evaluations</strong> use the following instructions:
+				    	<ol class="ui list">
+				    		<li>Select the roles for who will be evaluated</li>
+				    		<li>Select the roles for who will be the evaluator</li>
+				    		<li><strong>Email Column</strong> refereneces the email column from the uploaded Qualtrics CSV <strong>Use Upper Case</strong></li>
+				    		<li><strong>Data Columns</strong> references the columns that contain desired data from the Qualtrics CSV. (e.g. A;D-F, D;E;F, or D-F)</li>
+				    		<li><strong>Question Texts</strong> The names of the columns previously entered in <strong>Data Columns</strong>. (e.g. One Question Title;Title Two;Title Three)</li>
+				    		<li><strong>Logic for each Question</strong> Selects whether the data will be displayed as a percentage or value. (e.g. p;p;p;p;p;v;v;v)</li>
+				    		<li>Click <strong>Choose File</strong> and upload the Qualtrics CSV</li>
+				    		<li>Click <strong>Start</strong></li>
+				    	</ol>
+				    </p>
+				  </div>
+				  <div class="title">
+				    <i class="dropdown icon"></i>
+				    Add / Modify Survey
+				  </div>
+				  <div class="content">
+				    <p class="transition visible" style="display: block !important;">
+				    	To use <strong>Add Survey</strong> use the following instructions:
+				    	<h2 class="ui sub header">Survey Instructions</h2>
+				    	<ol class="ui list">
+				    		<li><strong>Survey Name:</strong> this is the name of the survey. (e.g. Weekly Reflection, GSR, etc.)</li>
+				    		<li><strong>Week:</strong> is the week number. (e.g. 1, 2, Intro, Conclusion, etc.)</li>
+				    		<li><strong>Is Evaluation:</strong> this determines if the survey is an evaluation.</li>
+				    		<li><strong>Which View:</strong> this determines which dashboard view the data appears on</li>
+				    		<li><strong>Email Col:</strong> the column in the Qualtrics CSV where the email could be found. <strong>Use Upper Case.</strong></li>
+				    		<li><strong>Course Col:</strong> the column in the Qualtrics CSV where the course could be found. <strong>Use Upper Case.</strong></li>
+				    	</ol>
+				    	<h2 class="ui sub header">Add Question Instructions</h2>
+				    	<ol class="ui list">
+				    		<li><strong>Column Letter:</strong> the column in the Qualtrics CSV where the question could be found. </li>
+				    		<li><strong>Question Text:</strong> how the question should appear on the dashboards. </li>
+				    		<li><strong>Replace What:</strong> defines values that need to be changed. <strong>Use a ; to separate multiple values.</strong></li>
+				    		<li><strong>Replace With:</strong> defines values that will replace those being changed. <strong>Use a ; to separate multiple values.</strong></li>
+				    	</ol>
+				    	<h2 class="ui sub header">Modify Question Instructions</h2>
+				    	<ol class="ui list">
+				    		<li>Click one of the questions and follow the instructions above.</li>
+				    	</ol>
+				    </p>
+				  </div>
+				  <div class="title">
+				    <i class="dropdown icon"></i>
+				    Remove Survey
+				  </div>
+				  <div class="content">
+				    <p class="transition visible" style="display: block !important;">
+				    	To use <strong>Remove Survey</strong> use the following instructions:
+				    	<ol class="ui list">
+				    		<li>From the dropdown, choose the desired survey</li>
+				    		<li>Click <strong>Start</strong></li>
+				    	</ol>
+				    </p>
+				  </div>
+				  <div class="title">
+				    <i class="dropdown icon"></i>
+				    Copy Survey
+				  </div>
+				  <div class="content">
+				    <p class="transition visible" style="display: block !important;">
+				    	To use <strong>Copy Survey</strong> use the following instructions:
+				    	<ol class="ui list">
+				    		<li>From the dropdown, choose the desired survey</li>
+				    		<li>Click <strong>Start</strong></li>
+				    	</ol>
+				    </p>
+				  </div>
 				</div>
- 				<div class="row"> 
- 					<input type="text" ng-model='email' placeholder='Email Col' id="email" ng-keyup='email = upper($event)'>
- 				</div>
- 				<div class="row">
- 					<input type="text" ng-model='columns' placeholder='Data Columns' id="columns" ng-keyup='columns = upper($event)'>
- 				</div>
- 				<div class="row">
- 					<input type="text" ng-model='questions' placeholder='Question Texts'>
- 				</div>
- 				<div class="row">
- 					<input type="text" ng-model='logics' placeholder='Logic For Each Question'>
- 				</div>
-			    <div class="row">
-	 				<button ng-show="!evalAdded" ng-click='addEvaluation(bRole, fRole, email, columns, questions, logics)'>Add</button>
-	 				<button ng-show="evalAdded" ng-click="clearEvaluation()">Clear</button>
-	 			</div>
 			</div>
-			<div class="row">
-				<ul class="no-bullet">
-					<li ng-show="evalAdded && evaluations != null">
-						Evaluation by: {{evaluations.eBy}}      for: {{evaluations.eFor}}
+
+			<div ng-if='view == "qualtrics prep"' class="ui center aligned header">
+				<div class="item">
+					<div class="ui selection dropdown" id="left">
+					  <input type="hidden" name="left">
+					  <i class="dropdown icon"></i>
+					  <div class="default text">Left Side</div>
+					  <div class="menu">
+					    <div class="item" data-value="instructor">Instructor</div>
+					    <div class="item" data-value="TGL">TGL</div>
+					    <div class="item" data-value="AIM">AIM</div>
+					    <div class="item" data-value="IM">IM</div>
+					    <div class="item" data-value="OCR">OCR</div>
+					  </div>
+					</div>
+				</div>
+				<br>
+				<div class="item">
+					<div class="ui selection dropdown" id="right">
+					  <input type="hidden" name="right">
+					  <i class="dropdown icon"></i>
+					  <div class="default text">Right Side</div>
+					  <div class="menu">
+					    <div class="item" data-value="instructor">Instructor</div>
+					    <div class="item" data-value="TGL">TGL</div>
+					    <div class="item" data-value="AIM">AIM</div>
+					    <div class="item" data-value="IM">IM</div>
+					    <div class="item" data-value="OCR">OCR</div>
+					  </div>
+					</div>
+				</div>
+				<br>
+				<div class="item">
+					<div class="ui slider checkbox" id="course">
+					  <input type="checkbox" name="newsletter">
+					  <label>Include Course</label>
+					</div>
+				</div>
+				<br>
+				<div class="item">
+					<button class="massive ui button blue" ng-click='chooseFile()'>Choose File</button>
+					<button class="massive ui button green" ng-click='startQualtricsPrep()' ng-class='isFile ? "" : "disabled"'>Start</button>
+				</div>
+			</div>
+
+			<div ng-if='view == "evaluations"'>
+				<div class="ui grid">
+					<div class="two wide column"></div>
+					<div class="twelve wide column">
+						Evaluation for
+						<div class="ui selection dropdown" id="for">
+						  <input type="hidden" name="right">
+						  <i class="dropdown icon"></i>
+						  <div class="default text">Role</div>
+						  <div class="menu">
+						    <div class="item" data-value="instructor">Instructor</div>
+						    <div class="item" data-value="TGL">TGL</div>
+						    <div class="item" data-value="AIM">AIM</div>
+						    <div class="item" data-value="IM">IM</div>
+						    <div class="item" data-value="OCR">OCR</div>
+						  </div>
+						</div>
+						by
+						<div class="ui selection dropdown" id="by">
+						  <input type="hidden" name="right">
+						  <i class="dropdown icon"></i>
+						  <div class="default text">Role</div>
+						  <div class="menu">
+						    <div class="item" data-value="instructor">Instructor</div>
+						    <div class="item" data-value="TGL">TGL</div>
+						    <div class="item" data-value="AIM">AIM</div>
+						    <div class="item" data-value="IM">IM</div>
+						    <div class="item" data-value="OCR">OCR</div>
+						  </div>
+						</div>
+						<br><br>
+						<form class="ui form">
+							<div class="field">
+								<label>Email Column</label>
+								<input type="text" ng-model='evaluations.emailCol' all-caps>
+							</div>
+							<div class="field">
+								<label>Data Columns</label>
+								<input type="text" ng-model='evaluations.dataCols'>
+							</div>
+							<div class="field">
+								<label>Question Texts</label>
+								<input type="text" ng-model='evaluations.texts'>
+							</div>
+							<div class="field">
+								<label>Logic for Each Question</label>
+								<input type="text" ng-model='evaluations.logic'>
+							</div>
+						</form>
 						<br>
-						Email Column: {{evaluations.emailCol}}
-						<ul class="no-bullet">
-							<li ng-repeat='e in evaluations.dataSeries'>
-								Question Text: {{e.question}}
-								<br>
-								Data Column: {{e.col}}
-								<br>
-								Data Logic: {{e.logic}}
-							</li>
-						</ul>
-					</li>
-				</ul>
-			</div>
-			<div class="row">
-				<div class="submit" ng-click='chooseFile()'>
-					Choose File
+						<div class="ui center aligned header">
+							<button class="massive ui button blue" ng-click='chooseFile()'>Choose File</button>
+							<button class="massive ui button green" ng-click='startEvaluations()' ng-class='isFile ? "" : "disabled"'>Start</button>
+						</div>
+					</div>
+					<div class="two wide column"></div>
 				</div>
-				<button ng-show="isFile" ng-click='CreateEvaluationCSV()' class="submit">Start</button>
-				<button ng-click='clearEvaluation(); changeMode("LeadershipEval")' class="submit">Back</button>
 			</div>
-		</div>
-	</div>
 
-	<!-- PARSETOOL -->
-	<div class="container" ng-if='mode == "ParseTool"'>
-		<div class="box">
-			<div class="row">
-				<div class="row">
-					Left side: 
-					<select ng-model='left'>
-						<option value="INSTRUCTOR">INSTRUCTOR</option>
-						<option value="TGL">TGL</option>
-						<option value="AIM">AIM</option>
-						<option value="IM">IM</option>
-						<option value="OCR">OCR</option>
-					</select>
-					Right side: 
-					<select ng-model='right'>
-						<option value="INSTRUCTOR">INSTRUCTOR</option>
-						<option value="TGL">TGL</option>
-						<option value="AIM">AIM</option>
-						<option value="IM">IM</option>
-						<option value="OCR">OCR</option>
-					</select>
+			<div ng-if='view == "semester setup"'>
+				<div class="ui center aligned header">
+					<button class="massive ui button blue" ng-click='chooseFile()'>Choose File</button>
+					<button class="massive ui button green" ng-click='startSemesterSetup()' ng-class='isFile ? "" : "disabled"'>Start</button>
 				</div>
- 				<div class="row"> 
- 					<input type="checkbox" ng-model='useCourse'>Course
- 				</div>
 			</div>
-			<div class="row">
-				<div class="submit" ng-click='chooseFile()'>
-					Choose File
+
+			<div ng-if='view == "permissions"'>
+				<div class="ui center aligned header">
+					<button class="massive ui button green" ng-click='changePermissions()'>Change</button>
 				</div>
-				<button ng-show="isFile" ng-click='UseTool(left, right, useCourse)' class="submit">Start</button>
-				<button ng-click='changeMode("home")' class="submit">Back</button>
 			</div>
+
+			<div ng-if='view == "add survey"'>
+				<div>
+					<div class="ui grid">
+						<div class="eight wide column">
+							<form class="ui form">
+								<div class="field">
+									<label>Survey Name</label>
+									<input type="text" placeholder='Weekly Reflection' ng-model='selectedSurvey.name'>
+								</div>
+								<div class="field">
+									<label>Week</label>
+									<input type="text" placeholder='Intro' ng-model='selectedSurvey.week'>
+								</div>
+								<div class="field">
+									<div class="ui checkbox">
+									  <input type="checkbox" ng-checked='selectedSurvey.iseval'>
+									  <label>Is Evaluation</label>
+									</div>
+								</div>
+								<div class="field">
+									<div class="ui selection dropdown" id="whichView">
+									  <input type="hidden" name="whichView">
+									  <i class="dropdown icon"></i>
+									  <div class="default text">Which View</div>
+									  <div class="menu">
+									    <div class="item" data-value="Instructor">Instructor</div>
+									    <div class="item" data-value="TGL">TGL</div>
+									    <div class="item" data-value="AIM">AIM</div>
+									  </div>
+									</div>
+								</div>
+								<div class="field">
+									<label>Email Col</label>
+									<input type="text" ng-model='selectedSurvey.email' all-caps>
+								</div>
+								<div class="field">
+									<label>Course Col</label>
+									<input type="text" ng-model='selectedSurvey.course' all-caps>
+								</div>
+							</form>
+						</div>
+						<div class="eight wide column">
+							<button class="ui button blue" ng-click='addQuestion()' ng-class='!selectedSurvey ? "disabled" : ""'>Add Question</button>
+							<button class="ui button green" ng-click='submitChanges()' ng-class='!selectedSurvey ? "disabled" : ""'>Save</button>
+							<br>
+							<h2 class="ui sub header">
+								Questions
+							</h2>
+							<div class="ui link list">
+							  <a class="item" ng-repeat='question in selectedSurvey.questions' ng-click='editQuestion(question)'>{{question.text}}</a>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+
+			<div ng-if='view == "remove survey" || view == "copy survey" || view == "process" || view == "modify survey"'>
+				<div class="ui grid">
+					<div class="two wide column"></div>
+					<div class="twelve wide column">
+						<div class="ui fluid search selection dropdown">
+						  <input type="hidden" name="selectedSurvey" ng-model='selectedSurvey'>
+						  <i class="dropdown icon"></i>
+						  <div class="default text">Select Survey</div>
+						  <div class="menu">
+							  <div class="item" data-value="{{survey.id}}" ng-repeat='survey in surveys | reverseByWeek'>{{survey.name}}: week {{survey.week}}</div>
+							</div>
+						</div>
+					</div>
+					<div class="two wide column"></div>
+				</div>
+				<div ng-if='view != "modify survey"'>
+					<br>
+					<div class="ui center aligned header">
+						<button class="massive ui button red" ng-click='removeSurvey()' ng-if='view == "remove survey"'>Delete Survey</button>
+						<button class="massive ui button orange" ng-click='copySurvey()' ng-if='view == "copy survey"'>Copy Survey</button>
+						<div ng-if='view == "process"'>
+							<button class="massive ui button blue" ng-click='chooseFile()'>Choose File</button>
+							<button class="massive ui button green" ng-click='startProcess()' ng-class='isFile ? "" : "disabled"'>Start</button>
+						</div>
+					</div>
+				</div>
+				<div ng-if='view == "modify survey"'>
+					<br><br>
+					<div class="ui grid">
+						<div class="eight wide column">
+							<form class="ui form">
+								<div class="field">
+									<label>Survey Name</label>
+									<input type="text" placeholder='Weekly Reflection' ng-model='selectedSurvey.name'>
+								</div>
+								<div class="field">
+									<label>Week</label>
+									<input type="text" placeholder='Intro' ng-model='selectedSurvey.week'>
+								</div>
+								<div class="field">
+									<div class="ui checkbox">
+									  <input type="checkbox" ng-checked='selectedSurvey.iseval'>
+									  <label>Is Evaluation</label>
+									</div>
+								</div>
+								<div class="field">
+									<div class="ui selection dropdown" id="whichView">
+									  <input type="hidden" name="whichView">
+									  <i class="dropdown icon"></i>
+									  <div class="default text">Which View</div>
+									  <div class="menu">
+									    <div class="item" data-value="Instructor">Instructor</div>
+									    <div class="item" data-value="TGL">TGL</div>
+									    <div class="item" data-value="AIM">AIM</div>
+									  </div>
+									</div>
+								</div>
+								<div class="field">
+									<label>Email Col</label>
+									<input type="text" ng-model='selectedSurvey.email'>
+								</div>
+								<div class="field">
+									<label>Course Col</label>
+									<input type="text" ng-model='selectedSurvey.course'>
+								</div>
+							</form>
+						</div>
+						<div class="eight wide column">
+							<button class="ui button blue" ng-click='addQuestion()' ng-class='!selectedSurvey ? "disabled" : ""'>Add Question</button>
+							<button class="ui button green" ng-click='submitChanges()' ng-class='!selectedSurvey ? "disabled" : ""'>Save</button>
+							<br>
+							<h2 class="ui sub header">
+								Questions
+							</h2>
+							<div class="ui link list">
+							  <a class="item" ng-repeat='question in selectedSurvey.questions' ng-click='editQuestion(question)'>{{question.text}}</a>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+
+		</div>
+
+		<div class="ui modal" id="questionModal">
+		  <i class="close icon"></i>
+		  <div class="header">
+		    Add / Modify a Question
+		  </div>
+		  <div class="content">
+		    <form class="ui form">
+		    	<div class="field">
+		    		<label>Column Letter</label>
+		    		<input type="text" ng-model='question.columnLetter' all-caps>
+		    	</div>
+		    	<div class="field">
+		    		<label>Question Text</label>
+		    		<input type="text" ng-model='question.questionText'>
+		    	</div>
+		    	<br>
+		    	<div class="field">
+		    		<label>Replace Area</label>
+		    	</div>
+		    	<div class="field inline">
+		    		<input type="text" placeholder='Replace What' ng-model='what'>
+		    		<input type="text" placeholder='Replace With' ng-model='with'>
+		    		<button class="ui button" ng-click='addReplace(what, with)'>Add</button>
+		    	</div>
+		    	<div class="field">
+		    		<table class="ui table">
+		    			<tr>
+		    				<th>&nbsp;</th>
+		    				<th>Replace What</th>
+		    				<th>Replace With</th>
+		    			</tr>
+		    			<tr ng-repeat='r in question.replaces'>
+		    				<td><div class="ui mini button" ng-click='removeReplaces(r, $index)'>Remove</div></td>
+		    				<td>{{r.what}}</td>
+		    				<td>{{r.with}}</td>
+		    			</tr>
+		    		</table>
+		    	</div>
+		    </form>
+		  </div>
+		  <div class="actions">
+		  	<div class="ui red deny button" ng-click='removeQuestion(question)'>
+		  		Delete
+		  	</div>
+		    <div class="ui black deny button">
+		      Cancel
+		    </div>
+		    <div class="ui positive right labeled icon button">
+		      Add / Modify
+		      <i class="checkmark icon"></i>
+		    </div>
+		  </div>
 		</div>
 	</div>
 
-	<!-- PROCESS -->
-	<div class="container" ng-if='mode == "Process"' id="process">
-		<select class="big-btn" ng-model='selectSurvey'>
-			<option ng-repeat='s in surveys | reverseByWeek' value='{{s.id}}'>{{s.name}}: week {{s.week}}</option>
-		</select>
-		<div class="big-btn" ng-click='chooseFile()'>
-			Choose File
-		</div>
-		<button class="big-btn" ng-click='processSurvey(selectSurvey)'>Start</button>
-		<button class="big-btn" ng-click='changeMode("home")'>Back</button>
+	<div class="notification">
+	  <span class="title" id='errMsg'></span>
 	</div>
 
-	<!-- PERMISSIONS -->
-	<div class="container" ng-if='mode == "Permissions"'>
-		<button class="big-btn" ng-click='permissions()'>Start</button>
-		<button class="big-btn" ng-click='changeMode("home")'>Back</button>
-	</div>
-
-	<!-- SEMESTER SETUP -->
-	<div class="container" ng-if='mode == "SemesterSetup"'>
-		<div class="big-btn" ng-click='chooseFile()'>
-			Choose File
-		</div>
-		<button class="big-btn" ng-click='semesterSetup()'>Start</button>
-		<button class="big-btn" ng-click='changeMode("home")'>Back</button>
-
-	</div>
-
-	<!-- LEADERSHIP EVALUATION -->
-	<div class="container" ng-if='mode == "LeadershipEval"'>
-		<button class="big-btn" ng-click='changeMode("Evaluation")'>Configure</button>
-		<button class="big-btn" ng-click='changeMode("home")'>Back</button>
-	</div>
 </body>
 </html>

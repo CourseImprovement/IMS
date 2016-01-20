@@ -160,51 +160,6 @@ ims.sharepoint = {
 		});
 	},
 	/**
-	 * @name ims.sharepoint.postFileTestTest 
-	 * @description
-	 */
-	postFileTestTest: function(){
-		for (var i = 0; i < 1500; i++){
-			ims.sharepoint.postFileTest(i + '-test.txt');
-		}
-	},
-	/**
-	 * @name ims.sharepoint.postFileTest 
-	 * @description
-	 */
-	postFileTest: function(fileName){
-		function str2ab(str) {
-			// new TextDecoder(encoding).decode(uint8array);
-		  return new TextEncoder('utf8').encode(str);
-		}
-		
-		var buffer = str2ab(User.getCurrent()._xml.firstChild.outerHTML);
-		var url = ims.sharepoint.base + "_api/Web/GetFolderByServerRelativeUrl('" + ims.sharepoint.relativeBase + "Instructor%20Reporting/Test')/Files/add(url='" + fileName + "')";
-    	$['ajax']({
-		    'url': ims.sharepoint.base + "_api/contextinfo",
-		    'header': {
-		        "accept": "application/json; odata=verbose",
-		        "content-type": "application/json;odata=verbose"
-		    },
-		    'type': "POST",
-		    'contentType': "application/json;charset=utf-8"
-		}).done(function(d) {
-			jQuery['ajax']({
-		        'url': url,
-		        'type': "POST",
-		        'data': buffer,
-		        'processData': false,
-		        'headers': {
-		            "accept": "application/json;odata=verbose",
-		            "X-RequestDigest": $(d).find('d\\:FormDigestValue, FormDigestValue').text()
-		        },
-		        'success': function(){
-		        	
-		        }
-		    });
-		});
-	},
-	/**
 	 * @name ims.sharepoint.markAsReviewed
 	 * @description Marks a certain users survey as reviewed.
 	 */

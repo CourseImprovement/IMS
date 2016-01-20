@@ -31,6 +31,7 @@ Rollup.avg = function(sum, count){
 }
 
 Rollup._calcSections = function(str){
+	if (!str) return 0;
 	var m = str.match(/[a-zA-Z0-9]{1,}\b/g);
 	if (m == undefined) return 0;
 	return m.length;

@@ -7,7 +7,8 @@ function Survey(xml, user){
 	this._xml = xml;
 	this._user = user;
 	this.id = $(xml).attr('id');
-	this._config = $(Survey.getConfig()).find('survey[id=' + this.id + ']');
+	var sem = ims.semesters.getCurrentCode();
+	this._config = $(Survey.getConfig()).find('semester[code=' + sem + '] survey[id=' + this.id + ']');
 	this._name = $(this._config).attr('name');
 	this._placement = $(this._config).attr('placement');
 	this._week = $(this._config).attr('week');
