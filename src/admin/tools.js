@@ -15,6 +15,9 @@ function Tool(file, left, right, course) {
  * @name getColumn 
  * @description Returns the first column associated with the role
  * @assign Grant
+ * @todo 
+ *  + Compare the role
+ *   + Return the proper role column location
  */
 Tool.prototype.getColumn = function(role) {
 	switch (role) {
@@ -31,6 +34,14 @@ Tool.prototype.getColumn = function(role) {
  * @name contains 
  * @description Checks if the left/right combination is already present
  * @assign Grant
+ * @todo 
+ *  + Go through each line in the csv
+ *   + Check if course is a factor
+ *    + Yes: verify that the course and person are unique
+ *     + Return true if true
+ *    + No: Check that the person is unique
+ *     + Return true if true
+ *  + If the personif not there return false
  */
 Tool.prototype.contains = function(str) {
 	for (var i = 0; i < this.csv.length; i++) {
@@ -59,6 +70,18 @@ Tool.prototype.contains = function(str) {
  * @name getRow
  * @description gets a row from the csv using the left and right roles as parameters
  * @assign Grant
+ * @todo 
+ *  + Find the locations of the left and right side
+ *  + Is the left or right an Instructor?
+ *   + Yes
+ *    + Get the email, first name, and last name from the csv
+ *    + Get course if nescessary
+ *    + Create a new string from the data
+ *   + No
+ *    + Get the email
+ *    + Parse the first and last name from the csv
+ *    + Create a new string from the data
+ *  + Repeat above steps for both left and right
  */
 Tool.prototype.getRow = function(row) {
 	var line = '';
@@ -136,6 +159,15 @@ Tool.prototype.getRow = function(row) {
  * @name parse 
  * @description parses the csv into a new csv and downloads it to your computer
  * @assign Grant
+ * @todo
+ *  + Create a new CSV()
+ *  + Get name of the left and right side
+ *  + Begin the new csv file as an array with titles for each column
+ *  + Go through each line of the csv
+ *   + Add people that are not already contained
+ *  + Download the new csv
+ *   + Join the csv array
+ *   + Name the file using the left and right role names
  */
 Tool.prototype.parse = function() {
 	var csv = new CSV();
