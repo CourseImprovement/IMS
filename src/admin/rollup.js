@@ -244,16 +244,18 @@ Rollup.prototype.update = function(){
 					}
 				}
 			} else {
-				count = list.length;
 				for (var i = 0; i < list.length; i++) {
 					if (list[i] != undefined) {
 						sum += list[i];
+						count++;
 					}
 				}
 			}
 			iValue = Rollup.avg(sum, count);
-			$(this._xml).find('semester[code=' + window.config.getCurrentSemester() + '] > people > person[email=' + _im + '][type=im] > questions > question[name="' + questions[q] + '"] > survey[id=' + this._surveyId + ']').remove();
-			$(this._xml).find('semester[code=' + window.config.getCurrentSemester() + '] > people > person[email=' + _im + '][type=im] > questions > question[name="' + questions[q] + '"]').append('<survey id="' + this._surveyId + '" value="' + iValue + '" />');
+			if (iValue != 0 && iValue != NaN) {
+				$(this._xml).find('semester[code=' + window.config.getCurrentSemester() + '] > people > person[email=' + _im + '][type=im] > questions > question[name="' + questions[q] + '"]').append('<survey id="' + this._surveyId + '" value="' + iValue + '" />');
+				$(this._xml).find('semester[code=' + window.config.getCurrentSemester() + '] > people > person[email=' + _im + '][type=im] > questions > question[name="' + questions[q] + '"] > survey[id=' + this._surveyId + ']').remove();
+			}
 			for (var _aim in org[_im].aims) {
 				var aValue = 0;
 				var aList = org[_im].aims[_aim].list;
@@ -267,16 +269,18 @@ Rollup.prototype.update = function(){
 						}
 					}
 				} else {
-					aCount = aList.length;
 					for (var i = 0; i < aList.length; i++) {
 						if (aList[i] != undefined) {
 							aSum += aList[i];
+							aCount++;
 						}
 					}
 				}
 				aValue = Rollup.avg(aSum, aCount);
-				$(this._xml).find('semester[code=' + window.config.getCurrentSemester() + '] > people > person[email=' + _aim + '][type=aim] > questions > question[name="' + questions[q] + '"] > survey[id=' + this._surveyId + ']').remove();
-				$(this._xml).find('semester[code=' + window.config.getCurrentSemester() + '] > people > person[email=' + _aim + '][type=aim] > questions > question[name="' + questions[q] + '"]').append('<survey id="' + this._surveyId + '" value="' + aValue + '" />');
+				if (aValue != 0 && aValue != NaN) {
+					$(this._xml).find('semester[code=' + window.config.getCurrentSemester() + '] > people > person[email=' + _aim + '][type=aim] > questions > question[name="' + questions[q] + '"] > survey[id=' + this._surveyId + ']').remove();
+					$(this._xml).find('semester[code=' + window.config.getCurrentSemester() + '] > people > person[email=' + _aim + '][type=aim] > questions > question[name="' + questions[q] + '"]').append('<survey id="' + this._surveyId + '" value="' + aValue + '" />');
+				}
 			}
 		}
 	}
