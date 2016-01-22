@@ -12,8 +12,7 @@ app.controller('adminCtrl', ["$scope", function($scope){
 	$scope.question = {
 		columnLetter: '',
 		questionText: '',
-		replaceWhat: '',
-		replaceWith: ''
+		replaces: []
 	};
 	$scope.evaluations = {
 		'for': '',
@@ -42,85 +41,116 @@ app.controller('adminCtrl', ["$scope", function($scope){
 	setTimeout(function(){
 		$('.ui.accordion').accordion();
 	}, 10);
+	/**
+	 * @name hasPageBeenEdited 
+	 * @description
+	 * @todo
+	 *  + Determine if the view may need to check if uses really wants to leave
+	 *   + Check if its respective data has been set
+	 */
+	function hasPageBeenEdited() {
+		if ($scope.view == 'add survey' || $scope.view == 'modify survey') {
+			var s = $scope.selectedSurvey;
+			if (s != null) {
+				if (!!s.name || !!s.week || !!s.email || !!s.course) {
+					return true;
+				}
+			}
+		} else if ($scope.view == 'evaluations') {
+			var e = $scope.evaluations;
+			if (e.by != '' || e.dataCols != '' || 
+				e.emailCol != '' || e['for'] != '' || 
+				e.logic != '' || e.texts != '') {
+				return true;
+			}
+		}
+		return false;
+	}
 
 	$scope.menuChange = function(menuItem){
-		for (var i = 0; i < $scope.menu.length; i++){
-			$scope.menu[i].active = false;
+		var proceed = true;
+		if (hasPageBeenEdited()) {
+			proceed = confirm('Are you sure you want to leave this page?');
 		}
-		$scope.selectedMenuItem = menuItem;
-		menuItem.active = true;
-		$scope.view = menuItem.name.toLowerCase();
-		if ($scope.view.indexOf('survey') > -1 || $scope.view == 'process'){
-			setTimeout(function(){
-				$('.selection.dropdown:not(#whichView)').dropdown({
-					onChange: function(value, text){
-						surveySelected(value, text, true);
-					}
-				});
-
-				if ($scope.view == 'modify survey' || $scope.view == 'add survey'){
-					$('#whichView').dropdown({
+		if (proceed) {
+			for (var i = 0; i < $scope.menu.length; i++){
+				$scope.menu[i].active = false;
+			}
+			$scope.selectedMenuItem = menuItem;
+			menuItem.active = true;
+			$scope.view = menuItem.name.toLowerCase();
+			if ($scope.view.indexOf('survey') > -1 || $scope.view == 'process'){
+				setTimeout(function(){
+					$('.selection.dropdown:not(#whichView)').dropdown({
 						onChange: function(value, text){
-							$scope.selectedSurvey.placement = value;
+							surveySelected(value, text, true);
 						}
 					});
-				}
 
-				if ($scope.view == 'add survey'){
-					$scope.$apply(function(){
-						$scope.selectedSurvey = window.config.newSurvey();
-						$scope.selectedSurvey.isNew = true;
-					});
-				}
-				else {
-					if ($scope.selectedSurvey && $scope.selectedSurvey.isNew){
-						$scope.selectedSurvey.remove();
-						$scope.selectedSurvey = null;
-						window.config.selectedSurvey = null;
-						$scope.$apply(function(){
-							$scope.surveys = window.config.surveys;
+					if ($scope.view == 'modify survey' || $scope.view == 'add survey'){
+						$('#whichView').dropdown({
+							onChange: function(value, text){
+								$scope.selectedSurvey.placement = value;
+							}
 						});
 					}
-				}
-			}, 10);
-		}
-		else if ($scope.view.indexOf('qualtrics') > -1){
-			setTimeout(function(){
-				$('#left').dropdown({
-					onChange: function(value, text){
-						$scope.prepareTool.left = value;
+
+					if ($scope.view == 'add survey'){
+						$scope.$apply(function(){
+							$scope.selectedSurvey = window.config.newSurvey();
+							$scope.selectedSurvey.isNew = true;
+						});
 					}
-				});
-				$('#right').dropdown({
-					onChange: function(value, text){
-						$scope.prepareTool.right = value;
+					else {
+						if ($scope.selectedSurvey && $scope.selectedSurvey.isNew){
+							$scope.selectedSurvey.remove();
+							$scope.selectedSurvey = null;
+							window.config.selectedSurvey = null;
+							$scope.$apply(function(){
+								$scope.surveys = window.config.surveys;
+							});
+						}
 					}
-				});
-				$('#course').checkbox({
-					onChange: function(){
-						$scope.prepareTool.useCourse = !$scope.prepareTool.useCourse;
-					}
-				});
-			}, 10);
-		}
-		else if ($scope.view == 'instructions'){
-			setTimeout(function(){
-				$('.ui.accordion').accordion();
-			}, 10);
-		}
-		else if ($scope.view == 'evaluations'){
-			setTimeout(function(){
-				$('#for').dropdown({
-					onChange: function(value){
-						$scope.evaluations['for'] = value;
-					}
-				});
-				$('#by').dropdown({
-					onChange: function(value){
-						$scope.evaluations.by = value;
-					}
-				})
-			}, 10);
+				}, 10);
+			}
+			else if ($scope.view.indexOf('qualtrics') > -1){
+				setTimeout(function(){
+					$('#left').dropdown({
+						onChange: function(value, text){
+							$scope.prepareTool.left = value;
+						}
+					});
+					$('#right').dropdown({
+						onChange: function(value, text){
+							$scope.prepareTool.right = value;
+						}
+					});
+					$('#course').checkbox({
+						onChange: function(){
+							$scope.prepareTool.useCourse = !$scope.prepareTool.useCourse;
+						}
+					});
+				}, 10);
+			}
+			else if ($scope.view == 'instructions'){
+				setTimeout(function(){
+					$('.ui.accordion').accordion();
+				}, 10);
+			}
+			else if ($scope.view == 'evaluations'){
+				setTimeout(function(){
+					$('#for').dropdown({
+						onChange: function(value){
+							$scope.evaluations['for'] = value;
+						}
+					});
+					$('#by').dropdown({
+						onChange: function(value){
+							$scope.evaluations.by = value;
+						}
+					})
+				}, 10);
+			}
 		}
 	}
 
