@@ -1676,7 +1676,7 @@ Role.prototype.getTasksToReview = function(withCourse){
 		}
 		for (var j = 0; j < u._surveys.length; j++){
 			var s = u._surveys[j];
-			if (s.isEvaluation() == false && s.getPlacement().toLowerCase() == lowerRole){
+			if (s.isEvaluation() == false && !!surveys[i].getPlacement() && s.getPlacement().toLowerCase() == lowerRole){
 				s.withCourse = withCourse;
 				o.surveys.push(s);
 			}

@@ -1139,7 +1139,13 @@ app.controller('adminCtrl', ["$scope", function($scope){
 	setTimeout(function(){
 		$('.ui.accordion').accordion();
 	}, 10);
-
+	/**
+	 * @name hasPageBeenEdited 
+	 * @description
+	 * @todo
+	 *  + Determine if the view may need to check if uses really wants to leave
+	 *   + Check if its respective data has been set
+	 */
 	function hasPageBeenEdited() {
 		if ($scope.view == 'add survey' || $scope.view == 'modify survey') {
 			var s = $scope.selectedSurvey;
