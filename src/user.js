@@ -141,9 +141,13 @@ User.prototype.isCurrent = function(){
  * array
  */
 User.prototype._setSurveys = function(){ 
+	var sem = ims.semesters.getCurrentCode();
 	var _this = this;
 	$(this._xml).find('> surveys survey').each(function(){
-		_this._surveys.push(new Survey(this, _this));
+		var id = $(this).attr('id');
+		if ($(ims._config).find('semester[code="' + sem + '"] survey[id="' + id + '"]').length != 0) {
+			_this._surveys.push(new Survey(this, _this));
+		}
 	})
 }
 

@@ -12,6 +12,7 @@ function Survey(xml, user){
 	this._name = $(this._config).attr('name');
 	this._placement = $(this._config).attr('placement');
 	this._week = $(this._config).attr('week');
+	if (!this._week) this._week = "";
 	this._answers = [];
 	this._setAnswers();
 	this._reviewed = $(this._xml).attr('reviewed') == 'true';

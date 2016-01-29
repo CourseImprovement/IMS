@@ -1676,7 +1676,7 @@ Role.prototype.getTasksToReview = function(withCourse){
 		}
 		for (var j = 0; j < u._surveys.length; j++){
 			var s = u._surveys[j];
-			if (s.isEvaluation() == false && !!surveys[i].getPlacement() && s.getPlacement().toLowerCase() == lowerRole){
+			if (s.isEvaluation() == false && s.getPlacement().toLowerCase() == lowerRole){
 				s.withCourse = withCourse;
 				o.surveys.push(s);
 			}
@@ -2316,6 +2316,7 @@ function Survey(xml, user){
 	this._name = $(this._config).attr('name');
 	this._placement = $(this._config).attr('placement');
 	this._week = $(this._config).attr('week');
+	if (!this._week) this._week = "";
 	this._answers = [];
 	this._setAnswers();
 	this._reviewed = $(this._xml).attr('reviewed') == 'true';
@@ -2855,9 +2856,13 @@ User.prototype.isCurrent = function(){
  * array
  */
 User.prototype._setSurveys = function(){ 
+	var sem = ims.semesters.getCurrentCode();
 	var _this = this;
 	$(this._xml).find('> surveys survey').each(function(){
-		_this._surveys.push(new Survey(this, _this));
+		var id = $(this).attr('id');
+		if ($(ims._config).find('semester[code="' + sem + '"] survey[id="' + id + '"]').length != 0) {
+			_this._surveys.push(new Survey(this, _this));
+		}
 	})
 }
 
