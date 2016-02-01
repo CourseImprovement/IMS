@@ -1100,7 +1100,7 @@ CSV.downloadCSV = function(csvString){
  * @start angular
  */
 var app = angular.module('admin', []);
-app.controller('adminCtrl', ["$scope", function($scope){
+app.controller('adminCtrl', ["$scope", function($scope) {
 	$scope.view = 'instructions';
 	$scope.surveys = window.config.surveys;
 	$scope.file = null;
@@ -1136,7 +1136,7 @@ app.controller('adminCtrl', ["$scope", function($scope){
 
 	$scope.selectedMenuItem = $scope.menu[0];
 
-	setTimeout(function(){
+	setTimeout(function() {
 		$('.ui.accordion').accordion();
 	}, 10);
 	/**
@@ -1165,85 +1165,85 @@ app.controller('adminCtrl', ["$scope", function($scope){
 		return false;
 	}
 
-	$scope.menuChange = function(menuItem){
+	$scope.menuChange = function(menuItem) {
 		var proceed = true;
 		if (hasPageBeenEdited()) {
 			proceed = confirm('Are you sure you want to leave this page?');
 		}
 		if (proceed) {
-			for (var i = 0; i < $scope.menu.length; i++){
+			for (var i = 0; i < $scope.menu.length; i++) {
 				$scope.menu[i].active = false;
 			}
 			$scope.selectedMenuItem = menuItem;
 			menuItem.active = true;
 			$scope.view = menuItem.name.toLowerCase();
-			if ($scope.view.indexOf('survey') > -1 || $scope.view == 'process'){
+			if ($scope.view.indexOf('survey') > -1 || $scope.view == 'process') {
 				setTimeout(function(){
 					$('.selection.dropdown:not(#whichView)').dropdown({
-						onChange: function(value, text){
+						onChange: function(value, text) {
 							surveySelected(value, text, true);
 						}
 					});
 
-					if ($scope.view == 'modify survey' || $scope.view == 'add survey'){
+					if ($scope.view == 'modify survey' || $scope.view == 'add survey') {
 						$('#whichView').dropdown({
-							onChange: function(value, text){
+							onChange: function(value, text) {
 								$scope.selectedSurvey.placement = value;
 							}
 						});
 					}
 
-					if ($scope.view == 'add survey'){
-						$scope.$apply(function(){
+					if ($scope.view == 'add survey') {
+						$scope.$apply(function() {
 							$scope.selectedSurvey = window.config.newSurvey();
 							$scope.selectedSurvey.isNew = true;
 						});
 					}
 					else {
-						if ($scope.selectedSurvey && $scope.selectedSurvey.isNew){
+						if ($scope.selectedSurvey && $scope.selectedSurvey.isNew) {
 							$scope.selectedSurvey.remove();
 							$scope.selectedSurvey = null;
 							window.config.selectedSurvey = null;
-							$scope.$apply(function(){
+							$scope.$apply(function() {
 								$scope.surveys = window.config.surveys;
 							});
 						}
 					}
 				}, 10);
 			}
-			else if ($scope.view.indexOf('qualtrics') > -1){
-				setTimeout(function(){
+			else if ($scope.view.indexOf('qualtrics') > -1) {
+				setTimeout(function() {
 					$('#left').dropdown({
-						onChange: function(value, text){
+						onChange: function(value, text) {
 							$scope.prepareTool.left = value;
 						}
 					});
 					$('#right').dropdown({
-						onChange: function(value, text){
+						onChange: function(value, text) {
 							$scope.prepareTool.right = value;
 						}
 					});
 					$('#course').checkbox({
-						onChange: function(){
+						onChange: function() {
 							$scope.prepareTool.useCourse = !$scope.prepareTool.useCourse;
 						}
 					});
 				}, 10);
 			}
-			else if ($scope.view == 'instructions'){
-				setTimeout(function(){
+			else if ($scope.view == 'instructions') {
+				setTimeout(function() {
 					$('.ui.accordion').accordion();
 				}, 10);
 			}
-			else if ($scope.view == 'evaluations'){
-				setTimeout(function(){
+			else if ($scope.view == 'evaluations') {
+				setTimeout(function() {
 					$('#for').dropdown({
 						onChange: function(value){
 							$scope.evaluations['for'] = value;
 						}
 					});
 					$('#by').dropdown({
-						onChange: function(value){
+						onChange: function(value) {
 							$scope.evaluations.by = value;
 						}
 					})
@@ -1252,72 +1252,72 @@ app.controller('adminCtrl', ["$scope", function($scope){
 		}
 	}
 
-	function surveySelected(value, text, force){
-		if (typeof $scope.selectedSurvey != 'object'){
+	function surveySelected(value, text, force) {
+		if (typeof $scope.selectedSurvey != 'object') {
 			$scope.selectedSurvey = value;
 			$scope.selectedSurvey = getSelectedSurvey();
 			window.config.selectedSurvey = $scope.selectedSurvey;
 		}
-		if (force){
+		if (force) {
 			$scope.selectedSurvey = value;
 			$scope.selectedSurvey = getSelectedSurvey();
 			window.config.selectedSurvey = $scope.selectedSurvey;
 		}
-		$scope.$apply(function(){
-			if (typeof $scope.selectedSurvey != 'object'){
+		$scope.$apply(function() {
+			if (typeof $scope.selectedSurvey != 'object') {
 				$scope.selectedSurvey = value;
 				$scope.selectedSurvey = getSelectedSurvey();
 				window.config.selectedSurvey = $scope.selectedSurvey;
 			}
-			if (force){
+			if (force) {
 				$scope.selectedSurvey = value;
 				$scope.selectedSurvey = getSelectedSurvey();
 				window.config.selectedSurvey = $scope.selectedSurvey;
 			}
-			if ($('#whichView').length > 0){
+			if ($('#whichView').length > 0) {
 				$('#whichView').dropdown('set selected', $scope.selectedSurvey.placement);
 			}
 		});
 	}
 
-	function getSelectedSurvey(){
+	function getSelectedSurvey() {
 		if (!$scope.selectedSurvey) {
 			errAlert('Invalid Survey');
 			return false;
 		}
-		else if (typeof $scope.selectedSurvey != 'string'){
+		else if (typeof $scope.selectedSurvey != 'string') {
 			return $scope.selectedSurvey;
 		}
 		var id = parseInt($scope.selectedSurvey);
-		for (var i = 0; i < $scope.surveys.length; i++){
-			if ($scope.surveys[i].id == id){
+		for (var i = 0; i < $scope.surveys.length; i++) {
+			if ($scope.surveys[i].id == id) {
 				return $scope.surveys[i];
 			}
 		}
 	}
 
-	function reload(time){
+	function reload(time) {
 		setTimeout(function(){
 			window.location.reload();
 		}, time);
 	}
 
-	$scope.removeSurvey = function(){
+	$scope.removeSurvey = function() {
 		var survey = getSelectedSurvey();
 		window.config.remove(survey.id);
 	}
 
-	$scope.copySurvey = function(){
+	$scope.copySurvey = function() {
 		var survey = getSelectedSurvey();
 		var copy = survey.copy();
 		window.config.addSurvey(copy);
 	}
 
-	$scope.chooseFile = function(){
-		setTimeout(function(){
+	$scope.chooseFile = function() {
+		setTimeout(function() {
 			$('body').append('<input type="file" id="surveyFile" style="display:none;">');
-			$('#surveyFile').change(function(){
-				$scope.$apply(function(){
+			$('#surveyFile').change(function() {
+				$scope.$apply(function() {
 					$scope.isFile = true;
 				});
 				$scope.file = this.files[0];
@@ -1326,39 +1326,39 @@ app.controller('adminCtrl', ["$scope", function($scope){
 		}, 100);
 	}
 
-	$scope.startProcess = function(){
+	$scope.startProcess = function() {
 		var survey = getSelectedSurvey();
 		var csv = new CSV();
-		csv.readFile($scope.file, function(file){
-			setTimeout(function(){
+		csv.readFile($scope.file, function(file) {
+			setTimeout(function() {
 				survey.process(file.data);
 			}, 10);
 		});
 	}
 
-	var permissionsGlobal;
-	$scope.changePermissions = function(){
+	var permissionsGlobal; 
+	$scope.changePermissions = function() {
 		if (!permissionsGlobal) permissionsGlobal = new Permissions();
 		permissionsGlobal.start();
 	}
 
-	$scope.startSemesterSetup = function(){
+	$scope.startSemesterSetup = function() {
 		var csv = new CSV();
-		csv.readFile($scope.file, function(file){
-			setTimeout(function(){
+		csv.readFile($scope.file, function(file) {
+			setTimeout(function() {
 				var s = new SemesterSetup(file.data);
 				s.semesterSetup();
 			}, 10);
 		});
 	}
 
-	$scope.startQualtricsPrep = function(){
+	$scope.startQualtricsPrep = function() {
 		var t = new Tool($scope.file, $scope.prepareTool.left, $scope.prepareTool.right, $scope.prepareTool.useCourse);
 		t.parse();
 	}
 
-	$scope.removeQuestion = function(question){
-		if (selectedQuestion == null){
+	$scope.removeQuestion = function(question) {
+		if (selectedQuestion == null) {
 			$scope.question = {
 				columnLetter: '',
 				questionText: '',
@@ -1366,27 +1366,27 @@ app.controller('adminCtrl', ["$scope", function($scope){
 			};
 		}
 		else{
-			for (var i = 0; i < $scope.selectedSurvey.questions.length; i++){
-				if ($scope.selectedSurvey.questions[i].id == selectedQuestion.id){
+			for (var i = 0; i < $scope.selectedSurvey.questions.length; i++) {
+				if ($scope.selectedSurvey.questions[i].id == selectedQuestion.id) {
 					$scope.selectedSurvey.questions.splice(i, 1);
 				}
 			}
 		}
 	}
 
-	function Replaces(type){
+	function Replaces(type) {
 		var result = '';
-		if (type == 'what'){
-			for (var i = 0; i < $scope.question.replaces.length; i++){
-				if (result.length > 0){
+		if (type == 'what') {
+			for (var i = 0; i < $scope.question.replaces.length; i++) {
+				if (result.length > 0) {
 					result += ';';
 				}
 				result += $scope.question.replaces[i]['what'];
 			}
 		}
-		else if (type == 'with'){
-			for (var i = 0; i < $scope.question.replaces.length; i++){
-				if (result.length > 0){
+		else if (type == 'with') {
+			for (var i = 0; i < $scope.question.replaces.length; i++) {
+				if (result.length > 0) { 
 					result += ';';
 				}
 				result += $scope.question.replaces[i]['with'];
@@ -1395,11 +1395,11 @@ app.controller('adminCtrl', ["$scope", function($scope){
 		return result;
 	}
 
-	function ReplacesCreate(awhat, awith){
+	function ReplacesCreate(awhat, awith) {
 		var bwhat = awhat.split(';');
 		var bwith = awith.split(';');
 		var result = [];
-		for (var i = 0; i < bwhat.length; i++){
+		for (var i = 0; i < bwhat.length; i++) {
 			result.push({
 				'with': bwith[i],
 				'what': bwhat[i]
@@ -1408,14 +1408,14 @@ app.controller('adminCtrl', ["$scope", function($scope){
 		return result;
 	}
 
-	$scope.addQuestion = function(){
+	$scope.addQuestion = function() {
 		$('#questionModal').modal({
-			onApprove: function(){
-				if (!$scope.selectedSurvey){
+			onApprove: function() {
+				if (!$scope.selectedSurvey) {
 					errAlert('Invalid Survey');
 					return false;
 				}
-				$scope.$apply(function(){
+				$scope.$apply(function() {
 					$scope.selectedSurvey.addQuestion(new Question({
 						id: $scope.selectedSurvey.getHighestQuestionId() + 1,
 						text: $scope.question.questionText,
@@ -1432,8 +1432,8 @@ app.controller('adminCtrl', ["$scope", function($scope){
 					$scope['with'] = '';
 				})
 			},
-			onHide: function(){
-				$scope.$apply(function(){
+			onHide: function() {
+				$scope.$apply(function() {
 					$scope.question = {
 						columnLetter: '',
 						questionText: '',
@@ -1446,11 +1446,11 @@ app.controller('adminCtrl', ["$scope", function($scope){
 		}).modal('show');
 	}
 
-	$scope.removeReplaces = function(r, idx){
+	$scope.removeReplaces = function(r, idx) {
 		$scope.question.replaces.splice(idx, 1);
 	}
 
-	$scope.addReplace = function(wh, wi){
+	$scope.addReplace = function(wh, wi) {
 		$scope.question.replaces.push({
 			'what': wh,
 			'with': wi
@@ -1460,7 +1460,7 @@ app.controller('adminCtrl', ["$scope", function($scope){
 	}
 
 	var selectedQuestion = null;
-	$scope.editQuestion = function(question){
+	$scope.editQuestion = function(question) {
 		selectedQuestion = question;
 		$scope.question = {
 			columnLetter: selectedQuestion.col,
@@ -1468,8 +1468,8 @@ app.controller('adminCtrl', ["$scope", function($scope){
 			replaces: ReplacesCreate(selectedQuestion.replaceWhat, selectedQuestion.replaceWith)
 		};
 		$('#questionModal').modal({
-			onApprove: function(){
-				if (!$scope.selectedSurvey){
+			onApprove: function() {
+				if (!$scope.selectedSurvey) {
 					errAlert('Invalid Survey');
 					return false;
 				}
@@ -1485,7 +1485,7 @@ app.controller('adminCtrl', ["$scope", function($scope){
 				$scope['what'] = '';
 				$scope['with'] = '';
 			},
-			onHide: function(){
+			onHide: function() {
 				$scope.question = {
 					columnLetter: '',
 					questionText: '',
@@ -1498,8 +1498,8 @@ app.controller('adminCtrl', ["$scope", function($scope){
 		}).modal('show');
 	}
 
-	$scope.submitChanges = function(){
-		if (!$scope.selectedSurvey){
+	$scope.submitChanges = function() {
+		if (!$scope.selectedSurvey) {
 			errAlert('Invalid Survey');
 			return false;
 		}
@@ -1516,11 +1516,11 @@ app.controller('adminCtrl', ["$scope", function($scope){
 	 *  + Start adding letters to new array
 	 *   + if the letter contains a '-' then get and add all letters in between 
 	 */
-	function arrayOfColumns(columns){
-		if (columns.indexOf('-') > -1){
+	function arrayOfColumns(columns) {
+		if (columns.indexOf('-') > -1) {
 			var sets = columns.split(';');
-			for (var i = 0; i < sets.length; i++){
-				if (sets[i].indexOf('-') > -1){
+			for (var i = 0; i < sets.length; i++) {
+				if (sets[i].indexOf('-') > -1) {
 					var start = Config.columnLetterToNumber(sets[i].split('-')[0]);
 					var end = Config.columnLetterToNumber(sets[i].split('-')[1]);
 					sets.splice(i, 1);
@@ -1528,7 +1528,7 @@ app.controller('adminCtrl', ["$scope", function($scope){
 						errAlert("columns need to be read from left to right (A-Z)");
 						throw "columns need to be read from left to right (A-Z)";
 					}
-					for (var j = start; j <= end; j++){
+					for (var j = start; j <= end; j++) {
 						sets.splice(sets.length, 0, Config.columnNumberToLetter(j));
 					}
 				} else {
@@ -1545,21 +1545,30 @@ app.controller('adminCtrl', ["$scope", function($scope){
 		}
 	}
 
-	$scope.startEvaluations = function(){
+	/**
+	 * @name startEvaluations 
+	 * @description
+	 * @assign Grant
+	 * @todo 
+	 *  + its all done!
+	 */
+	$scope.startEvaluations = function() {
 		var ev = $scope.evaluations;
-		if (ev.by == ev['for']){
+		if (ev.by == ev['for']) { // error handling
 			errAlert("The evaluations can not be done at the same level. e.g. by: INSTRUCTOR for: INSTRUCTOR");
 			return;
 		}
 
-		for (var key in ev){
-			if (ev[key] == null || ev[key] == ''){
+		for (var key in ev) { // error handling
+			if (ev[key] == null || ev[key] == '') {
 				errAlert("Some information was left out!");
 				return;
 			}
 		}
 
-		if (ev.dataCols.indexOf(';') == -1 && ev.dataCols.indexOf('-') == -1 && ev.dataCols.length > 2){
+		if (ev.dataCols.indexOf(';') == -1 && 
+			ev.dataCols.indexOf('-') == -1 && 
+			ev.dataCols.length > 2) { // error handling
 			errAlert("Please seperate each column with a ';' (no spaces needed)");
 			return;
 		}
@@ -1568,21 +1577,21 @@ app.controller('adminCtrl', ["$scope", function($scope){
 		var qs = ev.texts.split(';');
 		var ls = ev.logic.split(';');
 
-		if (cs.length != qs.length || qs.length != ls.length){
+		if (cs.length != qs.length || qs.length != ls.length){ // error handling
 			errAlert('The number of columns, questions, and logic selections do not match.\n' + 
 				'Be sure they are all the same length and check that you have seperated\n' + 
 				'them with semicolons');
 			return;
 		}
 
-		for (var i = 0; i < cs.length; i++){
-			if (cs[i] == ""){
+		for (var i = 0; i < cs.length; i++){ // error handling
+			if (cs[i] == "") {
 				errAlert('One of the columns is blank.');
 				return;
-			} else if (qs[i] == ""){
+			} else if (qs[i] == "") {
 				errAlert('One of the question texts is blank.');
 				return;
-			} else if (ls[i] == ""){
+			} else if (ls[i] == "") {
 				errAlert('One of the logic options is blank.');
 				return;
 			}
@@ -1590,9 +1599,9 @@ app.controller('adminCtrl', ["$scope", function($scope){
 
 		var eval = [];
 
-		for (var i = 0; i < cs.length; i++){
+		for (var i = 0; i < cs.length; i++) {
 
-			if (ls[i] != 'p' && ls[i] != 'v'){
+			if (ls[i] != 'p' && ls[i] != 'v' && ls[i] != 'cp' && ls[i] != 'cv') { // error handling
 				errAlert("Use either a single 'p' (percentage) or 'v' (value) for specifying logic");
 				return;
 			}
@@ -1604,7 +1613,7 @@ app.controller('adminCtrl', ["$scope", function($scope){
 			});	
 		}
 
-		if ($scope.evaluations == {}){
+		if ($scope.evaluations == {}) {
 			errAlert('Add an evaluation before you start the process.');
 			return;
 		}
@@ -1674,19 +1683,19 @@ function addItemReverseOrder(list, item) {
 }
 
 app.filter('reverseByWeek', function() {
-  	return function(items){
+  	return function(items) {
       	if (items){
       		var finalSet = [];
       		var surveyTypes = {};
 
-      		for (var i = 0; i < items.length; i++){
+      		for (var i = 0; i < items.length; i++) {
       			if (surveyTypes[items[i].name] == undefined) surveyTypes[items[i].name] = [];
           		surveyTypes[items[i].name].push(items[i]);
           	}
 
-          	for (var s in surveyTypes){
+          	for (var s in surveyTypes) {
           		var set = [];
-          		for (var i = 0; i < surveyTypes[s].length; i++){
+          		for (var i = 0; i < surveyTypes[s].length; i++) {
 	          		set = addItemReverseOrder(set, surveyTypes[s][i]);
 	          	}
 	          	finalSet = finalSet.concat(set);
@@ -1697,12 +1706,12 @@ app.filter('reverseByWeek', function() {
   	} 
 });
 
-app.directive('allCaps', function($compile){
+app.directive('allCaps', function($compile) {
 	return {
 		restrict: 'A',
 		replace: true,
-		link: function(scope, element, attrs){
-			element.keyup(function(){
+		link: function(scope, element, attrs) {
+			element.keyup(function() {
 				if (typeof this.value == 'string') this.value = this.value.toUpperCase();
 			});
 		}
@@ -1773,6 +1782,8 @@ Evaluations.prototype.cleanseString = function(str) {
  *   + get the question and answer
  *    + logic for value
  *    + logic for percentage
+ *    + logic for combined percentage
+ *    + logic for combined value
  *   + add response data for evaluatee
  *  + error handling
  */
@@ -1800,6 +1811,26 @@ Evaluations.prototype.setAnswers = function(evaluatee, row, locations) {
 			} else {
 				this.people[evaluatee][quest] += (ans != "" ? parseFloat(1) : parseFloat(0));
 			}
+		} else if (locations[loc].logic == 'cp') { /*COMBINED PERCENTAGE*/
+			if (ans == "") ans = "None";
+			if (this.people[evaluatee][quest] == undefined) {
+				this.people[evaluatee][quest] = {};
+				this.people[evaluatee][quest][ans] = 1;
+			} else {
+				if (this.people[evaluatee][quest][ans] == undefined) {
+					this.people[evaluatee][quest][ans] = 1;
+				} else {
+					this.people[evaluatee][quest][ans]++;
+				}
+			}
+		} else if (locations[loc].logic == 'cv') { /*COMBINED VALUE*/
+			if (this.people[evaluatee][quest] == undefined) {
+				this.people[evaluatee][quest] = _this.cleanseString(ans.split(':')[0] + ': ' + row[locations[loc].col + 1]);
+			} else {
+				this.people[evaluatee][quest] += '\\\\' + _this.cleanseString(ans.split(':')[0] + ': ' + row[locations[loc].col + 1]);
+			}
+		} else if (locations[loc].logic == 'ccp') {
+			
 		}
 	}
 }
@@ -1817,11 +1848,16 @@ Evaluations.prototype.setAnswers = function(evaluatee, row, locations) {
  *  + error handling
  */
 Evaluations.prototype.calculatePercentages = function() {
-	for (var person in this.people) {
+	for (var person in this.people) {  
 		for (var j = 0; j < this._evaluations.dataSeries.length; j++) {
 			var eval = this._evaluations.dataSeries[j];
 			if (eval.logic == 'p') {
 				this.people[person][eval.question] = (this.people[person][eval.question] * 100 / this.people[person].count).toPrecision(3) + '%';
+			} else if (eval.logic == 'cp') {
+				var sets = this.people[person][eval.question];
+				for (var set in sets) {
+					this.people[person][eval.question][set] = (this.people[person][eval.question][set] * 100 / this.people[person].count).toPrecision(3) + '%';
+				}
 			}
 		}
 	}
@@ -1854,8 +1890,16 @@ Evaluations.prototype.sendToCSV = function() {
 	for (var person in this.people) {
 		csv += "###,###,100.100.100," + person + ",";
 		for (var q in this.people[person]) {
-			if (q != 'count'){
-				if (isNaN(this.people[person][q])) {
+			if (q != 'count') {
+				if (typeof this.people[person][q] == "object") {
+					var first = true;
+					for (var set in this.people[person][q]) {
+						csv += (!first ? "\\\\" : "") + set.replace(/ /g, "%20");
+						csv += ":%20" + this.people[person][q][set];
+						first = false;
+					}
+					csv += ",";
+				} else if (isNaN(this.people[person][q])) {
 					csv += this.people[person][q].replace(/( )|(\/\/\/)|(,)/g, "%20").replace(/’/g, "%27") + ",";
 				} else {
 					csv += this.people[person][q] + ",";
@@ -1876,6 +1920,43 @@ Evaluations.prototype.sendToCSV = function() {
 }
 
 /**
+ * @name isByGreaterThanFor 
+ * @description Checks if the role doing the evaluation is at a higher role than the one receiving the evaluation
+ * @assign Grant
+ * @todo
+ *  + Get each role by value
+ *  + Compare the roles to see if by role is greater than for role
+ */
+Evaluations.prototype.isByGreaterThanFor = function() {
+	var vFor = this.roleAsValue(this._evaluations.eFor.toLowerCase());
+	var vBy = this.roleAsValue(this._evaluations.eBy.toLowerCase());
+
+	if (vBy > vFor) {
+		return true;
+	} else {
+		return false;
+	}
+}
+
+/**
+ * @name roleAsValue 
+ * @description
+ * @assign Grant
+ * @todo
+ *  + switch statement for each role and return a value based on the role
+ */
+Evaluations.prototype.roleAsValue = function(role){
+	switch (role) {
+		case "instructor": return 1;
+		case "tgl": return 2;
+		case "aim": return 3;
+		case "im": return 4;
+		case "ocr": return 2;
+		case "ocrm": return 3;
+	}
+}
+
+/**
  * @name  Evaluations.parse
  * @assign Grant
  * @description Collect the evaluation information from a CSV.
@@ -1890,6 +1971,7 @@ Evaluations.prototype.sendToCSV = function() {
  *  + error handling
  */
 Evaluations.prototype.parse = function() {
+	var properEval = this.isByGreaterThanFor()
 	_this = this;
 	Sharepoint.getFile(ims.url.base + 'Master/master.xml', function(master) {
 		var csv = new CSV();
@@ -1921,19 +2003,23 @@ Evaluations.prototype.parse = function() {
 				if (rows[i][emailCol] != undefined) {
 					var xPath = 'semester[code=' + _this._sem +'] > people > person > roles > role[type=' + _this._evaluations.eFor.toLowerCase() + ']';
 					var evaluator = rows[i][emailCol].split('@')[0];
-					var evaluatee = null;
-					if ($(master).find(xPath).has('stewardship > people > person[email="' + evaluator + '"][type="' + _this._evaluations.eBy.toLowerCase() + '"]').length > 0) {
-						if ($(master).find(xPath).has('stewardship > people > person[email="' + evaluator + '"][type="' + _this._evaluations.eBy.toLowerCase() + '"]').length > 1) {
-							if (evaluator == $($(master).find(xPath).has('stewardship > people > person[email="' + evaluator + '"][type="' + _this._evaluations.eBy.toLowerCase() + '"]')[0]).parents('person').attr('email')) {
-								evaluatee = $($(master).find(xPath).has('stewardship > people > person[email="' + evaluator + '"][type="' + _this._evaluations.eBy.toLowerCase() + '"]')[1]).parents('person').attr('email');
+					if (properEval) {
+						_this.setAnswers(evaluator, rows[i], locations);
+					} else {
+						var evaluatee = null;
+						if ($(master).find(xPath).has('stewardship > people > person[email="' + evaluator + '"][type="' + _this._evaluations.eBy.toLowerCase() + '"]').length > 0) {
+							if ($(master).find(xPath).has('stewardship > people > person[email="' + evaluator + '"][type="' + _this._evaluations.eBy.toLowerCase() + '"]').length > 1) {
+								if (evaluator == $($(master).find(xPath).has('stewardship > people > person[email="' + evaluator + '"][type="' + _this._evaluations.eBy.toLowerCase() + '"]')[0]).parents('person').attr('email')) {
+									evaluatee = $($(master).find(xPath).has('stewardship > people > person[email="' + evaluator + '"][type="' + _this._evaluations.eBy.toLowerCase() + '"]')[1]).parents('person').attr('email');
+								} else {
+									evaluatee = $($(master).find(xPath).has('stewardship > people > person[email="' + evaluator + '"][type="' + _this._evaluations.eBy.toLowerCase() + '"]')[0]).parents('person').attr('email');
+								}
 							} else {
-								evaluatee = $($(master).find(xPath).has('stewardship > people > person[email="' + evaluator + '"][type="' + _this._evaluations.eBy.toLowerCase() + '"]')[0]).parents('person').attr('email');
+								evaluatee = $(master).find(xPath).has('stewardship > people > person[email="' + evaluator + '"][type="' + _this._evaluations.eBy.toLowerCase() + '"]').parents('person').attr('email');
 							}
-						} else {
-							evaluatee = $(master).find(xPath).has('stewardship > people > person[email="' + evaluator + '"][type="' + _this._evaluations.eBy.toLowerCase() + '"]').parents('person').attr('email');
-						}
-						if (evaluatee != null) {
-							_this.setAnswers(evaluatee, rows[i], locations);
+							if (evaluatee != null) {
+								_this.setAnswers(evaluatee, rows[i], locations);
+							}
 						}
 					}
 				}

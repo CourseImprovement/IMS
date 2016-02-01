@@ -63,6 +63,8 @@ Evaluations.prototype.cleanseString = function(str) {
  *   + get the question and answer
  *    + logic for value
  *    + logic for percentage
+ *    + logic for combined percentage
+ *    + logic for combined value
  *   + add response data for evaluatee
  *  + error handling
  */
@@ -90,6 +92,26 @@ Evaluations.prototype.setAnswers = function(evaluatee, row, locations) {
 			} else {
 				this.people[evaluatee][quest] += (ans != "" ? parseFloat(1) : parseFloat(0));
 			}
+		} else if (locations[loc].logic == 'cp') { /*COMBINED PERCENTAGE*/
+			if (ans == "") ans = "None";
+			if (this.people[evaluatee][quest] == undefined) {
+				this.people[evaluatee][quest] = {};
+				this.people[evaluatee][quest][ans] = 1;
+			} else {
+				if (this.people[evaluatee][quest][ans] == undefined) {
+					this.people[evaluatee][quest][ans] = 1;
+				} else {
+					this.people[evaluatee][quest][ans]++;
+				}
+			}
+		} else if (locations[loc].logic == 'cv') { /*COMBINED VALUE*/
+			if (this.people[evaluatee][quest] == undefined) {
+				this.people[evaluatee][quest] = _this.cleanseString(ans.split(':')[0] + ': ' + row[locations[loc].col + 1]);
+			} else {
+				this.people[evaluatee][quest] += '\\\\' + _this.cleanseString(ans.split(':')[0] + ': ' + row[locations[loc].col + 1]);
+			}
+		} else if (locations[loc].logic == 'ccp') {
+			
 		}
 	}
 }
@@ -107,11 +129,16 @@ Evaluations.prototype.setAnswers = function(evaluatee, row, locations) {
  *  + error handling
  */
 Evaluations.prototype.calculatePercentages = function() {
-	for (var person in this.people) {
+	for (var person in this.people) {  
 		for (var j = 0; j < this._evaluations.dataSeries.length; j++) {
 			var eval = this._evaluations.dataSeries[j];
 			if (eval.logic == 'p') {
 				this.people[person][eval.question] = (this.people[person][eval.question] * 100 / this.people[person].count).toPrecision(3) + '%';
+			} else if (eval.logic == 'cp') {
+				var sets = this.people[person][eval.question];
+				for (var set in sets) {
+					this.people[person][eval.question][set] = (this.people[person][eval.question][set] * 100 / this.people[person].count).toPrecision(3) + '%';
+				}
 			}
 		}
 	}
@@ -144,8 +171,16 @@ Evaluations.prototype.sendToCSV = function() {
 	for (var person in this.people) {
 		csv += "###,###,100.100.100," + person + ",";
 		for (var q in this.people[person]) {
-			if (q != 'count'){
-				if (isNaN(this.people[person][q])) {
+			if (q != 'count') {
+				if (typeof this.people[person][q] == "object") {
+					var first = true;
+					for (var set in this.people[person][q]) {
+						csv += (!first ? "\\\\" : "") + set.replace(/ /g, "%20");
+						csv += ":%20" + this.people[person][q][set];
+						first = false;
+					}
+					csv += ",";
+				} else if (isNaN(this.people[person][q])) {
 					csv += this.people[person][q].replace(/( )|(\/\/\/)|(,)/g, "%20").replace(/’/g, "%27") + ",";
 				} else {
 					csv += this.people[person][q] + ",";
@@ -166,6 +201,43 @@ Evaluations.prototype.sendToCSV = function() {
 }
 
 /**
+ * @name isByGreaterThanFor 
+ * @description Checks if the role doing the evaluation is at a higher role than the one receiving the evaluation
+ * @assign Grant
+ * @todo
+ *  + Get each role by value
+ *  + Compare the roles to see if by role is greater than for role
+ */
+Evaluations.prototype.isByGreaterThanFor = function() {
+	var vFor = this.roleAsValue(this._evaluations.eFor.toLowerCase());
+	var vBy = this.roleAsValue(this._evaluations.eBy.toLowerCase());
+
+	if (vBy > vFor) {
+		return true;
+	} else {
+		return false;
+	}
+}
+
+/**
+ * @name roleAsValue 
+ * @description
+ * @assign Grant
+ * @todo
+ *  + switch statement for each role and return a value based on the role
+ */
+Evaluations.prototype.roleAsValue = function(role){
+	switch (role) {
+		case "instructor": return 1;
+		case "tgl": return 2;
+		case "aim": return 3;
+		case "im": return 4;
+		case "ocr": return 2;
+		case "ocrm": return 3;
+	}
+}
+
+/**
  * @name  Evaluations.parse
  * @assign Grant
  * @description Collect the evaluation information from a CSV.
@@ -180,6 +252,7 @@ Evaluations.prototype.sendToCSV = function() {
  *  + error handling
  */
 Evaluations.prototype.parse = function() {
+	var properEval = this.isByGreaterThanFor()
 	_this = this;
 	Sharepoint.getFile(ims.url.base + 'Master/master.xml', function(master) {
 		var csv = new CSV();
@@ -211,19 +284,23 @@ Evaluations.prototype.parse = function() {
 				if (rows[i][emailCol] != undefined) {
 					var xPath = 'semester[code=' + _this._sem +'] > people > person > roles > role[type=' + _this._evaluations.eFor.toLowerCase() + ']';
 					var evaluator = rows[i][emailCol].split('@')[0];
-					var evaluatee = null;
-					if ($(master).find(xPath).has('stewardship > people > person[email="' + evaluator + '"][type="' + _this._evaluations.eBy.toLowerCase() + '"]').length > 0) {
-						if ($(master).find(xPath).has('stewardship > people > person[email="' + evaluator + '"][type="' + _this._evaluations.eBy.toLowerCase() + '"]').length > 1) {
-							if (evaluator == $($(master).find(xPath).has('stewardship > people > person[email="' + evaluator + '"][type="' + _this._evaluations.eBy.toLowerCase() + '"]')[0]).parents('person').attr('email')) {
-								evaluatee = $($(master).find(xPath).has('stewardship > people > person[email="' + evaluator + '"][type="' + _this._evaluations.eBy.toLowerCase() + '"]')[1]).parents('person').attr('email');
+					if (properEval) {
+						_this.setAnswers(evaluator, rows[i], locations);
+					} else {
+						var evaluatee = null;
+						if ($(master).find(xPath).has('stewardship > people > person[email="' + evaluator + '"][type="' + _this._evaluations.eBy.toLowerCase() + '"]').length > 0) {
+							if ($(master).find(xPath).has('stewardship > people > person[email="' + evaluator + '"][type="' + _this._evaluations.eBy.toLowerCase() + '"]').length > 1) {
+								if (evaluator == $($(master).find(xPath).has('stewardship > people > person[email="' + evaluator + '"][type="' + _this._evaluations.eBy.toLowerCase() + '"]')[0]).parents('person').attr('email')) {
+									evaluatee = $($(master).find(xPath).has('stewardship > people > person[email="' + evaluator + '"][type="' + _this._evaluations.eBy.toLowerCase() + '"]')[1]).parents('person').attr('email');
+								} else {
+									evaluatee = $($(master).find(xPath).has('stewardship > people > person[email="' + evaluator + '"][type="' + _this._evaluations.eBy.toLowerCase() + '"]')[0]).parents('person').attr('email');
+								}
 							} else {
-								evaluatee = $($(master).find(xPath).has('stewardship > people > person[email="' + evaluator + '"][type="' + _this._evaluations.eBy.toLowerCase() + '"]')[0]).parents('person').attr('email');
+								evaluatee = $(master).find(xPath).has('stewardship > people > person[email="' + evaluator + '"][type="' + _this._evaluations.eBy.toLowerCase() + '"]').parents('person').attr('email');
 							}
-						} else {
-							evaluatee = $(master).find(xPath).has('stewardship > people > person[email="' + evaluator + '"][type="' + _this._evaluations.eBy.toLowerCase() + '"]').parents('person').attr('email');
-						}
-						if (evaluatee != null) {
-							_this.setAnswers(evaluatee, rows[i], locations);
+							if (evaluatee != null) {
+								_this.setAnswers(evaluatee, rows[i], locations);
+							}
 						}
 					}
 				}

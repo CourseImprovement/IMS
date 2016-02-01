@@ -2,7 +2,7 @@
  * @start angular
  */
 var app = angular.module('admin', []);
-app.controller('adminCtrl', ["$scope", function($scope){
+app.controller('adminCtrl', ["$scope", function($scope) {
 	$scope.view = 'instructions';
 	$scope.surveys = window.config.surveys;
 	$scope.file = null;
@@ -38,7 +38,7 @@ app.controller('adminCtrl', ["$scope", function($scope){
 
 	$scope.selectedMenuItem = $scope.menu[0];
 
-	setTimeout(function(){
+	setTimeout(function() {
 		$('.ui.accordion').accordion();
 	}, 10);
 	/**
@@ -67,85 +67,85 @@ app.controller('adminCtrl', ["$scope", function($scope){
 		return false;
 	}
 
-	$scope.menuChange = function(menuItem){
+	$scope.menuChange = function(menuItem) {
 		var proceed = true;
 		if (hasPageBeenEdited()) {
 			proceed = confirm('Are you sure you want to leave this page?');
 		}
 		if (proceed) {
-			for (var i = 0; i < $scope.menu.length; i++){
+			for (var i = 0; i < $scope.menu.length; i++) {
 				$scope.menu[i].active = false;
 			}
 			$scope.selectedMenuItem = menuItem;
 			menuItem.active = true;
 			$scope.view = menuItem.name.toLowerCase();
-			if ($scope.view.indexOf('survey') > -1 || $scope.view == 'process'){
+			if ($scope.view.indexOf('survey') > -1 || $scope.view == 'process') {
 				setTimeout(function(){
 					$('.selection.dropdown:not(#whichView)').dropdown({
-						onChange: function(value, text){
+						onChange: function(value, text) {
 							surveySelected(value, text, true);
 						}
 					});
 
-					if ($scope.view == 'modify survey' || $scope.view == 'add survey'){
+					if ($scope.view == 'modify survey' || $scope.view == 'add survey') {
 						$('#whichView').dropdown({
-							onChange: function(value, text){
+							onChange: function(value, text) {
 								$scope.selectedSurvey.placement = value;
 							}
 						});
 					}
 
-					if ($scope.view == 'add survey'){
-						$scope.$apply(function(){
+					if ($scope.view == 'add survey') {
+						$scope.$apply(function() {
 							$scope.selectedSurvey = window.config.newSurvey();
 							$scope.selectedSurvey.isNew = true;
 						});
 					}
 					else {
-						if ($scope.selectedSurvey && $scope.selectedSurvey.isNew){
+						if ($scope.selectedSurvey && $scope.selectedSurvey.isNew) {
 							$scope.selectedSurvey.remove();
 							$scope.selectedSurvey = null;
 							window.config.selectedSurvey = null;
-							$scope.$apply(function(){
+							$scope.$apply(function() {
 								$scope.surveys = window.config.surveys;
 							});
 						}
 					}
 				}, 10);
 			}
-			else if ($scope.view.indexOf('qualtrics') > -1){
-				setTimeout(function(){
+			else if ($scope.view.indexOf('qualtrics') > -1) {
+				setTimeout(function() {
 					$('#left').dropdown({
-						onChange: function(value, text){
+						onChange: function(value, text) {
 							$scope.prepareTool.left = value;
 						}
 					});
 					$('#right').dropdown({
-						onChange: function(value, text){
+						onChange: function(value, text) {
 							$scope.prepareTool.right = value;
 						}
 					});
 					$('#course').checkbox({
-						onChange: function(){
+						onChange: function() {
 							$scope.prepareTool.useCourse = !$scope.prepareTool.useCourse;
 						}
 					});
 				}, 10);
 			}
-			else if ($scope.view == 'instructions'){
-				setTimeout(function(){
+			else if ($scope.view == 'instructions') {
+				setTimeout(function() {
 					$('.ui.accordion').accordion();
 				}, 10);
 			}
-			else if ($scope.view == 'evaluations'){
-				setTimeout(function(){
+			else if ($scope.view == 'evaluations') {
+				setTimeout(function() {
 					$('#for').dropdown({
 						onChange: function(value){
 							$scope.evaluations['for'] = value;
 						}
 					});
 					$('#by').dropdown({
-						onChange: function(value){
+						onChange: function(value) {
 							$scope.evaluations.by = value;
 						}
 					})
@@ -154,72 +154,72 @@ app.controller('adminCtrl', ["$scope", function($scope){
 		}
 	}
 
-	function surveySelected(value, text, force){
-		if (typeof $scope.selectedSurvey != 'object'){
+	function surveySelected(value, text, force) {
+		if (typeof $scope.selectedSurvey != 'object') {
 			$scope.selectedSurvey = value;
 			$scope.selectedSurvey = getSelectedSurvey();
 			window.config.selectedSurvey = $scope.selectedSurvey;
 		}
-		if (force){
+		if (force) {
 			$scope.selectedSurvey = value;
 			$scope.selectedSurvey = getSelectedSurvey();
 			window.config.selectedSurvey = $scope.selectedSurvey;
 		}
-		$scope.$apply(function(){
-			if (typeof $scope.selectedSurvey != 'object'){
+		$scope.$apply(function() {
+			if (typeof $scope.selectedSurvey != 'object') {
 				$scope.selectedSurvey = value;
 				$scope.selectedSurvey = getSelectedSurvey();
 				window.config.selectedSurvey = $scope.selectedSurvey;
 			}
-			if (force){
+			if (force) {
 				$scope.selectedSurvey = value;
 				$scope.selectedSurvey = getSelectedSurvey();
 				window.config.selectedSurvey = $scope.selectedSurvey;
 			}
-			if ($('#whichView').length > 0){
+			if ($('#whichView').length > 0) {
 				$('#whichView').dropdown('set selected', $scope.selectedSurvey.placement);
 			}
 		});
 	}
 
-	function getSelectedSurvey(){
+	function getSelectedSurvey() {
 		if (!$scope.selectedSurvey) {
 			errAlert('Invalid Survey');
 			return false;
 		}
-		else if (typeof $scope.selectedSurvey != 'string'){
+		else if (typeof $scope.selectedSurvey != 'string') {
 			return $scope.selectedSurvey;
 		}
 		var id = parseInt($scope.selectedSurvey);
-		for (var i = 0; i < $scope.surveys.length; i++){
-			if ($scope.surveys[i].id == id){
+		for (var i = 0; i < $scope.surveys.length; i++) {
+			if ($scope.surveys[i].id == id) {
 				return $scope.surveys[i];
 			}
 		}
 	}
 
-	function reload(time){
+	function reload(time) {
 		setTimeout(function(){
 			window.location.reload();
 		}, time);
 	}
 
-	$scope.removeSurvey = function(){
+	$scope.removeSurvey = function() {
 		var survey = getSelectedSurvey();
 		window.config.remove(survey.id);
 	}
 
-	$scope.copySurvey = function(){
+	$scope.copySurvey = function() {
 		var survey = getSelectedSurvey();
 		var copy = survey.copy();
 		window.config.addSurvey(copy);
 	}
 
-	$scope.chooseFile = function(){
-		setTimeout(function(){
+	$scope.chooseFile = function() {
+		setTimeout(function() {
 			$('body').append('<input type="file" id="surveyFile" style="display:none;">');
-			$('#surveyFile').change(function(){
-				$scope.$apply(function(){
+			$('#surveyFile').change(function() {
+				$scope.$apply(function() {
 					$scope.isFile = true;
 				});
 				$scope.file = this.files[0];
@@ -228,39 +228,39 @@ app.controller('adminCtrl', ["$scope", function($scope){
 		}, 100);
 	}
 
-	$scope.startProcess = function(){
+	$scope.startProcess = function() {
 		var survey = getSelectedSurvey();
 		var csv = new CSV();
-		csv.readFile($scope.file, function(file){
-			setTimeout(function(){
+		csv.readFile($scope.file, function(file) {
+			setTimeout(function() {
 				survey.process(file.data);
 			}, 10);
 		});
 	}
 
-	var permissionsGlobal;
-	$scope.changePermissions = function(){
+	var permissionsGlobal; 
+	$scope.changePermissions = function() {
 		if (!permissionsGlobal) permissionsGlobal = new Permissions();
 		permissionsGlobal.start();
 	}
 
-	$scope.startSemesterSetup = function(){
+	$scope.startSemesterSetup = function() {
 		var csv = new CSV();
-		csv.readFile($scope.file, function(file){
-			setTimeout(function(){
+		csv.readFile($scope.file, function(file) {
+			setTimeout(function() {
 				var s = new SemesterSetup(file.data);
 				s.semesterSetup();
 			}, 10);
 		});
 	}
 
-	$scope.startQualtricsPrep = function(){
+	$scope.startQualtricsPrep = function() {
 		var t = new Tool($scope.file, $scope.prepareTool.left, $scope.prepareTool.right, $scope.prepareTool.useCourse);
 		t.parse();
 	}
 
-	$scope.removeQuestion = function(question){
-		if (selectedQuestion == null){
+	$scope.removeQuestion = function(question) {
+		if (selectedQuestion == null) {
 			$scope.question = {
 				columnLetter: '',
 				questionText: '',
@@ -268,27 +268,27 @@ app.controller('adminCtrl', ["$scope", function($scope){
 			};
 		}
 		else{
-			for (var i = 0; i < $scope.selectedSurvey.questions.length; i++){
-				if ($scope.selectedSurvey.questions[i].id == selectedQuestion.id){
+			for (var i = 0; i < $scope.selectedSurvey.questions.length; i++) {
+				if ($scope.selectedSurvey.questions[i].id == selectedQuestion.id) {
 					$scope.selectedSurvey.questions.splice(i, 1);
 				}
 			}
 		}
 	}
 
-	function Replaces(type){
+	function Replaces(type) {
 		var result = '';
-		if (type == 'what'){
-			for (var i = 0; i < $scope.question.replaces.length; i++){
-				if (result.length > 0){
+		if (type == 'what') {
+			for (var i = 0; i < $scope.question.replaces.length; i++) {
+				if (result.length > 0) {
 					result += ';';
 				}
 				result += $scope.question.replaces[i]['what'];
 			}
 		}
-		else if (type == 'with'){
-			for (var i = 0; i < $scope.question.replaces.length; i++){
-				if (result.length > 0){
+		else if (type == 'with') {
+			for (var i = 0; i < $scope.question.replaces.length; i++) {
+				if (result.length > 0) { 
 					result += ';';
 				}
 				result += $scope.question.replaces[i]['with'];
@@ -297,11 +297,11 @@ app.controller('adminCtrl', ["$scope", function($scope){
 		return result;
 	}
 
-	function ReplacesCreate(awhat, awith){
+	function ReplacesCreate(awhat, awith) {
 		var bwhat = awhat.split(';');
 		var bwith = awith.split(';');
 		var result = [];
-		for (var i = 0; i < bwhat.length; i++){
+		for (var i = 0; i < bwhat.length; i++) {
 			result.push({
 				'with': bwith[i],
 				'what': bwhat[i]
@@ -310,14 +310,14 @@ app.controller('adminCtrl', ["$scope", function($scope){
 		return result;
 	}
 
-	$scope.addQuestion = function(){
+	$scope.addQuestion = function() {
 		$('#questionModal').modal({
-			onApprove: function(){
-				if (!$scope.selectedSurvey){
+			onApprove: function() {
+				if (!$scope.selectedSurvey) {
 					errAlert('Invalid Survey');
 					return false;
 				}
-				$scope.$apply(function(){
+				$scope.$apply(function() {
 					$scope.selectedSurvey.addQuestion(new Question({
 						id: $scope.selectedSurvey.getHighestQuestionId() + 1,
 						text: $scope.question.questionText,
@@ -334,8 +334,8 @@ app.controller('adminCtrl', ["$scope", function($scope){
 					$scope['with'] = '';
 				})
 			},
-			onHide: function(){
-				$scope.$apply(function(){
+			onHide: function() {
+				$scope.$apply(function() {
 					$scope.question = {
 						columnLetter: '',
 						questionText: '',
@@ -348,11 +348,11 @@ app.controller('adminCtrl', ["$scope", function($scope){
 		}).modal('show');
 	}
 
-	$scope.removeReplaces = function(r, idx){
+	$scope.removeReplaces = function(r, idx) {
 		$scope.question.replaces.splice(idx, 1);
 	}
 
-	$scope.addReplace = function(wh, wi){
+	$scope.addReplace = function(wh, wi) {
 		$scope.question.replaces.push({
 			'what': wh,
 			'with': wi
@@ -362,7 +362,7 @@ app.controller('adminCtrl', ["$scope", function($scope){
 	}
 
 	var selectedQuestion = null;
-	$scope.editQuestion = function(question){
+	$scope.editQuestion = function(question) {
 		selectedQuestion = question;
 		$scope.question = {
 			columnLetter: selectedQuestion.col,
@@ -370,8 +370,8 @@ app.controller('adminCtrl', ["$scope", function($scope){
 			replaces: ReplacesCreate(selectedQuestion.replaceWhat, selectedQuestion.replaceWith)
 		};
 		$('#questionModal').modal({
-			onApprove: function(){
-				if (!$scope.selectedSurvey){
+			onApprove: function() {
+				if (!$scope.selectedSurvey) {
 					errAlert('Invalid Survey');
 					return false;
 				}
@@ -387,7 +387,7 @@ app.controller('adminCtrl', ["$scope", function($scope){
 				$scope['what'] = '';
 				$scope['with'] = '';
 			},
-			onHide: function(){
+			onHide: function() {
 				$scope.question = {
 					columnLetter: '',
 					questionText: '',
@@ -400,8 +400,8 @@ app.controller('adminCtrl', ["$scope", function($scope){
 		}).modal('show');
 	}
 
-	$scope.submitChanges = function(){
-		if (!$scope.selectedSurvey){
+	$scope.submitChanges = function() {
+		if (!$scope.selectedSurvey) {
 			errAlert('Invalid Survey');
 			return false;
 		}
@@ -418,11 +418,11 @@ app.controller('adminCtrl', ["$scope", function($scope){
 	 *  + Start adding letters to new array
 	 *   + if the letter contains a '-' then get and add all letters in between 
 	 */
-	function arrayOfColumns(columns){
-		if (columns.indexOf('-') > -1){
+	function arrayOfColumns(columns) {
+		if (columns.indexOf('-') > -1) {
 			var sets = columns.split(';');
-			for (var i = 0; i < sets.length; i++){
-				if (sets[i].indexOf('-') > -1){
+			for (var i = 0; i < sets.length; i++) {
+				if (sets[i].indexOf('-') > -1) {
 					var start = Config.columnLetterToNumber(sets[i].split('-')[0]);
 					var end = Config.columnLetterToNumber(sets[i].split('-')[1]);
 					sets.splice(i, 1);
@@ -430,7 +430,7 @@ app.controller('adminCtrl', ["$scope", function($scope){
 						errAlert("columns need to be read from left to right (A-Z)");
 						throw "columns need to be read from left to right (A-Z)";
 					}
-					for (var j = start; j <= end; j++){
+					for (var j = start; j <= end; j++) {
 						sets.splice(sets.length, 0, Config.columnNumberToLetter(j));
 					}
 				} else {
@@ -447,21 +447,30 @@ app.controller('adminCtrl', ["$scope", function($scope){
 		}
 	}
 
-	$scope.startEvaluations = function(){
+	/**
+	 * @name startEvaluations 
+	 * @description
+	 * @assign Grant
+	 * @todo 
+	 *  + its all done!
+	 */
+	$scope.startEvaluations = function() {
 		var ev = $scope.evaluations;
-		if (ev.by == ev['for']){
+		if (ev.by == ev['for']) { // error handling
 			errAlert("The evaluations can not be done at the same level. e.g. by: INSTRUCTOR for: INSTRUCTOR");
 			return;
 		}
 
-		for (var key in ev){
-			if (ev[key] == null || ev[key] == ''){
+		for (var key in ev) { // error handling
+			if (ev[key] == null || ev[key] == '') {
 				errAlert("Some information was left out!");
 				return;
 			}
 		}
 
-		if (ev.dataCols.indexOf(';') == -1 && ev.dataCols.indexOf('-') == -1 && ev.dataCols.length > 2){
+		if (ev.dataCols.indexOf(';') == -1 && 
+			ev.dataCols.indexOf('-') == -1 && 
+			ev.dataCols.length > 2) { // error handling
 			errAlert("Please seperate each column with a ';' (no spaces needed)");
 			return;
 		}
@@ -470,21 +479,21 @@ app.controller('adminCtrl', ["$scope", function($scope){
 		var qs = ev.texts.split(';');
 		var ls = ev.logic.split(';');
 
-		if (cs.length != qs.length || qs.length != ls.length){
+		if (cs.length != qs.length || qs.length != ls.length){ // error handling
 			errAlert('The number of columns, questions, and logic selections do not match.\n' + 
 				'Be sure they are all the same length and check that you have seperated\n' + 
 				'them with semicolons');
 			return;
 		}
 
-		for (var i = 0; i < cs.length; i++){
-			if (cs[i] == ""){
+		for (var i = 0; i < cs.length; i++){ // error handling
+			if (cs[i] == "") {
 				errAlert('One of the columns is blank.');
 				return;
-			} else if (qs[i] == ""){
+			} else if (qs[i] == "") {
 				errAlert('One of the question texts is blank.');
 				return;
-			} else if (ls[i] == ""){
+			} else if (ls[i] == "") {
 				errAlert('One of the logic options is blank.');
 				return;
 			}
@@ -492,9 +501,9 @@ app.controller('adminCtrl', ["$scope", function($scope){
 
 		var eval = [];
 
-		for (var i = 0; i < cs.length; i++){
+		for (var i = 0; i < cs.length; i++) {
 
-			if (ls[i] != 'p' && ls[i] != 'v'){
+			if (ls[i] != 'p' && ls[i] != 'v' && ls[i] != 'cp' && ls[i] != 'cv') { // error handling
 				errAlert("Use either a single 'p' (percentage) or 'v' (value) for specifying logic");
 				return;
 			}
@@ -506,7 +515,7 @@ app.controller('adminCtrl', ["$scope", function($scope){
 			});	
 		}
 
-		if ($scope.evaluations == {}){
+		if ($scope.evaluations == {}) {
 			errAlert('Add an evaluation before you start the process.');
 			return;
 		}
@@ -576,19 +585,19 @@ function addItemReverseOrder(list, item) {
 }
 
 app.filter('reverseByWeek', function() {
-  	return function(items){
+  	return function(items) {
       	if (items){
       		var finalSet = [];
       		var surveyTypes = {};
 
-      		for (var i = 0; i < items.length; i++){
+      		for (var i = 0; i < items.length; i++) {
       			if (surveyTypes[items[i].name] == undefined) surveyTypes[items[i].name] = [];
           		surveyTypes[items[i].name].push(items[i]);
           	}
 
-          	for (var s in surveyTypes){
+          	for (var s in surveyTypes) {
           		var set = [];
-          		for (var i = 0; i < surveyTypes[s].length; i++){
+          		for (var i = 0; i < surveyTypes[s].length; i++) {
 	          		set = addItemReverseOrder(set, surveyTypes[s][i]);
 	          	}
 	          	finalSet = finalSet.concat(set);
@@ -599,12 +608,12 @@ app.filter('reverseByWeek', function() {
   	} 
 });
 
-app.directive('allCaps', function($compile){
+app.directive('allCaps', function($compile) {
 	return {
 		restrict: 'A',
 		replace: true,
-		link: function(scope, element, attrs){
-			element.keyup(function(){
+		link: function(scope, element, attrs) {
+			element.keyup(function() {
 				if (typeof this.value == 'string') this.value = this.value.toUpperCase();
 			});
 		}
