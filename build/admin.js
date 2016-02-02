@@ -1601,10 +1601,10 @@ app.controller('adminCtrl', ["$scope", function($scope) {
 
 		for (var i = 0; i < cs.length; i++) {
 
-			if (ls[i] != 'p' && ls[i] != 'v' && ls[i] != 'cp' && ls[i] != 'cv') { // error handling
-				errAlert("Use either a single 'p' (percentage) or 'v' (value) for specifying logic");
-				return;
-			}
+			// if (ls[i] != 'p' && ls[i] != 'v' && ls[i] != 'cp' && ls[i] != 'cv' && ls[i] != 'ccp') { // error handling
+			// 	errAlert("Use either a single 'p' (percentage) or 'v' (value) for specifying logic");
+			// 	return;
+			// }
 
 			eval.push({
 				col: cs[i],
@@ -1731,6 +1731,7 @@ app.directive('allCaps', function($compile) {
 function Evaluations(obj, file) {
 	this._evaluations = obj;
 	this._file = file;
+	this._titles = null;
 	this.people = {};
 	this._sem = window.config.getCurrentSemester();
 }
@@ -1830,7 +1831,37 @@ Evaluations.prototype.setAnswers = function(evaluatee, row, locations) {
 				this.people[evaluatee][quest] += '\\\\' + _this.cleanseString(ans.split(':')[0] + ': ' + row[locations[loc].col + 1]);
 			}
 		} else if (locations[loc].logic == 'ccp') {
-			
+			var idx = locations[loc].col;
+			do 
+			{
+				ans = row[idx];
+				if (ans == "") ans = "None";
+				if (ans == "Other" && row[idx + 1] != "") {
+					if (this.people[evaluatee][quest] == undefined) {
+						this.people[evaluatee][quest] = {}
+						this.people[evaluatee][quest]['Other'] = [ans];
+					} else {
+						if (this.people[evaluatee][quest]['Other'] == undefined) {
+							this.people[evaluatee][quest]['Other'] = [ans];
+						} else {
+							this.people[evaluatee][quest]['Other'].push(ans);
+						}
+					}
+				} else {
+					if (this.people[evaluatee][quest] == undefined) {
+						this.people[evaluatee][quest] = {};
+						this.people[evaluatee][quest][ans] = 1;
+					} else {
+						if (this.people[evaluatee][quest][ans] == undefined) {
+							this.people[evaluatee][quest][ans] = 1;
+						} else {
+							this.people[evaluatee][quest][ans]++;
+						}
+					}
+				}
+
+				idx++;
+			} while (this._titles[idx].toLowerCase().indexOf('(select all that apply)') != -1);
 		}
 	}
 }
@@ -1977,6 +2008,7 @@ Evaluations.prototype.parse = function() {
 		var csv = new CSV();
 		csv.readFile(_this._file, function(csv) {
 			var rows = csv.data;
+			_this._titles = csv.data[1];
 			var emailCol = Config.columnLetterToNumber(_this._evaluations.emailCol);
 			var locations = _this.getColumnLocations();
 			var questions = [];

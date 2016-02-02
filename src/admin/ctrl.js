@@ -503,10 +503,10 @@ app.controller('adminCtrl', ["$scope", function($scope) {
 
 		for (var i = 0; i < cs.length; i++) {
 
-			if (ls[i] != 'p' && ls[i] != 'v' && ls[i] != 'cp' && ls[i] != 'cv') { // error handling
-				errAlert("Use either a single 'p' (percentage) or 'v' (value) for specifying logic");
-				return;
-			}
+			// if (ls[i] != 'p' && ls[i] != 'v' && ls[i] != 'cp' && ls[i] != 'cv' && ls[i] != 'ccp') { // error handling
+			// 	errAlert("Use either a single 'p' (percentage) or 'v' (value) for specifying logic");
+			// 	return;
+			// }
 
 			eval.push({
 				col: cs[i],
