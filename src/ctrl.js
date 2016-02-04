@@ -335,6 +335,7 @@ if (!ims.error){
 			return list;
 		}
 		var week = item._week;
+		if (!list) return [];
 		if (list.length == 0) {
 			list.push(item);
 			return list;
@@ -367,8 +368,8 @@ if (!ims.error){
 	      		var surveyTypes = {};
 
 	      		for (var i = 0; i < items.length; i++){
-	      			if (surveyTypes[items[i].name] == undefined) surveyTypes[items[i].name] = [];
-	          		surveyTypes[items[i].name].push(items[i]);
+	      			if (surveyTypes[items[i]._name] == undefined) surveyTypes[items[i]._name] = [];
+	          		surveyTypes[items[i]._name].push(items[i]);
 	          	}
 
 	          	for (var s in surveyTypes){
