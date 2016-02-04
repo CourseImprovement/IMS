@@ -816,7 +816,7 @@ if (!ims.error){
 			return list;
 		}
 		var week = item._week;
-		if (!list) return [];
+		if (!list) list = [];
 		if (list.length == 0) {
 			list.push(item);
 			return list;

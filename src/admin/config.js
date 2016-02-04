@@ -35,6 +35,14 @@ Config.prototype.addSurvey = function(survey){
 	$(this._xml).find('semester[code=' + this.getCurrentSemester() + '] surveys').append(survey._xml);
 	this.save();
 }
+
+Config.prototype.addEvaluation = function(eval){
+	var eles = $(this._xml).find('semester[code=' + this.getCurrentSemester() + '] evaluations');
+	if (eles.length == 0) {
+		$(this._xml).find('semester[code=' + this.getCurrentSemester() + ']').append('<evaluations></evaluations>');
+		eles = $(this._xml).find('semester[code=' + this.getCurrentSemester() + '] evaluations');
+	}
+}
 /**
  * @name newSurvey
  * @description Creates a new survey and returns it

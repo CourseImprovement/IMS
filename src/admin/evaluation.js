@@ -17,6 +17,10 @@ function Evaluations(obj, file) {
 	this._sem = window.config.getCurrentSemester();
 }
 
+Evaluations.prototype.save = function(){
+	window.config.addEvaluation(this);	
+}
+
 /**
  * @name  Evaluations.getColumnLocations
  * @assign Grant
