@@ -335,23 +335,26 @@ if (!ims.error){
 			return list;
 		}
 		var week = item._week;
-		if (!list) list = [];
-		if (list.length == 0) {
-			list.push(item);
+		if (!list) return [];
+		var weekAsInt = Number(week);
+		if (isNaN(weekAsInt)){
+			if (week == "") list.splice(list.length, 0, item);
+			else if (week.toLowerCase().indexOf('pre') > -1) list.splice(list.length, 0, item);
+			else if (week.toLowerCase().indexOf('intro') > -1) list.splice(list.length, 0, item);
+			else if (week.toLowerCase().indexOf('concl') > -1) list.splice(0, 0, item);
+			else list.splice(0, 0, item);
 			return list;
-		} else if (week == "") {
-			list.splice(list.length, 0, item);
-			return list;
-		} else if (week.toLowerCase() == "conclusion") {
-			list.splice(0, 0, item);
-			return list;
-		}else {
+		}
+		else{
 			for (var i = 0; i < list.length; i++) {
 				if (toInt(week) >= toInt(list[i]._week)) {
 					list.splice(i, 0, item);
 					return list;
 				}
 			}
+
+			list.splice(list.length, 0, item);
+			return list;
 		}
 	}
 
@@ -364,23 +367,26 @@ if (!ims.error){
 	app.filter('reverseByWeek', function() {
 	  	return function(items){
 	      	if (items){
-	      		var finalSet = [];
-	      		var surveyTypes = {};
+						var finalSet = [];
+						var surveyTypes = {};
 
-	      		for (var i = 0; i < items.length; i++){
-	      			if (surveyTypes[items[i]._name] == undefined) surveyTypes[items[i]._name] = [];
-	          		surveyTypes[items[i]._name].push(items[i]);
-	          	}
+						for (var i = 0; i < items.length; i++){
+							if (items[i]._name == undefined) console.log(i);
+							if (surveyTypes[items[i]._name] == undefined) surveyTypes[items[i]._name] = [];
+							surveyTypes[items[i]._name].push(items[i]);
+						}
 
-	          	for (var s in surveyTypes){
-	          		var set = [];
-	          		for (var i = 0; i < surveyTypes[s].length; i++){
-		          		set = addItemReverseOrder(set, surveyTypes[s][i]);
-		          	}
-		          	finalSet = finalSet.concat(set);
-	          	}
-	          	
-	          	return finalSet;
+						var keys = Object.keys(surveyTypes).sort();
+						for (var j = keys.length - 1; j != -1; j--){
+							var s = keys[j];
+							var set = [];
+							for (var i = 0; i < surveyTypes[s].length; i++){
+					  		set = addItemReverseOrder(set, surveyTypes[s][i]);
+					  	}
+					  	finalSet = finalSet.concat(set);
+						}
+					  	
+					  return finalSet;
 	      	}
 	  	} 
 	});

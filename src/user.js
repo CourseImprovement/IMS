@@ -145,7 +145,7 @@ User.prototype._setSurveys = function(){
 	var _this = this;
 	$(this._xml).find('> surveys survey').each(function(){
 		var id = $(this).attr('id');
-		if ($(ims._config).find('semester[code="' + sem + '"] survey[id="' + id + '"]').length != 0) {
+		if ($(Survey.getConfig()).find('semester[code="' + sem + '"] survey[id="' + id + '"]').length != 0) {
 			_this._surveys.push(new Survey(this, _this));
 		}
 	})
@@ -473,7 +473,12 @@ User.prototype.getHours = function(){
 		}
 	}
 	for (var i = 0; i < hours.length; i++){
-		hours[i] = Math.floor(hours[i] * 10) / 10;
+		if (isNaN(hours[i])){
+			hours[i] = 0;
+		}
+		else{
+			hours[i] = Math.floor(hours[i] * 10) / 10;
+		}
 	}
 	return hours;
 }
@@ -601,9 +606,10 @@ User.prototype.getWeeklyReflections = function(){
 			weeklyReflections.push(surveys[i]);
 		}
 	}
-	$(weeklyReflections).sort(function(a, b){
+	weeklyReflections.sort(function(a, b){
 		if (a.getWeek() == 'Intro') return false;
-		return parseInt(a.getWeek()) > parseInt(b.getWeek());
+		console.log(parseInt(a.getWeek()) - parseInt(b.getWeek()));
+		return parseInt(a.getWeek()) - parseInt(b.getWeek());
 	});
 	return weeklyReflections;
 }

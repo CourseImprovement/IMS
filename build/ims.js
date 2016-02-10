@@ -816,23 +816,26 @@ if (!ims.error){
 			return list;
 		}
 		var week = item._week;
-		if (!list) list = [];
-		if (list.length == 0) {
-			list.push(item);
+		if (!list) return [];
+		var weekAsInt = Number(week);
+		if (isNaN(weekAsInt)){
+			if (week == "") list.splice(list.length, 0, item);
+			else if (week.toLowerCase().indexOf('pre') > -1) list.splice(list.length, 0, item);
+			else if (week.toLowerCase().indexOf('intro') > -1) list.splice(list.length, 0, item);
+			else if (week.toLowerCase().indexOf('concl') > -1) list.splice(0, 0, item);
+			else list.splice(0, 0, item);
 			return list;
-		} else if (week == "") {
-			list.splice(list.length, 0, item);
-			return list;
-		} else if (week.toLowerCase() == "conclusion") {
-			list.splice(0, 0, item);
-			return list;
-		}else {
+		}
+		else{
 			for (var i = 0; i < list.length; i++) {
 				if (toInt(week) >= toInt(list[i]._week)) {
 					list.splice(i, 0, item);
 					return list;
 				}
 			}
+
+			list.splice(list.length, 0, item);
+			return list;
 		}
 	}
 
@@ -845,23 +848,26 @@ if (!ims.error){
 	app.filter('reverseByWeek', function() {
 	  	return function(items){
 	      	if (items){
-	      		var finalSet = [];
-	      		var surveyTypes = {};
+						var finalSet = [];
+						var surveyTypes = {};
 
-	      		for (var i = 0; i < items.length; i++){
-	      			if (surveyTypes[items[i]._name] == undefined) surveyTypes[items[i]._name] = [];
-	          		surveyTypes[items[i]._name].push(items[i]);
-	          	}
+						for (var i = 0; i < items.length; i++){
+							if (items[i]._name == undefined) console.log(i);
+							if (surveyTypes[items[i]._name] == undefined) surveyTypes[items[i]._name] = [];
+							surveyTypes[items[i]._name].push(items[i]);
+						}
 
-	          	for (var s in surveyTypes){
-	          		var set = [];
-	          		for (var i = 0; i < surveyTypes[s].length; i++){
-		          		set = addItemReverseOrder(set, surveyTypes[s][i]);
-		          	}
-		          	finalSet = finalSet.concat(set);
-	          	}
-	          	
-	          	return finalSet;
+						var keys = Object.keys(surveyTypes).sort();
+						for (var j = keys.length - 1; j != -1; j--){
+							var s = keys[j];
+							var set = [];
+							for (var i = 0; i < surveyTypes[s].length; i++){
+					  		set = addItemReverseOrder(set, surveyTypes[s][i]);
+					  	}
+					  	finalSet = finalSet.concat(set);
+						}
+					  	
+					  return finalSet;
 	      	}
 	  	} 
 	});
@@ -2275,16 +2281,18 @@ function Semesters(){
  */
 Semesters.prototype.getCurrent = function(){
 	if (!this._current){
-		this._current = new Semester($(Survey.getConfig()).find('semester[current=true]').attr('code'));
+		var url = this.getFromUrl();
+		if (url){
+			this._current = new Semester($(Survey.getConfig()).find('semester[code=' + url + ']').attr('code'));
+		}
+		else{
+			this._current = new Semester($(Survey.getConfig()).find('semester[current=true]').attr('code'));
+		}
 	}
 	return this._current;
 }
 
-/**
- * @name Semesters.getCurrentCode 
- * @description
- */
-Semesters.prototype.getCurrentCode = function(){
+Semesters.prototype.getFromUrl = function(){
 	var loc = window.location.href;
 	if (loc.indexOf('&sem=') > -1){
 		var sem = loc.split('&sem=')[1];
@@ -2293,6 +2301,16 @@ Semesters.prototype.getCurrentCode = function(){
 		}
 		return sem; 
 	}
+	return false;
+}
+
+/**
+ * @name Semesters.getCurrentCode 
+ * @description
+ */
+Semesters.prototype.getCurrentCode = function(){
+	var url = this.getFromUrl();
+	if (url) return url;
 	return this.getCurrent().getCode();
 }
 
@@ -2861,7 +2879,7 @@ User.prototype._setSurveys = function(){
 	var _this = this;
 	$(this._xml).find('> surveys survey').each(function(){
 		var id = $(this).attr('id');
-		if ($(ims._config).find('semester[code="' + sem + '"] survey[id="' + id + '"]').length != 0) {
+		if ($(Survey.getConfig()).find('semester[code="' + sem + '"] survey[id="' + id + '"]').length != 0) {
 			_this._surveys.push(new Survey(this, _this));
 		}
 	})
@@ -3189,7 +3207,12 @@ User.prototype.getHours = function(){
 		}
 	}
 	for (var i = 0; i < hours.length; i++){
-		hours[i] = Math.floor(hours[i] * 10) / 10;
+		if (isNaN(hours[i])){
+			hours[i] = 0;
+		}
+		else{
+			hours[i] = Math.floor(hours[i] * 10) / 10;
+		}
 	}
 	return hours;
 }
@@ -3317,9 +3340,10 @@ User.prototype.getWeeklyReflections = function(){
 			weeklyReflections.push(surveys[i]);
 		}
 	}
-	$(weeklyReflections).sort(function(a, b){
+	weeklyReflections.sort(function(a, b){
 		if (a.getWeek() == 'Intro') return false;
-		return parseInt(a.getWeek()) > parseInt(b.getWeek());
+		console.log(parseInt(a.getWeek()) - parseInt(b.getWeek()));
+		return parseInt(a.getWeek()) - parseInt(b.getWeek());
 	});
 	return weeklyReflections;
 }

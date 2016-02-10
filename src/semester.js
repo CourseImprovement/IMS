@@ -51,16 +51,18 @@ function Semesters(){
  */
 Semesters.prototype.getCurrent = function(){
 	if (!this._current){
-		this._current = new Semester($(Survey.getConfig()).find('semester[current=true]').attr('code'));
+		var url = this.getFromUrl();
+		if (url){
+			this._current = new Semester($(Survey.getConfig()).find('semester[code=' + url + ']').attr('code'));
+		}
+		else{
+			this._current = new Semester($(Survey.getConfig()).find('semester[current=true]').attr('code'));
+		}
 	}
 	return this._current;
 }
 
-/**
- * @name Semesters.getCurrentCode 
- * @description
- */
-Semesters.prototype.getCurrentCode = function(){
+Semesters.prototype.getFromUrl = function(){
 	var loc = window.location.href;
 	if (loc.indexOf('&sem=') > -1){
 		var sem = loc.split('&sem=')[1];
@@ -69,6 +71,16 @@ Semesters.prototype.getCurrentCode = function(){
 		}
 		return sem; 
 	}
+	return false;
+}
+
+/**
+ * @name Semesters.getCurrentCode 
+ * @description
+ */
+Semesters.prototype.getCurrentCode = function(){
+	var url = this.getFromUrl();
+	if (url) return url;
 	return this.getCurrent().getCode();
 }
 
