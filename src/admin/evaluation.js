@@ -17,7 +17,9 @@ function Evaluations(obj, file) {
 	this._sem = window.config.getCurrentSemester();
 }
 
-Evaluations.prototype.save = function(){
+Evaluations.prototype.save = function(name, id){
+	this._name = name;
+	this._id = id;
 	window.config.addEvaluation(this);	
 }
 

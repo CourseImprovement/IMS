@@ -17,6 +17,7 @@
  */
 function Config(){
 	this.surveys = [];
+	this.evaluations = [];
 	this._xml = null;
 	this._initSetup();
 	this.selectedSurvey = null;
@@ -42,6 +43,32 @@ Config.prototype.addEvaluation = function(eval){
 		$(this._xml).find('semester[code=' + this.getCurrentSemester() + ']').append('<evaluations></evaluations>');
 		eles = $(this._xml).find('semester[code=' + this.getCurrentSemester() + '] evaluations');
 	}
+
+	if (eval._id == '') {
+		num = 0;
+		$(eles).find('evaluation').each(function(){
+			var id = parseInt($(this).attr('id'))
+			if (num < id) {
+				num = id;		
+			}
+		});
+		eval._id = ++num;
+	}
+
+	if ($(eles).find('evaluation[id="' + eval._id + '"]').length > 0) {
+		$(eles).find('evaluation[id="' + eval._id + '"]').remove();
+	}
+
+	$(eles).append('<evaluation eBy="' + eval._evaluations.eby + '" eFor="' + eval._evaluations.efor + '"	emailCol="' + eval._evaluations.emailCol + '" id="' + eval._id + '" name="' + eval._name + '" ><questions></questions></evaluation>');
+	
+	for (var i = 0; i < eval._evaluations.dataSeries.length; i++) {
+		$(eles).find('evaluation[id="' + eval._id + '"] questions')
+			   .append('<question dataCol="' + eval._evaluations.dataSeries[i].dataCol + 
+			   				   '" logic="' + eval._evaluations.dataSeries[i].logic + 
+			   				   '" text="' + eval._evaluations.dataSeries[i].text + '" />');	
+	}
+
+	this.save();
 }
 /**
  * @name newSurvey
@@ -138,6 +165,24 @@ Config.prototype._initSetup = function(){
 		console.log('getting all the surveys');
 		$(_this._xml).find('semester[code=' + _this.getCurrentSemester() + '] survey').each(function(){
 			_this.surveys.push(new Survey($(this), true));
+		});
+		$(_this._xml).find('semester[code=' + _this.getCurrentSemester() + '] evaluation').each(function(){
+			var questions = [];
+			$(this).find('question').each(function(){
+				questions.push({
+					dataCol: $(this).attr('dataCol'),
+					logic: $(this).attr('logic'),
+					text: $(this).attr('text')
+				});
+			});
+			_this.evaluations.push({
+				id: $(this).attr('id'),
+				name: $(this).attr('name'),
+				'for': $(this).attr('efor'),
+				by: $(this).attr('eby'),
+				emailCol: $(this).attr('emailCol'),
+				dataSeries: questions
+			});
 		});
 	});
 }

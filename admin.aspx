@@ -31,6 +31,26 @@
 		 .loading{
 		 		display: none;
 		 }
+		 li > input{
+		    height: 38px;
+		    border-radius: 5px;
+		    border: 1px solid #000;
+		    padding-left: 10px;
+		    position: relative;
+		    top: -10px;
+		 }
+		 li > span{
+		 	position: relative;
+		    top: -10px;
+		 }
+		 li > select{
+		    height: 38px;
+		    border-radius: 5px;
+		    border: 1px solid #000;
+		    padding-left: 10px;
+		    position: relative;
+    		top: -5px;
+		 }
 	</style>
 </head>
 <body ng-controller='adminCtrl'>
@@ -236,9 +256,18 @@
 				<div class="ui grid">
 					<div class="two wide column"></div>
 					<div class="twelve wide column">
-						Evaluation for
-						<div class="ui selection dropdown" id="for">
-						  <input type="hidden" name="right">
+						<div class="ui fluid search selection dropdown" style="border: 1px solid #000;">
+						  <input type="hidden" name="evalList" ng-model='evaluation'>
+						  <i class="dropdown icon"></i>
+						  <div class="default text">Saved Evaluations</div>
+						  <div class="menu">
+							  <div class="item" data-value="{{evalItem.id}}" ng-repeat="evalItem in savedEvaluations">{{evalItem.name}}</div>
+							</div>
+						</div>
+						<br>
+						Evaluation for &nbsp;&nbsp;
+						<div class="ui selection dropdown" id="for" style="border: 1px solid #000;">
+						  <input type="hidden" name="left" ng-model="evaluation.for">
 						  <i class="dropdown icon"></i>
 						  <div class="default text">Role</div>
 						  <div class="menu">
@@ -249,9 +278,9 @@
 						    <div class="item" data-value="OCR">OCR</div>
 						  </div>
 						</div>
-						by
-						<div class="ui selection dropdown" id="by">
-						  <input type="hidden" name="right">
+						&nbsp;&nbsp;by&nbsp;&nbsp;
+						<div class="ui selection dropdown" id="by" style="border: 1px solid #000;">
+						  <input type="hidden" name="right" ng-model="evaluation.by">
 						  <i class="dropdown icon"></i>
 						  <div class="default text">Role</div>
 						  <div class="menu">
@@ -264,25 +293,58 @@
 						</div>
 						<br><br>
 						<form class="ui form">
-							<div class="field">
-								<label>Email Column</label>
-								<input type="text" ng-model='evaluations.emailCol' all-caps>
-							</div>
-							<div class="field">
-								<label>Data Columns</label>
-								<input type="text" ng-model='evaluations.dataCols'>
-							</div>
-							<div class="field">
-								<label>Question Texts</label>
-								<input type="text" ng-model='evaluations.texts'>
-							</div>
-							<div class="field">
-								<label>Logic for Each Question</label>
-								<input type="text" ng-model='evaluations.logic'>
+							<div class="two wide column">
+								<div class="field">
+									<label style="display: inline">
+										Email Column&nbsp;&nbsp;
+									</label>
+									<input type="text" style="width: 196px;border: 1px solid #000;" ng-model='evaluation.emailCol' all-caps />
+									&nbsp;&nbsp;
+									<label style="display: inline">
+										Evaluation Name&nbsp;&nbsp;
+									</label>
+									<input type="text" style="width: 196px;border: 1px solid #000;" ng-model='evaluation.name' />
+									<br/><br/>
+									<button class="ui button red" ng-click='addEvaluation()'>Add Question</button>
+								</div>
 							</div>
 						</form>
-						<br>
+						<h2>Questions</h2>
+						<ol class="ui list">
+							<li ng-repeat="question in evaluation.dataSeries" style="padding-bottom: 15px;">
+								<span>Question&nbsp;&nbsp;</span>
+								<input type="text"
+									   placeholder="Question Text" 
+									   ng-model="question.text"
+									   style="width: 500px"/>
+								<i class="large remove icon" 
+								   style="color: red;position: relative;top: -23px;left: 10px;"
+								   ng-click="removeEvaluation($index)">
+								</i>
+								<ol>
+									<li>
+										<span>Data Column&nbsp;&nbsp;</span>
+										<input type="text"
+											   placeholder="Data Column" 
+											   ng-model="question.dataCol"
+											   style="width: 104px"/>
+									</li>
+									<li>
+										<span>Question Logic&nbsp;&nbsp;</span>
+										<select ng-model="question.logic">
+											<option value="v">Value</option>
+											<option value="cv">Combined Value</option>
+											<option value="p">Percentage</option>
+											<option value="cp">Column Percentage</option>
+											<option value="ccp">Combined Column Percentage</option>
+										</select>
+									</li>
+								</ol>
+								<br>
+							</li>
+						</ol>
 						<div class="ui center aligned header">
+							<button class="massive ui button orange" ng-click='saveEvaluation()'>Save</button>
 							<button class="massive ui button blue" ng-click='chooseFile()'>Choose File</button>
 							<button class="massive ui button green" ng-click='startEvaluations()' ng-class='isFile ? "" : "disabled"'>Start</button>
 						</div>

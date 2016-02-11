@@ -14,13 +14,14 @@ app.controller('adminCtrl', ["$scope", function($scope) {
 		questionText: '',
 		replaces: []
 	};
-	$scope.evaluations = {
+	$scope.savedEvaluations = [];
+	$scope.evaluation = {
+		id: '',
+		name: '',
 		'for': '',
 		by: '',
 		emailCol: '',
-		dataCols: '',
-		texts: '',
-		logic: ''
+		dataSeries: []
 	}
 
 	$scope.menu = [
@@ -57,7 +58,7 @@ app.controller('adminCtrl', ["$scope", function($scope) {
 				}
 			}
 		} else if ($scope.view == 'evaluations') {
-			var e = $scope.evaluations;
+			var e = $scope.evaluation;
 			if (e.by != '' || e.dataCols != '' || 
 				e.emailCol != '' || e['for'] != '' || 
 				e.logic != '' || e.texts != '') {
@@ -138,18 +139,38 @@ app.controller('adminCtrl', ["$scope", function($scope) {
 				}, 10);
 			}
 			else if ($scope.view == 'evaluations') {
+				
+				$scope.savedEvaluations = window.config.evaluations;
+			
 				setTimeout(function() {
+					$('.selection.dropdown:not(#whichView)').dropdown({
+						onChange: function(value, text) {
+							evaluationSelected(value, text);
+						}
+					});
 					$('#for').dropdown({
 						onChange: function(value){
-							$scope.evaluations['for'] = value;
+							$scope.evaluation['for'] = value;
 						}
 					});
 					$('#by').dropdown({
 						onChange: function(value) {
-							$scope.evaluations.by = value;
+							$scope.evaluation.by = value;
 						}
 					})
 				}, 10);
+			}
+		}
+	}
+
+	function evaluationSelected(id, text) {
+		for (var i = 0; i < $scope.savedEvaluations.length; i++) {
+			if ($scope.savedEvaluations[i].id == id) {
+				$scope.$apply(function(){
+					$scope.evaluation = $scope.savedEvaluations[i];
+					$('#for').dropdown('set selected', $scope.evaluation['for']);
+					$('#by').dropdown('set selected', $scope.evaluation.by);
+				});
 			}
 		}
 	}
@@ -455,7 +476,8 @@ app.controller('adminCtrl', ["$scope", function($scope) {
 	 *  + its all done!
 	 */
 	$scope.startEvaluations = function() {
-		var ev = $scope.evaluations;
+		var ev = $scope.evaluation;
+
 		if (ev.by == ev['for']) { // error handling
 			errAlert("The evaluations can not be done at the same level. e.g. by: INSTRUCTOR for: INSTRUCTOR");
 			return;
@@ -468,68 +490,74 @@ app.controller('adminCtrl', ["$scope", function($scope) {
 			}
 		}
 
-		if (ev.dataCols.indexOf(';') == -1 && 
-			ev.dataCols.indexOf('-') == -1 && 
-			ev.dataCols.length > 2) { // error handling
-			errAlert("Please seperate each column with a ';' (no spaces needed)");
-			return;
-		}
-		
-		var cs = arrayOfColumns(ev.dataCols);
-		var qs = ev.texts.split(';');
-		var ls = ev.logic.split(';');
-
-		if (cs.length != qs.length || qs.length != ls.length){ // error handling
-			errAlert('The number of columns, questions, and logic selections do not match.\n' + 
-				'Be sure they are all the same length and check that you have seperated\n' + 
-				'them with semicolons');
-			return;
-		}
-
-		for (var i = 0; i < cs.length; i++){ // error handling
-			if (cs[i] == "") {
-				errAlert('One of the columns is blank.');
-				return;
-			} else if (qs[i] == "") {
-				errAlert('One of the question texts is blank.');
-				return;
-			} else if (ls[i] == "") {
-				errAlert('One of the logic options is blank.');
+		var series = ev.dataSeries;
+		for (var i = 0; i < series.length; i++) {
+			if (series[i].text == '' ||
+			series[i].dataCol == '' ||
+			series[i].logic == '') {
+				errAlert("Some information was left out!");
 				return;
 			}
-		}
-
-		var eval = [];
-
-		for (var i = 0; i < cs.length; i++) {
-
-			// if (ls[i] != 'p' && ls[i] != 'v' && ls[i] != 'cp' && ls[i] != 'cv' && ls[i] != 'ccp') { // error handling
-			// 	errAlert("Use either a single 'p' (percentage) or 'v' (value) for specifying logic");
-			// 	return;
-			// }
-
-			eval.push({
-				col: cs[i],
-				question: qs[i],
-				logic: ls[i]
-			});	
-		}
-
-		if ($scope.evaluations == {}) {
-			errAlert('Add an evaluation before you start the process.');
-			return;
 		}
 
 		var e = new Evaluations({
 			eBy: ev.by,
 			eFor: ev['for'],
 			emailCol: ev.emailCol,
-			dataSeries: eval
+			dataSeries: ev.dataSeries
 		}, $scope.file);
 
 		e.parse();
 	}
 
+	$scope.addEvaluation = function(){
+		$scope.evaluation.dataSeries.push({
+			text: '',
+			dataCol: '',
+			logic: ''
+		});
+	}
+
+	$scope.removeEvaluation = function(index){
+		$scope.evaluation.dataSeries.splice(index, 1);
+	}
+
+	$scope.saveEvaluation = function(){
+		var ev = $scope.evaluation;
+
+		if (ev.by == ev['for']) { // error handling
+			errAlert("The evaluations can not be done at the same level. e.g. by: INSTRUCTOR for: INSTRUCTOR");
+			return;
+		}
+
+		for (var key in ev) { // error handling
+			if (key != 'id') {
+				if (ev[key] == null || ev[key] == '') {
+					errAlert("Some information was left out!");
+					return;
+				}
+			}
+		}
+
+		var series = ev.dataSeries;
+		for (var i = 0; i < series.length; i++) {
+			if (series[i].text == '' ||
+			series[i].dataCol == '' ||
+			series[i].logic == '') {
+				errAlert("Some information was left out!");
+				return;
+			}
+		}
+
+		var e = new Evaluations({
+			eBy: ev.by,
+			eFor: ev['for'],
+			emailCol: ev.emailCol,
+			dataSeries: ev.dataSeries
+		}, $scope.file);
+
+		e.save(ev['name'], ev['id']);
+	}
 }]);
 
 /**
