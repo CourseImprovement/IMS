@@ -59,7 +59,7 @@ Config.prototype.addEvaluation = function(eval){
 		$(eles).find('evaluation[id="' + eval._id + '"]').remove();
 	}
 
-	$(eles).append('<evaluation eBy="' + eval._evaluations.eby + '" eFor="' + eval._evaluations.efor + '"	emailCol="' + eval._evaluations.emailCol + '" id="' + eval._id + '" name="' + eval._name + '" ><questions></questions></evaluation>');
+	$(eles).append('<evaluation eBy="' + eval._evaluations.eBy + '" eFor="' + eval._evaluations.eFor + '"	emailCol="' + eval._evaluations.emailCol + '" id="' + eval._id + '" name="' + eval._name + '" ><questions></questions></evaluation>');
 	
 	for (var i = 0; i < eval._evaluations.dataSeries.length; i++) {
 		$(eles).find('evaluation[id="' + eval._id + '"] questions')
@@ -178,13 +178,17 @@ Config.prototype._initSetup = function(){
 			_this.evaluations.push({
 				id: $(this).attr('id'),
 				name: $(this).attr('name'),
-				'for': $(this).attr('efor'),
-				by: $(this).attr('eby'),
+				'for': $(this).attr('eFor'),
+				by: $(this).attr('eBy'),
 				emailCol: $(this).attr('emailCol'),
 				dataSeries: questions
 			});
 		});
 	});
+}
+Config.prototype.removeEvaluation = function(id) {
+	$(this._xml).find('semester[code=' + this.getCurrentSemester() + '] evaluation[id="' + id + '"]').remove();
+	this.save();
 }
 /**
  * @name findSurvey

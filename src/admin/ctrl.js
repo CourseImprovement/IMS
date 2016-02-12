@@ -59,9 +59,7 @@ app.controller('adminCtrl', ["$scope", function($scope) {
 			}
 		} else if ($scope.view == 'evaluations') {
 			var e = $scope.evaluation;
-			if (e.by != '' || e.dataCols != '' || 
-				e.emailCol != '' || e['for'] != '' || 
-				e.logic != '' || e.texts != '') {
+			if (e.by != '' || e.emailCol != '' || e['for'] != '' || e.dataSeries.length > 0) {
 				return true;
 			}
 		}
@@ -498,12 +496,13 @@ app.controller('adminCtrl', ["$scope", function($scope) {
 				errAlert("Some information was left out!");
 				return;
 			}
+			series[i].dataCol = series[i].dataCol.toUpperCase();
 		}
 
 		var e = new Evaluations({
 			eBy: ev.by,
 			eFor: ev['for'],
-			emailCol: ev.emailCol,
+			emailCol: ev.emailCol.toUpperCase(),
 			dataSeries: ev.dataSeries
 		}, $scope.file);
 
@@ -518,7 +517,12 @@ app.controller('adminCtrl', ["$scope", function($scope) {
 		});
 	}
 
-	$scope.removeEvaluation = function(index){
+	$scope.removeEvaluation = function() {
+		var evalId = $('#evalList').attr('value');
+		window.config.removeEvaluation(evalId);
+	}
+
+	$scope.removeEvalQuestion = function(index){
 		$scope.evaluation.dataSeries.splice(index, 1);
 	}
 
@@ -544,15 +548,16 @@ app.controller('adminCtrl', ["$scope", function($scope) {
 			if (series[i].text == '' ||
 			series[i].dataCol == '' ||
 			series[i].logic == '') {
-				errAlert("Some information was left out!");
+				errAlert("Some information was left out of a question!");
 				return;
 			}
+			series[i].dataCol = series[i].dataCol.toUpperCase();
 		}
 
 		var e = new Evaluations({
 			eBy: ev.by,
 			eFor: ev['for'],
-			emailCol: ev.emailCol,
+			emailCol: ev.emailCol.toUpperCase(),
 			dataSeries: ev.dataSeries
 		}, $scope.file);
 

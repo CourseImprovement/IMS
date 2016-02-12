@@ -75,7 +75,7 @@
 			</h2>
 
 			<div ng-if='view == "instructions"'>
-				<div class="ui styled accordion">
+				<div class="ui styled accordion" style="margin: 0 auto;">
 				  <div class="title active">
 				    <i class="dropdown icon"></i>
 				    Process a Survey
@@ -257,7 +257,7 @@
 					<div class="two wide column"></div>
 					<div class="twelve wide column">
 						<div class="ui fluid search selection dropdown" style="border: 1px solid #000;">
-						  <input type="hidden" name="evalList" ng-model='evaluation'>
+						  <input type="hidden" name="evalList" id='evalList' ng-model='evaluation'>
 						  <i class="dropdown icon"></i>
 						  <div class="default text">Saved Evaluations</div>
 						  <div class="menu">
@@ -265,7 +265,11 @@
 							</div>
 						</div>
 						<br>
-						Evaluation for &nbsp;&nbsp;
+						<button class="ui button teal" ng-click='removeEvaluation()'>Remove Evaluation</button>
+						<br><br>
+						<label>
+							Evaluation for &nbsp;&nbsp;
+						</label>
 						<div class="ui selection dropdown" id="for" style="border: 1px solid #000;">
 						  <input type="hidden" name="left" ng-model="evaluation.for">
 						  <i class="dropdown icon"></i>
@@ -278,7 +282,9 @@
 						    <div class="item" data-value="OCR">OCR</div>
 						  </div>
 						</div>
-						&nbsp;&nbsp;by&nbsp;&nbsp;
+						<label>
+							&nbsp;&nbsp;by&nbsp;&nbsp;
+						</label>
 						<div class="ui selection dropdown" id="by" style="border: 1px solid #000;">
 						  <input type="hidden" name="right" ng-model="evaluation.by">
 						  <i class="dropdown icon"></i>
@@ -295,12 +301,12 @@
 						<form class="ui form">
 							<div class="two wide column">
 								<div class="field">
-									<label style="display: inline">
+									<label style="display: inline;position: relative;top: 7px;">
 										Email Column&nbsp;&nbsp;
 									</label>
 									<input type="text" style="width: 196px;border: 1px solid #000;" ng-model='evaluation.emailCol' all-caps />
 									&nbsp;&nbsp;
-									<label style="display: inline">
+									<label style="display: inline;position: relative;top: 7px;">
 										Evaluation Name&nbsp;&nbsp;
 									</label>
 									<input type="text" style="width: 196px;border: 1px solid #000;" ng-model='evaluation.name' />
@@ -319,7 +325,7 @@
 									   style="width: 500px"/>
 								<i class="large remove icon" 
 								   style="color: red;position: relative;top: -23px;left: 10px;"
-								   ng-click="removeEvaluation($index)">
+								   ng-click="removeEvalQuestion($index)">
 								</i>
 								<ol>
 									<li>
@@ -327,7 +333,7 @@
 										<input type="text"
 											   placeholder="Data Column" 
 											   ng-model="question.dataCol"
-											   style="width: 104px"/>
+											   style="width: 104px" all-caps />
 									</li>
 									<li>
 										<span>Question Logic&nbsp;&nbsp;</span>

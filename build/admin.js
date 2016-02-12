@@ -706,7 +706,7 @@ Config.prototype.addEvaluation = function(eval){
 		$(eles).find('evaluation[id="' + eval._id + '"]').remove();
 	}
 
-	$(eles).append('<evaluation eBy="' + eval._evaluations.eby + '" eFor="' + eval._evaluations.efor + '"	emailCol="' + eval._evaluations.emailCol + '" id="' + eval._id + '" name="' + eval._name + '" ><questions></questions></evaluation>');
+	$(eles).append('<evaluation eBy="' + eval._evaluations.eBy + '" eFor="' + eval._evaluations.eFor + '"	emailCol="' + eval._evaluations.emailCol + '" id="' + eval._id + '" name="' + eval._name + '" ><questions></questions></evaluation>');
 	
 	for (var i = 0; i < eval._evaluations.dataSeries.length; i++) {
 		$(eles).find('evaluation[id="' + eval._id + '"] questions')
@@ -825,13 +825,17 @@ Config.prototype._initSetup = function(){
 			_this.evaluations.push({
 				id: $(this).attr('id'),
 				name: $(this).attr('name'),
-				'for': $(this).attr('efor'),
-				by: $(this).attr('eby'),
+				'for': $(this).attr('eFor'),
+				by: $(this).attr('eBy'),
 				emailCol: $(this).attr('emailCol'),
 				dataSeries: questions
 			});
 		});
 	});
+}
+Config.prototype.removeEvaluation = function(id) {
+	$(this._xml).find('semester[code=' + this.getCurrentSemester() + '] evaluation[id="' + id + '"]').remove();
+	this.save();
 }
 /**
  * @name findSurvey
@@ -1210,9 +1214,7 @@ app.controller('adminCtrl', ["$scope", function($scope) {
 			}
 		} else if ($scope.view == 'evaluations') {
 			var e = $scope.evaluation;
-			if (e.by != '' || e.dataCols != '' || 
-				e.emailCol != '' || e['for'] != '' || 
-				e.logic != '' || e.texts != '') {
+			if (e.by != '' || e.emailCol != '' || e['for'] != '' || e.dataSeries.length > 0) {
 				return true;
 			}
 		}
@@ -1649,12 +1651,13 @@ app.controller('adminCtrl', ["$scope", function($scope) {
 				errAlert("Some information was left out!");
 				return;
 			}
+			series[i].dataCol = series[i].dataCol.toUpperCase();
 		}
 
 		var e = new Evaluations({
 			eBy: ev.by,
 			eFor: ev['for'],
-			emailCol: ev.emailCol,
+			emailCol: ev.emailCol.toUpperCase(),
 			dataSeries: ev.dataSeries
 		}, $scope.file);
 
@@ -1669,7 +1672,12 @@ app.controller('adminCtrl', ["$scope", function($scope) {
 		});
 	}
 
-	$scope.removeEvaluation = function(index){
+	$scope.removeEvaluation = function() {
+		var evalId = $('#evalList').attr('value');
+		window.config.removeEvaluation(evalId);
+	}
+
+	$scope.removeEvalQuestion = function(index){
 		$scope.evaluation.dataSeries.splice(index, 1);
 	}
 
@@ -1695,15 +1703,16 @@ app.controller('adminCtrl', ["$scope", function($scope) {
 			if (series[i].text == '' ||
 			series[i].dataCol == '' ||
 			series[i].logic == '') {
-				errAlert("Some information was left out!");
+				errAlert("Some information was left out of a question!");
 				return;
 			}
+			series[i].dataCol = series[i].dataCol.toUpperCase();
 		}
 
 		var e = new Evaluations({
 			eBy: ev.by,
 			eFor: ev['for'],
-			emailCol: ev.emailCol,
+			emailCol: ev.emailCol.toUpperCase(),
 			dataSeries: ev.dataSeries
 		}, $scope.file);
 
