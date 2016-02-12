@@ -167,9 +167,9 @@
 				    		<li>
 				    			Things to note
 				    			<ol>
-				    				<li>When a saved evaluation has been selected, modified, and saved. The selected evaluation will be overwritten</li>
+				    				<li>When a saved evaluation has been selected, modified, and saved. The original evaluation will be overwritten</li>
 				    				<li>Click <strong>Remove Evaluation</strong> to competely delete a saved evaluation</li>
-				    				<li>The email column should be the subordinates' email column.</li>
+				    				<li>The email column should be the subordinates' email column</li>
 				    			</ol>
 				    		</li>
 				    	</ol>
@@ -290,7 +290,14 @@
 							</div>
 						</div>
 						<br>
-						<button class="ui button teal" ng-click='removeEvaluation()'>Remove Evaluation</button>
+						<div class="ui form">
+							<div class="field">
+								<label>
+									Evaluation Name
+								</label>
+								<input type="text" style="border: 1px solid #000;" ng-model='evaluation.name' />
+							</div>
+						</div>
 						<br><br>
 						<label>
 							Evaluation for &nbsp;&nbsp;
@@ -330,13 +337,11 @@
 										Email Column&nbsp;&nbsp;
 									</label>
 									<input type="text" style="width: 196px;border: 1px solid #000;" ng-model='evaluation.emailCol' all-caps />
-									&nbsp;&nbsp;
-									<label style="display: inline;position: relative;top: 7px;">
-										Evaluation Name&nbsp;&nbsp;
-									</label>
-									<input type="text" style="width: 196px;border: 1px solid #000;" ng-model='evaluation.name' />
+								</div>
+								<div class="field">
 									<br/><br/>
-									<button class="ui button red" ng-click='addEvaluation()'>Add Question</button>
+									<button class="ui button teal" ng-click='addEvaluation()'>Add Question</button>
+									<button class="ui button red" style='float:right;' ng-click='removeEvaluation()'>Remove Evaluation</button>
 								</div>
 							</div>
 						</form>

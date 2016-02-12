@@ -36,7 +36,13 @@ Config.prototype.addSurvey = function(survey){
 	$(this._xml).find('semester[code=' + this.getCurrentSemester() + '] surveys').append(survey._xml);
 	this.save();
 }
-
+/**
+ * @name addEvaluation
+ * @description Add and evaluation to the config file. Remove and add if the evaluation already exists.
+ * @assign Grant
+ * @todo
+ *  + complete
+ */
 Config.prototype.addEvaluation = function(eval){
 	var eles = $(this._xml).find('semester[code=' + this.getCurrentSemester() + '] evaluations');
 	if (eles.length == 0) {
@@ -186,6 +192,13 @@ Config.prototype._initSetup = function(){
 		});
 	});
 }
+/**
+ * @name removeEvaluation 
+ * @description Remove an evaluation from the config file
+ * @assign Grant
+ * @todo
+ *  + complete
+ */
 Config.prototype.removeEvaluation = function(id) {
 	$(this._xml).find('semester[code=' + this.getCurrentSemester() + '] evaluation[id="' + id + '"]').remove();
 	this.save();

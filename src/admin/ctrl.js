@@ -44,7 +44,8 @@ app.controller('adminCtrl', ["$scope", function($scope) {
 	}, 10);
 	/**
 	 * @name hasPageBeenEdited 
-	 * @description
+	 * @description checks to see if a page has been edited
+	 * @assign Chase
 	 * @todo
 	 *  + Determine if the view may need to check if uses really wants to leave
 	 *   + Check if its respective data has been set
@@ -65,11 +66,27 @@ app.controller('adminCtrl', ["$scope", function($scope) {
 		}
 		return false;
 	}
-
+	/**
+	 * @name menuChange 
+	 * @description changes the webpage between the different views
+	 * @assign Chase
+	 * @todo 
+	 *  + complete
+	 */
 	$scope.menuChange = function(menuItem) {
 		var proceed = true;
 		if (hasPageBeenEdited()) {
 			proceed = confirm('Are you sure you want to leave this page?');
+			if (proceed) {
+				$scope.evaluation = {
+					id: '',
+					name: '',
+					'for': '',
+					by: '',
+					emailCol: '',
+					dataSeries: []
+				}
+			}
 		}
 		if (proceed) {
 			for (var i = 0; i < $scope.menu.length; i++) {
@@ -160,7 +177,13 @@ app.controller('adminCtrl', ["$scope", function($scope) {
 			}
 		}
 	}
-
+	/**
+	 * @name evaluationSelected 
+	 * @description fills out the evaluation form with a selected evaluation
+	 * @assign Chase
+	 * @todo 
+	 *  + complete
+	 */
 	function evaluationSelected(id, text) {
 		for (var i = 0; i < $scope.savedEvaluations.length; i++) {
 			if ($scope.savedEvaluations[i].id == id) {
@@ -172,7 +195,13 @@ app.controller('adminCtrl', ["$scope", function($scope) {
 			}
 		}
 	}
-
+	/**
+	 * @name surveySelected 
+	 * @description Sets the selected survey
+	 * @assign Chase
+	 * @todo 
+	 *  + complete
+	 */
 	function surveySelected(value, text, force) {
 		if (typeof $scope.selectedSurvey != 'object') {
 			$scope.selectedSurvey = value;
@@ -200,7 +229,13 @@ app.controller('adminCtrl', ["$scope", function($scope) {
 			}
 		});
 	}
-
+	/**
+	 * @name getSelectedSurvey 
+	 * @description Get a survey from the list of surveys
+	 * @assign Chase
+	 * @todo 
+	 *  + complete
+	 */
 	function getSelectedSurvey() {
 		if (!$scope.selectedSurvey) {
 			errAlert('Invalid Survey');
@@ -216,24 +251,48 @@ app.controller('adminCtrl', ["$scope", function($scope) {
 			}
 		}
 	}
-
+	/**
+	 * @name reload 
+	 * @description sets the reload time of the window
+	 * @assign Chase
+	 * @todo 
+	 *  + complete
+	 */
 	function reload(time) {
 		setTimeout(function(){
 			window.location.reload();
 		}, time);
 	}
-
+	/**
+	 * @name removeSurvey 
+	 * @description remove a survey from the config file
+	 * @assign Chase
+	 * @todo 
+	 *  + complete
+	 */
 	$scope.removeSurvey = function() {
 		var survey = getSelectedSurvey();
 		window.config.remove(survey.id);
 	}
-
+	/**
+	 * @name copySurvey 
+	 * @description copy a survey
+	 * @assign Chase
+	 * @todo 
+	 *  + complete
+	 */
 	$scope.copySurvey = function() {
 		var survey = getSelectedSurvey();
 		var copy = survey.copy();
 		window.config.addSurvey(copy);
 	}
-
+	/**
+	 * @name chooseFile 
+	 * @description get a file from the client
+	 * @assign Chase
+	 * @todo 
+	 *  + complete
+	 */
 	$scope.chooseFile = function() {
 		setTimeout(function() {
 			$('body').append('<input type="file" id="surveyFile" style="display:none;">');
@@ -246,7 +305,13 @@ app.controller('adminCtrl', ["$scope", function($scope) {
 			}).click();
 		}, 100);
 	}
-
+	/**
+	 * @name startProcess 
+	 * @description Begin to process surveys
+	 * @assign Chase
+	 * @todo 
+	 *  + complete
+	 */
 	$scope.startProcess = function() {
 		var survey = getSelectedSurvey();
 		var csv = new CSV();
@@ -256,13 +321,25 @@ app.controller('adminCtrl', ["$scope", function($scope) {
 			}, 10);
 		});
 	}
-
-	var permissionsGlobal; 
+	var permissionsGlobal;
+	/**
+	 * @name changePermissions 
+	 * @description Begin to change permissions
+	 * @assign Chase
+	 * @todo 
+	 *  + complete
+	 */
 	$scope.changePermissions = function() {
 		if (!permissionsGlobal) permissionsGlobal = new Permissions();
 		permissionsGlobal.start();
 	}
-
+	/**
+	 * @name startSemesterSetup 
+	 * @description begin the semester setup process
+	 * @assign Chase
+	 * @todo 
+	 *  + complete
+	 */
 	$scope.startSemesterSetup = function() {
 		var csv = new CSV();
 		csv.readFile($scope.file, function(file) {
@@ -272,12 +349,24 @@ app.controller('adminCtrl', ["$scope", function($scope) {
 			}, 10);
 		});
 	}
-
+	/**
+	 * @name startQualtricsPrep 
+	 * @description Prepares csv that can be used for organizational lookups
+	 * @assign Chase
+	 * @todo 
+	 *  + complete
+	 */
 	$scope.startQualtricsPrep = function() {
 		var t = new Tool($scope.file, $scope.prepareTool.left, $scope.prepareTool.right, $scope.prepareTool.useCourse);
 		t.parse();
 	}
-
+	/**
+	 * @name removeQuestion 
+	 * @description remove a question from the selected survey
+	 * @assign Chase
+	 * @todo 
+	 *  + complete
+	 */
 	$scope.removeQuestion = function(question) {
 		if (selectedQuestion == null) {
 			$scope.question = {
@@ -294,7 +383,13 @@ app.controller('adminCtrl', ["$scope", function($scope) {
 			}
 		}
 	}
-
+	/**
+	 * @name Replaces 
+	 * @description replace text for answers to questions
+	 * @assign Chase
+	 * @todo 
+	 *  + complete
+	 */
 	function Replaces(type) {
 		var result = '';
 		if (type == 'what') {
@@ -315,7 +410,13 @@ app.controller('adminCtrl', ["$scope", function($scope) {
 		}
 		return result;
 	}
-
+	/**
+	 * @name ReplacesCreate 
+	 * @description adds the items that will be replaces 'what' with 'with'
+	 * @assign Chase
+	 * @todo 
+	 *  + complete
+	 */
 	function ReplacesCreate(awhat, awith) {
 		var bwhat = awhat.split(';');
 		var bwith = awith.split(';');
@@ -328,7 +429,13 @@ app.controller('adminCtrl', ["$scope", function($scope) {
 		}
 		return result;
 	}
-
+	/**
+	 * @name addQuestion 
+	 * @description Add a question to the selected survey
+	 * @assign Chase
+	 * @todo 
+	 *  + complete
+	 */
 	$scope.addQuestion = function() {
 		$('#questionModal').modal({
 			onApprove: function() {
@@ -366,11 +473,23 @@ app.controller('adminCtrl', ["$scope", function($scope) {
 			}
 		}).modal('show');
 	}
-
+	/**
+	 * @name removeReplaces 
+	 * @description remove a replace set
+	 * @assign Chase
+	 * @todo 
+	 *  + complete
+	 */
 	$scope.removeReplaces = function(r, idx) {
 		$scope.question.replaces.splice(idx, 1);
 	}
-
+	/**
+	 * @name addReplace 
+	 * @description Add a replace set
+	 * @assign Chase
+	 * @todo 
+	 *  + complete
+	 */
 	$scope.addReplace = function(wh, wi) {
 		$scope.question.replaces.push({
 			'what': wh,
@@ -379,8 +498,14 @@ app.controller('adminCtrl', ["$scope", function($scope) {
 		$scope['what'] = '';
 		$scope['with'] = '';
 	}
-
 	var selectedQuestion = null;
+	/**
+	 * @name editQuestion 
+	 * @description Edit a quesiton from the selected survey
+	 * @assign Chase
+	 * @todo 
+	 *  + complete
+	 */
 	$scope.editQuestion = function(question) {
 		selectedQuestion = question;
 		$scope.question = {
@@ -418,7 +543,13 @@ app.controller('adminCtrl', ["$scope", function($scope) {
 			}
 		}).modal('show');
 	}
-
+	/**
+	 * @name submitChanges 
+	 * @description Saves the selected survey
+	 * @assign Chase
+	 * @todo 
+	 *  + complete 
+	 */
 	$scope.submitChanges = function() {
 		if (!$scope.selectedSurvey) {
 			errAlert('Invalid Survey');
@@ -426,7 +557,6 @@ app.controller('adminCtrl', ["$scope", function($scope) {
 		}
 		$scope.selectedSurvey.save();
 	}
-
 	/**
 	 * @name arrayOfColumns
 	 * @description Gets the columns in forms A;B;C;D or A-D or A-D;E
@@ -465,13 +595,14 @@ app.controller('adminCtrl', ["$scope", function($scope) {
 			return columns.split(';');
 		}
 	}
-
 	/**
 	 * @name startEvaluations 
-	 * @description
+	 * @description Begin the process of parsing evaluations 
 	 * @assign Grant
 	 * @todo 
-	 *  + its all done!
+	 *  + Validate the incoming information
+	 *  + Create a new evaluation
+	 *  + Process the evaluation
 	 */
 	$scope.startEvaluations = function() {
 		var ev = $scope.evaluation;
@@ -508,7 +639,6 @@ app.controller('adminCtrl', ["$scope", function($scope) {
 
 		e.parse();
 	}
-
 	/**
 	 * @name addEvaluation 
 	 * @description Add an evaluation to the current evaluation
@@ -523,7 +653,6 @@ app.controller('adminCtrl', ["$scope", function($scope) {
 			logic: ''
 		});
 	}
-
 	/**
 	 * @name removeEvaluation 
 	 * @description Remove an evaluation from the config file
@@ -536,7 +665,6 @@ app.controller('adminCtrl', ["$scope", function($scope) {
 		var evalId = $('#evalList').attr('value');
 		window.config.removeEvaluation(evalId);
 	}
-
 	/**
 	 * @name removeEvalQuestion 
 	 * @description Remove a question from the current evaluation
@@ -547,7 +675,6 @@ app.controller('adminCtrl', ["$scope", function($scope) {
 	$scope.removeEvalQuestion = function(index) {
 		$scope.evaluation.dataSeries.splice(index, 1);
 	}
-
 	/**
 	 * @name saveEvaluation 
 	 * @description Save the current evaluation to the config

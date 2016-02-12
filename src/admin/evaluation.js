@@ -17,6 +17,13 @@ function Evaluations(obj, file) {
 	this._sem = window.config.getCurrentSemester();
 }
 
+/**
+ * @name save 
+ * @description Save an evaluation
+ * @assign Grant
+ * @todo
+ *  + complete
+ */
 Evaluations.prototype.save = function(name, id){
 	this._name = name;
 	this._id = id;
