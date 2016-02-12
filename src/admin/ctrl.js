@@ -476,11 +476,6 @@ app.controller('adminCtrl', ["$scope", function($scope) {
 	$scope.startEvaluations = function() {
 		var ev = $scope.evaluation;
 
-		if (ev.by == ev['for']) { // error handling
-			errAlert("The evaluations can not be done at the same level. e.g. by: INSTRUCTOR for: INSTRUCTOR");
-			return;
-		}
-
 		for (var key in ev) { // error handling
 			if (ev[key] == null || ev[key] == '') {
 				errAlert("Some information was left out!");
@@ -488,15 +483,20 @@ app.controller('adminCtrl', ["$scope", function($scope) {
 			}
 		}
 
+		if (ev.by == ev['for']) { // error handling
+			errAlert("The evaluations can not be done at the same level. e.g. by: INSTRUCTOR for: INSTRUCTOR");
+			return;
+		}
+
 		var series = ev.dataSeries;
 		for (var i = 0; i < series.length; i++) {
 			if (series[i].text == '' ||
-			series[i].dataCol == '' ||
+			series[i].col == '' ||
 			series[i].logic == '') {
 				errAlert("Some information was left out!");
 				return;
 			}
-			series[i].dataCol = series[i].dataCol.toUpperCase();
+			series[i].col = series[i].col.toUpperCase();
 		}
 
 		var e = new Evaluations({
@@ -509,30 +509,56 @@ app.controller('adminCtrl', ["$scope", function($scope) {
 		e.parse();
 	}
 
-	$scope.addEvaluation = function(){
+	/**
+	 * @name addEvaluation 
+	 * @description Add an evaluation to the current evaluation
+	 * @assign Grant
+	 * @todo
+	 *  + Push a new question object onto the current evaluation
+	 */
+	$scope.addEvaluation = function() {
 		$scope.evaluation.dataSeries.push({
 			text: '',
-			dataCol: '',
+			col: '',
 			logic: ''
 		});
 	}
 
+	/**
+	 * @name removeEvaluation 
+	 * @description Remove an evaluation from the config file
+	 * @assign Grant
+	 * @todo
+	 *  + Get the id of the evaluation to be removed
+	 *  + Remove the evaluation from the config
+	 */
 	$scope.removeEvaluation = function() {
 		var evalId = $('#evalList').attr('value');
 		window.config.removeEvaluation(evalId);
 	}
 
-	$scope.removeEvalQuestion = function(index){
+	/**
+	 * @name removeEvalQuestion 
+	 * @description Remove a question from the current evaluation
+	 * @assign Grant
+	 * @todo
+	 *  + Remove question at the index passed in
+	 */
+	$scope.removeEvalQuestion = function(index) {
 		$scope.evaluation.dataSeries.splice(index, 1);
 	}
 
-	$scope.saveEvaluation = function(){
+	/**
+	 * @name saveEvaluation 
+	 * @description Save the current evaluation to the config
+	 * @assign Grant
+	 * @todo
+	 *  + Validate the incoming information
+	 *  + Create a new evaluation
+	 *  + Save the evaluation
+	 */
+	$scope.saveEvaluation = function() {
 		var ev = $scope.evaluation;
-
-		if (ev.by == ev['for']) { // error handling
-			errAlert("The evaluations can not be done at the same level. e.g. by: INSTRUCTOR for: INSTRUCTOR");
-			return;
-		}
 
 		for (var key in ev) { // error handling
 			if (key != 'id') {
@@ -543,15 +569,20 @@ app.controller('adminCtrl', ["$scope", function($scope) {
 			}
 		}
 
+		if (ev.by == ev['for']) { // error handling
+			errAlert("The evaluations can not be done at the same level. e.g. by: INSTRUCTOR for: INSTRUCTOR");
+			return;
+		}
+
 		var series = ev.dataSeries;
 		for (var i = 0; i < series.length; i++) {
 			if (series[i].text == '' ||
-			series[i].dataCol == '' ||
+			series[i].col == '' ||
 			series[i].logic == '') {
 				errAlert("Some information was left out of a question!");
 				return;
 			}
-			series[i].dataCol = series[i].dataCol.toUpperCase();
+			series[i].col = series[i].col.toUpperCase();
 		}
 
 		var e = new Evaluations({

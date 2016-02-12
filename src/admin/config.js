@@ -63,7 +63,7 @@ Config.prototype.addEvaluation = function(eval){
 	
 	for (var i = 0; i < eval._evaluations.dataSeries.length; i++) {
 		$(eles).find('evaluation[id="' + eval._id + '"] questions')
-			   .append('<question dataCol="' + eval._evaluations.dataSeries[i].dataCol + 
+			   .append('<question col="' + eval._evaluations.dataSeries[i].col + 
 			   				   '" logic="' + eval._evaluations.dataSeries[i].logic + 
 			   				   '" text="' + eval._evaluations.dataSeries[i].text + '" />');	
 	}
@@ -170,7 +170,7 @@ Config.prototype._initSetup = function(){
 			var questions = [];
 			$(this).find('question').each(function(){
 				questions.push({
-					dataCol: $(this).attr('dataCol'),
+					col: $(this).attr('col'),
 					logic: $(this).attr('logic'),
 					text: $(this).attr('text')
 				});

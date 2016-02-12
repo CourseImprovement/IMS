@@ -710,7 +710,7 @@ Config.prototype.addEvaluation = function(eval){
 	
 	for (var i = 0; i < eval._evaluations.dataSeries.length; i++) {
 		$(eles).find('evaluation[id="' + eval._id + '"] questions')
-			   .append('<question dataCol="' + eval._evaluations.dataSeries[i].dataCol + 
+			   .append('<question col="' + eval._evaluations.dataSeries[i].col + 
 			   				   '" logic="' + eval._evaluations.dataSeries[i].logic + 
 			   				   '" text="' + eval._evaluations.dataSeries[i].text + '" />');	
 	}
@@ -817,7 +817,7 @@ Config.prototype._initSetup = function(){
 			var questions = [];
 			$(this).find('question').each(function(){
 				questions.push({
-					dataCol: $(this).attr('dataCol'),
+					col: $(this).attr('col'),
 					logic: $(this).attr('logic'),
 					text: $(this).attr('text')
 				});
@@ -1631,11 +1631,6 @@ app.controller('adminCtrl', ["$scope", function($scope) {
 	$scope.startEvaluations = function() {
 		var ev = $scope.evaluation;
 
-		if (ev.by == ev['for']) { // error handling
-			errAlert("The evaluations can not be done at the same level. e.g. by: INSTRUCTOR for: INSTRUCTOR");
-			return;
-		}
-
 		for (var key in ev) { // error handling
 			if (ev[key] == null || ev[key] == '') {
 				errAlert("Some information was left out!");
@@ -1643,15 +1638,20 @@ app.controller('adminCtrl', ["$scope", function($scope) {
 			}
 		}
 
+		if (ev.by == ev['for']) { // error handling
+			errAlert("The evaluations can not be done at the same level. e.g. by: INSTRUCTOR for: INSTRUCTOR");
+			return;
+		}
+
 		var series = ev.dataSeries;
 		for (var i = 0; i < series.length; i++) {
 			if (series[i].text == '' ||
-			series[i].dataCol == '' ||
+			series[i].col == '' ||
 			series[i].logic == '') {
 				errAlert("Some information was left out!");
 				return;
 			}
-			series[i].dataCol = series[i].dataCol.toUpperCase();
+			series[i].col = series[i].col.toUpperCase();
 		}
 
 		var e = new Evaluations({
@@ -1664,30 +1664,56 @@ app.controller('adminCtrl', ["$scope", function($scope) {
 		e.parse();
 	}
 
-	$scope.addEvaluation = function(){
+	/**
+	 * @name addEvaluation 
+	 * @description Add an evaluation to the current evaluation
+	 * @assign Grant
+	 * @todo
+	 *  + Push a new question object onto the current evaluation
+	 */
+	$scope.addEvaluation = function() {
 		$scope.evaluation.dataSeries.push({
 			text: '',
-			dataCol: '',
+			col: '',
 			logic: ''
 		});
 	}
 
+	/**
+	 * @name removeEvaluation 
+	 * @description Remove an evaluation from the config file
+	 * @assign Grant
+	 * @todo
+	 *  + Get the id of the evaluation to be removed
+	 *  + Remove the evaluation from the config
+	 */
 	$scope.removeEvaluation = function() {
 		var evalId = $('#evalList').attr('value');
 		window.config.removeEvaluation(evalId);
 	}
 
-	$scope.removeEvalQuestion = function(index){
+	/**
+	 * @name removeEvalQuestion 
+	 * @description Remove a question from the current evaluation
+	 * @assign Grant
+	 * @todo
+	 *  + Remove question at the index passed in
+	 */
+	$scope.removeEvalQuestion = function(index) {
 		$scope.evaluation.dataSeries.splice(index, 1);
 	}
 
-	$scope.saveEvaluation = function(){
+	/**
+	 * @name saveEvaluation 
+	 * @description Save the current evaluation to the config
+	 * @assign Grant
+	 * @todo
+	 *  + Validate the incoming information
+	 *  + Create a new evaluation
+	 *  + Save the evaluation
+	 */
+	$scope.saveEvaluation = function() {
 		var ev = $scope.evaluation;
-
-		if (ev.by == ev['for']) { // error handling
-			errAlert("The evaluations can not be done at the same level. e.g. by: INSTRUCTOR for: INSTRUCTOR");
-			return;
-		}
 
 		for (var key in ev) { // error handling
 			if (key != 'id') {
@@ -1698,15 +1724,20 @@ app.controller('adminCtrl', ["$scope", function($scope) {
 			}
 		}
 
+		if (ev.by == ev['for']) { // error handling
+			errAlert("The evaluations can not be done at the same level. e.g. by: INSTRUCTOR for: INSTRUCTOR");
+			return;
+		}
+
 		var series = ev.dataSeries;
 		for (var i = 0; i < series.length; i++) {
 			if (series[i].text == '' ||
-			series[i].dataCol == '' ||
+			series[i].col == '' ||
 			series[i].logic == '') {
 				errAlert("Some information was left out of a question!");
 				return;
 			}
-			series[i].dataCol = series[i].dataCol.toUpperCase();
+			series[i].col = series[i].col.toUpperCase();
 		}
 
 		var e = new Evaluations({
@@ -1864,7 +1895,7 @@ Evaluations.prototype.getColumnLocations = function() {
 	for (var i = 0; i < this._evaluations.dataSeries.length; i++) {
 		newArray.push({
 			col: Config.columnLetterToNumber(this._evaluations.dataSeries[i].col),
-			question: this._evaluations.dataSeries[i].question,
+			text: this._evaluations.dataSeries[i].text,
 			logic: this._evaluations.dataSeries[i].logic
 		});
 	}
@@ -1912,7 +1943,7 @@ Evaluations.prototype.setAnswers = function(evaluatee, row, locations) {
 	}
 
 	for (var loc = 0; loc < locations.length; loc++) {
-		var quest = locations[loc].question;
+		var quest = locations[loc].text;
 		var ans = row[locations[loc].col];
 		if (locations[loc].logic == 'v' && ans != "") { /*VALUE*/
 			if (this.people[evaluatee][quest] == undefined) {
@@ -1922,9 +1953,9 @@ Evaluations.prototype.setAnswers = function(evaluatee, row, locations) {
 			}
 		} else if (locations[loc].logic == 'p') { /*PERCENTAGE*/
 			if (this.people[evaluatee][quest] == undefined) {
-				this.people[evaluatee][quest] = (ans != "" ? parseFloat(1) : parseFloat(0));
+				this.people[evaluatee][quest] = (ans != "" ? 1 : 0);
 			} else {
-				this.people[evaluatee][quest] += (ans != "" ? parseFloat(1) : parseFloat(0));
+				this.people[evaluatee][quest] += (ans != "" ? 1 : 0);
 			}
 		} else if (locations[loc].logic == 'cp') { /*COMBINED PERCENTAGE*/
 			if (ans == "") ans = "None";
@@ -1997,11 +2028,11 @@ Evaluations.prototype.calculatePercentages = function() {
 		for (var j = 0; j < this._evaluations.dataSeries.length; j++) {
 			var eval = this._evaluations.dataSeries[j];
 			if (eval.logic == 'p') {
-				this.people[person][eval.question] = (this.people[person][eval.question] * 100 / this.people[person].count).toPrecision(3) + '%';
+				this.people[person][eval.text] = (this.people[person][eval.text] * 100 / this.people[person].count).toPrecision(3) + '%';
 			} else if (eval.logic == 'cp') {
-				var sets = this.people[person][eval.question];
+				var sets = this.people[person][eval.text];
 				for (var set in sets) {
-					this.people[person][eval.question][set] = (this.people[person][eval.question][set] * 100 / this.people[person].count).toPrecision(3) + '%';
+					this.people[person][eval.text][set] = (this.people[person][eval.text][set] * 100 / this.people[person].count).toPrecision(3) + '%';
 				}
 			}
 		}
@@ -2026,7 +2057,7 @@ Evaluations.prototype.sendToCSV = function() {
 
 	/*ADD THE TITLES TO THE CSV*/
 	for (var j = 0; j < this._evaluations.dataSeries.length; j++) {
-		csv += this._evaluations.dataSeries[j].question.replace(/( )|(,)/g, "%20").replace(/’/g, "%27") + ",";
+		csv += this._evaluations.dataSeries[j].text.replace(/( )|(,)/g, "%20").replace(/’/g, "%27") + ",";
 	}
 
 	csv += "%0A"; // NEW LINE

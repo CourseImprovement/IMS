@@ -139,14 +139,39 @@
 				    <p class="transition visible" style="display: block !important;">
 				    	To use <strong>Evaluations</strong> use the following instructions:
 				    	<ol class="ui list">
-				    		<li>Select the roles for who will be evaluated</li>
-				    		<li>Select the roles for who will be the evaluator</li>
-				    		<li><strong>Email Column</strong> refereneces the email column from the uploaded Qualtrics CSV <strong>Use Upper Case</strong></li>
-				    		<li><strong>Data Columns</strong> references the columns that contain desired data from the Qualtrics CSV. (e.g. A;D-F, D;E;F, or D-F)</li>
-				    		<li><strong>Question Texts</strong> The names of the columns previously entered in <strong>Data Columns</strong>. (e.g. One Question Title;Title Two;Title Three)</li>
-				    		<li><strong>Logic for each Question</strong> Selects whether the data will be displayed as a percentage or value. (e.g. p;p;p;p;p;v;v;v)</li>
-				    		<li>Click <strong>Choose File</strong> and upload the Qualtrics CSV</li>
-				    		<li>Click <strong>Start</strong></li>
+				    		<li>
+				    			Selecting a known evaluation
+				    			<ol>
+				    				<li>Select a saved evaluation from the saved evaluation dropdown</li>
+				    				<li>Change any information as needed</li>
+				    				<li>Click <strong>Choose File</strong> and upload the Qualtrics CSV</li>
+				    				<li>Click <strong>Start</strong></li>	
+				    			</ol>
+				    		</li>
+				    		<li>
+				    			Creating a new evaluation
+				    			<ol>
+				    				<li>Select the roles for who will be evaluated</li>
+				    				<li>Select the roles for who will be the evaluator</li>
+				    				<li><strong>Email Column</strong> refereneces the email column from the uploaded Qualtrics CSV <strong>Use Upper Case</strong></li>
+				    				<li>Use the <strong>Evaluation Name</strong> field to give the evaluation a name or to change the existing name</li>
+				    				<li>Click <strong>Add Question</strong> to add a new question, repeat as needed</li>
+				    				<li>Click the red 'X' to remove a question</li>
+				    				<li>Fill in the question text that will appear on the dashboard</li>
+				    				<li>Fill in the column letter from the Qualtrics csv in the <strong>Data Column</strong></li>
+				    				<li>Click <strong>Save</strong> to save the new evaluation</li>
+				    				<li>&nbsp;&nbsp;&nbsp;Click <strong>Choose File</strong> and upload the Qualtrics CSV</li>
+				    				<li>&nbsp;&nbsp;&nbsp;Click <strong>Start</strong></li>
+				    			</ol>
+				    		</li>
+				    		<li>
+				    			Things to note
+				    			<ol>
+				    				<li>When a saved evaluation has been selected, modified, and saved. The selected evaluation will be overwritten</li>
+				    				<li>Click <strong>Remove Evaluation</strong> to competely delete a saved evaluation</li>
+				    				<li>The email column should be the subordinates' email column.</li>
+				    			</ol>
+				    		</li>
 				    	</ol>
 				    </p>
 				  </div>
@@ -318,6 +343,7 @@
 						<h2>Questions</h2>
 						<ol class="ui list">
 							<li ng-repeat="question in evaluation.dataSeries" style="padding-bottom: 15px;">
+								<span ng-if="$index > 8">&nbsp;&nbsp;&nbsp;</span>
 								<span>Question&nbsp;&nbsp;</span>
 								<input type="text"
 									   placeholder="Question Text" 
@@ -329,13 +355,15 @@
 								</i>
 								<ol>
 									<li>
+										<span ng-if="$index > 8">&nbsp;&nbsp;&nbsp;</span>
 										<span>Data Column&nbsp;&nbsp;</span>
 										<input type="text"
 											   placeholder="Data Column" 
-											   ng-model="question.dataCol"
+											   ng-model="question.col"
 											   style="width: 104px" all-caps />
 									</li>
 									<li>
+										<span ng-if="$index > 8">&nbsp;&nbsp;&nbsp;</span>
 										<span>Question Logic&nbsp;&nbsp;</span>
 										<select ng-model="question.logic">
 											<option value="v">Value</option>
