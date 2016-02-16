@@ -574,6 +574,1790 @@ MasterPerson.prototype.addUpperAndLowers = function(){
  * @end
  */
 /**
+ * @start Group Answer
+ */
+/**
+ * @name  Answer
+ * @description Answer object
+ * @assign Chase
+ */
+function Answer(obj) {
+	this._question = obj.question;
+	this._answer = obj.answer;
+	this.clean();
+}
+/**
+ * @name clean
+ * @description Replaces text in answers and encodes certain characters to xml
+ * @assign Chase
+ * @todo 
+ *  + Make sure the answer is not undefined
+ *  + Remove unnecessary characters
+ *  + Replace the Whats with the Withs
+ */
+Answer.prototype.clean = function() {
+	if (this._answer == undefined) return;
+	var ans = byui(this._answer);
+	for (var i = 0; i < this._question.replaceWhat.length; i++) {
+		if (this._question.replaceWhat[i] == '') continue;
+		ans.replace(this._question.replaceWhat[i], this._question.replaceWith[i]);
+	}
+	ans.encodeXml();
+	this._answer = ans.val();
+}
+/**
+ * @name toXml
+ * @description Converts the components of the answer into xml
+ * @assign Chase
+ * @todo 
+ *  + Create the start of the answer xml
+ *  + Create the id attribute for the answer
+ *  + Add the answer text
+ *  + return the xml
+ */
+Answer.prototype.toXml = function() {
+	var xml = $('<answer></answer>');
+	xml.attr('id', this._question.id);
+	xml.text(this._answer);
+	return xml; 
+}
+/**
+ * @name collect
+ * @description Collects survey data from a csv row
+ * @assign Chase
+ * @todo 
+ *  + Go through each survey question
+ *   + Get the answer for each question from the rows
+ *   + Append the answer to the result array
+ *  + Return result  
+ */
+Answer.collect = function(survey, row) {
+	var result = [];
+	for (var i = 0; i < survey.questions.length; i++) {
+		var answer = row[Config.columnLetterToNumber(survey.questions[i].col)];
+		result.push(new Answer({
+			question: survey.questions[i], 
+			answer: answer
+		}));
+	}
+	return result;
+}
+/**
+ * @end
+ */
+
+
+
+/**
+ * @start Config
+ */
+/**
+ * @name Config
+ * @description Config Object
+ * @assign Chase and Grant
+ * @todo
+ *  + Create update script for the dev and live config.xml file to add isEval='false' to all survey nodes. (Grant)
+ *  + Add isEval to Survey object (Grant)
+ *  + Add isEval to admin.aspx (Grant)
+ *  + Add isEval to ctrl.js (Grant)
+ *  + Update the dashboard to filter the evaluations from the completed tasks tiles (Chase)
+ */
+function Config(){
+	this.surveys = [];
+	this.evaluations = [];
+	this._xml = null;
+	this._initSetup();
+	this.selectedSurvey = null;
+	this.otherPeople = {};
+}
+/**
+ * @name addSurvey
+ * @description Add a survey to the list of surveys
+ * @assign Chase and Grant
+ * @todo 
+ *  + Add the survey to config object surveys
+ *  + Add the survey xml to the config file
+ */
+Config.prototype.addSurvey = function(survey){
+	this.surveys.push(survey);
+	$(this._xml).find('semester[code=' + this.getCurrentSemester() + '] surveys').append(survey._xml);
+	this.save();
+}
+/**
+ * @name addEvaluation
+ * @description Add and evaluation to the config file. Remove and add if the evaluation already exists.
+ * @assign Grant
+ * @todo
+ *  + complete
+ */
+Config.prototype.addEvaluation = function(eval){
+	var eles = $(this._xml).find('semester[code=' + this.getCurrentSemester() + '] evaluations');
+	if (eles.length == 0) {
+		$(this._xml).find('semester[code=' + this.getCurrentSemester() + ']').append('<evaluations></evaluations>');
+		eles = $(this._xml).find('semester[code=' + this.getCurrentSemester() + '] evaluations');
+	}
+
+	if (eval._id == '') {
+		num = 0;
+		$(eles).find('evaluation').each(function(){
+			var id = parseInt($(this).attr('id'))
+			if (num < id) {
+				num = id;		
+			}
+		});
+		eval._id = ++num;
+	}
+
+	if ($(eles).find('evaluation[id="' + eval._id + '"]').length > 0) {
+		$(eles).find('evaluation[id="' + eval._id + '"]').remove();
+	}
+
+	$(eles).append('<evaluation eBy="' + eval._evaluations.eBy + '" eFor="' + eval._evaluations.eFor + '"	emailCol="' + eval._evaluations.emailCol + '" id="' + eval._id + '" name="' + eval._name + '" ><questions></questions></evaluation>');
+	
+	for (var i = 0; i < eval._evaluations.dataSeries.length; i++) {
+		$(eles).find('evaluation[id="' + eval._id + '"] questions')
+			   .append('<question col="' + eval._evaluations.dataSeries[i].col + 
+			   				   '" logic="' + eval._evaluations.dataSeries[i].logic + 
+			   				   '" text="' + eval._evaluations.dataSeries[i].text + '" />');	
+	}
+
+	this.save();
+}
+/**
+ * @name newSurvey
+ * @description Creates a new survey and returns it
+ * @assign Chase and Grant
+ * @todo 
+ *  + Create a new survey
+ *  + Add new survey to config object's surveys
+ *  + Return new survey
+ */
+Config.prototype.newSurvey = function(){
+	var survey = new Survey({
+		iseval: false,
+		id: this.getHighestSurveyId() + 1,
+		questions: []
+	}, false);
+	this.surveys.push(survey);
+	return survey;
+}
+/**
+ * @name getCurrentSemester
+ * @description Gets the current semester from the semester xml file
+ * @assign Chase and Grant
+ * @todo 
+ *  + If the current semester is unkown 
+ *   + Get the current semester
+ *  + return the current semester 
+ */
+Config.prototype.getCurrentSemester = function(){
+	if (!this._currentSemester) this._currentSemester = $(this._xml).find('[current=true]').attr('code');
+	return this._currentSemester;
+}
+/**
+ * @name getSurveys
+ * @description Get all the serveys
+ * @assign Chase and Grant
+ * @todo 
+ *  + return the config objects surveys
+ */
+Config.prototype.getSurveys = function(){
+	return this.surveys;
+}
+/**
+ * @name getSurveyById
+ * @description Returns the survey using the id
+ * @assign Chase and Grant
+ * @todo 
+ *  + Loop through all the config objects surveys
+ *   + If the current survey equals the id passed in return the survey
+ *  + If not found return null
+ */
+Config.prototype.getSurveyById = function(id){
+	for (var i = 0; i < this.surveys.length; i++){
+		if (this.surveys[i].id == parseInt(id)) return this.surveys[i];
+	}
+	return null;
+}
+/**
+ * @name remove
+ * @description Remove a survey from the config by id
+ * @assign Chase and Grant
+ * @todo 
+ *  + Loop through all the config objects surveys
+ *   + If the survey's id equals the id passed in remove it
+ *  + Reset the surveys with the new list
+ *  + Save the config file
+ */
+Config.prototype.remove = function(id, noSave){
+	var newSurveys = [];
+	for (var i = 0; i < this.surveys.length; i++){
+		if (this.surveys[i].id != parseInt(id)) 
+			newSurveys.push(this.surveys[i]);
+		else{
+			$(this._xml).find('semester[code=' + this.getCurrentSemester() + '] survey[id="' + id + '"]').remove();
+		}
+	}
+	this.surveys = newSurveys;
+	if (noSave) return;
+	this.save();
+}
+/** 
+ * @name _initSetup
+ * @description Create the survey objects
+ * @assign Chase and Grant
+ * @todo 
+ *  + Get the config file from sharepoint
+ *  + Set this config object's xml with the data callbacked
+ *  + Collect the different surveys from the config file to add to the config object
+ */
+Config.prototype._initSetup = function(){
+	var _this = this;
+	Sharepoint.getFile(ims.url.base + 'config/config.xml', function(data){
+		_this._xml = $(data)[0];
+		console.log('getting all the surveys');
+		$(_this._xml).find('semester[code=' + _this.getCurrentSemester() + '] survey').each(function(){
+			_this.surveys.push(new Survey($(this), true));
+		});
+		$(_this._xml).find('semester[code=' + _this.getCurrentSemester() + '] evaluation').each(function(){
+			var questions = [];
+			$(this).find('question').each(function(){
+				questions.push({
+					col: $(this).attr('col'),
+					logic: $(this).attr('logic'),
+					text: $(this).attr('text')
+				});
+			});
+			_this.evaluations.push({
+				id: $(this).attr('id'),
+				name: $(this).attr('name'),
+				'for': $(this).attr('eFor'),
+				by: $(this).attr('eBy'),
+				emailCol: $(this).attr('emailCol'),
+				dataSeries: questions
+			});
+		});
+	});
+}
+/**
+ * @name removeEvaluation 
+ * @description Remove an evaluation from the config file
+ * @assign Grant
+ * @todo
+ *  + complete
+ */
+Config.prototype.removeEvaluation = function(id) {
+	$(this._xml).find('semester[code=' + this.getCurrentSemester() + '] evaluation[id="' + id + '"]').remove();
+	this.save();
+}
+/**
+ * @name findSurvey
+ * @description Find a survey based on the criteria in an object
+ * @assign Chase and Grant
+ * @todo
+ *  + Go through each survey in the config object
+ *  + Return the survey or null if not there
+ */
+Config.prototype.findSurvey = function(obj){
+	var found = null;
+	$(this.surveys).each(function(){
+		if (this.hasAttrs(obj)) found = this;
+	});
+	return found;
+}
+/**
+ * @name createSurvey
+ * @description Create a survey based on a passed through object.
+ * @assign Chase and Grant
+ * @todo
+ *  + Add the survey object passed in to the config's surveys.
+ *  + Return the created survey
+ */
+Config.prototype.createSurvey = function(obj){
+	var spot = this.surveys.length;
+	this.surveys.push(new Survey(obj, false));	
+	return this.surveys[spot];
+}
+/**
+ * @name getHighestSurveyId
+ * @description Get the next highest survey id
+ * @assign Chase and Grant
+ * @todo 
+ *  + Loop through the config object's surveys
+ *   + Check for the highest id
+ *    - Well done Chase, you found it!
+ *  + return the highest id
+ */
+Config.prototype.getHighestSurveyId = function(){
+	var id = 0;
+	$(this.surveys).each(function(){
+		if (id < this.id){
+			id = this.id;
+		}
+	});
+	return parseInt(id);
+}
+/**
+ * @name getPerson
+ * @description Get a person from first the survey, then from global
+ * @assign Chase and Grant
+ * @todo 
+ *  + Remove the @ and everything right of it
+ *  + Get the person
+ *  + Return the person
+ */
+Config.prototype.getPerson = function(email){
+	try{
+		email = Person.cleanEmail(email);
+	}
+	catch(e){
+		console.log(email);
+		throw e;
+	}
+	var person = this.selectedSurvey.getPerson(email);
+	if (!person){
+		person = this.otherPeople[email];
+	}
+	return person;
+}
+/**
+ * @name addPerson
+ * @description Add person to global list
+ * @assign Chase and Grant
+ * @todo 
+ *  + Add a person to the other people list
+ */
+Config.prototype.addPerson = function(email, person){
+	this.otherPeople[email] = person;
+}
+/**
+ * @name getMaster
+ * @description Get the master file
+ * @assign Chase and Grant
+ * @todo 
+ *  + If the master is not there get the master from Sharepoint
+ *  + Return the master
+ */
+Config.prototype.getMaster = function(){
+	if (!this._master){
+		this._master = ims.sharepoint.getXmlByEmail('master');
+	}
+	return this._master;
+}
+/**
+ * @name getMap
+ * @description get the map file
+ * @assign Chase and Grant
+ * @todo 
+ *  + If the map is not there get the map from Sharepoint
+ *  + Return the map
+ *  + Possibly remove this function
+ */
+Config.prototype.getMap = function(){
+	if (!this._map){
+		this._map = ims.sharepoint.getXmlByEmail('map');
+	}
+	return this._map;
+}
+/**
+ * @name _getSurveyColumns
+ * @description Get the next up leader as string
+ * @assign Chase and Grant
+ * @todo 
+ *  + Get the survey by the id
+ *  + Add all the survey column data to the columns object
+ *  + possibly add week
+ *  + possibly add course
+ *  + Go through the questions
+ *   + Add them to the columns object
+ *  + return columns
+ */
+Config.prototype._getSurveyColumns = function(surveyId){
+	var survey = $(this._xml).find('semester[code="' + $(this._xml).find('semesters semester[current=true]').attr('code') + '"] > surveys > survey[id="' + surveyId + '"]');
+	var columns = {
+		iseval: survey.attr('iseval'),
+		id: surveyId,
+		email: Config.getCol(survey.attr('email')),
+		placement: survey.attr('placement'),
+		type: Config.getCol(survey.attr('type')),
+		name: survey.attr('name'),
+		questions: {}
+	};
+
+	if (survey.attr('week') != undefined){
+		columns['week'] = Config.getCol(survey.attr('week'));
+	}
+	if (survey.attr('course') != undefined){
+		columns['course'] = Config.getCol(survey.attr('course'));
+	}
+	
+	
+
+	$(survey).find('questions question').each(function(){
+		columns.questions[Config.getCol($(this).attr('col'))] = {
+			question: $(this).find('text').text(),
+			id: $(this).attr('id'),
+			replace: {
+				what: $(this).find('answer replace').attr('what'),
+				with: $(this).find('answer replace').attr('with')
+			}
+		};
+	});
+
+	return columns;
+}
+/**
+ * @name surveyModify
+ * @description
+ * @assign Chase and Grant
+ * @todo 
+ *  + Get a survey by its id
+ *  + Change its week, placement, type, email, name, and course
+ *  + Update the questions
+ *  + Save the survey
+ */
+Config.prototype.surveyModify = function(name, emailCol, weekCol, typeCol, placement, courseCol, questions, surveyId, iseval){
+	var survey = window.config.getSurveyById(surveyId);
+	survey.modify('week', weekCol);
+	survey.modify('placement', placement);
+	survey.modify('type', typeCol);
+	survey.modify('email', emailCol);
+	survey.modify('name', name);
+	survey.modify('course', courseCol);
+	survey.modify('iseval', iseval);
+	survey.updateQuestions(questions);
+	survey.save();
+}
+/**
+ * @name surveyRegister 
+ * @description
+ * @assign Chase and Grant
+ * @todo
+ *  + Save the survey
+ *  + Add the survey to the config objects surveys
+ */
+Config.prototype.surveyRegister = function(survey){
+	survey.save();
+	this.surveys.push(survey);
+}
+/**
+ * @name save 
+ * @description
+ * @assign Chase and Grant
+ * @todo 
+ *  + Save the config xml to sharepoint
+ */
+Config.prototype.save = function(){
+	Sharepoint.postFile(this._xml, 'config/', 'config.xml', function(){
+		alert('Survey change was successful!');
+		window.location.reload();
+	});
+}
+/**
+ * @name getLeader 
+ * @description
+ * @assign Chase and Grant
+ * @todo 
+ *  + return the leader of the passed in placement
+ */
+Config.getLeader = function(p){
+	switch (p){
+		case 'instructor': return 'tgl';
+		case 'tgl': return 'aim';
+		case 'aim': return 'im';
+		default: throw 'Invalid ' + p;
+	}
+}
+/**
+ * @name columnLetterToNumber
+ * @description Convert a column letter to number
+ * @assign Chase and Grant
+ * @todo 
+ *  + Check if the letter is already a number
+ *  + Return the numeric value of the letters
+ */
+Config.columnLetterToNumber = function(letter){
+	if(!isNaN(letter)) return letter;
+
+	if (letter.length == 1){
+		return letter.charCodeAt(0) - 65;
+	}
+	else{
+		if (letter[1] == 'A') return 26;
+		return (letter.charCodeAt(1) - 65) + 26;
+	}
+}
+/**
+ * @name columnNumberToLetter
+ * @description
+ * @assign Chase and Grant
+ * @todo
+ *  + Change AZ as the highest to BZ
+ *  + Check if the num is already a letter
+ *  + Return letter combination
+ */
+Config.columnNumberToLetter = function(num){
+	if(isNaN(num)) return num;
+
+	if (num < 26){
+		return String.fromCharCode(num + 65);
+	}
+	else{
+		return String.fromCharCode(Math.floor(num / 26) + 64) + String.fromCharCode(num % 26 + 65);
+	}
+}
+/**
+ * @end
+ */
+
+
+
+/**
+ * Only one survey instance can be initalized at one time
+ */
+window.config = new Config();
+
+
+
+/**
+ * @start CSV
+ */
+/**
+ * @name CSV
+ * @description CSV Object
+ */
+function CSV(){
+	console.log('new CSV object created');
+	this._data = null;
+}
+
+/**
+ * @name readFile
+ * @description Read the CSV into _data
+ * @assign Grant
+ * @todo
+ *  + Create a new fileReader
+ *  + Convert the file into an object
+ *  + Callback the csv object
+ */
+CSV.prototype.readFile = function(file, callback){
+	console.log('retrieving data form csv');
+	var reader = new FileReader();
+
+	reader.onload = function(e) {
+	  var text = reader.result;
+	  text = text.replace(/@byui.edu/g, '');
+	  csv = Papa.parse(text);
+	  callback(csv);
+	}
+	reader.readAsText(file, 'utf8');
+}
+/**
+ * @name downloadCSV
+ * @description Download a string as a CSV
+ * @assign Grant
+ * @todo
+ *  + Check that the proper characters have been encoded
+ *  + Save the file
+ */
+CSV.downloadCSV = function(csvString){
+	console.log('CSV downloaded')
+}
+/**
+ * @end
+ */
+/**
+ * @start angular
+ */
+var app = angular.module('admin', []);
+app.controller('adminCtrl', ["$scope", function($scope) {
+	$scope.view = 'instructions';
+	$scope.surveys = window.config.surveys;
+	$scope.file = null;
+	$scope.isFile = false;
+	$scope.prepareTool = {left: '', right: '', useCourse: false};
+	$scope.selectedSurvey = window.config.surveys[0];
+	$scope.question = {
+		columnLetter: '',
+		questionText: '',
+		replaces: []
+	};
+	$scope.savedEvaluations = [];
+	$scope.evaluation = {
+		id: '',
+		name: '',
+		'for': '',
+		by: '',
+		emailCol: '',
+		dataSeries: []
+	}
+
+	$scope.menu = [
+		{name: 'Instructions', icon: 'home', active: true},
+		{name: 'Process', icon: 'settings', active: false},
+		{name: 'Permissions', icon: 'spy', active: false},
+		{name: 'Semester Setup', icon: 'puzzle', active: false},
+		{name: 'Evaluations', icon: 'doctor', active: false},
+		{name: 'Qualtrics Prep', icon: 'lightning', active: false},
+		{name: 'Add Survey', icon: 'plus', active: false},
+		{name: 'Remove Survey', icon: 'remove', active: false},
+		{name: 'Copy Survey', icon: 'copy', active: false},
+		{name: 'Modify Survey', icon: 'edit', active: false}
+	];
+
+	$scope.selectedMenuItem = $scope.menu[0];
+
+	setTimeout(function() {
+		$('.ui.accordion').accordion();
+	}, 10);
+	/**
+	 * @name hasPageBeenEdited 
+	 * @description checks to see if a page has been edited
+	 * @assign Chase
+	 * @todo
+	 *  + Determine if the view may need to check if uses really wants to leave
+	 *   + Check if its respective data has been set
+	 */
+	function hasPageBeenEdited() {
+		if ($scope.view == 'add survey' || $scope.view == 'modify survey') {
+			var s = $scope.selectedSurvey;
+			if (s != null) {
+				if (!!s.name || !!s.week || !!s.email || !!s.course) {
+					return true;
+				}
+			}
+		} else if ($scope.view == 'evaluations') {
+			var e = $scope.evaluation;
+			if (e.by != '' || e.emailCol != '' || e['for'] != '' || e.dataSeries.length > 0) {
+				return true;
+			}
+		}
+		return false;
+	}
+	/**
+	 * @name menuChange 
+	 * @description changes the webpage between the different views
+	 * @assign Chase
+	 * @todo 
+	 *  + complete
+	 */
+	$scope.menuChange = function(menuItem) {
+		var proceed = true;
+		if (hasPageBeenEdited()) {
+			proceed = confirm('Are you sure you want to leave this page?');
+			if (proceed) {
+				$scope.evaluation = {
+					id: '',
+					name: '',
+					'for': '',
+					by: '',
+					emailCol: '',
+					dataSeries: []
+				}
+			}
+		}
+		if (proceed) {
+			for (var i = 0; i < $scope.menu.length; i++) {
+				$scope.menu[i].active = false;
+			}
+			$scope.selectedMenuItem = menuItem;
+			menuItem.active = true;
+			$scope.view = menuItem.name.toLowerCase();
+			if ($scope.view.indexOf('survey') > -1 || $scope.view == 'process') {
+				setTimeout(function(){
+					$('.selection.dropdown:not(#whichView)').dropdown({
+						onChange: function(value, text) {
+							surveySelected(value, text, true);
+						}
+					});
+
+					if ($scope.view == 'modify survey' || $scope.view == 'add survey') {
+						$('#whichView').dropdown({
+							onChange: function(value, text) {
+								$scope.selectedSurvey.placement = value;
+							}
+						});
+					}
+
+					if ($scope.view == 'add survey') {
+						$scope.$apply(function() {
+							$scope.selectedSurvey = window.config.newSurvey();
+							$scope.selectedSurvey.isNew = true;
+						});
+					}
+					else {
+						if ($scope.selectedSurvey && $scope.selectedSurvey.isNew) {
+							$scope.selectedSurvey.remove();
+							$scope.selectedSurvey = null;
+							window.config.selectedSurvey = null;
+							$scope.$apply(function() {
+								$scope.surveys = window.config.surveys;
+							});
+						}
+					}
+				}, 10);
+			}
+			else if ($scope.view.indexOf('qualtrics') > -1) {
+				setTimeout(function() {
+					$('#left').dropdown({
+						onChange: function(value, text) {
+							$scope.prepareTool.left = value;
+						}
+					});
+					$('#right').dropdown({
+						onChange: function(value, text) {
+							$scope.prepareTool.right = value;
+						}
+					});
+					$('#course').checkbox({
+						onChange: function() {
+							$scope.prepareTool.useCourse = !$scope.prepareTool.useCourse;
+						}
+					});
+				}, 10);
+			}
+			else if ($scope.view == 'instructions') {
+				setTimeout(function() {
+					$('.ui.accordion').accordion();
+				}, 10);
+			}
+			else if ($scope.view == 'evaluations') {
+				
+				$scope.savedEvaluations = window.config.evaluations;
+			
+				setTimeout(function() {
+					$('.selection.dropdown:not(#whichView)').dropdown({
+						onChange: function(value, text) {
+							evaluationSelected(value, text);
+						}
+					});
+					$('#for').dropdown({
+						onChange: function(value){
+							$scope.evaluation['for'] = value;
+						}
+					});
+					$('#by').dropdown({
+						onChange: function(value) {
+							$scope.evaluation.by = value;
+						}
+					})
+				}, 10);
+			}
+		}
+	}
+	/**
+	 * @name evaluationSelected 
+	 * @description fills out the evaluation form with a selected evaluation
+	 * @assign Chase
+	 * @todo 
+	 *  + complete
+	 */
+	function evaluationSelected(id, text) {
+		for (var i = 0; i < $scope.savedEvaluations.length; i++) {
+			if ($scope.savedEvaluations[i].id == id) {
+				$scope.$apply(function(){
+					$scope.evaluation = $scope.savedEvaluations[i];
+					$('#for').dropdown('set selected', $scope.evaluation['for']);
+					$('#by').dropdown('set selected', $scope.evaluation.by);
+				});
+			}
+		}
+	}
+	/**
+	 * @name surveySelected 
+	 * @description Sets the selected survey
+	 * @assign Chase
+	 * @todo 
+	 *  + complete
+	 */
+	function surveySelected(value, text, force) {
+		if (typeof $scope.selectedSurvey != 'object') {
+			$scope.selectedSurvey = value;
+			$scope.selectedSurvey = getSelectedSurvey();
+			window.config.selectedSurvey = $scope.selectedSurvey;
+		}
+		if (force) {
+			$scope.selectedSurvey = value;
+			$scope.selectedSurvey = getSelectedSurvey();
+			window.config.selectedSurvey = $scope.selectedSurvey;
+		}
+		$scope.$apply(function() {
+			if (typeof $scope.selectedSurvey != 'object') {
+				$scope.selectedSurvey = value;
+				$scope.selectedSurvey = getSelectedSurvey();
+				window.config.selectedSurvey = $scope.selectedSurvey;
+			}
+			if (force) {
+				$scope.selectedSurvey = value;
+				$scope.selectedSurvey = getSelectedSurvey();
+				window.config.selectedSurvey = $scope.selectedSurvey;
+			}
+			if ($('#whichView').length > 0) {
+				$('#whichView').dropdown('set selected', $scope.selectedSurvey.placement);
+			}
+		});
+	}
+	/**
+	 * @name getSelectedSurvey 
+	 * @description Get a survey from the list of surveys
+	 * @assign Chase
+	 * @todo 
+	 *  + complete
+	 */
+	function getSelectedSurvey() {
+		if (!$scope.selectedSurvey) {
+			errAlert('Invalid Survey');
+			return false;
+		}
+		else if (typeof $scope.selectedSurvey != 'string') {
+			return $scope.selectedSurvey;
+		}
+		var id = parseInt($scope.selectedSurvey);
+		for (var i = 0; i < $scope.surveys.length; i++) {
+			if ($scope.surveys[i].id == id) {
+				return $scope.surveys[i];
+			}
+		}
+	}
+	/**
+	 * @name reload 
+	 * @description sets the reload time of the window
+	 * @assign Chase
+	 * @todo 
+	 *  + complete
+	 */
+	function reload(time) {
+		setTimeout(function(){
+			window.location.reload();
+		}, time);
+	}
+	/**
+	 * @name removeSurvey 
+	 * @description remove a survey from the config file
+	 * @assign Chase
+	 * @todo 
+	 *  + complete
+	 */
+	$scope.removeSurvey = function() {
+		var survey = getSelectedSurvey();
+		window.config.remove(survey.id);
+	}
+	/**
+	 * @name copySurvey 
+	 * @description copy a survey
+	 * @assign Chase
+	 * @todo 
+	 *  + complete
+	 */
+	$scope.copySurvey = function() {
+		var survey = getSelectedSurvey();
+		var copy = survey.copy();
+		window.config.addSurvey(copy);
+	}
+	/**
+	 * @name chooseFile 
+	 * @description get a file from the client
+	 * @assign Chase
+	 * @todo 
+	 *  + complete
+	 */
+	$scope.chooseFile = function() {
+		setTimeout(function() {
+			$('body').append('<input type="file" id="surveyFile" style="display:none;">');
+			$('#surveyFile').change(function() {
+				$scope.$apply(function() {
+					$scope.isFile = true;
+				});
+				$scope.file = this.files[0];
+				$(this).remove();
+			}).click();
+		}, 100);
+	}
+	/**
+	 * @name startProcess 
+	 * @description Begin to process surveys
+	 * @assign Chase
+	 * @todo 
+	 *  + complete
+	 */
+	$scope.startProcess = function() {
+		var survey = getSelectedSurvey();
+		var csv = new CSV();
+		csv.readFile($scope.file, function(file) {
+			setTimeout(function() {
+				survey.process(file.data);
+			}, 10);
+		});
+	}
+	var permissionsGlobal;
+	/**
+	 * @name changePermissions 
+	 * @description Begin to change permissions
+	 * @assign Chase
+	 * @todo 
+	 *  + complete
+	 */
+	$scope.changePermissions = function() {
+		if (!permissionsGlobal) permissionsGlobal = new Permissions();
+		permissionsGlobal.start();
+	}
+	/**
+	 * @name startSemesterSetup 
+	 * @description begin the semester setup process
+	 * @assign Chase
+	 * @todo 
+	 *  + complete
+	 */
+	$scope.startSemesterSetup = function() {
+		var csv = new CSV();
+		csv.readFile($scope.file, function(file) {
+			setTimeout(function() {
+				var s = new SemesterSetup(file.data);
+				s.semesterSetup();
+			}, 10);
+		});
+	}
+	/**
+	 * @name startQualtricsPrep 
+	 * @description Prepares csv that can be used for organizational lookups
+	 * @assign Chase
+	 * @todo 
+	 *  + complete
+	 */
+	$scope.startQualtricsPrep = function() {
+		var t = new Tool($scope.file, $scope.prepareTool.left, $scope.prepareTool.right, $scope.prepareTool.useCourse);
+		t.parse();
+	}
+	/**
+	 * @name removeQuestion 
+	 * @description remove a question from the selected survey
+	 * @assign Chase
+	 * @todo 
+	 *  + complete
+	 */
+	$scope.removeQuestion = function(question) {
+		if (selectedQuestion == null) {
+			$scope.question = {
+				columnLetter: '',
+				questionText: '',
+				replaces: []
+			};
+		}
+		else{
+			for (var i = 0; i < $scope.selectedSurvey.questions.length; i++) {
+				if ($scope.selectedSurvey.questions[i].id == selectedQuestion.id) {
+					$scope.selectedSurvey.questions.splice(i, 1);
+				}
+			}
+		}
+	}
+	/**
+	 * @name Replaces 
+	 * @description replace text for answers to questions
+	 * @assign Chase
+	 * @todo 
+	 *  + complete
+	 */
+	function Replaces(type) {
+		var result = '';
+		if (type == 'what') {
+			for (var i = 0; i < $scope.question.replaces.length; i++) {
+				if (result.length > 0) {
+					result += ';';
+				}
+				result += $scope.question.replaces[i]['what'];
+			}
+		}
+		else if (type == 'with') {
+			for (var i = 0; i < $scope.question.replaces.length; i++) {
+				if (result.length > 0) { 
+					result += ';';
+				}
+				result += $scope.question.replaces[i]['with'];
+			}
+		}
+		return result;
+	}
+	/**
+	 * @name ReplacesCreate 
+	 * @description adds the items that will be replaces 'what' with 'with'
+	 * @assign Chase
+	 * @todo 
+	 *  + complete
+	 */
+	function ReplacesCreate(awhat, awith) {
+		var bwhat = awhat.split(';');
+		var bwith = awith.split(';');
+		var result = [];
+		for (var i = 0; i < bwhat.length; i++) {
+			result.push({
+				'with': bwith[i],
+				'what': bwhat[i]
+			});
+		}
+		return result;
+	}
+	/**
+	 * @name addQuestion 
+	 * @description Add a question to the selected survey
+	 * @assign Chase
+	 * @todo 
+	 *  + complete
+	 */
+	$scope.addQuestion = function() {
+		$('#questionModal').modal({
+			onApprove: function() {
+				if (!$scope.selectedSurvey) {
+					errAlert('Invalid Survey');
+					return false;
+				}
+				$scope.$apply(function() {
+					$scope.selectedSurvey.addQuestion(new Question({
+						id: $scope.selectedSurvey.getHighestQuestionId() + 1,
+						text: $scope.question.questionText,
+						col: $scope.question.columnLetter.toUpperCase(),
+						replaceWhat: Replaces('what'),
+						replaceWith: Replaces('with')
+					}, false));
+					$scope.question = {
+						columnLetter: '',
+						questionText: '',
+						replaces: []
+					};
+					$scope['what'] = '';
+					$scope['with'] = '';
+				})
+			},
+			onHide: function() {
+				$scope.$apply(function() {
+					$scope.question = {
+						columnLetter: '',
+						questionText: '',
+						replaces: []
+					};
+					$scope['what'] = '';
+					$scope['with'] = '';
+				});
+			}
+		}).modal('show');
+	}
+	/**
+	 * @name removeReplaces 
+	 * @description remove a replace set
+	 * @assign Chase
+	 * @todo 
+	 *  + complete
+	 */
+	$scope.removeReplaces = function(r, idx) {
+		$scope.question.replaces.splice(idx, 1);
+	}
+	/**
+	 * @name addReplace 
+	 * @description Add a replace set
+	 * @assign Chase
+	 * @todo 
+	 *  + complete
+	 */
+	$scope.addReplace = function(wh, wi) {
+		$scope.question.replaces.push({
+			'what': wh,
+			'with': wi
+		});
+		$scope['what'] = '';
+		$scope['with'] = '';
+	}
+	var selectedQuestion = null;
+	/**
+	 * @name editQuestion 
+	 * @description Edit a quesiton from the selected survey
+	 * @assign Chase
+	 * @todo 
+	 *  + complete
+	 */
+	$scope.editQuestion = function(question) {
+		selectedQuestion = question;
+		$scope.question = {
+			columnLetter: selectedQuestion.col,
+			questionText: selectedQuestion.text,
+			replaces: ReplacesCreate(selectedQuestion.replaceWhat, selectedQuestion.replaceWith)
+		};
+		$('#questionModal').modal({
+			onApprove: function() {
+				if (!$scope.selectedSurvey) {
+					errAlert('Invalid Survey');
+					return false;
+				}
+				selectedQuestion.col = $scope.question.columnLetter;
+				selectedQuestion.text = $scope.question.questionText;
+				selectedQuestion.replaceWhat = Replaces('what');
+				selectedQuestion.replaceWith = Replaces('with');
+				$scope.question = {
+					columnLetter: '',
+					questionText: '',
+					replaces: []
+				};
+				$scope['what'] = '';
+				$scope['with'] = '';
+			},
+			onHide: function() {
+				$scope.question = {
+					columnLetter: '',
+					questionText: '',
+					replaces: []
+				};
+				$scope['what'] = '';
+				$scope['with'] = '';
+				selectedQuestion = null;
+			}
+		}).modal('show');
+	}
+	/**
+	 * @name submitChanges 
+	 * @description Saves the selected survey
+	 * @assign Chase
+	 * @todo 
+	 *  + complete 
+	 */
+	$scope.submitChanges = function() {
+		if (!$scope.selectedSurvey) {
+			errAlert('Invalid Survey');
+			return false;
+		}
+		$scope.selectedSurvey.save();
+	}
+	/**
+	 * @name arrayOfColumns
+	 * @description Gets the columns in forms A;B;C;D or A-D or A-D;E
+	 * @assign Grant
+	 * @todo 
+	 *  + Check if there is more than one column
+	 *  + Split the string on the ';'
+	 *  + Start adding letters to new array
+	 *   + if the letter contains a '-' then get and add all letters in between 
+	 */
+	function arrayOfColumns(columns) {
+		if (columns.indexOf('-') > -1) {
+			var sets = columns.split(';');
+			for (var i = 0; i < sets.length; i++) {
+				if (sets[i].indexOf('-') > -1) {
+					var start = Config.columnLetterToNumber(sets[i].split('-')[0]);
+					var end = Config.columnLetterToNumber(sets[i].split('-')[1]);
+					sets.splice(i, 1);
+					if (start > end) {
+						errAlert("columns need to be read from left to right (A-Z)");
+						throw "columns need to be read from left to right (A-Z)";
+					}
+					for (var j = start; j <= end; j++) {
+						sets.splice(sets.length, 0, Config.columnNumberToLetter(j));
+					}
+				} else {
+					if (sets[i].length > 2) {
+						errAlert("The columns that can be reached are A-ZZ");
+						throw "The columns that can be reached are A-ZZ";
+					}
+				}
+			}
+			return sets;
+		}
+		else{
+			return columns.split(';');
+		}
+	}
+	/**
+	 * @name startEvaluations 
+	 * @description Begin the process of parsing evaluations 
+	 * @assign Grant
+	 * @todo 
+	 *  + Validate the incoming information
+	 *  + Create a new evaluation
+	 *  + Process the evaluation
+	 */
+	$scope.startEvaluations = function() {
+		var ev = $scope.evaluation;
+
+		for (var key in ev) { // error handling
+			if (ev[key] == null || ev[key] == '') {
+				errAlert("Some information was left out!");
+				return;
+			}
+		}
+
+		if (ev.by == ev['for']) { // error handling
+			errAlert("The evaluations can not be done at the same level. e.g. by: INSTRUCTOR for: INSTRUCTOR");
+			return;
+		}
+
+		var series = ev.dataSeries;
+		for (var i = 0; i < series.length; i++) {
+			if (series[i].text == '' ||
+			series[i].col == '' ||
+			series[i].logic == '') {
+				errAlert("Some information was left out!");
+				return;
+			}
+			series[i].col = series[i].col.toUpperCase();
+		}
+
+		var e = new Evaluations({
+			eBy: ev.by,
+			eFor: ev['for'],
+			emailCol: ev.emailCol.toUpperCase(),
+			dataSeries: ev.dataSeries
+		}, $scope.file);
+
+		e.parse();
+	}
+	/**
+	 * @name addEvaluation 
+	 * @description Add an evaluation to the current evaluation
+	 * @assign Grant
+	 * @todo
+	 *  + Push a new question object onto the current evaluation
+	 */
+	$scope.addEvaluation = function() {
+		$scope.evaluation.dataSeries.push({
+			text: '',
+			col: '',
+			logic: ''
+		});
+	}
+	/**
+	 * @name removeEvaluation 
+	 * @description Remove an evaluation from the config file
+	 * @assign Grant
+	 * @todo
+	 *  + Get the id of the evaluation to be removed
+	 *  + Remove the evaluation from the config
+	 */
+	$scope.removeEvaluation = function() {
+		var evalId = $('#evalList').attr('value');
+		window.config.removeEvaluation(evalId);
+	}
+	/**
+	 * @name removeEvalQuestion 
+	 * @description Remove a question from the current evaluation
+	 * @assign Grant
+	 * @todo
+	 *  + Remove question at the index passed in
+	 */
+	$scope.removeEvalQuestion = function(index) {
+		$scope.evaluation.dataSeries.splice(index, 1);
+	}
+	/**
+	 * @name saveEvaluation 
+	 * @description Save the current evaluation to the config
+	 * @assign Grant
+	 * @todo
+	 *  + Validate the incoming information
+	 *  + Create a new evaluation
+	 *  + Save the evaluation
+	 */
+	$scope.saveEvaluation = function() {
+		var ev = $scope.evaluation;
+
+		for (var key in ev) { // error handling
+			if (key != 'id') {
+				if (ev[key] == null || ev[key] == '') {
+					errAlert("Some information was left out!");
+					return;
+				}
+			}
+		}
+
+		if (ev.by == ev['for']) { // error handling
+			errAlert("The evaluations can not be done at the same level. e.g. by: INSTRUCTOR for: INSTRUCTOR");
+			return;
+		}
+
+		var series = ev.dataSeries;
+		for (var i = 0; i < series.length; i++) {
+			if (series[i].text == '' ||
+			series[i].col == '' ||
+			series[i].logic == '') {
+				errAlert("Some information was left out of a question!");
+				return;
+			}
+			series[i].col = series[i].col.toUpperCase();
+		}
+
+		var e = new Evaluations({
+			eBy: ev.by,
+			eFor: ev['for'],
+			emailCol: ev.emailCol.toUpperCase(),
+			dataSeries: ev.dataSeries
+		}, $scope.file);
+
+		e.save(ev['name'], ev['id']);
+	}
+}]);
+
+/**
+ * @name toInt 
+ * @description Converts a str to a num and handles it if it is a range of numbers by choosing the first number
+ * @todo 
+ *  + Check that the str is not intro week
+	 *  + Check for a dash
+ *  + Convert the string to an int
+ */
+function toInt(str) {
+	if (str == "") return -1;
+	if (str.toLowerCase().indexOf('intro') > -1) return 0;
+	if (str.toLowerCase().indexOf('conclusion') > -1) return 100;
+
+	var num = 0;
+
+	if (str.indexOf('-') == -1) {
+		num = parseInt(str);
+	} else {
+		num = parseInt(str.substring(0, str.indexOf('-')));
+	}
+
+	return num;
+}
+
+/**
+ * @name addItemReverseOrder 
+ * @description Adds a single item to the given array based on the value of the week
+ * @todo 
+ *  + If the week is empty then it is added to the end
+ *  + Add item based on items in list
+ *  + Return list 
+ */
+	function addItemReverseOrder(list, item) {
+		if (item['week'] ==  undefined) {
+			list.splice(list.length, 0, item);
+			return list;
+		}
+		var week = item.week;
+		if (!list) return [];
+		var weekAsInt = Number(week);
+		if (isNaN(weekAsInt)){
+			if (week == "") list.splice(list.length, 0, item);
+			else if (week.toLowerCase().indexOf('pre') > -1) list.splice(list.length, 0, item);
+			else if (week.toLowerCase().indexOf('intro') > -1) list.splice(list.length, 0, item);
+			else if (week.toLowerCase().indexOf('concl') > -1) list.splice(0, 0, item);
+			else list.splice(0, 0, item);
+			return list;
+		}
+		else{
+			for (var i = 0; i < list.length; i++) {
+				if (toInt(week) >= toInt(list[i].week)) {
+					list.splice(i, 0, item);
+					return list;
+				}
+			}
+
+			list.splice(list.length, 0, item);
+			return list;
+		}
+	}
+
+	/**
+	 * @name angular.filter.reverseByWeek
+	 * @description Reverses the items in an ng-repeat by id
+	 * @todo
+	 *  + Filter by week (Grant)
+	 */
+	app.filter('reverseByWeek', function() {
+	  	return function(items){
+	      	if (items){
+						var finalSet = [];
+						var surveyTypes = {};
+
+						for (var i = 0; i < items.length; i++){
+							if (items[i].name == undefined) console.log(i);
+							if (surveyTypes[items[i].name] == undefined) surveyTypes[items[i].name] = [];
+							surveyTypes[items[i].name].push(items[i]);
+						}
+
+						var keys = Object.keys(surveyTypes).sort();
+						for (var j = keys.length - 1; j != -1; j--){
+							var s = keys[j];
+							var set = [];
+							for (var i = 0; i < surveyTypes[s].length; i++){
+					  		set = addItemReverseOrder(set, surveyTypes[s][i]);
+					  	}
+					  	finalSet = finalSet.concat(set);
+						}
+					  	
+					  return finalSet;
+	      	}
+	  	} 
+	});
+
+app.directive('allCaps', function($compile) {
+	return {
+		restrict: 'A',
+		replace: true,
+		link: function(scope, element, attrs) {
+			element.keyup(function() {
+				if (typeof this.value == 'string') this.value = this.value.toUpperCase();
+			});
+		}
+	}
+});
+/**
+ * @start evaluations
+ */
+/**
+ * @name  Evaluations
+ * @assign Grant
+ * @description object used to assign data from the evaluator to the evaluatee
+ * @todo
+ *  + set the evaluations object
+ *  + set the csv file location
+ */
+function Evaluations(obj, file) {
+	this._evaluations = obj;
+	this._file = file;
+	this._titles = null;
+	this.people = {};
+	this._sem = window.config.getCurrentSemester();
+}
+
+/**
+ * @name save 
+ * @description Save an evaluation
+ * @assign Grant
+ * @todo
+ *  + complete
+ */
+Evaluations.prototype.save = function(name, id){
+	this._name = name;
+	this._id = id;
+	window.config.addEvaluation(this);	
+}
+
+/**
+ * @name  Evaluations.getColumnLocations
+ * @assign Grant
+ * @description Finds the location of answer, question, and display logic
+ * @todo
+ *  + loop through the different data series
+ *   + convert the col letter to a number
+ */
+Evaluations.prototype.getColumnLocations = function() {
+	var newArray = [];
+
+	for (var i = 0; i < this._evaluations.dataSeries.length; i++) {
+		newArray.push({
+			col: Config.columnLetterToNumber(this._evaluations.dataSeries[i].col),
+			text: this._evaluations.dataSeries[i].text,
+			logic: this._evaluations.dataSeries[i].logic
+		});
+	}
+
+	return newArray;
+}
+
+/**
+ * @name  Evaluations.cleanseString
+ * @assign Grant
+ * @description
+ * @todo
+ *  + check that the string is not null or empty
+ *  + replace unwanted html
+ *  + error handling
+ */
+Evaluations.prototype.cleanseString = function(str) {
+	if(str == undefined || str.length == 0) return str;
+	return str.replace(/<[^>]*>/g, '');
+}
+
+/**
+ * @name Evaluations.setAnswers
+ * @assign Grant
+ * @description
+ * @todo
+ *  + add evaluatee to Evaluations' people
+ *   + add one to number of evaluators
+ *  + go through the row for responses
+ *   + get the question and answer
+ *    + logic for value
+ *    + logic for percentage
+ *    + logic for combined percentage
+ *    + logic for combined value
+ *   + add response data for evaluatee
+ *  + error handling
+ */
+Evaluations.prototype.setAnswers = function(evaluatee, row, locations) {
+	if (this.people[evaluatee] == undefined) {
+		this.people[evaluatee] = {
+			count: 1
+		};
+	} else {
+		this.people[evaluatee].count++;
+	}
+
+	for (var loc = 0; loc < locations.length; loc++) {
+		var quest = locations[loc].text;
+		var ans = row[locations[loc].col];
+		if (locations[loc].logic == 'v' && ans != "") { /*VALUE*/
+			if (this.people[evaluatee][quest] == undefined) {
+				this.people[evaluatee][quest] = _this.cleanseString(ans);
+			} else {
+				this.people[evaluatee][quest] += '\\\\' + _this.cleanseString(ans);
+			}
+		} else if (locations[loc].logic == 'p') { /*PERCENTAGE*/
+			if (this.people[evaluatee][quest] == undefined) {
+				this.people[evaluatee][quest] = (ans != "" ? 1 : 0);
+			} else {
+				this.people[evaluatee][quest] += (ans != "" ? 1 : 0);
+			}
+		} else if (locations[loc].logic == 'cp') { /*COMBINED PERCENTAGE*/
+			if (ans == "") ans = "None";
+			if (this.people[evaluatee][quest] == undefined) {
+				this.people[evaluatee][quest] = {};
+				this.people[evaluatee][quest][ans] = 1;
+			} else {
+				if (this.people[evaluatee][quest][ans] == undefined) {
+					this.people[evaluatee][quest][ans] = 1;
+				} else {
+					this.people[evaluatee][quest][ans]++;
+				}
+			}
+		} else if (locations[loc].logic == 'cv') { /*COMBINED VALUE*/
+			if (this.people[evaluatee][quest] == undefined) {
+				this.people[evaluatee][quest] = _this.cleanseString(ans.split(':')[0] + ': ' + row[locations[loc].col + 1]);
+			} else {
+				this.people[evaluatee][quest] += '\\\\' + _this.cleanseString(ans.split(':')[0] + ': ' + row[locations[loc].col + 1]);
+			}
+		} else if (locations[loc].logic == 'ccp') {
+			var idx = locations[loc].col;
+			do 
+			{
+				ans = row[idx];
+				if (ans == "") ans = "None";
+				if (ans == "Other" && row[idx + 1] != "") {
+					if (this.people[evaluatee][quest] == undefined) {
+						this.people[evaluatee][quest] = {}
+						this.people[evaluatee][quest]['Other'] = [ans];
+					} else {
+						if (this.people[evaluatee][quest]['Other'] == undefined) {
+							this.people[evaluatee][quest]['Other'] = [ans];
+						} else {
+							this.people[evaluatee][quest]['Other'].push(ans);
+						}
+					}
+				} else {
+					if (this.people[evaluatee][quest] == undefined) {
+						this.people[evaluatee][quest] = {};
+						this.people[evaluatee][quest][ans] = 1;
+					} else {
+						if (this.people[evaluatee][quest][ans] == undefined) {
+							this.people[evaluatee][quest][ans] = 1;
+						} else {
+							this.people[evaluatee][quest][ans]++;
+						}
+					}
+				}
+
+				idx++;
+			} while (this._titles[idx].toLowerCase().indexOf('(select all that apply)') != -1);
+		}
+	}
+}
+
+/**
+ * @name Evaluations.calculatePercentages
+ * @assign Grant
+ * @description
+ * @todo
+ *  + go through each person
+ *   + go through each evaluation
+ *    + check if the logic type is percentage (p)
+ *    + perform percentage math
+ *    + replace answer with new percentage 
+ *  + error handling
+ */
+Evaluations.prototype.calculatePercentages = function() {
+	for (var person in this.people) {  
+		for (var j = 0; j < this._evaluations.dataSeries.length; j++) {
+			var eval = this._evaluations.dataSeries[j];
+			if (eval.logic == 'p') {
+				this.people[person][eval.text] = (this.people[person][eval.text] * 100 / this.people[person].count).toPrecision(3) + '%';
+			} else if (eval.logic == 'cp') {
+				var sets = this.people[person][eval.text];
+				for (var set in sets) {
+					this.people[person][eval.text][set] = (this.people[person][eval.text][set] * 100 / this.people[person].count).toPrecision(3) + '%';
+				}
+			}
+		}
+	}
+}
+
+/**
+ * @name Evaluations.sendToCSV
+ * @assign Grant
+ * @description
+ * @todo
+ *  + add questions to the top of csv
+ *  + go through each person
+ *   + go through each question
+ *    + add answer to string
+ *    + encode all spaces, commas, new lines, and slashes
+ *  + download string as csv
+ *  + error handling
+ */
+Evaluations.prototype.sendToCSV = function() {
+	var csv = "###,###,###,email,";
+
+	/*ADD THE TITLES TO THE CSV*/
+	for (var j = 0; j < this._evaluations.dataSeries.length; j++) {
+		csv += this._evaluations.dataSeries[j].text.replace(/( )|(,)/g, "%20").replace(/’/g, "%27") + ",";
+	}
+
+	csv += "%0A"; // NEW LINE
+
+	/*ADD THE PEOPLE AND THEIR DATA TO THE CSV*/
+	for (var person in this.people) {
+		csv += "###,###,100.100.100," + person + ",";
+		for (var q in this.people[person]) {
+			if (q != 'count') {
+				if (typeof this.people[person][q] == "object") {
+					var first = true;
+					for (var set in this.people[person][q]) {
+						csv += (!first ? "\\\\" : "") + set.replace(/ /g, "%20");
+						csv += ":%20" + this.people[person][q][set];
+						first = false;
+					}
+					csv += ",";
+				} else if (isNaN(this.people[person][q])) {
+					csv += this.people[person][q].replace(/( )|(\/\/\/)|(,)/g, "%20").replace(/’/g, "%27") + ",";
+				} else {
+					csv += this.people[person][q] + ",";
+				}
+			}
+		}
+		csv += "%0A";
+	}
+
+	/*SAVE THE NEWLY CREATED STRING AS A CSV FILE*/
+	var a         = document.createElement('a');
+	a.href        = 'data:attachment/csv,' + csv;
+	a.target      = '_blank';
+	a.download    = 'Evaluation.csv';
+
+	document.body.appendChild(a);
+	a.click();
+}
+
+/**
+ * @name isByGreaterThanFor 
+ * @description Checks if the role doing the evaluation is at a higher role than the one receiving the evaluation
+ * @assign Grant
+ * @todo
+ *  + Get each role by value
+ *  + Compare the roles to see if by role is greater than for role
+ */
+Evaluations.prototype.isByGreaterThanFor = function() {
+	var vFor = this.roleAsValue(this._evaluations.eFor.toLowerCase());
+	var vBy = this.roleAsValue(this._evaluations.eBy.toLowerCase());
+
+	if (vBy > vFor) {
+		return true;
+	} else {
+		return false;
+	}
+}
+
+/**
+ * @name roleAsValue 
+ * @description
+ * @assign Grant
+ * @todo
+ *  + switch statement for each role and return a value based on the role
+ */
+Evaluations.prototype.roleAsValue = function(role){
+	switch (role) {
+		case "instructor": return 1;
+		case "tgl": return 2;
+		case "aim": return 3;
+		case "im": return 4;
+		case "ocr": return 2;
+		case "ocrm": return 3;
+	}
+}
+
+/**
+ * @name  Evaluations.parse
+ * @assign Grant
+ * @description Collect the evaluation information from a CSV.
+ * @todo 
+ *  + get the master
+ *  + convert csv to array
+ *  + go through each evaluation
+ *   + get the email of evaluator
+ *   + get evaluatee
+ *   + collect evaluation results for evaluatee
+ *  + calculate the percentage
+ *  + error handling
+ */
+Evaluations.prototype.parse = function() {
+	var properEval = this.isByGreaterThanFor()
+	_this = this;
+	Sharepoint.getFile(ims.url.base + 'Master/master.xml', function(master) {
+		var csv = new CSV();
+		csv.readFile(_this._file, function(csv) {
+			var rows = csv.data;
+			_this._titles = csv.data[1];
+			var emailCol = Config.columnLetterToNumber(_this._evaluations.emailCol);
+			var locations = _this.getColumnLocations();
+			var questions = [];
+
+			if (rows.length < 3) {
+				alert('CSV does not have the right number of rows');
+				throw 'CSV does not have the right number of rows';
+			}
+
+			var start = 0;
+			for (var i = 0; i < rows.length; i++) {
+				if (rows[i][2].match(/\./g) && rows[i][2].match(/\./g).length >= 2) {
+					start = i;
+					break;
+				}
+			}
+
+			if (start == 0) {
+				alert('CSV must be wrong or in an unfamiliar format');
+				throw 'CSV must be wrong or in an unfamiliar format';
+			}
+
+			for (var i = start; i < rows.length; i++) {
+				if (rows[i][emailCol] != undefined) {
+					var xPath = 'semester[code=' + _this._sem +'] > people > person > roles > role[type=' + _this._evaluations.eFor.toLowerCase() + ']';
+					var evaluator = rows[i][emailCol].split('@')[0];
+					if (properEval) {
+						_this.setAnswers(evaluator, rows[i], locations);
+					} else {
+						var evaluatee = null;
+						if ($(master).find(xPath).has('stewardship > people > person[email="' + evaluator + '"][type="' + _this._evaluations.eBy.toLowerCase() + '"]').length > 0) {
+							if ($(master).find(xPath).has('stewardship > people > person[email="' + evaluator + '"][type="' + _this._evaluations.eBy.toLowerCase() + '"]').length > 1) {
+								if (evaluator == $($(master).find(xPath).has('stewardship > people > person[email="' + evaluator + '"][type="' + _this._evaluations.eBy.toLowerCase() + '"]')[0]).parents('person').attr('email')) {
+									evaluatee = $($(master).find(xPath).has('stewardship > people > person[email="' + evaluator + '"][type="' + _this._evaluations.eBy.toLowerCase() + '"]')[1]).parents('person').attr('email');
+								} else {
+									evaluatee = $($(master).find(xPath).has('stewardship > people > person[email="' + evaluator + '"][type="' + _this._evaluations.eBy.toLowerCase() + '"]')[0]).parents('person').attr('email');
+								}
+							} else {
+								evaluatee = $(master).find(xPath).has('stewardship > people > person[email="' + evaluator + '"][type="' + _this._evaluations.eBy.toLowerCase() + '"]').parents('person').attr('email');
+							}
+							if (evaluatee != null) {
+								_this.setAnswers(evaluatee, rows[i], locations);
+							}
+						}
+					}
+				}
+			}
+
+			_this.calculatePercentages();
+			_this.sendToCSV();
+		});
+	});
+};
+/**
+ * @end
+ */
+/**
  * Steps
  *  1. get sharepoint siteusers, roles, permissions, and master
  */
@@ -928,1528 +2712,6 @@ PermissionPerson.prototype.compareWithPermissionsXml = function(permissionsXmlFi
 		this.changes.add.add(this.email);
 	}
 }
-/**
- * @start Group Answer
- */
-/**
- * @name  Answer
- * @description Answer object
- * @assign Chase
- */
-function Answer(obj) {
-	this._question = obj.question;
-	this._answer = obj.answer;
-	this.clean();
-}
-/**
- * @name clean
- * @description Replaces text in answers and encodes certain characters to xml
- * @assign Chase
- * @todo 
- *  + Make sure the answer is not undefined
- *  + Remove unnecessary characters
- *  + Replace the Whats with the Withs
- */
-Answer.prototype.clean = function() {
-	if (this._answer == undefined) return;
-	var ans = byui(this._answer);
-	for (var i = 0; i < this._question.replaceWhat.length; i++) {
-		if (this._question.replaceWhat[i] == '') continue;
-		ans.replace(this._question.replaceWhat[i], this._question.replaceWith[i]);
-	}
-	ans.encodeXml();
-	this._answer = ans.val();
-}
-/**
- * @name toXml
- * @description Converts the components of the answer into xml
- * @assign Chase
- * @todo 
- *  + Create the start of the answer xml
- *  + Create the id attribute for the answer
- *  + Add the answer text
- *  + return the xml
- */
-Answer.prototype.toXml = function() {
-	var xml = $('<answer></answer>');
-	xml.attr('id', this._question.id);
-	xml.text(this._answer);
-	return xml; 
-}
-/**
- * @name collect
- * @description Collects survey data from a csv row
- * @assign Chase
- * @todo 
- *  + Go through each survey question
- *   + Get the answer for each question from the rows
- *   + Append the answer to the result array
- *  + Return result  
- */
-Answer.collect = function(survey, row) {
-	var result = [];
-	for (var i = 0; i < survey.questions.length; i++) {
-		var answer = row[Config.columnLetterToNumber(survey.questions[i].col)];
-		result.push(new Answer({
-			question: survey.questions[i], 
-			answer: answer
-		}));
-	}
-	return result;
-}
-/**
- * @end
- */
-
-
-
-/**
- * @start Config
- */
-/**
- * @name Config
- * @description Config Object
- * @assign Chase and Grant
- * @todo
- *  + Create update script for the dev and live config.xml file to add isEval='false' to all survey nodes. (Grant)
- *  + Add isEval to Survey object (Grant)
- *  + Add isEval to admin.aspx (Grant)
- *  + Add isEval to ctrl.js (Grant)
- *  + Update the dashboard to filter the evaluations from the completed tasks tiles (Chase)
- */
-function Config(){
-	this.surveys = [];
-	this._xml = null;
-	this._initSetup();
-	this.selectedSurvey = null;
-	this.otherPeople = {};
-}
-/**
- * @name addSurvey
- * @description Add a survey to the list of surveys
- * @assign Chase and Grant
- * @todo 
- *  + Add the survey to config object surveys
- *  + Add the survey xml to the config file
- */
-Config.prototype.addSurvey = function(survey){
-	this.surveys.push(survey);
-	$(this._xml).find('semester[code=' + this.getCurrentSemester() + '] surveys').append(survey._xml);
-	this.save();
-}
-
-Config.prototype.addEvaluation = function(eval){
-	var eles = $(this._xml).find('semester[code=' + this.getCurrentSemester() + '] evaluations');
-	if (eles.length == 0) {
-		$(this._xml).find('semester[code=' + this.getCurrentSemester() + ']').append('<evaluations></evaluations>');
-		eles = $(this._xml).find('semester[code=' + this.getCurrentSemester() + '] evaluations');
-	}
-}
-/**
- * @name newSurvey
- * @description Creates a new survey and returns it
- * @assign Chase and Grant
- * @todo 
- *  + Create a new survey
- *  + Add new survey to config object's surveys
- *  + Return new survey
- */
-Config.prototype.newSurvey = function(){
-	var survey = new Survey({
-		iseval: false,
-		id: this.getHighestSurveyId() + 1,
-		questions: []
-	}, false);
-	this.surveys.push(survey);
-	return survey;
-}
-/**
- * @name getCurrentSemester
- * @description Gets the current semester from the semester xml file
- * @assign Chase and Grant
- * @todo 
- *  + If the current semester is unkown 
- *   + Get the current semester
- *  + return the current semester 
- */
-Config.prototype.getCurrentSemester = function(){
-	if (!this._currentSemester) this._currentSemester = $(this._xml).find('[current=true]').attr('code');
-	return this._currentSemester;
-}
-/**
- * @name getSurveys
- * @description Get all the serveys
- * @assign Chase and Grant
- * @todo 
- *  + return the config objects surveys
- */
-Config.prototype.getSurveys = function(){
-	return this.surveys;
-}
-/**
- * @name getSurveyById
- * @description Returns the survey using the id
- * @assign Chase and Grant
- * @todo 
- *  + Loop through all the config objects surveys
- *   + If the current survey equals the id passed in return the survey
- *  + If not found return null
- */
-Config.prototype.getSurveyById = function(id){
-	for (var i = 0; i < this.surveys.length; i++){
-		if (this.surveys[i].id == parseInt(id)) return this.surveys[i];
-	}
-	return null;
-}
-/**
- * @name remove
- * @description Remove a survey from the config by id
- * @assign Chase and Grant
- * @todo 
- *  + Loop through all the config objects surveys
- *   + If the survey's id equals the id passed in remove it
- *  + Reset the surveys with the new list
- *  + Save the config file
- */
-Config.prototype.remove = function(id, noSave){
-	var newSurveys = [];
-	for (var i = 0; i < this.surveys.length; i++){
-		if (this.surveys[i].id != parseInt(id)) 
-			newSurveys.push(this.surveys[i]);
-		else{
-			$(this._xml).find('semester[code=' + this.getCurrentSemester() + '] survey[id="' + id + '"]').remove();
-		}
-	}
-	this.surveys = newSurveys;
-	if (noSave) return;
-	this.save();
-}
-/** 
- * @name _initSetup
- * @description Create the survey objects
- * @assign Chase and Grant
- * @todo 
- *  + Get the config file from sharepoint
- *  + Set this config object's xml with the data callbacked
- *  + Collect the different surveys from the config file to add to the config object
- */
-Config.prototype._initSetup = function(){
-	var _this = this;
-	Sharepoint.getFile(ims.url.base + 'config/config.xml', function(data){
-		_this._xml = $(data)[0];
-		console.log('getting all the surveys');
-		$(_this._xml).find('semester[code=' + _this.getCurrentSemester() + '] survey').each(function(){
-			_this.surveys.push(new Survey($(this), true));
-		});
-	});
-}
-/**
- * @name findSurvey
- * @description Find a survey based on the criteria in an object
- * @assign Chase and Grant
- * @todo
- *  + Go through each survey in the config object
- *  + Return the survey or null if not there
- */
-Config.prototype.findSurvey = function(obj){
-	var found = null;
-	$(this.surveys).each(function(){
-		if (this.hasAttrs(obj)) found = this;
-	});
-	return found;
-}
-/**
- * @name createSurvey
- * @description Create a survey based on a passed through object.
- * @assign Chase and Grant
- * @todo
- *  + Add the survey object passed in to the config's surveys.
- *  + Return the created survey
- */
-Config.prototype.createSurvey = function(obj){
-	var spot = this.surveys.length;
-	this.surveys.push(new Survey(obj, false));	
-	return this.surveys[spot];
-}
-/**
- * @name getHighestSurveyId
- * @description Get the next highest survey id
- * @assign Chase and Grant
- * @todo 
- *  + Loop through the config object's surveys
- *   + Check for the highest id
- *    - Well done Chase, you found it!
- *  + return the highest id
- */
-Config.prototype.getHighestSurveyId = function(){
-	var id = 0;
-	$(this.surveys).each(function(){
-		if (id < this.id){
-			id = this.id;
-		}
-	});
-	return parseInt(id);
-}
-/**
- * @name getPerson
- * @description Get a person from first the survey, then from global
- * @assign Chase and Grant
- * @todo 
- *  + Remove the @ and everything right of it
- *  + Get the person
- *  + Return the person
- */
-Config.prototype.getPerson = function(email){
-	try{
-		email = Person.cleanEmail(email);
-	}
-	catch(e){
-		console.log(email);
-		throw e;
-	}
-	var person = this.selectedSurvey.getPerson(email);
-	if (!person){
-		person = this.otherPeople[email];
-	}
-	return person;
-}
-/**
- * @name addPerson
- * @description Add person to global list
- * @assign Chase and Grant
- * @todo 
- *  + Add a person to the other people list
- */
-Config.prototype.addPerson = function(email, person){
-	this.otherPeople[email] = person;
-}
-/**
- * @name getMaster
- * @description Get the master file
- * @assign Chase and Grant
- * @todo 
- *  + If the master is not there get the master from Sharepoint
- *  + Return the master
- */
-Config.prototype.getMaster = function(){
-	if (!this._master){
-		this._master = ims.sharepoint.getXmlByEmail('master');
-	}
-	return this._master;
-}
-/**
- * @name getMap
- * @description get the map file
- * @assign Chase and Grant
- * @todo 
- *  + If the map is not there get the map from Sharepoint
- *  + Return the map
- *  + Possibly remove this function
- */
-Config.prototype.getMap = function(){
-	if (!this._map){
-		this._map = ims.sharepoint.getXmlByEmail('map');
-	}
-	return this._map;
-}
-/**
- * @name _getSurveyColumns
- * @description Get the next up leader as string
- * @assign Chase and Grant
- * @todo 
- *  + Get the survey by the id
- *  + Add all the survey column data to the columns object
- *  + possibly add week
- *  + possibly add course
- *  + Go through the questions
- *   + Add them to the columns object
- *  + return columns
- */
-Config.prototype._getSurveyColumns = function(surveyId){
-	var survey = $(this._xml).find('semester[code="' + $(this._xml).find('semesters semester[current=true]').attr('code') + '"] > surveys > survey[id="' + surveyId + '"]');
-	var columns = {
-		iseval: survey.attr('iseval'),
-		id: surveyId,
-		email: Config.getCol(survey.attr('email')),
-		placement: survey.attr('placement'),
-		type: Config.getCol(survey.attr('type')),
-		name: survey.attr('name'),
-		questions: {}
-	};
-
-	if (survey.attr('week') != undefined){
-		columns['week'] = Config.getCol(survey.attr('week'));
-	}
-	if (survey.attr('course') != undefined){
-		columns['course'] = Config.getCol(survey.attr('course'));
-	}
-	
-	
-
-	$(survey).find('questions question').each(function(){
-		columns.questions[Config.getCol($(this).attr('col'))] = {
-			question: $(this).find('text').text(),
-			id: $(this).attr('id'),
-			replace: {
-				what: $(this).find('answer replace').attr('what'),
-				with: $(this).find('answer replace').attr('with')
-			}
-		};
-	});
-
-	return columns;
-}
-/**
- * @name surveyModify
- * @description
- * @assign Chase and Grant
- * @todo 
- *  + Get a survey by its id
- *  + Change its week, placement, type, email, name, and course
- *  + Update the questions
- *  + Save the survey
- */
-Config.prototype.surveyModify = function(name, emailCol, weekCol, typeCol, placement, courseCol, questions, surveyId, iseval){
-	var survey = window.config.getSurveyById(surveyId);
-	survey.modify('week', weekCol);
-	survey.modify('placement', placement);
-	survey.modify('type', typeCol);
-	survey.modify('email', emailCol);
-	survey.modify('name', name);
-	survey.modify('course', courseCol);
-	survey.modify('iseval', iseval);
-	survey.updateQuestions(questions);
-	survey.save();
-}
-/**
- * @name surveyRegister 
- * @description
- * @assign Chase and Grant
- * @todo
- *  + Save the survey
- *  + Add the survey to the config objects surveys
- */
-Config.prototype.surveyRegister = function(survey){
-	survey.save();
-	this.surveys.push(survey);
-}
-/**
- * @name save 
- * @description
- * @assign Chase and Grant
- * @todo 
- *  + Save the config xml to sharepoint
- */
-Config.prototype.save = function(){
-	Sharepoint.postFile(this._xml, 'config/', 'config.xml', function(){
-		alert('Survey change was successful!');
-		window.location.reload();
-	});
-}
-/**
- * @name getLeader 
- * @description
- * @assign Chase and Grant
- * @todo 
- *  + return the leader of the passed in placement
- */
-Config.getLeader = function(p){
-	switch (p){
-		case 'instructor': return 'tgl';
-		case 'tgl': return 'aim';
-		case 'aim': return 'im';
-		default: throw 'Invalid ' + p;
-	}
-}
-/**
- * @name columnLetterToNumber
- * @description Convert a column letter to number
- * @assign Chase and Grant
- * @todo 
- *  + Check if the letter is already a number
- *  + Return the numeric value of the letters
- */
-Config.columnLetterToNumber = function(letter){
-	if(!isNaN(letter)) return letter;
-
-	if (letter.length == 1){
-		return letter.charCodeAt(0) - 65;
-	}
-	else{
-		if (letter[1] == 'A') return 26;
-		return (letter.charCodeAt(1) - 65) + 26;
-	}
-}
-/**
- * @name columnNumberToLetter
- * @description
- * @assign Chase and Grant
- * @todo
- *  + Change AZ as the highest to BZ
- *  + Check if the num is already a letter
- *  + Return letter combination
- */
-Config.columnNumberToLetter = function(num){
-	if(isNaN(num)) return num;
-
-	if (num < 26){
-		return String.fromCharCode(num + 65);
-	}
-	else{
-		return String.fromCharCode(Math.floor(num / 26) + 64) + String.fromCharCode(num % 26 + 65);
-	}
-}
-/**
- * @end
- */
-
-
-
-/**
- * Only one survey instance can be initalized at one time
- */
-window.config = new Config();
-
-
-
-/**
- * @start CSV
- */
-/**
- * @name CSV
- * @description CSV Object
- */
-function CSV(){
-	console.log('new CSV object created');
-	this._data = null;
-}
-
-/**
- * @name readFile
- * @description Read the CSV into _data
- * @assign Grant
- * @todo
- *  + Create a new fileReader
- *  + Convert the file into an object
- *  + Callback the csv object
- */
-CSV.prototype.readFile = function(file, callback){
-	console.log('retrieving data form csv');
-	var reader = new FileReader();
-
-	reader.onload = function(e) {
-	  var text = reader.result;
-	  text = text.replace(/@byui.edu/g, '');
-	  csv = Papa.parse(text);
-	  callback(csv);
-	}
-	reader.readAsText(file, 'utf8');
-}
-/**
- * @name downloadCSV
- * @description Download a string as a CSV
- * @assign Grant
- * @todo
- *  + Check that the proper characters have been encoded
- *  + Save the file
- */
-CSV.downloadCSV = function(csvString){
-	console.log('CSV downloaded')
-}
-/**
- * @end
- */
-/**
- * @start angular
- */
-var app = angular.module('admin', []);
-app.controller('adminCtrl', ["$scope", function($scope) {
-	$scope.view = 'instructions';
-	$scope.surveys = window.config.surveys;
-	$scope.file = null;
-	$scope.isFile = false;
-	$scope.prepareTool = {left: '', right: '', useCourse: false};
-	$scope.selectedSurvey = window.config.surveys[0];
-	$scope.question = {
-		columnLetter: '',
-		questionText: '',
-		replaces: []
-	};
-	$scope.evaluations = {
-		'for': '',
-		by: '',
-		emailCol: '',
-		dataCols: '',
-		texts: '',
-		logic: ''
-	}
-
-	$scope.menu = [
-		{name: 'Instructions', icon: 'home', active: true},
-		{name: 'Process', icon: 'settings', active: false},
-		{name: 'Permissions', icon: 'spy', active: false},
-		{name: 'Semester Setup', icon: 'puzzle', active: false},
-		{name: 'Evaluations', icon: 'doctor', active: false},
-		{name: 'Qualtrics Prep', icon: 'lightning', active: false},
-		{name: 'Add Survey', icon: 'plus', active: false},
-		{name: 'Remove Survey', icon: 'remove', active: false},
-		{name: 'Copy Survey', icon: 'copy', active: false},
-		{name: 'Modify Survey', icon: 'edit', active: false}
-	];
-
-	$scope.selectedMenuItem = $scope.menu[0];
-
-	setTimeout(function() {
-		$('.ui.accordion').accordion();
-	}, 10);
-	/**
-	 * @name hasPageBeenEdited 
-	 * @description
-	 * @todo
-	 *  + Determine if the view may need to check if uses really wants to leave
-	 *   + Check if its respective data has been set
-	 */
-	function hasPageBeenEdited() {
-		if ($scope.view == 'add survey' || $scope.view == 'modify survey') {
-			var s = $scope.selectedSurvey;
-			if (s != null) {
-				if (!!s.name || !!s.week || !!s.email || !!s.course) {
-					return true;
-				}
-			}
-		} else if ($scope.view == 'evaluations') {
-			var e = $scope.evaluations;
-			if (e.by != '' || e.dataCols != '' || 
-				e.emailCol != '' || e['for'] != '' || 
-				e.logic != '' || e.texts != '') {
-				return true;
-			}
-		}
-		return false;
-	}
-
-	$scope.menuChange = function(menuItem) {
-		var proceed = true;
-		if (hasPageBeenEdited()) {
-			proceed = confirm('Are you sure you want to leave this page?');
-		}
-		if (proceed) {
-			for (var i = 0; i < $scope.menu.length; i++) {
-				$scope.menu[i].active = false;
-			}
-			$scope.selectedMenuItem = menuItem;
-			menuItem.active = true;
-			$scope.view = menuItem.name.toLowerCase();
-			if ($scope.view.indexOf('survey') > -1 || $scope.view == 'process') {
-				setTimeout(function(){
-					$('.selection.dropdown:not(#whichView)').dropdown({
-						onChange: function(value, text) {
-							surveySelected(value, text, true);
-						}
-					});
-
-					if ($scope.view == 'modify survey' || $scope.view == 'add survey') {
-						$('#whichView').dropdown({
-							onChange: function(value, text) {
-								$scope.selectedSurvey.placement = value;
-							}
-						});
-					}
-
-					if ($scope.view == 'add survey') {
-						$scope.$apply(function() {
-							$scope.selectedSurvey = window.config.newSurvey();
-							$scope.selectedSurvey.isNew = true;
-						});
-					}
-					else {
-						if ($scope.selectedSurvey && $scope.selectedSurvey.isNew) {
-							$scope.selectedSurvey.remove();
-							$scope.selectedSurvey = null;
-							window.config.selectedSurvey = null;
-							$scope.$apply(function() {
-								$scope.surveys = window.config.surveys;
-							});
-						}
-					}
-				}, 10);
-			}
-			else if ($scope.view.indexOf('qualtrics') > -1) {
-				setTimeout(function() {
-					$('#left').dropdown({
-						onChange: function(value, text) {
-							$scope.prepareTool.left = value;
-						}
-					});
-					$('#right').dropdown({
-						onChange: function(value, text) {
-							$scope.prepareTool.right = value;
-						}
-					});
-					$('#course').checkbox({
-						onChange: function() {
-							$scope.prepareTool.useCourse = !$scope.prepareTool.useCourse;
-						}
-					});
-				}, 10);
-			}
-			else if ($scope.view == 'instructions') {
-				setTimeout(function() {
-					$('.ui.accordion').accordion();
-				}, 10);
-			}
-			else if ($scope.view == 'evaluations') {
-				setTimeout(function() {
-					$('#for').dropdown({
-						onChange: function(value){
-							$scope.evaluations['for'] = value;
-						}
-					});
-					$('#by').dropdown({
-						onChange: function(value) {
-							$scope.evaluations.by = value;
-						}
-					})
-				}, 10);
-			}
-		}
-	}
-
-	function surveySelected(value, text, force) {
-		if (typeof $scope.selectedSurvey != 'object') {
-			$scope.selectedSurvey = value;
-			$scope.selectedSurvey = getSelectedSurvey();
-			window.config.selectedSurvey = $scope.selectedSurvey;
-		}
-		if (force) {
-			$scope.selectedSurvey = value;
-			$scope.selectedSurvey = getSelectedSurvey();
-			window.config.selectedSurvey = $scope.selectedSurvey;
-		}
-		$scope.$apply(function() {
-			if (typeof $scope.selectedSurvey != 'object') {
-				$scope.selectedSurvey = value;
-				$scope.selectedSurvey = getSelectedSurvey();
-				window.config.selectedSurvey = $scope.selectedSurvey;
-			}
-			if (force) {
-				$scope.selectedSurvey = value;
-				$scope.selectedSurvey = getSelectedSurvey();
-				window.config.selectedSurvey = $scope.selectedSurvey;
-			}
-			if ($('#whichView').length > 0) {
-				$('#whichView').dropdown('set selected', $scope.selectedSurvey.placement);
-			}
-		});
-	}
-
-	function getSelectedSurvey() {
-		if (!$scope.selectedSurvey) {
-			errAlert('Invalid Survey');
-			return false;
-		}
-		else if (typeof $scope.selectedSurvey != 'string') {
-			return $scope.selectedSurvey;
-		}
-		var id = parseInt($scope.selectedSurvey);
-		for (var i = 0; i < $scope.surveys.length; i++) {
-			if ($scope.surveys[i].id == id) {
-				return $scope.surveys[i];
-			}
-		}
-	}
-
-	function reload(time) {
-		setTimeout(function(){
-			window.location.reload();
-		}, time);
-	}
-
-	$scope.removeSurvey = function() {
-		var survey = getSelectedSurvey();
-		window.config.remove(survey.id);
-	}
-
-	$scope.copySurvey = function() {
-		var survey = getSelectedSurvey();
-		var copy = survey.copy();
-		window.config.addSurvey(copy);
-	}
-
-	$scope.chooseFile = function() {
-		setTimeout(function() {
-			$('body').append('<input type="file" id="surveyFile" style="display:none;">');
-			$('#surveyFile').change(function() {
-				$scope.$apply(function() {
-					$scope.isFile = true;
-				});
-				$scope.file = this.files[0];
-				$(this).remove();
-			}).click();
-		}, 100);
-	}
-
-	$scope.startProcess = function() {
-		var survey = getSelectedSurvey();
-		var csv = new CSV();
-		csv.readFile($scope.file, function(file) {
-			setTimeout(function() {
-				survey.process(file.data);
-			}, 10);
-		});
-	}
-
-	var permissionsGlobal; 
-	$scope.changePermissions = function() {
-		if (!permissionsGlobal) permissionsGlobal = new Permissions();
-		permissionsGlobal.start();
-	}
-
-	$scope.startSemesterSetup = function() {
-		var csv = new CSV();
-		csv.readFile($scope.file, function(file) {
-			setTimeout(function() {
-				var s = new SemesterSetup(file.data);
-				s.semesterSetup();
-			}, 10);
-		});
-	}
-
-	$scope.startQualtricsPrep = function() {
-		var t = new Tool($scope.file, $scope.prepareTool.left, $scope.prepareTool.right, $scope.prepareTool.useCourse);
-		t.parse();
-	}
-
-	$scope.removeQuestion = function(question) {
-		if (selectedQuestion == null) {
-			$scope.question = {
-				columnLetter: '',
-				questionText: '',
-				replaces: []
-			};
-		}
-		else{
-			for (var i = 0; i < $scope.selectedSurvey.questions.length; i++) {
-				if ($scope.selectedSurvey.questions[i].id == selectedQuestion.id) {
-					$scope.selectedSurvey.questions.splice(i, 1);
-				}
-			}
-		}
-	}
-
-	function Replaces(type) {
-		var result = '';
-		if (type == 'what') {
-			for (var i = 0; i < $scope.question.replaces.length; i++) {
-				if (result.length > 0) {
-					result += ';';
-				}
-				result += $scope.question.replaces[i]['what'];
-			}
-		}
-		else if (type == 'with') {
-			for (var i = 0; i < $scope.question.replaces.length; i++) {
-				if (result.length > 0) { 
-					result += ';';
-				}
-				result += $scope.question.replaces[i]['with'];
-			}
-		}
-		return result;
-	}
-
-	function ReplacesCreate(awhat, awith) {
-		var bwhat = awhat.split(';');
-		var bwith = awith.split(';');
-		var result = [];
-		for (var i = 0; i < bwhat.length; i++) {
-			result.push({
-				'with': bwith[i],
-				'what': bwhat[i]
-			});
-		}
-		return result;
-	}
-
-	$scope.addQuestion = function() {
-		$('#questionModal').modal({
-			onApprove: function() {
-				if (!$scope.selectedSurvey) {
-					errAlert('Invalid Survey');
-					return false;
-				}
-				$scope.$apply(function() {
-					$scope.selectedSurvey.addQuestion(new Question({
-						id: $scope.selectedSurvey.getHighestQuestionId() + 1,
-						text: $scope.question.questionText,
-						col: $scope.question.columnLetter.toUpperCase(),
-						replaceWhat: Replaces('what'),
-						replaceWith: Replaces('with')
-					}, false));
-					$scope.question = {
-						columnLetter: '',
-						questionText: '',
-						replaces: []
-					};
-					$scope['what'] = '';
-					$scope['with'] = '';
-				})
-			},
-			onHide: function() {
-				$scope.$apply(function() {
-					$scope.question = {
-						columnLetter: '',
-						questionText: '',
-						replaces: []
-					};
-					$scope['what'] = '';
-					$scope['with'] = '';
-				});
-			}
-		}).modal('show');
-	}
-
-	$scope.removeReplaces = function(r, idx) {
-		$scope.question.replaces.splice(idx, 1);
-	}
-
-	$scope.addReplace = function(wh, wi) {
-		$scope.question.replaces.push({
-			'what': wh,
-			'with': wi
-		});
-		$scope['what'] = '';
-		$scope['with'] = '';
-	}
-
-	var selectedQuestion = null;
-	$scope.editQuestion = function(question) {
-		selectedQuestion = question;
-		$scope.question = {
-			columnLetter: selectedQuestion.col,
-			questionText: selectedQuestion.text,
-			replaces: ReplacesCreate(selectedQuestion.replaceWhat, selectedQuestion.replaceWith)
-		};
-		$('#questionModal').modal({
-			onApprove: function() {
-				if (!$scope.selectedSurvey) {
-					errAlert('Invalid Survey');
-					return false;
-				}
-				selectedQuestion.col = $scope.question.columnLetter;
-				selectedQuestion.text = $scope.question.questionText;
-				selectedQuestion.replaceWhat = Replaces('what');
-				selectedQuestion.replaceWith = Replaces('with');
-				$scope.question = {
-					columnLetter: '',
-					questionText: '',
-					replaces: []
-				};
-				$scope['what'] = '';
-				$scope['with'] = '';
-			},
-			onHide: function() {
-				$scope.question = {
-					columnLetter: '',
-					questionText: '',
-					replaces: []
-				};
-				$scope['what'] = '';
-				$scope['with'] = '';
-				selectedQuestion = null;
-			}
-		}).modal('show');
-	}
-
-	$scope.submitChanges = function() {
-		if (!$scope.selectedSurvey) {
-			errAlert('Invalid Survey');
-			return false;
-		}
-		$scope.selectedSurvey.save();
-	}
-
-	/**
-	 * @name arrayOfColumns
-	 * @description Gets the columns in forms A;B;C;D or A-D or A-D;E
-	 * @assign Grant
-	 * @todo 
-	 *  + Check if there is more than one column
-	 *  + Split the string on the ';'
-	 *  + Start adding letters to new array
-	 *   + if the letter contains a '-' then get and add all letters in between 
-	 */
-	function arrayOfColumns(columns) {
-		if (columns.indexOf('-') > -1) {
-			var sets = columns.split(';');
-			for (var i = 0; i < sets.length; i++) {
-				if (sets[i].indexOf('-') > -1) {
-					var start = Config.columnLetterToNumber(sets[i].split('-')[0]);
-					var end = Config.columnLetterToNumber(sets[i].split('-')[1]);
-					sets.splice(i, 1);
-					if (start > end) {
-						errAlert("columns need to be read from left to right (A-Z)");
-						throw "columns need to be read from left to right (A-Z)";
-					}
-					for (var j = start; j <= end; j++) {
-						sets.splice(sets.length, 0, Config.columnNumberToLetter(j));
-					}
-				} else {
-					if (sets[i].length > 2) {
-						errAlert("The columns that can be reached are A-ZZ");
-						throw "The columns that can be reached are A-ZZ";
-					}
-				}
-			}
-			return sets;
-		}
-		else{
-			return columns.split(';');
-		}
-	}
-
-	/**
-	 * @name startEvaluations 
-	 * @description
-	 * @assign Grant
-	 * @todo 
-	 *  + its all done!
-	 */
-	$scope.startEvaluations = function() {
-		var ev = $scope.evaluations;
-		if (ev.by == ev['for']) { // error handling
-			errAlert("The evaluations can not be done at the same level. e.g. by: INSTRUCTOR for: INSTRUCTOR");
-			return;
-		}
-
-		for (var key in ev) { // error handling
-			if (ev[key] == null || ev[key] == '') {
-				errAlert("Some information was left out!");
-				return;
-			}
-		}
-
-		if (ev.dataCols.indexOf(';') == -1 && 
-			ev.dataCols.indexOf('-') == -1 && 
-			ev.dataCols.length > 2) { // error handling
-			errAlert("Please seperate each column with a ';' (no spaces needed)");
-			return;
-		}
-		
-		var cs = arrayOfColumns(ev.dataCols);
-		var qs = ev.texts.split(';');
-		var ls = ev.logic.split(';');
-
-		if (cs.length != qs.length || qs.length != ls.length){ // error handling
-			errAlert('The number of columns, questions, and logic selections do not match.\n' + 
-				'Be sure they are all the same length and check that you have seperated\n' + 
-				'them with semicolons');
-			return;
-		}
-
-		for (var i = 0; i < cs.length; i++){ // error handling
-			if (cs[i] == "") {
-				errAlert('One of the columns is blank.');
-				return;
-			} else if (qs[i] == "") {
-				errAlert('One of the question texts is blank.');
-				return;
-			} else if (ls[i] == "") {
-				errAlert('One of the logic options is blank.');
-				return;
-			}
-		}
-
-		var eval = [];
-
-		for (var i = 0; i < cs.length; i++) {
-
-			// if (ls[i] != 'p' && ls[i] != 'v' && ls[i] != 'cp' && ls[i] != 'cv' && ls[i] != 'ccp') { // error handling
-			// 	errAlert("Use either a single 'p' (percentage) or 'v' (value) for specifying logic");
-			// 	return;
-			// }
-
-			eval.push({
-				col: cs[i],
-				question: qs[i],
-				logic: ls[i]
-			});	
-		}
-
-		if ($scope.evaluations == {}) {
-			errAlert('Add an evaluation before you start the process.');
-			return;
-		}
-
-		var e = new Evaluations({
-			eBy: ev.by,
-			eFor: ev['for'],
-			emailCol: ev.emailCol,
-			dataSeries: eval
-		}, $scope.file);
-
-		e.parse();
-	}
-
-}]);
-
-/**
- * @name toInt 
- * @description Converts a str to a num and handles it if it is a range of numbers by choosing the first number
- * @todo 
- *  + Check that the str is not intro week
-	 *  + Check for a dash
- *  + Convert the string to an int
- */
-function toInt(str) {
-	if (str == "") return -1;
-	if (str.toLowerCase().indexOf('intro') > -1) return 0;
-	if (str.toLowerCase().indexOf('conclusion') > -1) return 100;
-
-	var num = 0;
-
-	if (str.indexOf('-') == -1) {
-		num = parseInt(str);
-	} else {
-		num = parseInt(str.substring(0, str.indexOf('-')));
-	}
-
-	return num;
-}
-
-/**
- * @name addItemReverseOrder 
- * @description Adds a single item to the given array based on the value of the week
- * @todo 
- *  + If the week is empty then it is added to the end
- *  + Add item based on items in list
- *  + Return list 
- */
-	function addItemReverseOrder(list, item) {
-		if (item['week'] ==  undefined) {
-			list.splice(list.length, 0, item);
-			return list;
-		}
-		var week = item.week;
-		if (!list) return [];
-		var weekAsInt = Number(week);
-		if (isNaN(weekAsInt)){
-			if (week == "") list.splice(list.length, 0, item);
-			else if (week.toLowerCase().indexOf('pre') > -1) list.splice(list.length, 0, item);
-			else if (week.toLowerCase().indexOf('intro') > -1) list.splice(list.length, 0, item);
-			else if (week.toLowerCase().indexOf('concl') > -1) list.splice(0, 0, item);
-			else list.splice(0, 0, item);
-			return list;
-		}
-		else{
-			for (var i = 0; i < list.length; i++) {
-				if (toInt(week) >= toInt(list[i].week)) {
-					list.splice(i, 0, item);
-					return list;
-				}
-			}
-
-			list.splice(list.length, 0, item);
-			return list;
-		}
-	}
-
-	/**
-	 * @name angular.filter.reverseByWeek
-	 * @description Reverses the items in an ng-repeat by id
-	 * @todo
-	 *  + Filter by week (Grant)
-	 */
-	app.filter('reverseByWeek', function() {
-	  	return function(items){
-	      	if (items){
-						var finalSet = [];
-						var surveyTypes = {};
-
-						for (var i = 0; i < items.length; i++){
-							if (items[i].name == undefined) console.log(i);
-							if (surveyTypes[items[i].name] == undefined) surveyTypes[items[i].name] = [];
-							surveyTypes[items[i].name].push(items[i]);
-						}
-
-						var keys = Object.keys(surveyTypes).sort();
-						for (var j = keys.length - 1; j != -1; j--){
-							var s = keys[j];
-							var set = [];
-							for (var i = 0; i < surveyTypes[s].length; i++){
-					  		set = addItemReverseOrder(set, surveyTypes[s][i]);
-					  	}
-					  	finalSet = finalSet.concat(set);
-						}
-					  	
-					  return finalSet;
-	      	}
-	  	} 
-	});
-
-app.directive('allCaps', function($compile) {
-	return {
-		restrict: 'A',
-		replace: true,
-		link: function(scope, element, attrs) {
-			element.keyup(function() {
-				if (typeof this.value == 'string') this.value = this.value.toUpperCase();
-			});
-		}
-	}
-});
-/**
- * @start evaluations
- */
-/**
- * @name  Evaluations
- * @assign Grant
- * @description object used to assign data from the evaluator to the evaluatee
- * @todo
- *  + set the evaluations object
- *  + set the csv file location
- */
-function Evaluations(obj, file) {
-	this._evaluations = obj;
-	this._file = file;
-	this._titles = null;
-	this.people = {};
-	this._sem = window.config.getCurrentSemester();
-}
-
-Evaluations.prototype.save = function(){
-	window.config.addEvaluation(this);	
-}
-
-/**
- * @name  Evaluations.getColumnLocations
- * @assign Grant
- * @description Finds the location of answer, question, and display logic
- * @todo
- *  + loop through the different data series
- *   + convert the col letter to a number
- */
-Evaluations.prototype.getColumnLocations = function() {
-	var newArray = [];
-
-	for (var i = 0; i < this._evaluations.dataSeries.length; i++) {
-		newArray.push({
-			col: Config.columnLetterToNumber(this._evaluations.dataSeries[i].col),
-			question: this._evaluations.dataSeries[i].question,
-			logic: this._evaluations.dataSeries[i].logic
-		});
-	}
-
-	return newArray;
-}
-
-/**
- * @name  Evaluations.cleanseString
- * @assign Grant
- * @description
- * @todo
- *  + check that the string is not null or empty
- *  + replace unwanted html
- *  + error handling
- */
-Evaluations.prototype.cleanseString = function(str) {
-	if(str == undefined || str.length == 0) return str;
-	return str.replace(/<[^>]*>/g, '');
-}
-
-/**
- * @name Evaluations.setAnswers
- * @assign Grant
- * @description
- * @todo
- *  + add evaluatee to Evaluations' people
- *   + add one to number of evaluators
- *  + go through the row for responses
- *   + get the question and answer
- *    + logic for value
- *    + logic for percentage
- *    + logic for combined percentage
- *    + logic for combined value
- *   + add response data for evaluatee
- *  + error handling
- */
-Evaluations.prototype.setAnswers = function(evaluatee, row, locations) {
-	if (this.people[evaluatee] == undefined) {
-		this.people[evaluatee] = {
-			count: 1
-		};
-	} else {
-		this.people[evaluatee].count++;
-	}
-
-	for (var loc = 0; loc < locations.length; loc++) {
-		var quest = locations[loc].question;
-		var ans = row[locations[loc].col];
-		if (locations[loc].logic == 'v' && ans != "") { /*VALUE*/
-			if (this.people[evaluatee][quest] == undefined) {
-				this.people[evaluatee][quest] = _this.cleanseString(ans);
-			} else {
-				this.people[evaluatee][quest] += '\\\\' + _this.cleanseString(ans);
-			}
-		} else if (locations[loc].logic == 'p') { /*PERCENTAGE*/
-			if (this.people[evaluatee][quest] == undefined) {
-				this.people[evaluatee][quest] = (ans != "" ? parseFloat(1) : parseFloat(0));
-			} else {
-				this.people[evaluatee][quest] += (ans != "" ? parseFloat(1) : parseFloat(0));
-			}
-		} else if (locations[loc].logic == 'cp') { /*COMBINED PERCENTAGE*/
-			if (ans == "") ans = "None";
-			if (this.people[evaluatee][quest] == undefined) {
-				this.people[evaluatee][quest] = {};
-				this.people[evaluatee][quest][ans] = 1;
-			} else {
-				if (this.people[evaluatee][quest][ans] == undefined) {
-					this.people[evaluatee][quest][ans] = 1;
-				} else {
-					this.people[evaluatee][quest][ans]++;
-				}
-			}
-		} else if (locations[loc].logic == 'cv') { /*COMBINED VALUE*/
-			if (this.people[evaluatee][quest] == undefined) {
-				this.people[evaluatee][quest] = _this.cleanseString(ans.split(':')[0] + ': ' + row[locations[loc].col + 1]);
-			} else {
-				this.people[evaluatee][quest] += '\\\\' + _this.cleanseString(ans.split(':')[0] + ': ' + row[locations[loc].col + 1]);
-			}
-		} else if (locations[loc].logic == 'ccp') {
-			var idx = locations[loc].col;
-			do 
-			{
-				ans = row[idx];
-				if (ans == "") ans = "None";
-				if (ans == "Other" && row[idx + 1] != "") {
-					if (this.people[evaluatee][quest] == undefined) {
-						this.people[evaluatee][quest] = {}
-						this.people[evaluatee][quest]['Other'] = [ans];
-					} else {
-						if (this.people[evaluatee][quest]['Other'] == undefined) {
-							this.people[evaluatee][quest]['Other'] = [ans];
-						} else {
-							this.people[evaluatee][quest]['Other'].push(ans);
-						}
-					}
-				} else {
-					if (this.people[evaluatee][quest] == undefined) {
-						this.people[evaluatee][quest] = {};
-						this.people[evaluatee][quest][ans] = 1;
-					} else {
-						if (this.people[evaluatee][quest][ans] == undefined) {
-							this.people[evaluatee][quest][ans] = 1;
-						} else {
-							this.people[evaluatee][quest][ans]++;
-						}
-					}
-				}
-
-				idx++;
-			} while (this._titles[idx].toLowerCase().indexOf('(select all that apply)') != -1);
-		}
-	}
-}
-
-/**
- * @name Evaluations.calculatePercentages
- * @assign Grant
- * @description
- * @todo
- *  + go through each person
- *   + go through each evaluation
- *    + check if the logic type is percentage (p)
- *    + perform percentage math
- *    + replace answer with new percentage 
- *  + error handling
- */
-Evaluations.prototype.calculatePercentages = function() {
-	for (var person in this.people) {  
-		for (var j = 0; j < this._evaluations.dataSeries.length; j++) {
-			var eval = this._evaluations.dataSeries[j];
-			if (eval.logic == 'p') {
-				this.people[person][eval.question] = (this.people[person][eval.question] * 100 / this.people[person].count).toPrecision(3) + '%';
-			} else if (eval.logic == 'cp') {
-				var sets = this.people[person][eval.question];
-				for (var set in sets) {
-					this.people[person][eval.question][set] = (this.people[person][eval.question][set] * 100 / this.people[person].count).toPrecision(3) + '%';
-				}
-			}
-		}
-	}
-}
-
-/**
- * @name Evaluations.sendToCSV
- * @assign Grant
- * @description
- * @todo
- *  + add questions to the top of csv
- *  + go through each person
- *   + go through each question
- *    + add answer to string
- *    + encode all spaces, commas, new lines, and slashes
- *  + download string as csv
- *  + error handling
- */
-Evaluations.prototype.sendToCSV = function() {
-	var csv = "###,###,###,email,";
-
-	/*ADD THE TITLES TO THE CSV*/
-	for (var j = 0; j < this._evaluations.dataSeries.length; j++) {
-		csv += this._evaluations.dataSeries[j].question.replace(/( )|(,)/g, "%20").replace(/’/g, "%27") + ",";
-	}
-
-	csv += "%0A"; // NEW LINE
-
-	/*ADD THE PEOPLE AND THEIR DATA TO THE CSV*/
-	for (var person in this.people) {
-		csv += "###,###,100.100.100," + person + ",";
-		for (var q in this.people[person]) {
-			if (q != 'count') {
-				if (typeof this.people[person][q] == "object") {
-					var first = true;
-					for (var set in this.people[person][q]) {
-						csv += (!first ? "\\\\" : "") + set.replace(/ /g, "%20");
-						csv += ":%20" + this.people[person][q][set];
-						first = false;
-					}
-					csv += ",";
-				} else if (isNaN(this.people[person][q])) {
-					csv += this.people[person][q].replace(/( )|(\/\/\/)|(,)/g, "%20").replace(/’/g, "%27") + ",";
-				} else {
-					csv += this.people[person][q] + ",";
-				}
-			}
-		}
-		csv += "%0A";
-	}
-
-	/*SAVE THE NEWLY CREATED STRING AS A CSV FILE*/
-	var a         = document.createElement('a');
-	a.href        = 'data:attachment/csv,' + csv;
-	a.target      = '_blank';
-	a.download    = 'Evaluation.csv';
-
-	document.body.appendChild(a);
-	a.click();
-}
-
-/**
- * @name isByGreaterThanFor 
- * @description Checks if the role doing the evaluation is at a higher role than the one receiving the evaluation
- * @assign Grant
- * @todo
- *  + Get each role by value
- *  + Compare the roles to see if by role is greater than for role
- */
-Evaluations.prototype.isByGreaterThanFor = function() {
-	var vFor = this.roleAsValue(this._evaluations.eFor.toLowerCase());
-	var vBy = this.roleAsValue(this._evaluations.eBy.toLowerCase());
-
-	if (vBy > vFor) {
-		return true;
-	} else {
-		return false;
-	}
-}
-
-/**
- * @name roleAsValue 
- * @description
- * @assign Grant
- * @todo
- *  + switch statement for each role and return a value based on the role
- */
-Evaluations.prototype.roleAsValue = function(role){
-	switch (role) {
-		case "instructor": return 1;
-		case "tgl": return 2;
-		case "aim": return 3;
-		case "im": return 4;
-		case "ocr": return 2;
-		case "ocrm": return 3;
-	}
-}
-
-/**
- * @name  Evaluations.parse
- * @assign Grant
- * @description Collect the evaluation information from a CSV.
- * @todo 
- *  + get the master
- *  + convert csv to array
- *  + go through each evaluation
- *   + get the email of evaluator
- *   + get evaluatee
- *   + collect evaluation results for evaluatee
- *  + calculate the percentage
- *  + error handling
- */
-Evaluations.prototype.parse = function() {
-	var properEval = this.isByGreaterThanFor()
-	_this = this;
-	Sharepoint.getFile(ims.url.base + 'Master/master.xml', function(master) {
-		var csv = new CSV();
-		csv.readFile(_this._file, function(csv) {
-			var rows = csv.data;
-			_this._titles = csv.data[1];
-			var emailCol = Config.columnLetterToNumber(_this._evaluations.emailCol);
-			var locations = _this.getColumnLocations();
-			var questions = [];
-
-			if (rows.length < 3) {
-				alert('CSV does not have the right number of rows');
-				throw 'CSV does not have the right number of rows';
-			}
-
-			var start = 0;
-			for (var i = 0; i < rows.length; i++) {
-				if (rows[i][2].match(/\./g) && rows[i][2].match(/\./g).length >= 2) {
-					start = i;
-					break;
-				}
-			}
-
-			if (start == 0) {
-				alert('CSV must be wrong or in an unfamiliar format');
-				throw 'CSV must be wrong or in an unfamiliar format';
-			}
-
-			for (var i = start; i < rows.length; i++) {
-				if (rows[i][emailCol] != undefined) {
-					var xPath = 'semester[code=' + _this._sem +'] > people > person > roles > role[type=' + _this._evaluations.eFor.toLowerCase() + ']';
-					var evaluator = rows[i][emailCol].split('@')[0];
-					if (properEval) {
-						_this.setAnswers(evaluator, rows[i], locations);
-					} else {
-						var evaluatee = null;
-						if ($(master).find(xPath).has('stewardship > people > person[email="' + evaluator + '"][type="' + _this._evaluations.eBy.toLowerCase() + '"]').length > 0) {
-							if ($(master).find(xPath).has('stewardship > people > person[email="' + evaluator + '"][type="' + _this._evaluations.eBy.toLowerCase() + '"]').length > 1) {
-								if (evaluator == $($(master).find(xPath).has('stewardship > people > person[email="' + evaluator + '"][type="' + _this._evaluations.eBy.toLowerCase() + '"]')[0]).parents('person').attr('email')) {
-									evaluatee = $($(master).find(xPath).has('stewardship > people > person[email="' + evaluator + '"][type="' + _this._evaluations.eBy.toLowerCase() + '"]')[1]).parents('person').attr('email');
-								} else {
-									evaluatee = $($(master).find(xPath).has('stewardship > people > person[email="' + evaluator + '"][type="' + _this._evaluations.eBy.toLowerCase() + '"]')[0]).parents('person').attr('email');
-								}
-							} else {
-								evaluatee = $(master).find(xPath).has('stewardship > people > person[email="' + evaluator + '"][type="' + _this._evaluations.eBy.toLowerCase() + '"]').parents('person').attr('email');
-							}
-							if (evaluatee != null) {
-								_this.setAnswers(evaluatee, rows[i], locations);
-							}
-						}
-					}
-				}
-			}
-
-			_this.calculatePercentages();
-			_this.sendToCSV();
-		});
-	});
-};
-/**
- * @end
- */
 
 
 

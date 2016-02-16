@@ -17,6 +17,7 @@
  */
 function Config(){
 	this.surveys = [];
+	this.evaluations = [];
 	this._xml = null;
 	this._initSetup();
 	this.selectedSurvey = null;
@@ -35,13 +36,45 @@ Config.prototype.addSurvey = function(survey){
 	$(this._xml).find('semester[code=' + this.getCurrentSemester() + '] surveys').append(survey._xml);
 	this.save();
 }
-
+/**
+ * @name addEvaluation
+ * @description Add and evaluation to the config file. Remove and add if the evaluation already exists.
+ * @assign Grant
+ * @todo
+ *  + complete
+ */
 Config.prototype.addEvaluation = function(eval){
 	var eles = $(this._xml).find('semester[code=' + this.getCurrentSemester() + '] evaluations');
 	if (eles.length == 0) {
 		$(this._xml).find('semester[code=' + this.getCurrentSemester() + ']').append('<evaluations></evaluations>');
 		eles = $(this._xml).find('semester[code=' + this.getCurrentSemester() + '] evaluations');
 	}
+
+	if (eval._id == '') {
+		num = 0;
+		$(eles).find('evaluation').each(function(){
+			var id = parseInt($(this).attr('id'))
+			if (num < id) {
+				num = id;		
+			}
+		});
+		eval._id = ++num;
+	}
+
+	if ($(eles).find('evaluation[id="' + eval._id + '"]').length > 0) {
+		$(eles).find('evaluation[id="' + eval._id + '"]').remove();
+	}
+
+	$(eles).append('<evaluation eBy="' + eval._evaluations.eBy + '" eFor="' + eval._evaluations.eFor + '"	emailCol="' + eval._evaluations.emailCol + '" id="' + eval._id + '" name="' + eval._name + '" ><questions></questions></evaluation>');
+	
+	for (var i = 0; i < eval._evaluations.dataSeries.length; i++) {
+		$(eles).find('evaluation[id="' + eval._id + '"] questions')
+			   .append('<question col="' + eval._evaluations.dataSeries[i].col + 
+			   				   '" logic="' + eval._evaluations.dataSeries[i].logic + 
+			   				   '" text="' + eval._evaluations.dataSeries[i].text + '" />');	
+	}
+
+	this.save();
 }
 /**
  * @name newSurvey
@@ -139,7 +172,36 @@ Config.prototype._initSetup = function(){
 		$(_this._xml).find('semester[code=' + _this.getCurrentSemester() + '] survey').each(function(){
 			_this.surveys.push(new Survey($(this), true));
 		});
+		$(_this._xml).find('semester[code=' + _this.getCurrentSemester() + '] evaluation').each(function(){
+			var questions = [];
+			$(this).find('question').each(function(){
+				questions.push({
+					col: $(this).attr('col'),
+					logic: $(this).attr('logic'),
+					text: $(this).attr('text')
+				});
+			});
+			_this.evaluations.push({
+				id: $(this).attr('id'),
+				name: $(this).attr('name'),
+				'for': $(this).attr('eFor'),
+				by: $(this).attr('eBy'),
+				emailCol: $(this).attr('emailCol'),
+				dataSeries: questions
+			});
+		});
 	});
+}
+/**
+ * @name removeEvaluation 
+ * @description Remove an evaluation from the config file
+ * @assign Grant
+ * @todo
+ *  + complete
+ */
+Config.prototype.removeEvaluation = function(id) {
+	$(this._xml).find('semester[code=' + this.getCurrentSemester() + '] evaluation[id="' + id + '"]').remove();
+	this.save();
 }
 /**
  * @name findSurvey

@@ -14,13 +14,14 @@ app.controller('adminCtrl', ["$scope", function($scope) {
 		questionText: '',
 		replaces: []
 	};
-	$scope.evaluations = {
+	$scope.savedEvaluations = [];
+	$scope.evaluation = {
+		id: '',
+		name: '',
 		'for': '',
 		by: '',
 		emailCol: '',
-		dataCols: '',
-		texts: '',
-		logic: ''
+		dataSeries: []
 	}
 
 	$scope.menu = [
@@ -43,7 +44,8 @@ app.controller('adminCtrl', ["$scope", function($scope) {
 	}, 10);
 	/**
 	 * @name hasPageBeenEdited 
-	 * @description
+	 * @description checks to see if a page has been edited
+	 * @assign Chase
 	 * @todo
 	 *  + Determine if the view may need to check if uses really wants to leave
 	 *   + Check if its respective data has been set
@@ -57,20 +59,34 @@ app.controller('adminCtrl', ["$scope", function($scope) {
 				}
 			}
 		} else if ($scope.view == 'evaluations') {
-			var e = $scope.evaluations;
-			if (e.by != '' || e.dataCols != '' || 
-				e.emailCol != '' || e['for'] != '' || 
-				e.logic != '' || e.texts != '') {
+			var e = $scope.evaluation;
+			if (e.by != '' || e.emailCol != '' || e['for'] != '' || e.dataSeries.length > 0) {
 				return true;
 			}
 		}
 		return false;
 	}
-
+	/**
+	 * @name menuChange 
+	 * @description changes the webpage between the different views
+	 * @assign Chase
+	 * @todo 
+	 *  + complete
+	 */
 	$scope.menuChange = function(menuItem) {
 		var proceed = true;
 		if (hasPageBeenEdited()) {
 			proceed = confirm('Are you sure you want to leave this page?');
+			if (proceed) {
+				$scope.evaluation = {
+					id: '',
+					name: '',
+					'for': '',
+					by: '',
+					emailCol: '',
+					dataSeries: []
+				}
+			}
 		}
 		if (proceed) {
 			for (var i = 0; i < $scope.menu.length; i++) {
@@ -138,22 +154,54 @@ app.controller('adminCtrl', ["$scope", function($scope) {
 				}, 10);
 			}
 			else if ($scope.view == 'evaluations') {
+				
+				$scope.savedEvaluations = window.config.evaluations;
+			
 				setTimeout(function() {
+					$('.selection.dropdown:not(#whichView)').dropdown({
+						onChange: function(value, text) {
+							evaluationSelected(value, text);
+						}
+					});
 					$('#for').dropdown({
 						onChange: function(value){
-							$scope.evaluations['for'] = value;
+							$scope.evaluation['for'] = value;
 						}
 					});
 					$('#by').dropdown({
 						onChange: function(value) {
-							$scope.evaluations.by = value;
+							$scope.evaluation.by = value;
 						}
 					})
 				}, 10);
 			}
 		}
 	}
-
+	/**
+	 * @name evaluationSelected 
+	 * @description fills out the evaluation form with a selected evaluation
+	 * @assign Chase
+	 * @todo 
+	 *  + complete
+	 */
+	function evaluationSelected(id, text) {
+		for (var i = 0; i < $scope.savedEvaluations.length; i++) {
+			if ($scope.savedEvaluations[i].id == id) {
+				$scope.$apply(function(){
+					$scope.evaluation = $scope.savedEvaluations[i];
+					$('#for').dropdown('set selected', $scope.evaluation['for']);
+					$('#by').dropdown('set selected', $scope.evaluation.by);
+				});
+			}
+		}
+	}
+	/**
+	 * @name surveySelected 
+	 * @description Sets the selected survey
+	 * @assign Chase
+	 * @todo 
+	 *  + complete
+	 */
 	function surveySelected(value, text, force) {
 		if (typeof $scope.selectedSurvey != 'object') {
 			$scope.selectedSurvey = value;
@@ -181,7 +229,13 @@ app.controller('adminCtrl', ["$scope", function($scope) {
 			}
 		});
 	}
-
+	/**
+	 * @name getSelectedSurvey 
+	 * @description Get a survey from the list of surveys
+	 * @assign Chase
+	 * @todo 
+	 *  + complete
+	 */
 	function getSelectedSurvey() {
 		if (!$scope.selectedSurvey) {
 			errAlert('Invalid Survey');
@@ -197,24 +251,48 @@ app.controller('adminCtrl', ["$scope", function($scope) {
 			}
 		}
 	}
-
+	/**
+	 * @name reload 
+	 * @description sets the reload time of the window
+	 * @assign Chase
+	 * @todo 
+	 *  + complete
+	 */
 	function reload(time) {
 		setTimeout(function(){
 			window.location.reload();
 		}, time);
 	}
-
+	/**
+	 * @name removeSurvey 
+	 * @description remove a survey from the config file
+	 * @assign Chase
+	 * @todo 
+	 *  + complete
+	 */
 	$scope.removeSurvey = function() {
 		var survey = getSelectedSurvey();
 		window.config.remove(survey.id);
 	}
-
+	/**
+	 * @name copySurvey 
+	 * @description copy a survey
+	 * @assign Chase
+	 * @todo 
+	 *  + complete
+	 */
 	$scope.copySurvey = function() {
 		var survey = getSelectedSurvey();
 		var copy = survey.copy();
 		window.config.addSurvey(copy);
 	}
-
+	/**
+	 * @name chooseFile 
+	 * @description get a file from the client
+	 * @assign Chase
+	 * @todo 
+	 *  + complete
+	 */
 	$scope.chooseFile = function() {
 		setTimeout(function() {
 			$('body').append('<input type="file" id="surveyFile" style="display:none;">');
@@ -227,7 +305,13 @@ app.controller('adminCtrl', ["$scope", function($scope) {
 			}).click();
 		}, 100);
 	}
-
+	/**
+	 * @name startProcess 
+	 * @description Begin to process surveys
+	 * @assign Chase
+	 * @todo 
+	 *  + complete
+	 */
 	$scope.startProcess = function() {
 		var survey = getSelectedSurvey();
 		var csv = new CSV();
@@ -237,13 +321,25 @@ app.controller('adminCtrl', ["$scope", function($scope) {
 			}, 10);
 		});
 	}
-
-	var permissionsGlobal; 
+	var permissionsGlobal;
+	/**
+	 * @name changePermissions 
+	 * @description Begin to change permissions
+	 * @assign Chase
+	 * @todo 
+	 *  + complete
+	 */
 	$scope.changePermissions = function() {
 		if (!permissionsGlobal) permissionsGlobal = new Permissions();
 		permissionsGlobal.start();
 	}
-
+	/**
+	 * @name startSemesterSetup 
+	 * @description begin the semester setup process
+	 * @assign Chase
+	 * @todo 
+	 *  + complete
+	 */
 	$scope.startSemesterSetup = function() {
 		var csv = new CSV();
 		csv.readFile($scope.file, function(file) {
@@ -253,12 +349,24 @@ app.controller('adminCtrl', ["$scope", function($scope) {
 			}, 10);
 		});
 	}
-
+	/**
+	 * @name startQualtricsPrep 
+	 * @description Prepares csv that can be used for organizational lookups
+	 * @assign Chase
+	 * @todo 
+	 *  + complete
+	 */
 	$scope.startQualtricsPrep = function() {
 		var t = new Tool($scope.file, $scope.prepareTool.left, $scope.prepareTool.right, $scope.prepareTool.useCourse);
 		t.parse();
 	}
-
+	/**
+	 * @name removeQuestion 
+	 * @description remove a question from the selected survey
+	 * @assign Chase
+	 * @todo 
+	 *  + complete
+	 */
 	$scope.removeQuestion = function(question) {
 		if (selectedQuestion == null) {
 			$scope.question = {
@@ -275,7 +383,13 @@ app.controller('adminCtrl', ["$scope", function($scope) {
 			}
 		}
 	}
-
+	/**
+	 * @name Replaces 
+	 * @description replace text for answers to questions
+	 * @assign Chase
+	 * @todo 
+	 *  + complete
+	 */
 	function Replaces(type) {
 		var result = '';
 		if (type == 'what') {
@@ -296,7 +410,13 @@ app.controller('adminCtrl', ["$scope", function($scope) {
 		}
 		return result;
 	}
-
+	/**
+	 * @name ReplacesCreate 
+	 * @description adds the items that will be replaces 'what' with 'with'
+	 * @assign Chase
+	 * @todo 
+	 *  + complete
+	 */
 	function ReplacesCreate(awhat, awith) {
 		var bwhat = awhat.split(';');
 		var bwith = awith.split(';');
@@ -309,7 +429,13 @@ app.controller('adminCtrl', ["$scope", function($scope) {
 		}
 		return result;
 	}
-
+	/**
+	 * @name addQuestion 
+	 * @description Add a question to the selected survey
+	 * @assign Chase
+	 * @todo 
+	 *  + complete
+	 */
 	$scope.addQuestion = function() {
 		$('#questionModal').modal({
 			onApprove: function() {
@@ -347,11 +473,23 @@ app.controller('adminCtrl', ["$scope", function($scope) {
 			}
 		}).modal('show');
 	}
-
+	/**
+	 * @name removeReplaces 
+	 * @description remove a replace set
+	 * @assign Chase
+	 * @todo 
+	 *  + complete
+	 */
 	$scope.removeReplaces = function(r, idx) {
 		$scope.question.replaces.splice(idx, 1);
 	}
-
+	/**
+	 * @name addReplace 
+	 * @description Add a replace set
+	 * @assign Chase
+	 * @todo 
+	 *  + complete
+	 */
 	$scope.addReplace = function(wh, wi) {
 		$scope.question.replaces.push({
 			'what': wh,
@@ -360,8 +498,14 @@ app.controller('adminCtrl', ["$scope", function($scope) {
 		$scope['what'] = '';
 		$scope['with'] = '';
 	}
-
 	var selectedQuestion = null;
+	/**
+	 * @name editQuestion 
+	 * @description Edit a quesiton from the selected survey
+	 * @assign Chase
+	 * @todo 
+	 *  + complete
+	 */
 	$scope.editQuestion = function(question) {
 		selectedQuestion = question;
 		$scope.question = {
@@ -399,7 +543,13 @@ app.controller('adminCtrl', ["$scope", function($scope) {
 			}
 		}).modal('show');
 	}
-
+	/**
+	 * @name submitChanges 
+	 * @description Saves the selected survey
+	 * @assign Chase
+	 * @todo 
+	 *  + complete 
+	 */
 	$scope.submitChanges = function() {
 		if (!$scope.selectedSurvey) {
 			errAlert('Invalid Survey');
@@ -407,7 +557,6 @@ app.controller('adminCtrl', ["$scope", function($scope) {
 		}
 		$scope.selectedSurvey.save();
 	}
-
 	/**
 	 * @name arrayOfColumns
 	 * @description Gets the columns in forms A;B;C;D or A-D or A-D;E
@@ -446,20 +595,17 @@ app.controller('adminCtrl', ["$scope", function($scope) {
 			return columns.split(';');
 		}
 	}
-
 	/**
 	 * @name startEvaluations 
-	 * @description
+	 * @description Begin the process of parsing evaluations 
 	 * @assign Grant
 	 * @todo 
-	 *  + its all done!
+	 *  + Validate the incoming information
+	 *  + Create a new evaluation
+	 *  + Process the evaluation
 	 */
 	$scope.startEvaluations = function() {
-		var ev = $scope.evaluations;
-		if (ev.by == ev['for']) { // error handling
-			errAlert("The evaluations can not be done at the same level. e.g. by: INSTRUCTOR for: INSTRUCTOR");
-			return;
-		}
+		var ev = $scope.evaluation;
 
 		for (var key in ev) { // error handling
 			if (ev[key] == null || ev[key] == '') {
@@ -468,68 +614,113 @@ app.controller('adminCtrl', ["$scope", function($scope) {
 			}
 		}
 
-		if (ev.dataCols.indexOf(';') == -1 && 
-			ev.dataCols.indexOf('-') == -1 && 
-			ev.dataCols.length > 2) { // error handling
-			errAlert("Please seperate each column with a ';' (no spaces needed)");
-			return;
-		}
-		
-		var cs = arrayOfColumns(ev.dataCols);
-		var qs = ev.texts.split(';');
-		var ls = ev.logic.split(';');
-
-		if (cs.length != qs.length || qs.length != ls.length){ // error handling
-			errAlert('The number of columns, questions, and logic selections do not match.\n' + 
-				'Be sure they are all the same length and check that you have seperated\n' + 
-				'them with semicolons');
+		if (ev.by == ev['for']) { // error handling
+			errAlert("The evaluations can not be done at the same level. e.g. by: INSTRUCTOR for: INSTRUCTOR");
 			return;
 		}
 
-		for (var i = 0; i < cs.length; i++){ // error handling
-			if (cs[i] == "") {
-				errAlert('One of the columns is blank.');
-				return;
-			} else if (qs[i] == "") {
-				errAlert('One of the question texts is blank.');
-				return;
-			} else if (ls[i] == "") {
-				errAlert('One of the logic options is blank.');
+		var series = ev.dataSeries;
+		for (var i = 0; i < series.length; i++) {
+			if (series[i].text == '' ||
+			series[i].col == '' ||
+			series[i].logic == '') {
+				errAlert("Some information was left out!");
 				return;
 			}
-		}
-
-		var eval = [];
-
-		for (var i = 0; i < cs.length; i++) {
-
-			// if (ls[i] != 'p' && ls[i] != 'v' && ls[i] != 'cp' && ls[i] != 'cv' && ls[i] != 'ccp') { // error handling
-			// 	errAlert("Use either a single 'p' (percentage) or 'v' (value) for specifying logic");
-			// 	return;
-			// }
-
-			eval.push({
-				col: cs[i],
-				question: qs[i],
-				logic: ls[i]
-			});	
-		}
-
-		if ($scope.evaluations == {}) {
-			errAlert('Add an evaluation before you start the process.');
-			return;
+			series[i].col = series[i].col.toUpperCase();
 		}
 
 		var e = new Evaluations({
 			eBy: ev.by,
 			eFor: ev['for'],
-			emailCol: ev.emailCol,
-			dataSeries: eval
+			emailCol: ev.emailCol.toUpperCase(),
+			dataSeries: ev.dataSeries
 		}, $scope.file);
 
 		e.parse();
 	}
+	/**
+	 * @name addEvaluation 
+	 * @description Add an evaluation to the current evaluation
+	 * @assign Grant
+	 * @todo
+	 *  + Push a new question object onto the current evaluation
+	 */
+	$scope.addEvaluation = function() {
+		$scope.evaluation.dataSeries.push({
+			text: '',
+			col: '',
+			logic: ''
+		});
+	}
+	/**
+	 * @name removeEvaluation 
+	 * @description Remove an evaluation from the config file
+	 * @assign Grant
+	 * @todo
+	 *  + Get the id of the evaluation to be removed
+	 *  + Remove the evaluation from the config
+	 */
+	$scope.removeEvaluation = function() {
+		var evalId = $('#evalList').attr('value');
+		window.config.removeEvaluation(evalId);
+	}
+	/**
+	 * @name removeEvalQuestion 
+	 * @description Remove a question from the current evaluation
+	 * @assign Grant
+	 * @todo
+	 *  + Remove question at the index passed in
+	 */
+	$scope.removeEvalQuestion = function(index) {
+		$scope.evaluation.dataSeries.splice(index, 1);
+	}
+	/**
+	 * @name saveEvaluation 
+	 * @description Save the current evaluation to the config
+	 * @assign Grant
+	 * @todo
+	 *  + Validate the incoming information
+	 *  + Create a new evaluation
+	 *  + Save the evaluation
+	 */
+	$scope.saveEvaluation = function() {
+		var ev = $scope.evaluation;
 
+		for (var key in ev) { // error handling
+			if (key != 'id') {
+				if (ev[key] == null || ev[key] == '') {
+					errAlert("Some information was left out!");
+					return;
+				}
+			}
+		}
+
+		if (ev.by == ev['for']) { // error handling
+			errAlert("The evaluations can not be done at the same level. e.g. by: INSTRUCTOR for: INSTRUCTOR");
+			return;
+		}
+
+		var series = ev.dataSeries;
+		for (var i = 0; i < series.length; i++) {
+			if (series[i].text == '' ||
+			series[i].col == '' ||
+			series[i].logic == '') {
+				errAlert("Some information was left out of a question!");
+				return;
+			}
+			series[i].col = series[i].col.toUpperCase();
+		}
+
+		var e = new Evaluations({
+			eBy: ev.by,
+			eFor: ev['for'],
+			emailCol: ev.emailCol.toUpperCase(),
+			dataSeries: ev.dataSeries
+		}, $scope.file);
+
+		e.save(ev['name'], ev['id']);
+	}
 }]);
 
 /**
