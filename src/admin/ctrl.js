@@ -313,16 +313,14 @@ app.controller('adminCtrl', ["$scope", function($scope) {
 	 *  + complete
 	 */
 	$scope.startProcess = function() {
-		$('#processModal').modal('setting', 'closable', false).modal('show');
-		if (false) {
-			var survey = getSelectedSurvey();
-			var csv = new CSV();
-			csv.readFile($scope.file, function(file) {
-				setTimeout(function() {
-					survey.process(file.data);
-				}, 10);
-			});
-		}
+		var survey = getSelectedSurvey();
+		var csv = new CSV();
+		csv.readFile($scope.file, function(file) {
+			setTimeout(function() {
+				$('#processModal').modal('setting', 'closable', false).modal('show');
+				survey.process(file.data);
+			}, 10);  
+		});
 	}
 	var permissionsGlobal;
 	/**

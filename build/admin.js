@@ -1481,16 +1481,14 @@ app.controller('adminCtrl', ["$scope", function($scope) {
 	 *  + complete
 	 */
 	$scope.startProcess = function() {
-		$('#processModal').modal('setting', 'closable', false).modal('show');
-		if (false) {
-			var survey = getSelectedSurvey();
-			var csv = new CSV();
-			csv.readFile($scope.file, function(file) {
-				setTimeout(function() {
-					survey.process(file.data);
-				}, 10);
-			});
-		}
+		var survey = getSelectedSurvey();
+		var csv = new CSV();
+		csv.readFile($scope.file, function(file) {
+			setTimeout(function() {
+				$('#processModal').modal('setting', 'closable', false).modal('show');
+				survey.process(file.data);
+			}, 10);  
+		});
 	}
 	var permissionsGlobal;
 	/**
@@ -2120,10 +2118,11 @@ Evaluations.prototype.setAnswers = function(evaluatee, row, locations) {
 				}
 			}
 		} else if (locations[loc].logic == 'cv') { /*COMBINED VALUE*/
+			if (ans.toLowerCase().indexOf("notapplicable") > -1) ans = "Not Applicable";
 			if (this.people[evaluatee][quest] == undefined) {
-				this.people[evaluatee][quest] = _this.cleanseString(ans.split(':')[0] + ': ' + row[locations[loc].col + 1]);
+				this.people[evaluatee][quest] = _this.cleanseString(ans.split(':')[0] + (row[locations[loc].col + 1] != "" ? ': ' : '') + row[locations[loc].col + 1]);
 			} else {
-				this.people[evaluatee][quest] += '\\\\' + _this.cleanseString(ans.split(':')[0] + ': ' + row[locations[loc].col + 1]);
+				this.people[evaluatee][quest] += '\\\\' + _this.cleanseString(ans.split(':')[0] + (row[locations[loc].col + 1] != "" ? ': ' : '') + row[locations[loc].col + 1]);
 			}
 		} else if (locations[loc].logic == 'ccp') {
 			var idx = locations[loc].col;
@@ -4457,7 +4456,6 @@ Survey.prototype.process = function(rows){
 	function processItems(){
 		if (i >= rows.length){
 			window.rollup = new Rollup();
-			window.rollup.update();
 			for (var email in window.config.otherPeople){
 				var person = window.config.otherPeople[email];
 				if (person.isValid()){
@@ -4490,6 +4488,7 @@ Survey.prototype.process = function(rows){
 				});
 			}
 			stats.total++;
+			window.rollup.update();
 			Sharepoint.postFile(window.rollup._xml, 'master/', 'rollup.xml', function(){
 				if (++stats.spot == stats.total){
 					setTimeout(function(){

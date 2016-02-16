@@ -119,10 +119,11 @@ Evaluations.prototype.setAnswers = function(evaluatee, row, locations) {
 				}
 			}
 		} else if (locations[loc].logic == 'cv') { /*COMBINED VALUE*/
+			if (ans.toLowerCase().indexOf("notapplicable") > -1) ans = "Not Applicable";
 			if (this.people[evaluatee][quest] == undefined) {
-				this.people[evaluatee][quest] = _this.cleanseString(ans.split(':')[0] + ': ' + row[locations[loc].col + 1]);
+				this.people[evaluatee][quest] = _this.cleanseString(ans.split(':')[0] + (row[locations[loc].col + 1] != "" ? ': ' : '') + row[locations[loc].col + 1]);
 			} else {
-				this.people[evaluatee][quest] += '\\\\' + _this.cleanseString(ans.split(':')[0] + ': ' + row[locations[loc].col + 1]);
+				this.people[evaluatee][quest] += '\\\\' + _this.cleanseString(ans.split(':')[0] + (row[locations[loc].col + 1] != "" ? ': ' : '') + row[locations[loc].col + 1]);
 			}
 		} else if (locations[loc].logic == 'ccp') {
 			var idx = locations[loc].col;
