@@ -484,6 +484,20 @@
 						<div ng-if='view == "process"'>
 							<button class="massive ui button blue" ng-click='chooseFile()'>Choose File</button>
 							<button class="massive ui button green" ng-click='startProcess()' ng-class='isFile ? "" : "disabled"'>Start</button>
+							<div class="ui modal" id="processModal">
+								<i class="close icon"></i>
+								<div class="header">
+									Process Survey Heads Up
+								</div>
+								<div class="content">
+									<h1>check out all this great content</h1>
+								</div>
+								<div class="actions">
+									<div class="ui black deny button">
+										Cancel
+									</div>
+								</div>
+							</div>
 						</div>
 					</div>
 				</div>
