@@ -232,7 +232,6 @@ Survey.prototype.process = function(rows){
 	function processItems(){
 		if (i >= rows.length){
 			window.rollup = new Rollup();
-			window.rollup.update();
 			for (var email in window.config.otherPeople){
 				var person = window.config.otherPeople[email];
 				if (person.isValid()){
@@ -265,6 +264,7 @@ Survey.prototype.process = function(rows){
 				});
 			}
 			stats.total++;
+			window.rollup.update();
 			Sharepoint.postFile(window.rollup._xml, 'master/', 'rollup.xml', function(){
 				if (++stats.spot == stats.total){
 					setTimeout(function(){
