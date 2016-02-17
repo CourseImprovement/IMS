@@ -1175,6 +1175,7 @@ app.controller('adminCtrl', ["$scope", function($scope) {
 	$scope.surveys = window.config.surveys;
 	$scope.file = null;
 	$scope.isFile = false;
+	$scope.sneakPeek = [];
 	$scope.prepareTool = {left: '', right: '', useCourse: false};
 	$scope.selectedSurvey = window.config.surveys[0];
 	$scope.question = {
@@ -1484,9 +1485,53 @@ app.controller('adminCtrl', ["$scope", function($scope) {
 		var survey = getSelectedSurvey();
 		var csv = new CSV();
 		csv.readFile($scope.file, function(file) {
+			var start = null;
+			for (var i = 0; i < file.data.length; i++) {
+				if (file.data[i][2].match(/\./g) && file.data[i][2].match(/\./g).length >= 2){
+					start = i;
+					break;
+				}
+			}
+
+			if (start == null) {
+				errAlert('The IP address is missing from the 3rd column.');
+			}
+
+			var pos = Config.columnLetterToNumber(survey.email);
+
+			$scope.sneakPeek.push({
+				name: 'Email',
+				value: file.data[start][pos]
+			});
+
+			for (var i = 0; i < survey.questions.length; i++) {
+				pos = Config.columnLetterToNumber(survey.questions[i].col);
+				var ans = file.data[start][pos];
+				if (survey.questions[i].replaceWhat != "") {
+					var rWhat = survey.questions[i].replaceWhat.split(';');
+					var rWith = survey.questions[i].replaceWith.split(';');
+					for (var j = 0; j < rWhat.length; j++) {
+						ans = ans.replace(rWhat[j], rWith[j]);
+					}
+				}
+				$scope.sneakPeek.push({
+					name: survey.questions[i].text,
+					value: ans
+				});
+			}
+
+			$scope.$apply(function(){
+				$scope.sneakPeek;
+			});
+
 			setTimeout(function() {
-				$('#processModal').modal('setting', 'closable', false).modal('show');
-				survey.process(file.data);
+				$('#processModal').modal({
+					onApprove: function() {
+						survey.process(file.data);
+					},
+					onHide: function(){
+						$scope.sneakPeek = [];
+					}}).modal('show');
 			}, 10);  
 		});
 	}

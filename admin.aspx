@@ -487,13 +487,21 @@
 							<div class="ui modal" id="processModal">
 								<i class="close icon"></i>
 								<div class="header">
-									Process Survey Heads Up
+									Survey Sneak Peek
 								</div>
 								<div class="content">
-									<h1>check out all this great content</h1>
+									<table class="ui celled table">
+										<tr ng-repeat="qAnda in sneakPeek">
+											<td><strong>{{qAnda.name}}</strong></td>
+											<td>{{qAnda.value}}</td>
+										</tr>
+									</table>
 								</div>
 								<div class="actions">
-									<div class="ui black deny button">
+									<div class="ui positive button">
+										Continue
+									</div>
+									<div class="ui negative button">
 										Cancel
 									</div>
 								</div>
