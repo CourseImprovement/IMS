@@ -1040,10 +1040,10 @@ a, .link{
 	background-color: #52AF4F;
 }
 
-#fade{
+/*#fade{
 	position: relative;
 	padding: 5px;
-}
+}*/
 
 .semester{
 	border-left: solid 1px white;
@@ -1057,10 +1057,115 @@ a, .link{
 	background-color: #3A93D2;
 }
 
+@media screen and (max-width: 500px) {
+    .col-4{
+    	width: 100%;
+    }
+    #tooltip:after{
+		content: ' ';
+	    position: absolute;
+	    width: 0;
+	    height: 0;
+	    left: 177px !important;
+	    bottom: 0px;
+	    border: 22px solid;
+	    border-color: transparent transparent black transparent;
+	}
+	.enter-btn{
+	    background-color: #056cb6;
+	    margin: 0 auto;
+	    padding: 12px 25px;
+	    font-size: 19px;
+	    color: white;
+	    -webkit-border-radius: 2px;
+	    -moz-border-radius: 2px;
+	    border-radius: 2px;
+	    -webkit-box-shadow: 0 4px 4px -3px rgba(0,0,0,.7);
+	    -moz-box-shadow: 0 4px 4px -3px rgba(0,0,0,.7);
+	    box-shadow: 0 4px 4px -3px rgba(0,0,0,.7);
+	    cursor: pointer;
+	    width: 96px;
+	    position: relative;
+	    left: 0%;
+	    top: 15px;
+	}
+	.enterEmail-input {
+	    font-size: 19px;
+	    font-weight: 100;
+	    padding: 8px 10px;
+	    display: block;
+	    width: 60%;
+	    margin: 10% auto 0 auto;
+	    box-shadow: 0 0 30px rgba(0,0,0,.3);
+	    border: solid #B7B7B7 1px;
+	    outline: none;
+	}
+	.table{
+		font-size: 13px;
+	}
+	body{
+		font-size: 13px;
+	}
+	.menu-mobile .top-bar > ul > li {
+	    display: inline-block;
+	    padding: 12px;
+	    float: left;
+	    font-size: 13px !important;
+	    color: white;
+	    z-index: 10;
+	}
+	#enterEmail h2{
+		text-align: center;
+	    color: #636363;
+	    font-weight: 100;
+	    font-size: 21px !important;
+	    margin-top: 24px;
+	}
+}
+
 @media screen and (max-width: 1200px) {
     .col-4{
     	width: 100%;
     }
+    #tooltip:after{
+		content: ' ';
+	    position: absolute;
+	    width: 0;
+	    height: 0;
+	    left: 177px !important;
+	    bottom: 0px;
+	    border: 22px solid;
+	    border-color: transparent transparent black transparent;
+	}
+	.enter-btn{
+	    background-color: #056cb6;
+	    margin: 0 auto;
+	    padding: 12px 25px;
+	    font-size: 19px;
+	    color: white;
+	    -webkit-border-radius: 2px;
+	    -moz-border-radius: 2px;
+	    border-radius: 2px;
+	    -webkit-box-shadow: 0 4px 4px -3px rgba(0,0,0,.7);
+	    -moz-box-shadow: 0 4px 4px -3px rgba(0,0,0,.7);
+	    box-shadow: 0 4px 4px -3px rgba(0,0,0,.7);
+	    cursor: pointer;
+	    width: 96px;
+	    position: relative;
+	    left: 0%;
+	    top: 15px;
+	}
+	.enterEmail-input {
+	    font-size: 19px;
+	    font-weight: 100;
+	    padding: 8px 10px;
+	    display: block;
+	    width: 90%;
+	    margin: 10% auto 0 auto;
+	    box-shadow: 0 0 30px rgba(0,0,0,.3);
+	    border: solid #B7B7B7 1px;
+	    outline: none;
+	}
 }
 
 @media screen and (max-width: 1350px) and (min-width: 1200px){
@@ -1094,7 +1199,7 @@ a, .link{
 
 .menu-mobile .top-bar > ul > li{
 	display: inline-block;
-    padding: 10px;
+    padding: 13px;
     float: left;
     font-size: 16px;
     color: white;
@@ -1109,6 +1214,7 @@ a, .link{
 .mobile-btn{
 	border-right: solid 1px white;
 	background-color: #0D82D4;
+	height: 39px;
 }
 
 .mobile-btn:hover{

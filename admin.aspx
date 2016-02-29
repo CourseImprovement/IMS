@@ -13,9 +13,9 @@
 	<script type="text/javascript" src='build/byui.js'></script>
 	<script type="text/javascript" src='build/admin.js'></script>
 	<style>
-		 .pusherz{padding-left: 133px;}
-		 .notification{
-			 	background-color: #B52626;
+		.pusherz{padding-left: 133px;}
+		.notification{
+			background-color: #B52626;
 		    position: fixed;
 		    top: 10px;
 		    right: -300px;
@@ -27,30 +27,33 @@
 		    min-width: 138px;
 		    max-width: 300px;
 		    z-index: 99999;
-		 }
-		 .loading{
-		 		display: none;
-		 }
-		 li > input{
+		}
+		.loading{
+		 	display: none;
+		}
+		li > input{
 		    height: 38px;
 		    border-radius: 5px;
 		    border: 1px solid #000;
 		    padding-left: 10px;
 		    position: relative;
 		    top: -10px;
-		 }
-		 li > span{
+		}
+		li > span{
 		 	position: relative;
 		    top: -10px;
-		 }
-		 li > select{
+		}
+		li > select{
 		    height: 38px;
 		    border-radius: 5px;
 		    border: 1px solid #000;
 		    padding-left: 10px;
 		    position: relative;
     		top: -5px;
-		 }
+		}
+		input,div[class="ui fluid search selection dropdown"],div[class="ui selection dropdown"]{
+			border-color: black !important;
+		}
 	</style>
 </head>
 <body ng-controller='adminCtrl'>
@@ -123,8 +126,7 @@
 				    <p class="transition visible" style="display: block !important;">
 				    	To use <strong>Qualtrics Prep</strong> use the following instructions:
 				    	<ol class="ui list">
-				    		<li>From the dropdown, choose the left most side of the CSV you want exported</li>
-				    		<li>From the dropdown, choose the right most side of the CSV you want to be exported</li>
+				    		<li>From the dropdown, choose the recipients role</li>
 				    		<li>Select <strong>Include Course</strong> if the course is needed to be included</li>
 				    		<li>Click <strong>Choose File</strong> and upload the OSM Semester Setup file</li>
 				    		<li>Click <strong>Start</strong></li>
@@ -238,34 +240,19 @@
 					<div class="ui selection dropdown" id="left">
 					  <input type="hidden" name="left">
 					  <i class="dropdown icon"></i>
-					  <div class="default text">Left Side</div>
+					  <div class="default text">Recipient</div>
 					  <div class="menu">
-					    <div class="item" data-value="instructor">Instructor</div>
-					    <div class="item" data-value="TGL">TGL</div>
-					    <div class="item" data-value="AIM">AIM</div>
-					    <div class="item" data-value="IM">IM</div>
-					    <div class="item" data-value="OCR">OCR</div>
+					    <div class="item" data-value="instructor" ng-click="courseVisibility('visible')">Instructor</div>
+					    <div class="item" data-value="TGL" ng-click="courseVisibility('hidden')">TGL</div>
+					    <div class="item" data-value="AIM" ng-click="courseVisibility('hidden')">AIM</div>
+					    <div class="item" data-value="IM" ng-click="courseVisibility('hidden')">IM</div>
+					    <div class="item" data-value="OCR" ng-click="courseVisibility('hidden')">OCR</div>
 					  </div>
 					</div>
 				</div>
 				<br>
 				<div class="item">
-					<div class="ui selection dropdown" id="right">
-					  <input type="hidden" name="right">
-					  <i class="dropdown icon"></i>
-					  <div class="default text">Right Side</div>
-					  <div class="menu">
-					    <div class="item" data-value="instructor">Instructor</div>
-					    <div class="item" data-value="TGL">TGL</div>
-					    <div class="item" data-value="AIM">AIM</div>
-					    <div class="item" data-value="IM">IM</div>
-					    <div class="item" data-value="OCR">OCR</div>
-					  </div>
-					</div>
-				</div>
-				<br>
-				<div class="item">
-					<div class="ui slider checkbox" id="course">
+					<div class="ui slider checkbox" id="course" style="visibility: hidden;">
 					  <input type="checkbox" name="newsletter">
 					  <label>Include Course</label>
 					</div>

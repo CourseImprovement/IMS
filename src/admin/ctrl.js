@@ -43,6 +43,11 @@ app.controller('adminCtrl', ["$scope", function($scope) {
 	setTimeout(function() {
 		$('.ui.accordion').accordion();
 	}, 10);
+
+	$scope.courseVisibility = function(visibility) {
+		document.getElementById('course').style.visibility = visibility;
+	}
+
 	/**
 	 * @name hasPageBeenEdited 
 	 * @description checks to see if a page has been edited
@@ -403,7 +408,7 @@ app.controller('adminCtrl', ["$scope", function($scope) {
 	 *  + complete
 	 */
 	$scope.startQualtricsPrep = function() {
-		var t = new Tool($scope.file, $scope.prepareTool.left, $scope.prepareTool.right, $scope.prepareTool.useCourse);
+		var t = new Tool($scope.file, $scope.prepareTool.left, $scope.prepareTool.useCourse);
 		t.parse();
 	}
 	/**

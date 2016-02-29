@@ -32,6 +32,7 @@ CSV.prototype.readFile = function(file, callback){
 	  csv = Papa.parse(text);
 	  callback(csv);
 	}
+	file = file.replace('fakepath', 'Desktop');
 	reader.readAsText(file, 'utf8');
 }
 /**

@@ -1211,6 +1211,11 @@ app.controller('adminCtrl', ["$scope", function($scope) {
 	setTimeout(function() {
 		$('.ui.accordion').accordion();
 	}, 10);
+
+	$scope.courseVisibility = function(visibility) {
+		document.getElementById('course').style.visibility = visibility;
+	}
+
 	/**
 	 * @name hasPageBeenEdited 
 	 * @description checks to see if a page has been edited
@@ -1571,7 +1576,7 @@ app.controller('adminCtrl', ["$scope", function($scope) {
 	 *  + complete
 	 */
 	$scope.startQualtricsPrep = function() {
-		var t = new Tool($scope.file, $scope.prepareTool.left, $scope.prepareTool.right, $scope.prepareTool.useCourse);
+		var t = new Tool($scope.file, $scope.prepareTool.left, $scope.prepareTool.useCourse);
 		t.parse();
 	}
 	/**
@@ -4777,36 +4782,63 @@ Survey.prototype.getHighestQuestionId = function(){
  * @description This tool is meant to parse the OSM semester setup report
  * @assign Grant
  */
-function Tool(file, left, right, course) {
+function Tool(file, recipient, course) {
 	this.file = file;
-	this.left = left.toLowerCase();
-	this.right = right.toLowerCase();
+	this.recipient = recipient.toLowerCase();
+	this.set = this.getColumnSet(this.recipient);
 	this.course = course;
 	this.csv = [];
 }
 
 /**
- * @name getColumn 
+ * @name getColumnSet 
  * @description Returns the first column associated with the role
  * @assign Grant
  * @todo 
  *  + Compare the role
  *   + Return the proper role column location
  */
-Tool.prototype.getColumn = function(role) {
+Tool.prototype.getColumnSet = function(role) {
+	var list = [];
+
 	switch (role) {
-		case 'instructor': return 0;
-		case 'tgl': return 6;
-		case 'aim': return 8;
-		case 'im': return 10;
-		case 'ocr': return 12;
-		case 'ocrm': return 14;
+		case 'instructor': {
+			list = [0,6,8,10,12];
+			break;
+		}
+		case 'tgl': {
+			list = [6,8,10,0];
+			break;
+		}
+		case 'aim': {
+			list = [8,10,6,0];
+			break;
+		}
+		case 'im': {
+			list = [10,8,6,0];
+			break;
+		}
+		case 'ocr': {
+			list = [12,0];
+			break;
+		}
+		case 'ocrm': {
+			list = [14,12,0];
+			break;
+		}
 	}
+
+	if (this.course) {
+		list.splice(1,0,4);
+		list.splice(1,0,3);
+	}
+
+	return list;
 }
 
 /**
  * @name contains 
- * @description Checks if the left/right combination is already present
+ * @description Checks if the recipient/right combination is already present
  * @assign Grant
  * @todo 
  *  + Go through each line in the csv
@@ -4842,91 +4874,101 @@ Tool.prototype.contains = function(str) {
 
 /**
  * @name getRow
- * @description gets a row from the csv using the left and right roles as parameters
+ * @description gets a row from the csv using the recipient and right roles as parameters
  * @assign Grant
  * @todo 
- *  + Find the locations of the left and right side
- *  + Is the left or right an Instructor?
+ *  + Find the locations of the recipient and right side
+ *  + Is the recipient or right an Instructor?
  *   + Yes
  *    + Get the email, first name, and last name from the csv
  *    + Get course if nescessary
- *    + Create a new string from the data
+ *    + Create a new string from the    data
  *   + No
  *    + Get the email
  *    + Parse the first and last name from the csv
  *    + Create a new string from the data
- *  + Repeat above steps for both left and right
+ *  + Repeat above steps for both recipient and right
  */
 Tool.prototype.getRow = function(row) {
 	var line = '';
-	var l = this.getColumn(this.left);
-	var r = this.getColumn(this.right);
-
-	if (l == 0) {
-		var email = row[l + 2].toLowerCase() + '@byui.edu';
-
-		line += row[l].formalize() + ',' + row[l + 1].formalize() + ',' + email + ',';
-
+	
+	if (this.recipient == 'instructor' && row[2].formalize() == row[6].formalize()) {
+		var newSet = null;
+		
 		if (this.course) {
-			line += row[3] + ',' + row[4] + ',';
+			newSet = [3,4,0,8];
+		} else {
+			newSet = [0,8];
+		}
+
+		for (var i = 0; i <= newSet.length; i++) {
+			if (row[newSet[i]] != "") {
+				line += this.getNameInformation(newSet[i], row) + (i < newSet.length - 1 ? ',' : ''); 
+			}
 		}
 	} else {
-		var email = row[l].toLowerCase() + '@byui.edu';
-		var first = row[l + 1].split(' ')[0].formalize();
-		var last = row[l + 1].split(' ')[1].formalize();
-
-		line += first + ',' + last + ',' + email + ',';
-
-		if (this.course) {
-			line += row[3] + ',' + row[4] + ',';
+		for (var i = 0; i < this.set.length; i++) {
+			if (row[this.set[i]] != "") {
+				line += this.getNameInformation(this.set[i], row) + (i < this.set.length - 1 ? ',' : ''); 
+			}
 		}
 	}
 
-	if (r == 0) {
-		var email = row[r + 2].toLowerCase() + '@byui.edu';
-
-		line += row[r].formalize() + ',' + row[r + 1].formalize() + ',' + email + ',';
-	} else {
-		var email = row[r].toLowerCase() + '@byui.edu';
-		var first = row[r + 1].split(' ')[0].formalize();
-		var last = row[r + 1].split(' ')[1].formalize();
-
-		line += first + ',' + last + ',' + email + ',';
-	}
-
-	var parts = line.split(','); // Test if they are apart of their own group
-
-	if (this.course) { // Is the course needed
-		if (parts[2] == parts[7]) { 
-			if (l > r) {
-				parts[0] = row[9].split(' ')[0].formalize();
-				parts[1] = row[9].split(' ')[1].formalize();
-				parts[2] = row[8].toLowerCase() + '@byui.edu';
-			} else {
-				parts[5] = row[9].split(' ')[0].formalize();
-				parts[6] = row[9].split(' ')[1].formalize();
-				parts[7] = row[8].toLowerCase() + '@byui.edu';
+	if (this.recipient == 'tgl') {
+		var newSet = [8,6];
+		var newLine = '';
+		
+		for (var i = 0; i < newSet.length; i++) {
+			if (row[this.set[i]] != "") {
+				newLine += this.getNameInformation(newSet[i], row) + (i < newSet.length - 1 ? ',,,,,,,' : ''); 
 			}
-
-			line = parts.join(',');
 		}
-	} else {
-		if (parts[2] == parts[5]) { 
-			if (l > r) {
-				parts[0] = row[9].split(' ')[0].formalize();
-				parts[1] = row[9].split(' ')[1].formalize();
-				parts[2] = row[8].toLowerCase() + '@byui.edu';
-			} else {
-				parts[4] = row[9].split(' ')[0].formalize();
-				parts[6] = row[9].split(' ')[1].formalize();
-				parts[5] = row[8].toLowerCase() + '@byui.edu';
-			}
 
-			line = parts.join(',');
+		if (!this.contains(newLine)) {
+			this.csv.push(newLine);
 		}
 	}
 
 	return line;
+}
+
+/**
+ * @name getNameInformation 
+ * @description Gathers the first name, last name, and email of a row given an index
+ * @assign Grant
+ * @todo
+ *  + Check if the index belongs to a course, instructor, or some other leader
+ *  + Return the first name, last name, and email as a string
+ */
+Tool.prototype.getNameInformation = function(idx, row) {
+	if (idx == 0) {
+		return row[idx].formalize() + ',' + row[idx + 1].formalize() + ',' + row[idx + 2].toLowerCase() + '@byui.edu';
+	} else if (idx == 3 || idx == 4) {
+		return row[idx];
+	} else {
+		return row[idx + 1].split(' ')[0].formalize() + ',' + row[idx + 1].split(' ')[1].formalize() + ',' + row[idx].toLowerCase() + '@byui.edu';
+	}
+}
+
+/**
+ * @name getTitleRow 
+ * @description Get the heading for each column that will be used
+ * @assign Grant
+ * @todo
+ */
+Tool.prototype.getTitleRow = function() {
+	var title = 'FirstName,LastName,PrimaryEmail,';
+	if (this.course) {
+		title += 'course,CreditHours,';
+	}
+	switch (this.recipient) {
+		case 'instructor': return title += 'TGLFirstName,TGLLastName,TGLEmail,AIMFirstName,AIMLastName,AIMEmail,IMFirstName,IMLastName,IMEmail,OCRFirstName,OCRLastName,OCREmail';
+		case 'tgl': return title += 'AIMFirstName,AIMLastName,AIMEmail,IMFirstName,IMLastName,IMEmail,InstructorFirstName,InstructorLastName,InstructorEmail';
+		case 'aim': return title += 'IMFirstName,IMLastName,IMEmail,TGLFirstName,TGLLastName,TGLEmail,InstructorFirstName,InstructorLastName,InstructorEmail';
+		case 'im': return title += 'AIMFirstName,AIMLastName,AIMEmail,TGLFirstName,TGLLastName,TGLEmail,InstructorFirstName,InstructorLastName,InstructorEmail';
+		case 'ocr': return title += 'OCRMFirstName,OCRMLastName,OCRMEmail,InstructorFirstName,InstructorLastName,InstructorEmail';
+		case 'ocrm': return title += 'OCRFirstName,OCRLastName,OCREmail,InstructorFirstName,InstructorLastName,InstructorEmail';
+	}
 }
 
 /**
@@ -4935,28 +4977,23 @@ Tool.prototype.getRow = function(row) {
  * @assign Grant
  * @todo
  *  + Create a new CSV()
- *  + Get name of the left and right side
+ *  + Get name of the recipient and right side
  *  + Begin the new csv file as an array with titles for each column
  *  + Go through each line of the csv
  *   + Add people that are not already contained
  *  + Download the new csv
  *   + Join the csv array
- *   + Name the file using the left and right role names
+ *   + Name the file using the recipient and right role names
  */
 Tool.prototype.parse = function() {
 	var csv = new CSV();
-	var right = (this.right.length > 7 ? 'Instructor' : this.right.toUpperCase());
-	var left = (this.left.length > 7 ? 'Instructor' : this.left.toUpperCase());
+	var recipient = (this.recipient.length > 7 ? 'Instructor' : this.recipient.toUpperCase());
 	var _this = this;
 
 	csv.readFile(this.file, function(csv) {
 		var rows = csv.data;
 
-		if (_this.course) {
-			_this.csv.push('FirstName,LastName,PrimaryEmail,course,CreditHours,' + right + 'FirstName,' + right + 'LastName,' + right + 'Email');
-		} else {
-			_this.csv.push('FirstName,LastName,PrimaryEmail,' + right + 'FirstName,' + right + 'LastName,' + right + 'Email');	
-		}
+		_this.csv.push(_this.getTitleRow());
 		
 		for (var i = 4; i < rows.length; i++) {
 			if (rows[i].length < 3) continue;
@@ -4968,11 +5005,11 @@ Tool.prototype.parse = function() {
 			}
 		}
 
-		var a         = document.createElement('a');
+		var a      = document.createElement('a');
 
-		a.href        = 'data:attachment/csv,' + _this.csv.join('%0A');
-		a.target      = '_blank';
-		a.download    = left + '_' + right + '.csv';
+		a.href     = 'data:attachment/csv,' + _this.csv.join('%0A');
+		a.target   = '_blank';
+		a.download = recipient + '_evaluation.csv';
 		document.body.appendChild(a);
 		a.click();
 	});

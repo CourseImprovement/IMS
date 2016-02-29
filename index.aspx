@@ -139,7 +139,8 @@
 		<div class="menu-mobile hidden">
 			<div class="top-bar">
 				<ul>
-					<li class="mobile-btn" ng-click='toggleMobileMenu($event)'><i class="fa fa-bars"></i></li>
+					<li class="mobile-btn" ng-click='toggleMobileMenu($event)' style="
+    height: 39px;"><i class="fa fa-bars"></i></li>
 					<li>Instructor Management System</li>
 					<li class="logo" ng-click='home()'><img src="css/BYUI_logo_white.png" class="byui-logo"></li>
 				</ul>

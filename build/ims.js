@@ -133,18 +133,29 @@ ims.aes.initDecrypt = (function(){
  * @description Show a tooltip
  */
 ims.tooltip = function(e, msg, pos){
-    if (pos && pos == 'left'){
-        $('body').append('<div id="tooltip-left"></div>');
-        var tooltip = $('#tooltip-left');
-        tooltip.html(msg);
-        tooltip.css({left: ((e.clientX - tooltip.width()) - 65) + 'px', top: (e.clientY - tooltip.height() - 15) + 'px'});
-    }
-    else{
+    if (window.screen.width > 1200) {
+        if (pos && pos == 'left'){
+            $('body').append('<div id="tooltip-left"></div>');
+            var tooltip = $('#tooltip-left');
+            tooltip.html(msg);
+            tooltip.css({left: ((e.clientX - tooltip.width()) - 65) + 'px', top: (e.clientY - tooltip.height() - 15) + 'px'});
+        }
+        else{
+            $('body').append('<div id="tooltip"></div>');
+            var tooltip = $('#tooltip');
+            tooltip.html(msg);
+            tooltip.css({left: (e.clientX + 35) + 'px', top: (e.clientY - tooltip.height() - 15) + 'px'});
+        }
+    } else {
         $('body').append('<div id="tooltip"></div>');
         var tooltip = $('#tooltip');
         tooltip.html(msg);
-        tooltip.css({left: (e.clientX + 35) + 'px', top: (e.clientY - tooltip.height() - 15) + 'px'});
+        tooltip.css({
+            left: (e.clientX - 225) + 'px', 
+            top: (e.clientY - tooltip.height() - 15) + 'px'
+        });
     }
+    
 }
 /**
  * @name ims.sharepoint
