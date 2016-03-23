@@ -10,19 +10,10 @@ module.exports = function(grunt) {
         src: ['src/admin/init.js', 'src/admin/master.js', 'src/admin/*.js'],
         dest: 'build/admin.js'
       }
-    },
-    watch: {
-      files: ['src/*.js', 'src/admin/*.js'],
-      tasks: ['w'],
-      options: {
-        reload: true
-      }
     }
   });
 
   grunt.loadNpmTasks('grunt-contrib-concat');
-  grunt.loadNpmTasks('grunt-contrib-watch');
 
-  grunt.registerTask('default', ['w']);
-  grunt.registerTask('w', ['concat:norm', 'concat:admin']);
+  grunt.registerTask('default', ['concat:norm', 'concat:admin']);
 };

@@ -122,7 +122,7 @@ Tool.prototype.getRow = function(row) {
 			newSet = [0,8];
 		}
 
-		for (var i = 0; i <= newSet.length; i++) {
+		for (var i = 0; i < newSet.length; i++) {
 			if (row[newSet[i]] != "") {
 				line += this.getNameInformation(newSet[i], row) + (i < newSet.length - 1 ? ',' : ''); 
 			}
