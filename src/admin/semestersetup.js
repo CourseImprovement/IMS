@@ -559,9 +559,9 @@ SemesterSetup.prototype._createOrg = function() {
 
 		if (ocr != null){
 			inst.roles.role[0].leadership.people.person.push({
-				first: this._csv[rows][14].split(' ')[0].formalize(),
-				last: this._csv[rows][14].split(' ')[1].formalize(),
-				email: this._csv[rows][15].toLowerCase().split('@')[0],
+				first: this._csv[rows][15].split(' ')[0].formalize(),
+				last: this._csv[rows][15].split(' ')[1].formalize(),
+				email: this._csv[rows][14].toLowerCase().split('@')[0],
 				type: 'ocrm'
 			},{
 				first: this._csv[rows][13].split(' ')[0].formalize(),
@@ -572,9 +572,9 @@ SemesterSetup.prototype._createOrg = function() {
 
 			// OCR LEADERSHIP
 			ocr.roles.role[0].leadership.people.person = [{
-				first: this._csv[rows][14].split(' ')[0].formalize(),
-				last: this._csv[rows][14].split(' ')[1].formalize(),
-				email: this._csv[rows][15].toLowerCase().split('@')[0],
+				first: this._csv[rows][15].split(' ')[0].formalize(),
+				last: this._csv[rows][15].split(' ')[1].formalize(),
+				email: this._csv[rows][14].toLowerCase().split('@')[0],
 				type: 'ocrm'
 			}]
 		}
