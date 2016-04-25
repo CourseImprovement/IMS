@@ -6,8 +6,8 @@
 function Tool(file, recipient, course) {
 	this.file = file;
 	this.recipient = recipient.toLowerCase();
-	this.set = this.getColumnSet(this.recipient);
 	this.course = course;
+	this.set = this.getColumnSet(this.recipient);
 	this.csv = [];
 }
 
@@ -24,27 +24,27 @@ Tool.prototype.getColumnSet = function(role) {
 
 	switch (role) {
 		case 'instructor': {
-			list = [0,6,8,10,12];
+			list = [0,6,9,12,15];
 			break;
 		}
 		case 'tgl': {
-			list = [6,8,10,0];
+			list = [6,9,12,0];
 			break;
 		}
 		case 'aim': {
-			list = [8,10,6,0];
+			list = [9,12,6,0];
 			break;
 		}
 		case 'im': {
-			list = [10,8,6,0];
+			list = [12,9,6,0];
 			break;
 		}
 		case 'ocr': {
-			list = [12,0];
+			list = [15,0];
 			break;
 		}
 		case 'ocrm': {
-			list = [14,12,0];
+			list = [18,15,0];
 			break;
 		}
 	}
@@ -113,13 +113,13 @@ Tool.prototype.contains = function(str) {
 Tool.prototype.getRow = function(row) {
 	var line = '';
 	
-	if (this.recipient == 'instructor' && row[2].formalize() == row[6].formalize()) {
+	if (this.recipient == 'instructor' && row[2].toLowerCase() == row[6].toLowerCase()) {
 		var newSet = null;
 		
 		if (this.course) {
-			newSet = [3,4,0,8];
+			newSet = [0,3,4,9];
 		} else {
-			newSet = [0,8];
+			newSet = [0,9];
 		}
 
 		for (var i = 0; i < newSet.length; i++) {
@@ -136,7 +136,7 @@ Tool.prototype.getRow = function(row) {
 	}
 
 	if (this.recipient == 'tgl') {
-		var newSet = [8,6];
+		var newSet = [9,6];
 		var newLine = '';
 		
 		for (var i = 0; i < newSet.length; i++) {
@@ -163,11 +163,11 @@ Tool.prototype.getRow = function(row) {
  */
 Tool.prototype.getNameInformation = function(idx, row) {
 	if (idx == 0) {
-		return row[idx].formalize() + ',' + row[idx + 1].formalize() + ',' + row[idx + 2].toLowerCase() + '@byui.edu';
+		return row[idx] + ',' + row[idx + 1] + ',' + row[idx + 2].toLowerCase() + '@byui.edu';
 	} else if (idx == 3 || idx == 4) {
 		return row[idx];
 	} else {
-		return row[idx + 1].split(' ')[0].formalize() + ',' + row[idx + 1].split(' ')[1].formalize() + ',' + row[idx].toLowerCase() + '@byui.edu';
+		return row[idx + 1] + ',' + row[idx + 2] + ',' + row[idx].toLowerCase() + '@byui.edu';
 	}
 }
 

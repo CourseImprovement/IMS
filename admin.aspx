@@ -254,7 +254,7 @@
 				<div class="item">
 					<div class="ui slider checkbox" id="course" style="visibility: hidden;">
 					  <input type="checkbox" name="newsletter">
-					  <label>Include Course</label>
+					  <label>Include Distinct Course</label>
 					</div>
 				</div>
 				<br>
